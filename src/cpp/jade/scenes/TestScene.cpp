@@ -1,6 +1,7 @@
 #include "jade/scenes/TestScene.h"
 #include "jade/components/components.h"
 #include "jade/platform/windows/GlFunctions.h"
+#include "jade/renderer/Shader.h"
 
 
 #include <windows.h>
@@ -34,6 +35,7 @@ const char* fragmentSrc = "#version 330 core\n"
                           "}";                        
 uint shaderProgram;
 
+Shader* shader;
 
 void TestScene::Init() {
     OutputDebugStringA("Initializing test scene.\n");
@@ -46,41 +48,43 @@ void TestScene::Start() {
     // entt::entity entity = m_Registry.create();
     // m_Registry.emplace<Transform>(entity, glm::vec3(10, 10, 10), glm::vec3(0, 90, 0), glm::vec3(1, 1, 1));
 
-    uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSrc, NULL);
+    shader = new Shader("C:\\dev\\c++\\dungeonCrawler\\assets\\shaders\\default.glsl");
 
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        OutputDebugStringA(infoLog);
-    }
+    // uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // glShaderSource(vertexShader, 1, &vertexSrc, NULL);
 
-    uint fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSrc, NULL);
-    glCompileShader(fragmentShader);
+    // int success;
+    // char infoLog[512];
+    // glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    // if (!success) {
+    //     glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    //     OutputDebugStringA(infoLog);
+    // }
 
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        OutputDebugStringA(infoLog);
-    }
+    // uint fragmentShader;
+    // fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    // glShaderSource(fragmentShader, 1, &fragmentSrc, NULL);
+    // glCompileShader(fragmentShader);
 
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    // glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    // if (!success) {
+    //     glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    //     OutputDebugStringA(infoLog);
+    // }
 
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        OutputDebugStringA(infoLog);
-    }
+    // shaderProgram = glCreateProgram();
+    // glAttachShader(shaderProgram, vertexShader);
+    // glAttachShader(shaderProgram, fragmentShader);
+    // glLinkProgram(shaderProgram);
+
+    // glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    // if (!success) {
+    //     glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    //     OutputDebugStringA(infoLog);
+    // }
     
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    // glDeleteShader(vertexShader);
+    // glDeleteShader(fragmentShader);
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -96,7 +100,8 @@ void TestScene::Start() {
 
 void TestScene::Render() {
     OutputDebugStringA("Rendering test scene.\n");
-    glUseProgram(shaderProgram);
+    //glUseProgram(shaderProgram);
+    shader->Bind();
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
@@ -107,9 +112,9 @@ void TestScene::Update(float dt) {
     OutputDebugStringA(str);
 
     // ENTT test 1
-    // auto group = m_Registry.view<Transform>();
+    // auto view = m_Registry.view<Transform>();
 
-    // for (auto entity : group) {
+    // for (auto entity : view) {
     //     auto &transform = group.get<Transform>(entity);
 
     //     snprintf(str, sizeof(str), "Position: %2.2f, %2.2f, %2.2f\nSize: %2.2f, %2.2f, %2.2f\nRotation: %2.2f %2.2f %2.2f\n\n",
