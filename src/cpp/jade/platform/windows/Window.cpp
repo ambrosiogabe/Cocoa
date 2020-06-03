@@ -4,6 +4,11 @@
 #include "gl/glext.h"
 #include "gl/wglext.h"
 
+#define GL_LITE_IMPLEMENTATION
+#include "jade/platform/windows/GlFunctions.h"
+#undef GL_LITE_IMPLEMENTATION
+
+
 Window* Window::m_Instance = nullptr;
 
 void Window::ShowMessage(LPCSTR message) {
@@ -66,6 +71,11 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
     if (wglCreateContextAttribsARB == nullptr) {
         ShowMessage("wglGetProcAddres() failed.");
+        return 1;
+    }
+
+    if (!glLiteInit()) {
+        ShowMessage("glLiteInit() failed.");
         return 1;
     }
 
