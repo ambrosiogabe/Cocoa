@@ -1,8 +1,10 @@
-#include "jade/platform/windows/Window.h"
+#include "jade/platform/windows/window.h"
 
 #include <gl/GL.h>
 #include "gl/glext.h"
 #include "gl/wglext.h"
+
+Window* Window::m_Instance = nullptr;
 
 void Window::ShowMessage(LPCSTR message) {
     MessageBox(0, message, "Window::Create", MB_ICONERROR);
@@ -132,6 +134,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
 
     SetWindowTextA(WND, (LPCSTR(glGetString(GL_VERSION))));
     ShowWindow(WND, nCmdShow);
+    Window::m_Instance = this;
 
     return 0;
 }
@@ -139,6 +142,8 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
 void Window::Render() {
     glClearColor(0.128f, 0.586f, 0.949f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    m_CurrentScene->Render();
 
     SwapBuffers(DC);
 }
@@ -154,4 +159,23 @@ void Window::Destroy() {
     if (WND) {
         DestroyWindow(WND);
     }
+}
+
+void Window::Update(float dt) {
+    this->m_CurrentScene->Update(dt);
+}
+
+void Window::ChangeScene(Scene* newScene) {
+    Window* win = Window::GetWindow();
+    win->m_CurrentScene = newScene;
+    win->m_CurrentScene->Init();
+    win->m_CurrentScene->Start();
+}
+
+Window* Window::GetWindow() {
+    if (Window::m_Instance == nullptr) {
+        return nullptr;
+    }
+
+    return Window::m_Instance;
 }

@@ -1,4 +1,5 @@
 #include "jade/platform/windows/Window.h"
+#include "jade/scenes/TestScene.h"
 
 #include <windows.h>
 #include <gl/GL.h>
@@ -44,6 +45,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     if (window.Create(hInstance, nCmdShow) != 0) {
         PostQuitMessage(1);
     }
+    
+    TestScene scene = TestScene();
+    window.ChangeScene(&scene);
 
     MSG msg;
     bool active = true;
@@ -57,6 +61,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             DispatchMessage(&msg);
         }
         
+        window.Update(1.0f/60.0f);
         window.Render();
     }
     window.Destroy();
