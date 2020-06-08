@@ -6,6 +6,8 @@
 #include "gl/glext.h"
 #include "gl/wglext.h"
 
+#include "build/build.h"
+
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch(message) {
         case WM_KEYDOWN: {
@@ -50,11 +52,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     window.ChangeScene(&scene);
 
     MSG msg;
-    bool active = true;
-    while (active) {
+    while (window.IsRunning()) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
-                active = false;
+                window.Stop();
             }
 
             TranslateMessage(&msg);
@@ -64,6 +65,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         window.Update(1.0f/60.0f);
         window.Render();
     }
+    system("pause");
     window.Destroy();
 
     return msg.wParam;

@@ -1,13 +1,15 @@
 #include "jade/platform/windows/window.h"
+#include "jade/util/Log.h"
 
 #include <gl/GL.h>
 #include "gl/glext.h"
 #include "gl/wglext.h"
+#include <stdio.h>
+#include <io.h>
 
 #define GL_LITE_IMPLEMENTATION
 #include "jade/platform/windows/GlFunctions.h"
 #undef GL_LITE_IMPLEMENTATION
-
 
 Window* Window::m_Instance = nullptr;
 
@@ -16,6 +18,15 @@ void Window::ShowMessage(LPCSTR message) {
 }
 
 int Window::Create(HINSTANCE hInstance, int nCmdShow) {
+    // Allocate console window
+    AllocConsole();
+    freopen("CONOUT$", "w+", stdout);
+
+    Log::Info("Console window created.");
+    Log::Warning("This is a warning. Ahh");
+    Log::Error("This is an error. Double uh oh.");
+
+    // Proceed to create window...
     HWND fakeWND = CreateWindowExA(
         0,                                       // dwExStyle
         "Core", "Fake Window",                   // Window class, Title
@@ -154,6 +165,7 @@ void Window::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_CurrentScene->Render();
+    Log::Assert(false == false, "Uh oh. False does not equal true.");
 
     SwapBuffers(DC);
 }
@@ -180,6 +192,21 @@ void Window::ChangeScene(Scene* newScene) {
     win->m_CurrentScene = newScene;
     win->m_CurrentScene->Init();
     win->m_CurrentScene->Start();
+}
+
+void Window::_Close() {
+    PostQuitMessage(0);
+}
+
+void Window::_Hide() {
+    if (WND) {
+        ShowWindow(WND, SW_HIDE);
+    }
+}
+
+void Window::_Stop() {
+    _Hide();
+    this->m_Running = false;
 }
 
 Window* Window::GetWindow() {
