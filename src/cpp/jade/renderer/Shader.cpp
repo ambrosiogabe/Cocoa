@@ -142,52 +142,64 @@ void Shader::Compile(const char* filepath) {
 }
 
 void Shader::Bind() {
+    m_BeingUsed = true;
     glUseProgram(m_ShaderProgram);
 }
 
 void Shader::Unbind() {
+    m_BeingUsed = false;
     glUseProgram(0);
 }
 
 
-void Shader::UploadVec4(const char* varName, const glm::vec4& vec4) {
+GLuint Shader::GetVariableLocation(const char* varName) {
+    if (m_Variables.find(varName) != m_Variables.end()) {
+        return m_Variables.at(varName);
+    }
+
     int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    m_Variables.insert({varName, varLocation});
+    return varLocation;
+}
+
+void Shader::UploadVec4(const char* varName, const glm::vec4& vec4) {
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniform4f(varLocation, vec4.x, vec4.y, vec4.z, vec4.w);
 }
 
 void Shader::UploadVec3(const char* varName, const glm::vec3& vec3) {
-    int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniform3f(varLocation, vec3.x, vec3.y, vec3.z);
 }
 
 void Shader::UploadVec2(const char* varName, const glm::vec2& vec2) {
-    int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniform2f(varLocation, vec2.x, vec2.y);
 }
 
 void Shader::UploadFloat(const char* varName, float value) {
-    int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniform1f(varLocation, value);
 }
 
 void Shader::UploadInt(const char* varName, int value) {
-    int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniform1i(varLocation, value);
 }
 
 void Shader::UploadMat4(const char* varName, const glm::mat4& mat4) {
-    int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniformMatrix4fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat4));
 }
 
 void Shader::UploadMat3(const char* varName, const glm::mat3& mat3) {
-    int varLocation = glGetUniformLocation(m_ShaderProgram, varName);
+    int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniformMatrix3fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat3));
 }

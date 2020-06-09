@@ -26,10 +26,26 @@ void TestScene::Init() {
     m_Camera = new Camera(glm::vec3(0, 0, 0));
     m_RenderSystem = new RenderSystem(m_Camera);
 
-    entt::actor a1 = entt::actor(m_Registry);
-    a1.assign<Transform>(glm::vec3(1920.0f/2.0f, 0, 0), glm::vec3(1900.0f, 200.0f, 1.0f), glm::vec3(0, 0, 0));
-    a1.assign<SpriteRenderer>(glm::vec4(1, 1, 0, 1));
-    m_RenderSystem->AddActor(a1);
+    float startX = 100.0f;
+    float startY = 80.0f;
+    float width = 20.0f;
+    float height = 20.0f;
+    float padding = 3.0f;
+    for (int i=0; i < 100; i++) {
+        for (int j=0; j < 80; j++) {
+            float x = startX + i * width + i * padding;
+            float y = startY + j * height + j * padding;
+
+            float r = x / (100 * width);
+            float g = y / (80 * height);
+            float b = 1.0f;
+
+            entt::actor a1 = entt::actor(m_Registry);
+            a1.assign<Transform>(glm::vec3(x, y, 0), glm::vec3(width, height, 1.0f), glm::vec3(0, 0, 0));
+            a1.assign<SpriteRenderer>(glm::vec4(r, g, b, 1));
+            m_RenderSystem->AddActor(a1);
+        }
+    }
 }
 
 void TestScene::Start() {
@@ -54,6 +70,11 @@ void TestScene::Start() {
 
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
+    const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+    Log::Info("Renderer: %s", renderer);
+    Log::Info("Vendor: %s", vendor);
 }
 
 
@@ -74,7 +95,8 @@ void TestScene::Render() {
 }
 
 void TestScene::Update(float dt) {
-    m_Camera->GetTransform().m_Position.x -= dt * 200.0f;
+    m_Camera->GetTransform().m_Position.y += dt * 10.0f;
+    m_Camera->GetTransform().m_Position.x += dt * 10.0f;
     //Log::Info("Updating test scene at: %2.3fms", dt);
 
     // ENTT test 1

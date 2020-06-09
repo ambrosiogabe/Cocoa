@@ -17,5 +17,7 @@ mkdir %~dp0build
 pushd %~dp0build
 REM TODO: Put commands to copy assets folder into here
 REM Debug Build
-cl %CommonCompilerFlags% -Zi /EHsc %Files% %CommonLinkerFlags%
+cl %CommonCompilerFlags% -Zi -EHsc %Files% %CommonLinkerFlags%
+REM Release build
+REM cl %CommonCompilerFlags% -Ox -EHsc %Files% %CommonLinkerFlags%
 popd

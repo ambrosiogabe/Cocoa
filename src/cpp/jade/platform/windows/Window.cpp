@@ -153,6 +153,13 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
         return 1;
     }
 
+    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
+    if (wglSwapIntervalEXT == nullptr) {
+        ShowMessage("wglSwapIntervalEXT() not found. Cannot enable vsync.");
+        return 1;
+    }
+    wglSwapIntervalEXT(1);
+
     SetWindowTextA(WND, (LPCSTR(glGetString(GL_VERSION))));
     ShowWindow(WND, nCmdShow);
     Window::m_Instance = this;

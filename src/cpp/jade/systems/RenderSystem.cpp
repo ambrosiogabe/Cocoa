@@ -12,7 +12,6 @@ void RenderSystem::AddActor(entt::actor& actor) {
             if (batch->HasRoom()) {
                 batch->Add(actor);
                 wasAdded = true;
-                Log::Info("Entity added to batch.");
                 break;
             }
         }

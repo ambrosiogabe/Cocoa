@@ -4,6 +4,8 @@
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <unordered_map>
+#include <gl/glcorearb.h>
 
 class Shader {
 public:
@@ -24,6 +26,11 @@ public:
     void UploadMat3(const char* varName, const glm::mat3& mat3);
 
 private:
+    GLuint GetVariableLocation(const char* varName);
+
+private:
     int m_ShaderProgram;
     bool m_BeingUsed;
+
+    std::unordered_map<const char*, GLuint> m_Variables;
 };

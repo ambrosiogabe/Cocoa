@@ -27,7 +27,7 @@ private:
     Camera* m_Camera;
 };
 
-const int RenderSystem::MAX_BATCH_SIZE = 100;
+const int RenderSystem::MAX_BATCH_SIZE = 1000;
 
 
 struct Vertex {

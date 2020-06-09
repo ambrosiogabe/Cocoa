@@ -43,6 +43,7 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(void,      GetProgramiv,               GLuint program, GLenum pname, GLint *params) \
     GLE(void,      GetShaderInfoLog,           GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog) \
     GLE(void,      GetShaderiv,                GLuint shader, GLenum pname, GLint *params) \
+    GLE(GLubyte*,  GetStringi,                 GLenum name, GLuint index) \
     GLE(GLint,     GetUniformLocation,         GLuint program, const GLchar *name) \
     GLE(void,      LinkProgram,                GLuint program) \
     GLE(void,      ShaderSource,               GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) \
