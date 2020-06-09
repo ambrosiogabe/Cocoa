@@ -1,5 +1,7 @@
 #pragma once
 
+#include "jade/systems/RenderSystem.h"
+
 #include <entt/entt.h>
 #include <vector>
 
@@ -12,4 +14,5 @@ public:
 
 protected:
     entt::registry m_Registry;
+    RenderSystem* m_RenderSystem;
 };

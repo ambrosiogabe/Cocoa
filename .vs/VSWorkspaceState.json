@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\build",
+    "\\src",
+    "\\src\\cpp",
+    "\\src\\cpp\\jade",
+    "\\src\\cpp\\jade\\renderer",
+    "\\src\\cpp\\jade\\systems"
+  ],
+  "SelectedNode": "\\build\\winMain.exe",
+  "PreviewInSolutionExplorer": false
+}

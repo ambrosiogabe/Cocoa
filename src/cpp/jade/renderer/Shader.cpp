@@ -1,5 +1,6 @@
 #include "jade/renderer/Shader.h"
 #include "jade/platform/windows/GlFunctions.h"
+#include "jade/util/Log.h"
 
 #include <windows.h>
 #include <fstream>
@@ -13,7 +14,7 @@ static GLenum ShaderTypeFromString(const std::string& type)
     else if (type == "fragment" || type == "pixel")
         return GL_FRAGMENT_SHADER;
 
-    //TG_CORE_ASSERT(false, "Unknown shader type!");
+    Log::Assert(false, "Unkown shader type.");
     return 0;
 }
 
@@ -30,7 +31,7 @@ static std::string ReadFile(const char* filepath) {
     }
     else
     {
-        OutputDebugStringA("Could not open file ");
+        Log::Error("Could not open file.");
     }
 
     return result;
@@ -51,10 +52,10 @@ void Shader::Compile(const char* filepath) {
     while (pos != std::string::npos)
     {
         size_t eol = source.find_first_of("\r\n", pos);
-        //TG_CORE_ASSERT(eol != std::string::npos, "Syntax error");
+        Log::Assert(eol != std::string::npos, "Syntax error");
         size_t begin = pos + typeTokenLength + 1;
         std::string type = source.substr(begin, eol - begin);
-        //TG_CORE_ASSERT(ShaderTypeFromString(type), "Invalid shader type specified.");
+        Log::Assert(ShaderTypeFromString(type), "Invalid shader type specified.");
 
         size_t nextLinePos = source.find_first_not_of("\r\n", eol);
         pos = source.find(typeToken, nextLinePos);
@@ -62,7 +63,7 @@ void Shader::Compile(const char* filepath) {
     }
 
     GLuint program = glCreateProgram();
-    //TG_CORE_ASSERT(shaderSources.size() <= 2, "Shader source must be less than 2.");
+    Log::Assert(shaderSources.size() <= 2, "Shader source must be less than 2.");
     std::array<GLenum, 2> glShaderIDs;
     int glShaderIDIndex = 0;
 
@@ -96,8 +97,8 @@ void Shader::Compile(const char* filepath) {
             // We don't need the shader anymore.
             glDeleteShader(shader);
 
-            //TG_CORE_ERROR("{0}", infoLog.data());
-            //TG_CORE_ASSERT(false, "Shader compilation failed!");
+            Log::Error("%s", infoLog.data());
+            Log::Assert(false, "Shader compilation failed!");
             return;
         }
 
@@ -126,8 +127,8 @@ void Shader::Compile(const char* filepath) {
         for (auto id : glShaderIDs) 
             glDeleteShader(id);
 
-        //TG_CORE_ERROR("{0}", infoLog.data());
-        //TG_CORE_ASSERT(false, "Shader linking failed!");
+        Log::Error("%s", infoLog.data());
+        Log::Assert(false, "Shader linking failed!");
         return;
     }
 

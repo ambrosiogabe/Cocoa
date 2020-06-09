@@ -13,26 +13,32 @@
 typedef unsigned int uint;
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,       1.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, 0.0f,       0.0f, 1.0f, 1.0f,
-     0.0f,  0.5f, 0.0f,       0.0f, 1.0f, 0.0f
+    -0.5f, -0.5f, 0.0f,       1.0f, 0.0f, 0.0f, 1.0f,
+     0.5f, -0.5f, 0.0f,       0.0f, 1.0f, 1.0f, 1.0f,
+     0.0f,  0.5f, 0.0f,       0.0f, 1.0f, 0.0f, 1.0f
 };
 
 uint VAO;
 Shader* shader = nullptr;
 
 void TestScene::Init() {
-    OutputDebugStringA("Initializing test scene.\n");
+    Log::Info("Initializing test scene.");
+    m_RenderSystem = new RenderSystem();
+
+    entt::actor a1 = entt::actor(m_Registry);
+    a1.assign<Transform>(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.5f, 0.5f, 1.0f));
+    a1.assign<SpriteRenderer>(glm::vec4(1, 1, 0, 1));
+    m_RenderSystem->AddActor(a1);
 }
 
 void TestScene::Start() {
-    OutputDebugStringA("Starting test scene.\n");
+    Log::Info("Starting test scene.");
 
     // ENTT test 1
-    // entt::entity entity = m_Registry.create();
-    // m_Registry.emplace<Transform>(entity, glm::vec3(10, 10, 10), glm::vec3(0, 90, 0), glm::vec3(1, 1, 1));
+    entt::entity entity = m_Registry.create();
+    m_Registry.emplace<Transform>(entity, glm::vec3(10, 10, 10), glm::vec3(0, 90, 0), glm::vec3(1, 1, 1));
 
-    shader = new Shader("C:\\dev\\c++\\dungeonCrawler\\assets\\shaders\\default.glsl");
+    shader = new Shader("C:/dev/C++/DungeonCrawler/assets/shaders/SpriteRenderer.glsl");
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -42,41 +48,41 @@ void TestScene::Start() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 }
 
 
 void TestScene::Render() {
-    //OutputDebugStringA("Rendering test scene.\n");
-    Log::Info("Rendreing test scene.");
-    shader->Bind();
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+    m_RenderSystem->Render();
 
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    shader->Unbind();
+    // shader->Bind();
+    // glBindVertexArray(VAO);
+    // glEnableVertexAttribArray(0);
+    // glEnableVertexAttribArray(1);
+
+    // glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    // glDisableVertexAttribArray(0);
+    // glDisableVertexAttribArray(1);
+    // glBindVertexArray(0);
+    // shader->Unbind();
 }
 
 void TestScene::Update(float dt) {
-    char str[512];
-    // snprintf(str, sizeof(str), "Updating test scene at: %2.3fms\n", dt);
-    // OutputDebugStringA(str);
-    Log::Info("Updating test scene at: %2.3fms", dt);
+    //Log::Info("Updating test scene at: %2.3fms", dt);
 
     // ENTT test 1
     // auto view = m_Registry.view<Transform>();
 
     // for (auto entity : view) {
-    //     auto &transform = group.get<Transform>(entity);
+    //     auto &transform = view.get<Transform>(entity);
 
-    //     snprintf(str, sizeof(str), "Position: %2.2f, %2.2f, %2.2f\nSize: %2.2f, %2.2f, %2.2f\nRotation: %2.2f %2.2f %2.2f\n\n",
+    //     Log::Info("Position: %2.2f, %2.2f, %2.2f\nSize: %2.2f, %2.2f, %2.2f\nRotation: %2.2f %2.2f %2.2f\n",
     //         transform.m_Position.x, transform.m_Position.y, transform.m_Position.z, transform.m_Scale.x, transform.m_Scale.y, transform.m_Scale.z, 
     //         transform.m_EulerRotation.x, transform.m_EulerRotation.y, transform.m_EulerRotation.z);
-    //     OutputDebugStringA(str);
     // }
 }

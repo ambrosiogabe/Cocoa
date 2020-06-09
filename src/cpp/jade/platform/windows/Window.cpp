@@ -165,7 +165,7 @@ void Window::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_CurrentScene->Render();
-    Log::Assert(false == false, "Uh oh. False does not equal true.");
+    //Log::Assert(false == true, "Uh oh. False does not equal true.");
 
     SwapBuffers(DC);
 }
