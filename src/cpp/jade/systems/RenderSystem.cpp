@@ -19,7 +19,7 @@ void RenderSystem::AddActor(entt::actor& actor) {
 
         if (!wasAdded) {
             Log::Info("New batch created for entity.");
-            RenderBatch* newBatch = new RenderBatch();
+            RenderBatch* newBatch = new RenderBatch(this);
             newBatch->Start();
             newBatch->Add(actor);
             m_Batches.push_back(newBatch);

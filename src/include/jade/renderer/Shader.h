@@ -1,5 +1,10 @@
 #pragma once
 
+#include <glm/matrix.hpp>
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
+
 class Shader {
 public:
     Shader(const char* resourceName);
@@ -8,6 +13,15 @@ public:
     void Bind();
     void Unbind();
     void Delete();
+
+    void UploadVec4(const char* varName, const glm::vec4& vec4);
+    void UploadVec3(const char* varName, const glm::vec3& vec3);
+    void UploadVec2(const char* varName, const glm::vec2& vec2);
+    void UploadFloat(const char* varName, float value);
+    void UploadInt(const char* varName, int value);
+
+    void UploadMat4(const char* varName, const glm::mat4& mat4);
+    void UploadMat3(const char* varName, const glm::mat3& mat3);
 
 private:
     int m_ShaderProgram;

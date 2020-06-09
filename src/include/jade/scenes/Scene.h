@@ -15,4 +15,5 @@ public:
 protected:
     entt::registry m_Registry;
     RenderSystem* m_RenderSystem;
+    Camera* m_Camera;
 };

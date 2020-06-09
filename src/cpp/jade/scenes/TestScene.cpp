@@ -23,10 +23,11 @@ Shader* shader = nullptr;
 
 void TestScene::Init() {
     Log::Info("Initializing test scene.");
-    m_RenderSystem = new RenderSystem();
+    m_Camera = new Camera(glm::vec3(0, 0, 0));
+    m_RenderSystem = new RenderSystem(m_Camera);
 
     entt::actor a1 = entt::actor(m_Registry);
-    a1.assign<Transform>(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.5f, 0.5f, 1.0f));
+    a1.assign<Transform>(glm::vec3(1920.0f/2.0f, 0, 0), glm::vec3(1900.0f, 200.0f, 1.0f), glm::vec3(0, 0, 0));
     a1.assign<SpriteRenderer>(glm::vec4(1, 1, 0, 1));
     m_RenderSystem->AddActor(a1);
 }
@@ -73,6 +74,7 @@ void TestScene::Render() {
 }
 
 void TestScene::Update(float dt) {
+    m_Camera->GetTransform().m_Position.x -= dt * 200.0f;
     //Log::Info("Updating test scene at: %2.3fms", dt);
 
     // ENTT test 1

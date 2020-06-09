@@ -1,4 +1,5 @@
 #include "src/cpp/jade/platform/windows/Window.cpp"
+#include "src/cpp/jade/renderer/Camera.cpp"
 #include "src/cpp/jade/renderer/RenderBatch.cpp"
 #include "src/cpp/jade/renderer/Shader.cpp"
 #include "src/cpp/jade/scenes/TestScene.cpp"

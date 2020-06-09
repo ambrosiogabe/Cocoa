@@ -12,6 +12,16 @@ struct SpriteRenderer {
 class Transform {
 
 public:
+    Transform() {
+        m_Position = glm::vec3(0);
+        m_Scale = glm::vec3(1);
+        m_EulerRotation = glm::vec3(0);
+        m_Orientation = glm::toQuat(glm::orientate3(m_EulerRotation));
+        m_Forward = glm::vec3(0, 0, 1);
+        m_Up = glm::vec3(0, 1, 0);
+        m_Right = glm::vec3(1, 0, 0);
+    }
+
     Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation)
         : m_Position(position), m_Scale(scale), m_EulerRotation(eulerRotation) {
             m_Orientation = glm::toQuat(glm::orientate3(m_EulerRotation));

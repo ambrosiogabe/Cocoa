@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jade/renderer/Shader.h"
+#include "jade/renderer/Camera.h"
 
 #include <vector>
 #include <entt/entt.h>
@@ -10,16 +11,20 @@ typedef unsigned int uint;
 class RenderBatch;
 class RenderSystem {
 public:
-    RenderSystem() {}
+    RenderSystem(Camera* camera) 
+        : m_Camera(camera) {}
 
     void AddActor(entt::actor& actor);
     void Render();
+
+    Camera& GetCamera() const { return *m_Camera; }
 
 public:
     static const int MAX_BATCH_SIZE;
 
 private:
     std::vector<RenderBatch*> m_Batches;
+    Camera* m_Camera;
 };
 
 const int RenderSystem::MAX_BATCH_SIZE = 100;
@@ -47,7 +52,7 @@ struct Vertex {
 
 class RenderBatch {
 public:
-    RenderBatch();
+    RenderBatch(RenderSystem* renderer);
 
     void Clear();
     void Start();
@@ -71,6 +76,8 @@ private:
 private:
     entt::actor* m_Actors[RenderSystem::MAX_BATCH_SIZE];
     Shader* m_Shader;
+    RenderSystem* m_Renderer;
+    
     float m_Vertices[RenderSystem::MAX_BATCH_SIZE * 4 * (sizeof(Vertex) / sizeof(float))];
     int m_Indices[RenderSystem::MAX_BATCH_SIZE * 6];
 

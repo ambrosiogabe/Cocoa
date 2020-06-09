@@ -20,7 +20,8 @@ int indices[] = {
     8, 10, 9
 };
 
-RenderBatch::RenderBatch() {
+RenderBatch::RenderBatch(RenderSystem* renderer) {
+    this->m_Renderer = renderer;
     this->GenerateIndices();
 }
 
@@ -65,7 +66,8 @@ void RenderBatch::LoadVertexProperties(int index) {
     SpriteRenderer spr = actor->get<SpriteRenderer>();
     glm::mat4 matrix = glm::mat4(1.0f);
     matrix = glm::translate(matrix, transform.m_Position);
-    matrix = glm::rotate(matrix, transform.m_EulerRotation.z, glm::vec3(0, 0, 1));
+    matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));
+    matrix = glm::scale(matrix, transform.m_Scale);
     
     glm::vec4 color = spr.m_Color;
     
@@ -80,7 +82,7 @@ void RenderBatch::LoadVertexProperties(int index) {
             yAdd = -0.5f;
         }
 
-        glm::vec4 currentPos = glm::vec4(xAdd, yAdd, 0.0f, 1.0f);// * matrix;
+        glm::vec4 currentPos = matrix * glm::vec4(xAdd, yAdd, 0.0f, 1.0f);
         // Load position
         m_Vertices[offset] = currentPos.x;
         m_Vertices[offset + 1] = currentPos.y;
@@ -112,6 +114,9 @@ void RenderBatch::Render() {
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4 * m_NumSprites, &m_Vertices[0]);
     
     m_Shader->Bind();
+    m_Shader->UploadMat4("uProjection", m_Renderer->GetCamera().GetOrthoProjection());
+    m_Shader->UploadMat4("uView", m_Renderer->GetCamera().GetOrthoView());
+
     glBindVertexArray(m_VAO);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

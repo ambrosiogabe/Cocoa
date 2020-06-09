@@ -28,9 +28,12 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(GLuint,    CreateShader,               GLenum type) \
     GLE(void,      DeleteBuffers,              GLsizei n, const GLuint *buffers) \
     GLE(void,      DeleteFramebuffers,         GLsizei n, const GLuint *framebuffers) \
+    GLE(void,      DeleteProgram,              GLuint program) \
     GLE(void,      DeleteShader,               GLuint shader) \
-    GLE(void,      EnableVertexAttribArray,    GLuint index) \
+    GLE(void,      DetachShader,               GLuint program, GLuint shader) \
+    GLE(void,      DisableVertexAttribArray,   GLuint index) \
     GLE(void,      DrawBuffers,                GLsizei n, const GLenum *bufs) \
+    GLE(void,      EnableVertexAttribArray,    GLuint index) \
     GLE(void,      FramebufferTexture2D,       GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) \
     GLE(void,      GenBuffers,                 GLsizei n, GLuint *buffers) \
     GLE(void,      GenFramebuffers,            GLsizei n, GLuint * framebuffers) \
@@ -46,13 +49,12 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(void,      Uniform1i,                  GLint location, GLint v0) \
     GLE(void,      Uniform1f,                  GLint location, GLfloat v0) \
     GLE(void,      Uniform2f,                  GLint location, GLfloat v0, GLfloat v1) \
+    GLE(void,      Uniform3f,                  GLint location, GLfloat v0, GLfloat v1, GLfloat v2) \
     GLE(void,      Uniform4f,                  GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) \
+    GLE(void,      UniformMatrix3fv,           GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) \
     GLE(void,      UniformMatrix4fv,           GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) \
     GLE(void,      UseProgram,                 GLuint program) \
     GLE(void,      VertexAttribPointer,        GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer) \
-    GLE(void,      DisableVertexAttribArray,   GLuint index) \
-    GLE(void,      DeleteProgram,              GLuint program) \
-    GLE(void,      DetachShader,               GLuint program, GLuint shader) \
     /* end */
 
 #define GLE(ret, name, ...) typedef ret GLDECL name##proc(__VA_ARGS__); extern name##proc * gl##name;
