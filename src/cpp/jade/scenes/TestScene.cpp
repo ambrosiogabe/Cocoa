@@ -3,6 +3,8 @@
 #include "jade/platform/windows/GlFunctions.h"
 #include "jade/renderer/Shader.h"
 #include "jade/util/Log.h"
+#include "jade/events/Input.h"
+#include "jade/Jade.h"
 
 #include <windows.h>
 #include <gl/GL.h>
@@ -95,8 +97,18 @@ void TestScene::Render() {
 }
 
 void TestScene::Update(float dt) {
-    m_Camera->GetTransform().m_Position.y += dt * 10.0f;
-    m_Camera->GetTransform().m_Position.x += dt * 10.0f;
+    float speed = 500.0f;
+    if (Input::KeyPressed(JADE_KEY_W)) {
+        m_Camera->GetTransform().m_Position.y += dt * speed;
+    } else if (Input::KeyPressed(JADE_KEY_S)) {
+        m_Camera->GetTransform().m_Position.y -= dt * speed;
+    }
+
+    if (Input::KeyPressed(JADE_KEY_D)) {
+        m_Camera->GetTransform().m_Position.x += dt * speed;
+    } else if (Input::KeyPressed(JADE_KEY_A)) {
+        m_Camera->GetTransform().m_Position.x -= dt * speed;
+    }
     //Log::Info("Updating test scene at: %2.3fms", dt);
 
     // ENTT test 1

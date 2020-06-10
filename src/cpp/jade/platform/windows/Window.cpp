@@ -18,6 +18,8 @@ void Window::ShowMessage(LPCSTR message) {
 }
 
 int Window::Create(HINSTANCE hInstance, int nCmdShow) {
+    Window* win = Window::GetWindow();
+
     // Allocate console window
     AllocConsole();
     freopen("CONOUT$", "w+", stdout);
@@ -90,7 +92,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
         return 1;
     }
 
-    WND = CreateWindowExA(
+    win->WND = CreateWindowExA(
         0,                                                                // dwExStyle
         "Core", "OpenGL Window",                                          // Window class, Title
         WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN       // Style
@@ -101,7 +103,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
         hInstance, NULL                                                   // Instnce, Param
         );
 
-    DC = GetDC(WND);
+    win->DC = GetDC(win->WND);
 
     const int pixelAttribs[] = {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -119,15 +121,15 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     };
 
     int pixelFormatID; UINT numFormats;
-    bool status = wglChoosePixelFormatARB(DC, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
+    bool status = wglChoosePixelFormatARB(win->DC, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
     if (status == false || numFormats == 0) {
         ShowMessage("wglChoosePixelFormatARB() failed.");
         return 1;
     }
 
     PIXELFORMATDESCRIPTOR PFD;
-    DescribePixelFormat(DC, pixelFormatID, sizeof(PFD), &PFD);
-    SetPixelFormat(DC, pixelFormatID, &PFD);
+    DescribePixelFormat(win->DC, pixelFormatID, sizeof(PFD), &PFD);
+    SetPixelFormat(win->DC, pixelFormatID, &PFD);
 
     const int major_min = 4;
     const int minor_min = 5;
@@ -138,8 +140,8 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
         0
     };
 
-    RC = wglCreateContextAttribsARB(DC, 0, contextAttribs);
-    if (RC == NULL) {
+    win->RC = wglCreateContextAttribsARB(win->DC, 0, contextAttribs);
+    if (win->RC == NULL) {
         ShowMessage("wglCreateContextAttribsARB() failed.");
         return 1;
     }
@@ -148,7 +150,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     wglDeleteContext(fakeRC);
     ReleaseDC(fakeWND, fakeDC);
     DestroyWindow(fakeWND);
-    if (!wglMakeCurrent(DC, RC)) {
+    if (!wglMakeCurrent(win->DC, win->RC)) {
         ShowMessage("wglMakeCurrent() failed.");
         return 1;
     }
@@ -160,9 +162,10 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     }
     wglSwapIntervalEXT(1);
 
-    SetWindowTextA(WND, (LPCSTR(glGetString(GL_VERSION))));
-    ShowWindow(WND, nCmdShow);
-    Window::m_Instance = this;
+    SetWindowTextA(win->WND, (LPCSTR(glGetString(GL_VERSION))));
+    ShowWindow(win->WND, nCmdShow);
+
+    RegisterKeyCallback(&Input::KeyCallback);
 
     return 0;
 }
@@ -218,7 +221,7 @@ void Window::_Stop() {
 
 Window* Window::GetWindow() {
     if (Window::m_Instance == nullptr) {
-        return nullptr;
+        Window::m_Instance = new Window();
     }
 
     return Window::m_Instance;
