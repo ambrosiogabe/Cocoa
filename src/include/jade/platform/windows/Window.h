@@ -40,12 +40,19 @@ public:
             }
         }
     }
-
     static void ScrollCallback(double xoffset, double yoffset) {
         Window* win = GetWindow();
         for (int i=0; i < 3; i++) {
             if (win->scrollCallbacks[i] != nullptr) {
                 win->scrollCallbacks[i](xoffset, yoffset);
+            }
+        }
+    }
+    static void ResizeCallback(int width, int height) {
+        Window* win = GetWindow();
+        for (int i=0; i < 3; i++) {
+            if (win->resizeCallbacks[i] != nullptr) {
+                win->resizeCallbacks[i](width, height);
             }
         }
     }
@@ -110,11 +117,29 @@ public:
             Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
         }
     }
+    static void RegisterResizeCallback(ResizeCallbackFnPt callback) {
+        Window* win = GetWindow();
+        bool assigned = false;
+        for (int i=0; i < 3; i++) {
+            if (win->resizeCallbacks[i] == nullptr) {
+                win->resizeCallbacks[i] = callback;
+                assigned = true;
+                break;
+            }
+        }
+
+        if (!assigned) {
+            Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
+        }
+    }
 
     static void Hide() { Window::GetWindow()->_Hide(); }
     static void Close() { Window::GetWindow()->_Close(); }
     static void Stop() { Window::GetWindow()->_Stop(); }
     static bool IsRunning() { return Window::GetWindow()->_IsRunning(); }
+
+    static void SetWidth(int newWidth) { Window::GetWindow()->m_Width = newWidth; }
+    static void SetHeight(int newHeight) { Window::GetWindow()->m_Height = newHeight; }
 
     void Update(float dt);
     static void ChangeScene(Scene* newScene);
@@ -127,6 +152,7 @@ private:
             mouseButtonCallbacks[i] = nullptr;
             scrollCallbacks[i] = nullptr;
             cursorCallbacks[i] = nullptr;
+            resizeCallbacks[i] = nullptr;
         }
     }
 
@@ -142,6 +168,7 @@ private:
 
     Scene* m_CurrentScene;
     bool m_Running;
+    int m_Width = 1920, m_Height = 1080;
 
     static Window* m_Instance;
 
@@ -150,4 +177,5 @@ private:
     CursorCallbackFnPt        cursorCallbacks[3];
     MouseButtonCallbackFnPt   mouseButtonCallbacks[3];
     ScrollCallbackFnPt        scrollCallbacks[3];
+    ResizeCallbackFnPt        resizeCallbacks[3];
 };

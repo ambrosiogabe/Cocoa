@@ -235,3 +235,4 @@ typedef void (*KeyCallbackFnPt) (int key, int scancode, int action, int mods);
 typedef void (*CursorCallbackFnPt) (double xpos, double ypos);
 typedef void (*MouseButtonCallbackFnPt) (int button, int action, int mods);
 typedef void (*ScrollCallbackFnPt) (double xoffset, double yoffset);
+typedef void (*ResizeCallbackFnPt) (int width, int height);

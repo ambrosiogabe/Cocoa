@@ -352,6 +352,16 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             Window::ScrollCallback(0.0, (double)wheelDelta);
             break;
         }
+
+        // Window resize events
+        case WM_SIZE: {
+            RECT rect;
+            GetWindowRect(hWnd, &rect);
+            int newHeight = rect.bottom - rect.top;
+            int newWidth = rect.right - rect.left;
+            Window::ResizeCallback(newWidth, newHeight);
+            break;
+        }
         
         case WM_CLOSE: {
             PostQuitMessage(0);

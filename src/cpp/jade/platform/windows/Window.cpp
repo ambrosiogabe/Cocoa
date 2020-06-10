@@ -1,5 +1,6 @@
 #include "jade/platform/windows/window.h"
 #include "jade/util/Log.h"
+#include "jade/events/WindowEvents.h"
 
 #include <gl/GL.h>
 #include "gl/glext.h"
@@ -98,12 +99,15 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
         WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN       // Style
             | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SIZEBOX,
         0, 0,                                                             // Position x, y
-        1280, 720,                                                        // Width, Height
+        win->m_Width, win->m_Height,                                      // Width, Height
         NULL, NULL,                                                       // Parent Window, Menu
         hInstance, NULL                                                   // Instnce, Param
         );
 
     win->DC = GetDC(win->WND);
+
+    // NOTE: Set process as DPI aware
+    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
     const int pixelAttribs[] = {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -169,6 +173,10 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     RegisterMouseButtonCallback(&Input::MouseButtonCallback);
     RegisterCursorCallback(&Input::CursorCallback);
     RegisterScrollCallback(&Input::ScrollCallback);
+
+    // Initialize and register window events callback
+    WindowEvents::Init(win);
+    RegisterResizeCallback(&WindowEvents::ResizeCallback);
 
     return 0;
 }
