@@ -1,14 +1,25 @@
 #pragma once
 
 /* Button actions */
-#define JADE_RELEASE    0
-#define JADE_PRESS      1
-#define JADE_REPEAT     2
+#define JADE_RELEASE      0
+#define JADE_PRESS        1
+#define JADE_REPEAT       2
+#define JADE_DOUBLE_CLICK 3
 
  /* The unknown key */
  #define JADE_KEY_UNKNOWN            -1
   
  /* Printable keys */
+ #define JADE_KEY_NUMPAD_0           20
+ #define JADE_KEY_NUMPAD_1           21
+ #define JADE_KEY_NUMPAD_2           22
+ #define JADE_KEY_NUMPAD_3           23
+ #define JADE_KEY_NUMPAD_4           24
+ #define JADE_KEY_NUMPAD_5           25
+ #define JADE_KEY_NUMPAD_6           26
+ #define JADE_KEY_NUMPAD_7           27
+ #define JADE_KEY_NUMPAD_8           28
+ #define JADE_KEY_NUMPAD_9           29
  #define JADE_KEY_SPACE              32
  #define JADE_KEY_APOSTROPHE         39  /* ' */
  #define JADE_KEY_COMMA              44  /* , */

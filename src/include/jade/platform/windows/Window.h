@@ -65,9 +65,51 @@ public:
             Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
         }
     }
-    static void RegisterCursorCallback(CursorCallbackFnPt callback);
-    static void RegisterMouseButtonCallback(MouseButtonCallbackFnPt callback);
-    static void RegisterScrollCallback(ScrollCallbackFnPt callback);
+    static void RegisterCursorCallback(CursorCallbackFnPt callback) {
+        Window* win = GetWindow();
+        bool assigned = false;
+        for (int i=0; i < 3; i++) {
+            if (win->cursorCallbacks[i] == nullptr) {
+                win->cursorCallbacks[i] = callback;
+                assigned = true;
+                break;
+            }
+        }
+
+        if (!assigned) {
+            Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
+        }
+    }
+    static void RegisterMouseButtonCallback(MouseButtonCallbackFnPt callback) {
+        Window* win = GetWindow();
+        bool assigned = false;
+        for (int i=0; i < 3; i++) {
+            if (win->mouseButtonCallbacks[i] == nullptr) {
+                win->mouseButtonCallbacks[i] = callback;
+                assigned = true;
+                break;
+            }
+        }
+
+        if (!assigned) {
+            Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
+        }
+    }
+    static void RegisterScrollCallback(ScrollCallbackFnPt callback) {
+        Window* win = GetWindow();
+        bool assigned = false;
+        for (int i=0; i < 3; i++) {
+            if (win->scrollCallbacks[i] == nullptr) {
+                win->scrollCallbacks[i] = callback;
+                assigned = true;
+                break;
+            }
+        }
+
+        if (!assigned) {
+            Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
+        }
+    }
 
     static void Hide() { Window::GetWindow()->_Hide(); }
     static void Close() { Window::GetWindow()->_Close(); }

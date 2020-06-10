@@ -166,6 +166,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     ShowWindow(win->WND, nCmdShow);
 
     RegisterKeyCallback(&Input::KeyCallback);
+    RegisterMouseButtonCallback(&Input::MouseButtonCallback);
 
     return 0;
 }

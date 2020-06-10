@@ -109,6 +109,14 @@ void TestScene::Update(float dt) {
     } else if (Input::KeyPressed(JADE_KEY_A)) {
         m_Camera->GetTransform().m_Position.x -= dt * speed;
     }
+
+    if (Input::MouseButtonPressed(JADE_MOUSE_BUTTON_LEFT)) {
+        Log::Info("Left click!");
+    } else if (Input::MouseButtonPressed(JADE_MOUSE_BUTTON_RIGHT)) {
+        Log::Info("Right click!");
+    } else if (Input::MouseButtonPressed(JADE_MOUSE_BUTTON_MIDDLE)) {
+        Log::Info("Middle mouse click!");
+    }
     //Log::Info("Updating test scene at: %2.3fms", dt);
 
     // ENTT test 1
