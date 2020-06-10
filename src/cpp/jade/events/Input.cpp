@@ -27,6 +27,34 @@ bool Input::MouseButtonPressed(int mouseButton) {
     return false;
 }
 
+void Input::CursorCallback(double xpos, double ypos) {
+    Input* input = Input::Get();
+    input->m_XPos = (float)xpos;
+    input->m_YPos = (float)ypos;
+}
+
+float Input::MouseX() {
+    return Input::Get()->m_XPos;
+}
+
+float Input::MouseY() {
+    return Input::Get()->m_YPos;
+}
+
+void Input::ScrollCallback(double xpos, double ypos) {
+    Input* input = Input::Get();
+    input->m_ScrollX = xpos;
+    input->m_ScrollY = ypos;
+}
+
+float Input::ScrollX() {
+    return Input::Get()->m_ScrollX;
+}
+
+float Input::ScrollY() {
+    return Input::Get()->m_ScrollY;
+}
+
 Input* Input::Get() {
     if (Input::m_Instance == nullptr) {
         Input::m_Instance = new Input();

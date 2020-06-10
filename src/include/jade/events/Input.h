@@ -9,6 +9,10 @@ public:
 
     static bool KeyPressed(int keyCode);
     static bool MouseButtonPressed(int mouseButton);
+    static float MouseX();
+    static float MouseY();
+    static float ScrollX();
+    static float ScrollY();
 
 private:
     Input::Input() {
@@ -25,6 +29,8 @@ private:
 private:
     bool m_KeyPressed[349];
     bool m_MouseButtonPressed[3];
+    float m_XPos, m_YPos;
+    float m_ScrollX, m_ScrollY;
 
     static Input* m_Instance;
 };

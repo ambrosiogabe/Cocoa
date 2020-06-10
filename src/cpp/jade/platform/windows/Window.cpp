@@ -167,6 +167,8 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
 
     RegisterKeyCallback(&Input::KeyCallback);
     RegisterMouseButtonCallback(&Input::MouseButtonCallback);
+    RegisterCursorCallback(&Input::CursorCallback);
+    RegisterScrollCallback(&Input::ScrollCallback);
 
     return 0;
 }

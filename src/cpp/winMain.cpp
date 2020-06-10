@@ -3,6 +3,7 @@
 #include "jade/util/Log.h"
 
 #include <windows.h>
+#include <windowsx.h>
 #include <gl/GL.h>
 #include "gl/glext.h"
 #include "gl/wglext.h"
@@ -311,8 +312,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_LBUTTONDOWN:
         case WM_RBUTTONDOWN:
         case WM_MBUTTONDOWN: {
-            double xpos = (double)LOWORD(lParam);
-            double ypos = (double)HIWORD(lParam);
             int button = wParam == MK_LBUTTON ? JADE_MOUSE_BUTTON_LEFT : wParam == MK_RBUTTON ? JADE_MOUSE_BUTTON_RIGHT : wParam == MK_MBUTTON ? JADE_MOUSE_BUTTON_MIDDLE : -1;
             if (button != -1) {
                 Window::MouseButtonCallback(button, JADE_PRESS, modifierKey);
@@ -322,8 +321,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_LBUTTONDBLCLK:
         case WM_RBUTTONDBLCLK:
         case WM_MBUTTONDBLCLK: {
-            double xpos = (double)LOWORD(lParam);
-            double ypos = (double)HIWORD(lParam);
             int button = wParam == MK_LBUTTON ? JADE_MOUSE_BUTTON_LEFT : wParam == MK_RBUTTON ? JADE_MOUSE_BUTTON_RIGHT : wParam == MK_MBUTTON ? JADE_MOUSE_BUTTON_MIDDLE : -1;
             if (button != -1) {
                 Window::MouseButtonCallback(button, JADE_DOUBLE_CLICK, modifierKey);
@@ -333,12 +330,26 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_LBUTTONUP:
         case WM_RBUTTONUP:
         case WM_MBUTTONUP: {
-            double xpos = (double)LOWORD(lParam);
-            double ypos = (double)HIWORD(lParam);
             int button = message == WM_LBUTTONUP ? JADE_MOUSE_BUTTON_LEFT : message == WM_RBUTTONUP ? JADE_MOUSE_BUTTON_RIGHT : message == WM_MBUTTONUP ? JADE_MOUSE_BUTTON_MIDDLE : -1;
             if (button != -1) {
                 Window::MouseButtonCallback(button, JADE_RELEASE, modifierKey);
             }
+            break;
+        }
+
+        // Mouse move events
+        case WM_MOUSEMOVE: {
+            int xpos = GET_X_LPARAM(lParam);
+            int ypos = GET_Y_LPARAM(lParam);
+            Window::CursorCallback((double)xpos, (double)ypos);
+            break;
+        }
+
+        // Mouse scroll events
+        case WM_MOUSEWHEEL: {
+            int wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+            // TODO: Find out if horizontal scroll is supported by windows
+            Window::ScrollCallback(0.0, (double)wheelDelta);
             break;
         }
         
@@ -372,6 +383,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
     if (Window::Create(hInstance, nCmdShow) != 0) {
         PostQuitMessage(1);
+        return -1;
     }
     Window* window = Window::GetWindow();
     
