@@ -1,4 +1,4 @@
-#include "jade/platform/windows/Window.h"
+#include "jade/platform/JWindow.h"
 #include "jade/scenes/TestScene.h"
 #include "jade/util/Log.h"
 
@@ -55,19 +55,19 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             //        repeatCount, wScanCode, wExtendedKey, wContextCode, wPrevState, wTransitionState);
             switch (wParam) {
                 case (VK_ESCAPE): {
-                    Window::KeyCallback(JADE_KEY_ESCAPE, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_ESCAPE, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_SPACE): {
-                    Window::KeyCallback(JADE_KEY_SPACE, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_SPACE, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_BACK): {
-                    Window::KeyCallback(JADE_KEY_BACKSPACE, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_BACKSPACE, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_TAB): {
-                    Window::KeyCallback(JADE_KEY_TAB, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_TAB, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_CLEAR): {
@@ -75,217 +75,217 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
                     break;
                 }
                 case (VK_RETURN): {
-                    Window::KeyCallback(JADE_KEY_ENTER, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_ENTER, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_LSHIFT): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_SHIFT;
-                    Window::KeyCallback(JADE_KEY_LEFT_SHIFT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_LEFT_SHIFT, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_RSHIFT): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_SHIFT;
-                    Window::KeyCallback(JADE_KEY_RIGHT_SHIFT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_RIGHT_SHIFT, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_LCONTROL): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_CONTROL;
-                    Window::KeyCallback(JADE_KEY_LEFT_CONTROL, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_LEFT_CONTROL, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_RCONTROL): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_CONTROL;
-                    Window::KeyCallback(JADE_KEY_RIGHT_CONTROL, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_RIGHT_CONTROL, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_LMENU): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_ALT;
-                    Window::KeyCallback(JADE_KEY_LEFT_ALT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_LEFT_ALT, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_RMENU): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_ALT;
-                    Window::KeyCallback(JADE_KEY_RIGHT_ALT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_RIGHT_ALT, wScanCode, action, modifierKey);
                     break;
                 }
                 case (VK_PAUSE): {
-                    Window::KeyCallback(JADE_KEY_PAUSE, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_PAUSE, wScanCode, action, modifierKey);
                     break;
                 } case (VK_CAPITAL): {
                     modifierIsPressed = action == JADE_PRESS;
                     modifierKey = JADE_MOD_CAPS_LOCK;
-                    Window::KeyCallback(JADE_KEY_CAPS_LOCK, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_CAPS_LOCK, wScanCode, action, modifierKey);
                     break;
                 } case (VK_PRIOR): {
-                    Window::KeyCallback(JADE_KEY_PAGE_UP, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_PAGE_UP, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NEXT): {
-                    Window::KeyCallback(JADE_KEY_PAGE_DOWN, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_PAGE_DOWN, wScanCode, action, modifierKey);
                     break;
                 } case (VK_END): {
-                    Window::KeyCallback(JADE_KEY_END, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_END, wScanCode, action, modifierKey);
                     break;
                 } case (VK_HOME): {
-                    Window::KeyCallback(JADE_KEY_HOME, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_HOME, wScanCode, action, modifierKey);
                     break;
                 } case (VK_LEFT): {
-                    Window::KeyCallback(JADE_KEY_LEFT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_LEFT, wScanCode, action, modifierKey);
                     break;
                 } case (VK_UP): {
-                    Window::KeyCallback(JADE_KEY_UP, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_UP, wScanCode, action, modifierKey);
                     break;
                 } case (VK_RIGHT): {
-                    Window::KeyCallback(JADE_KEY_RIGHT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_RIGHT, wScanCode, action, modifierKey);
                     break;
                 } case (VK_DOWN): {
-                    Window::KeyCallback(JADE_KEY_DOWN, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_DOWN, wScanCode, action, modifierKey);
                     break;
                 } case (VK_SNAPSHOT): {
-                    Window::KeyCallback(JADE_KEY_PRINT_SCREEN, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_PRINT_SCREEN, wScanCode, action, modifierKey);
                     break;
                 } case (VK_INSERT): {
-                    Window::KeyCallback(JADE_KEY_INSERT, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_INSERT, wScanCode, action, modifierKey);
                     break;
                 } case (VK_DELETE): {
-                    Window::KeyCallback(JADE_KEY_DELETE, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_DELETE, wScanCode, action, modifierKey);
                     break;
                 } case (0x30): {
-                    Window::KeyCallback(JADE_KEY_0, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_0, wScanCode, action, modifierKey);
                     break;
                 } case (0x31): {
-                    Window::KeyCallback(JADE_KEY_1, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_1, wScanCode, action, modifierKey);
                     break;
                 } case (0x32): {
-                    Window::KeyCallback(JADE_KEY_2, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_2, wScanCode, action, modifierKey);
                     break;
                 } case (0x33): {
-                    Window::KeyCallback(JADE_KEY_3, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_3, wScanCode, action, modifierKey);
                     break;
                 } case (0x34): {
-                    Window::KeyCallback(JADE_KEY_4, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_4, wScanCode, action, modifierKey);
                     break;
                 } case (0x35): {
-                    Window::KeyCallback(JADE_KEY_5, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_5, wScanCode, action, modifierKey);
                     break;
                 } case (0x36): {
-                    Window::KeyCallback(JADE_KEY_6, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_6, wScanCode, action, modifierKey);
                     break;
                 } case (0x37): {
-                    Window::KeyCallback(JADE_KEY_7, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_7, wScanCode, action, modifierKey);
                     break;
                 } case (0x38): {
-                    Window::KeyCallback(JADE_KEY_8, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_8, wScanCode, action, modifierKey);
                     break;
                 } case (0x39): {
-                    Window::KeyCallback(JADE_KEY_9, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_9, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD0): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_0, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_0, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD1): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_1, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_1, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD2): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_2, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_2, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD3): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_3, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_3, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD4): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_4, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_4, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD5): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_5, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_5, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD6): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_6, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_6, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD7): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_7, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_7, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD8): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_8, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_8, wScanCode, action, modifierKey);
                     break;
                 } case (VK_NUMPAD9): {
-                    Window::KeyCallback(JADE_KEY_NUMPAD_9, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_NUMPAD_9, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F1): {
-                    Window::KeyCallback(JADE_KEY_F1, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F1, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F2): {
-                    Window::KeyCallback(JADE_KEY_F2, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F2, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F3): {
-                    Window::KeyCallback(JADE_KEY_F3, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F3, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F4): {
-                    Window::KeyCallback(JADE_KEY_F4, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F4, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F5): {
-                    Window::KeyCallback(JADE_KEY_F5, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F5, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F6): {
-                    Window::KeyCallback(JADE_KEY_F6, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F6, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F7): {
-                    Window::KeyCallback(JADE_KEY_F7, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F7, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F8): {
-                    Window::KeyCallback(JADE_KEY_F8, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F8, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F9): {
-                    Window::KeyCallback(JADE_KEY_F9, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F9, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F10): {
-                    Window::KeyCallback(JADE_KEY_F10, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F10, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F11): {
-                    Window::KeyCallback(JADE_KEY_F11, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F11, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F12): {
-                    Window::KeyCallback(JADE_KEY_F12, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F12, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F13): {
-                    Window::KeyCallback(JADE_KEY_F13, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F13, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F14): {
-                    Window::KeyCallback(JADE_KEY_F14, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F14, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F15): {
-                    Window::KeyCallback(JADE_KEY_F15, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F15, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F16): {
-                    Window::KeyCallback(JADE_KEY_F16, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F16, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F17): {
-                    Window::KeyCallback(JADE_KEY_F17, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F17, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F18): {
-                    Window::KeyCallback(JADE_KEY_F18, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F18, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F19): {
-                    Window::KeyCallback(JADE_KEY_F19, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F19, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F20): {
-                    Window::KeyCallback(JADE_KEY_F20, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F20, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F21): {
-                    Window::KeyCallback(JADE_KEY_F21, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F21, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F22): {
-                    Window::KeyCallback(JADE_KEY_F22, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F22, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F23): {
-                    Window::KeyCallback(JADE_KEY_F23, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F23, wScanCode, action, modifierKey);
                     break;
                 } case (VK_F24): {
-                    Window::KeyCallback(JADE_KEY_F24, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback(JADE_KEY_F24, wScanCode, action, modifierKey);
                     break;
                 }
                 case('A'):
@@ -314,7 +314,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
                 case('X'):
                 case('Y'):
                 case('Z'): {
-                    Window::KeyCallback((int)wParam, wScanCode, action, modifierKey);
+                    JWindow::KeyCallback((int)wParam, wScanCode, action, modifierKey);
                     break;
                 }
             }
@@ -328,7 +328,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_MBUTTONDOWN: {
             int button = wParam == MK_LBUTTON ? JADE_MOUSE_BUTTON_LEFT : wParam == MK_RBUTTON ? JADE_MOUSE_BUTTON_RIGHT : wParam == MK_MBUTTON ? JADE_MOUSE_BUTTON_MIDDLE : -1;
             if (button != -1) {
-                Window::MouseButtonCallback(button, JADE_PRESS, modifierKey);
+                JWindow::MouseButtonCallback(button, JADE_PRESS, modifierKey);
             }
             break;
         }
@@ -337,7 +337,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_MBUTTONDBLCLK: {
             int button = wParam == MK_LBUTTON ? JADE_MOUSE_BUTTON_LEFT : wParam == MK_RBUTTON ? JADE_MOUSE_BUTTON_RIGHT : wParam == MK_MBUTTON ? JADE_MOUSE_BUTTON_MIDDLE : -1;
             if (button != -1) {
-                Window::MouseButtonCallback(button, JADE_DOUBLE_CLICK, modifierKey);
+                JWindow::MouseButtonCallback(button, JADE_DOUBLE_CLICK, modifierKey);
             }
             break;
         }
@@ -346,7 +346,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_MBUTTONUP: {
             int button = message == WM_LBUTTONUP ? JADE_MOUSE_BUTTON_LEFT : message == WM_RBUTTONUP ? JADE_MOUSE_BUTTON_RIGHT : message == WM_MBUTTONUP ? JADE_MOUSE_BUTTON_MIDDLE : -1;
             if (button != -1) {
-                Window::MouseButtonCallback(button, JADE_RELEASE, modifierKey);
+                JWindow::MouseButtonCallback(button, JADE_RELEASE, modifierKey);
             }
             break;
         }
@@ -355,7 +355,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_MOUSEMOVE: {
             int xpos = GET_X_LPARAM(lParam);
             int ypos = GET_Y_LPARAM(lParam);
-            Window::CursorCallback((double)xpos, (double)ypos);
+            JWindow::CursorCallback((double)xpos, (double)ypos);
             break;
         }
 
@@ -363,17 +363,17 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_MOUSEWHEEL: {
             int wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
             // TODO: Find out if horizontal scroll is supported by windows
-            Window::ScrollCallback(0.0, (double)wheelDelta);
+            JWindow::ScrollCallback(0.0, (double)wheelDelta);
             break;
         }
 
-        // Window resize events
+        // JWindow resize events
         case WM_SIZE: {
             RECT rect;
             GetWindowRect(hWnd, &rect);
             int newHeight = rect.bottom - rect.top;
             int newWidth = rect.right - rect.left;
-            Window::ResizeCallback(newWidth, newHeight);
+            JWindow::ResizeCallback(newWidth, newHeight);
             break;
         }
         
@@ -414,22 +414,22 @@ void LoadGameCode() {
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     registerClass(hInstance);
 
-    if (Window::Create(hInstance, nCmdShow) != 0) {
+    if (Win32Window::Create(hInstance, nCmdShow) != 0) {
         PostQuitMessage(1);
         return -1;
     }
-    Window* window = Window::GetWindow();
-    //Update = &Window::Update;
+    JWindow* JWindow = JWindow::Get();
+    //Update = &JWindow::Update;
     
     TestScene scene = TestScene();
-    window->ChangeScene(&scene);
+    JWindow->ChangeScene(&scene);
     //int reloadGameTick = 0;
 
     MSG msg = {0, 0, 0, 0, 0, NULL};
-    while (window->IsRunning()) {
+    while (JWindow->IsRunning()) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
-                window->Stop();
+                JWindow->Stop();
             }
 
             TranslateMessage(&msg);
@@ -442,12 +442,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         //     reloadGameTick = 0;
         // }
         
-        Window::Update(window, 1.0f/60.0f);
-        window->Render();
+        JWindow::Update(JWindow, 1.0f/60.0f);
+        JWindow->Render();
         Input::EndFrame();
     }
     system("pause");
-    window->Destroy();
+    JWindow->Destroy();
 
     return (int)msg.wParam;
 }

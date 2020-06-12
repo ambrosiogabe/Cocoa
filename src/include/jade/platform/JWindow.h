@@ -1,21 +1,15 @@
 #pragma once
 
-#include "jade/scenes/Scene.h"
 #include "jade/Jade.h"
+#include "jade/scenes/Scene.h"
 #include "jade/util/Log.h"
-#include "jade/events/Input.h"
 
-#include <windows.h>
-
-class Window {
+class JWindow {
 public:
-    static int Create(HINSTANCE hInstance, int nCmdShow);
-    static void ShowMessage(LPCSTR message);
-    void Render();
-    void Destroy();
+    virtual void Destroy() = 0;
 
     static void KeyCallback(int key, int scancode, int action, int mods) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         for (int i=0; i < 3; i++) {
             if (win->keyCallbacks[i] != nullptr) {
                 win->keyCallbacks[i](key, scancode, action, mods);
@@ -24,7 +18,7 @@ public:
     }
 
     static void CursorCallback(double xpos, double ypos) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         for (int i=0; i < 3; i++) {
             if (win->cursorCallbacks[i] != nullptr) {
                 win->cursorCallbacks[i](xpos, ypos);
@@ -33,7 +27,7 @@ public:
     }
 
     static void MouseButtonCallback(int button, int action, int mods) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         for (int i=0; i < 3; i++) {
             if (win->mouseButtonCallbacks[i] != nullptr) {
                 win->mouseButtonCallbacks[i](button, action, mods);
@@ -41,7 +35,7 @@ public:
         }
     }
     static void ScrollCallback(double xoffset, double yoffset) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         for (int i=0; i < 3; i++) {
             if (win->scrollCallbacks[i] != nullptr) {
                 win->scrollCallbacks[i](xoffset, yoffset);
@@ -49,7 +43,7 @@ public:
         }
     }
     static void ResizeCallback(int width, int height) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         for (int i=0; i < 3; i++) {
             if (win->resizeCallbacks[i] != nullptr) {
                 win->resizeCallbacks[i](width, height);
@@ -58,7 +52,7 @@ public:
     }
 
     static void RegisterKeyCallback(KeyCallbackFnPt callback) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         bool assigned = false;
         for (int i=0; i < 3; i++) {
             if (win->keyCallbacks[i] == nullptr) {
@@ -73,7 +67,7 @@ public:
         }
     }
     static void RegisterCursorCallback(CursorCallbackFnPt callback) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         bool assigned = false;
         for (int i=0; i < 3; i++) {
             if (win->cursorCallbacks[i] == nullptr) {
@@ -88,7 +82,7 @@ public:
         }
     }
     static void RegisterMouseButtonCallback(MouseButtonCallbackFnPt callback) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         bool assigned = false;
         for (int i=0; i < 3; i++) {
             if (win->mouseButtonCallbacks[i] == nullptr) {
@@ -103,7 +97,7 @@ public:
         }
     }
     static void RegisterScrollCallback(ScrollCallbackFnPt callback) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         bool assigned = false;
         for (int i=0; i < 3; i++) {
             if (win->scrollCallbacks[i] == nullptr) {
@@ -118,7 +112,7 @@ public:
         }
     }
     static void RegisterResizeCallback(ResizeCallbackFnPt callback) {
-        Window* win = GetWindow();
+        JWindow* win = Get();
         bool assigned = false;
         for (int i=0; i < 3; i++) {
             if (win->resizeCallbacks[i] == nullptr) {
@@ -133,23 +127,31 @@ public:
         }
     }
 
-    static void Hide() { Window::GetWindow()->_Hide(); }
-    static void Close() { Window::GetWindow()->_Close(); }
-    static void Stop() { Window::GetWindow()->_Stop(); }
-    static bool IsRunning() { return Window::GetWindow()->_IsRunning(); }
+    static void Hide() { JWindow::Get()->_Hide(); }
+    static void Close() { JWindow::Get()->_Close(); }
+    static void Stop() { JWindow::Get()->_Stop(); }
+    static bool IsRunning() { return JWindow::Get()->_IsRunning(); }
 
-    static void SetWidth(int newWidth) { Window::GetWindow()->m_Width = newWidth; }
-    static void SetHeight(int newHeight) { Window::GetWindow()->m_Height = newHeight; }
+    static void SetWidth(int newWidth) { JWindow::Get()->m_Width = newWidth; }
+    static void SetHeight(int newHeight) { JWindow::Get()->m_Height = newHeight; }
 
-    static int GetWidth() { return Window::GetWindow()->m_Width; }
-    static int GetHeight() { return Window::GetWindow()->m_Height; }
+    static int GetWidth() { return JWindow::Get()->m_Width; }
+    static int GetHeight() { return JWindow::Get()->m_Height; }
 
-    static void Update(Window* window, float dt);
-    static void ChangeScene(Scene* newScene);
-    static Window* GetWindow();
+    static void Update(JWindow* window, float dt) { window->m_CurrentScene->Update(dt); }
+    static void Render() { JWindow::Get()->_Render(); }
+
+    static void ChangeScene(Scene* newScene) {
+        JWindow* win = JWindow::Get();
+        win->m_CurrentScene = newScene;
+        win->m_CurrentScene->Init();
+        win->m_CurrentScene->Start();
+    }
+
+    static JWindow* Get();
 
 private:
-    Window::Window() {
+    void Init() {
         for (int i=0; i < 3; i++) {
             keyCallbacks[i] = nullptr;
             mouseButtonCallbacks[i] = nullptr;
@@ -159,21 +161,17 @@ private:
         }
     }
 
-    void _Hide();
-    void _Close();
-    void _Stop();
+protected:
+    virtual JWindow* _Create() = 0;
+    virtual void _Hide() = 0;
+    virtual void _Close() = 0;
+    virtual void _Stop() = 0;
+    virtual void _Render() = 0;
+
     const bool _IsRunning() { return m_Running; }
 
-private:
-    HGLRC RC;
-    HDC DC;
-    HWND WND;
-
-    Scene* m_CurrentScene;
-    bool m_Running = true;
-    int m_Width = 1920, m_Height = 1080;
-
-    static Window* m_Instance;
+protected:
+    static JWindow* m_Instance;
 
     // Registered callbacks
     KeyCallbackFnPt           keyCallbacks[3];
@@ -181,4 +179,29 @@ private:
     MouseButtonCallbackFnPt   mouseButtonCallbacks[3];
     ScrollCallbackFnPt        scrollCallbacks[3];
     ResizeCallbackFnPt        resizeCallbacks[3];
+
+    Scene* m_CurrentScene;
+    bool m_Running = true;
+    int m_Width = 1920;
+    int m_Height = 1080;
 };
+
+
+#ifdef JADE_WIN32
+// Put all different implementation stubs in here, so that we can get rid
+// of circular dependencies
+#include "jade/platform/windows/Win32Window.h"
+#endif
+
+
+JWindow* JWindow::m_Instance = nullptr;
+JWindow* JWindow::Get() {
+    if (JWindow::m_Instance == nullptr) {
+#ifdef JADE_WIN32
+        JWindow::m_Instance = new Win32Window();
+        JWindow::m_Instance->Init();
+#endif
+    }
+
+    return JWindow::m_Instance;
+}

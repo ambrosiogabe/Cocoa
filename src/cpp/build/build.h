@@ -1,5 +1,5 @@
 #include "src/cpp/jade/events/Input.cpp"
-#include "src/cpp/jade/platform/windows/Window.cpp"
+#include "src/cpp/jade/platform/windows/Win32Window.cpp"
 #include "src/cpp/jade/renderer/Camera.cpp"
 #include "src/cpp/jade/renderer/RenderBatch.cpp"
 #include "src/cpp/jade/renderer/Shader.cpp"

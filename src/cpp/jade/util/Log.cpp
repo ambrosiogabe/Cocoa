@@ -1,6 +1,6 @@
 #include "jade/util/Log.h"
 
-#include "jade/platform/windows/Window.h"
+#include "jade/platform/JWindow.h"
 
 #include <windows.h>
 #include <stdlib.h>
@@ -61,6 +61,6 @@ void Log::_Assert(const char* filename, int line, int condition, const char* for
 
         printf("\n");
 
-        Window::Stop();
+        JWindow::Stop();
     }   
 }

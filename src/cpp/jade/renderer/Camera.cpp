@@ -43,5 +43,5 @@ glm::mat4& Camera::GetOrthoView() {
 
 void Camera::CalculateAspect() {
     // TODO: actually make this calculate window's current aspect
-    this->m_Aspect = (float)Window::GetWidth() / (float)Window::GetHeight();
+    this->m_Aspect = (float)JWindow::GetWidth() / (float)JWindow::GetHeight();
 }

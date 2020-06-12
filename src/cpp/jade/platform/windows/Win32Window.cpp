@@ -1,4 +1,4 @@
-#include "jade/platform/windows/window.h"
+#include "jade/platform/JWindow.h"
 #include "jade/util/Log.h"
 #include "jade/events/WindowEvents.h"
 
@@ -16,31 +16,30 @@
 #include "jade/platform/windows/GlFunctions.h"
 #undef GL_LITE_IMPLEMENTATION
 
-Window* Window::m_Instance = nullptr;
 
-void Window::ShowMessage(LPCSTR message) {
-    MessageBox(0, message, "Window::Create", MB_ICONERROR);
+void Win32Window::ShowMessage(LPCSTR message) {
+    MessageBox(0, message, "Win32Window::Create", MB_ICONERROR);
 }
 
-int Window::Create(HINSTANCE hInstance, int nCmdShow) {
-    Window* win = Window::GetWindow();
+int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
+    Win32Window* win = static_cast<Win32Window*>(JWindow::Get());
 
-    // Allocate console window
+    // Allocate console Win32Window
     AllocConsole();
     freopen("CONOUT$", "w+", stdout);
 
-    Log::Info("Console window created.");
+    Log::Info("Console Win32Window created.");
     Log::Warning("This is a warning. Ahh");
     Log::Error("This is an error. Double uh oh.");
 
-    // Proceed to create window...
+    // Proceed to create Win32Window...
     HWND fakeWND = CreateWindowExA(
         0,                                       // dwExStyle
-        "Core", "Fake Window",                   // Window class, Title
+        "Core", "Fake Win32Window",                   // Win32Window class, Title
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN,       // Style
         0, 0,                                    // Position x, y
         1, 1,                                    // Width, Height
-        NULL, NULL,                              // Parent Window, Menu
+        NULL, NULL,                              // Parent Win32Window, Menu
         hInstance, NULL);                        // Instnce, Param
 
     HDC fakeDC = GetDC(fakeWND);
@@ -99,12 +98,12 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
 
     win->WND = CreateWindowExA(
         0,                                                                // dwExStyle
-        "Core", "OpenGL Window",                                          // Window class, Title
+        "Core", "OpenGL Win32Window",                                          // Win32Window class, Title
         WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN       // Style
             | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SIZEBOX,
         0, 0,                                                             // Position x, y
         win->m_Width, win->m_Height,                                      // Width, Height
-        NULL, NULL,                                                       // Parent Window, Menu
+        NULL, NULL,                                                       // Parent Win32Window, Menu
         hInstance, NULL                                                   // Instnce, Param
         );
 
@@ -180,6 +179,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
 
     // Init Win32
     ImGui_ImplWin32_Init(win->WND);
+    ImGui_ImplWin32_EnableDpiAwareness();
 
     // Init OpenGL imgui implementation
     // GL 3.0 + GLSL 130
@@ -194,7 +194,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     // ImGui style 
     ImGui::StyleColorsClassic();
 
-    // Initialize and register window events callback
+    // Initialize and register Win32Window events callback
     WindowEvents::Init(win);
     RegisterResizeCallback(&WindowEvents::ResizeCallback);
 
@@ -203,7 +203,7 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
 
 static bool showDemoWindow = true;
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.6f, 1.0f);
-void Window::Render() {
+void Win32Window::_Render() {
     //glClearColor(0.128f, 0.586f, 0.949f, 1.0f);
     glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -216,7 +216,7 @@ void Window::Render() {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Test Window");
+    ImGui::Begin("Test Win32Window");
     ImGui::ColorEdit3("Clear Color: ", (float*)&clear_color);
     ImGui::End();
 
@@ -232,7 +232,7 @@ void Window::Render() {
     SwapBuffers(DC);
 }
 
-void Window::Destroy() {
+void Win32Window::Destroy() {
     wglMakeCurrent(NULL, NULL);
     if (RC) {
         wglDeleteContext(RC);
@@ -245,36 +245,21 @@ void Window::Destroy() {
     }
 }
 
-void Window::Update(Window* window, float dt) {
-    window->m_CurrentScene->Update(dt);
-}
-
-void Window::ChangeScene(Scene* newScene) {
-    Window* win = Window::GetWindow();
-    win->m_CurrentScene = newScene;
-    win->m_CurrentScene->Init();
-    win->m_CurrentScene->Start();
-}
-
-void Window::_Close() {
+void Win32Window::_Close() {
     PostQuitMessage(0);
 }
 
-void Window::_Hide() {
+void Win32Window::_Hide() {
     if (WND) {
         ShowWindow(WND, SW_HIDE);
     }
 }
 
-void Window::_Stop() {
+void Win32Window::_Stop() {
     _Hide();
     this->m_Running = false;
 }
 
-Window* Window::GetWindow() {
-    if (Window::m_Instance == nullptr) {
-        Window::m_Instance = new Window();
-    }
-
-    return Window::m_Instance;
+JWindow* Win32Window::_Create() {
+    return new Win32Window();
 }
