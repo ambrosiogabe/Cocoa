@@ -141,7 +141,10 @@ public:
     static void SetWidth(int newWidth) { Window::GetWindow()->m_Width = newWidth; }
     static void SetHeight(int newHeight) { Window::GetWindow()->m_Height = newHeight; }
 
-    void Update(float dt);
+    static int GetWidth() { return Window::GetWindow()->m_Width; }
+    static int GetHeight() { return Window::GetWindow()->m_Height; }
+
+    static void Update(Window* window, float dt);
     static void ChangeScene(Scene* newScene);
     static Window* GetWindow();
 
@@ -167,7 +170,7 @@ private:
     HWND WND;
 
     Scene* m_CurrentScene;
-    bool m_Running;
+    bool m_Running = true;
     int m_Width = 1920, m_Height = 1080;
 
     static Window* m_Instance;

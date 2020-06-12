@@ -14,19 +14,23 @@
 
 typedef unsigned int uint;
 
-float vertices[] = {
-    -0.5f, -0.5f, 0.0f,       1.0f, 0.0f, 0.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,       0.0f, 1.0f, 1.0f, 1.0f,
-     0.0f,  0.5f, 0.0f,       0.0f, 1.0f, 0.0f, 1.0f
-};
-
-uint VAO;
 Shader* shader = nullptr;
+Spritesheet* sprites = nullptr;
+Texture* texture = nullptr;
 
 void TestScene::Init() {
     Log::Info("Initializing test scene.");
-    m_Camera = new Camera(glm::vec3(0, 0, 0));
-    m_RenderSystem = new RenderSystem(m_Camera);
+    glm::vec3 cameraPos = glm::vec3(0, 0, 0);
+    m_Camera = new Camera(cameraPos);
+    m_RenderSystem = new RenderSystem(m_Camera, m_Registry);
+
+    texture = new Texture("C:/dev/C++/DungeonCrawler/assets/images/decorationsAndBlocks.png");
+    sprites = new Spritesheet(texture, 16, 16, 81, 0);
+
+    entt::actor testSprite = entt::actor(m_Registry);
+    testSprite.assign<Transform>(glm::vec3(-100, 0, 0), glm::vec3(64, 64, 1), glm::vec3(0, 0, 0));
+    testSprite.assign<SpriteRenderer>(glm::vec4(1, 1, 1, 1), sprites->GetSprite(80));
+    m_RenderSystem->AddActor(testSprite);
 
     float startX = 100.0f;
     float startY = 80.0f;
@@ -34,7 +38,7 @@ void TestScene::Init() {
     float height = 20.0f;
     float padding = 3.0f;
     for (int i=0; i < 100; i++) {
-        for (int j=0; j < 80; j++) {
+        for (int j=0; j < 100; j++) {
             float x = startX + i * width + i * padding;
             float y = startY + j * height + j * padding;
 
@@ -59,20 +63,6 @@ void TestScene::Start() {
 
     shader = new Shader("C:/dev/C++/DungeonCrawler/assets/shaders/SpriteRenderer.glsl");
 
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    uint VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
     const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
     const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
     Log::Info("Renderer: %s", renderer);
@@ -82,22 +72,10 @@ void TestScene::Start() {
 
 void TestScene::Render() {
     m_RenderSystem->Render();
-
-    // shader->Bind();
-    // glBindVertexArray(VAO);
-    // glEnableVertexAttribArray(0);
-    // glEnableVertexAttribArray(1);
-
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
-    
-    // glDisableVertexAttribArray(0);
-    // glDisableVertexAttribArray(1);
-    // glBindVertexArray(0);
-    // shader->Unbind();
 }
 
 void TestScene::Update(float dt) {
-    float speed = 500.0f;
+    static float speed = 500.0f;
     if (Input::KeyPressed(JADE_KEY_W)) {
         m_Camera->GetTransform().m_Position.y += dt * speed;
     } else if (Input::KeyPressed(JADE_KEY_S)) {
@@ -108,6 +86,11 @@ void TestScene::Update(float dt) {
         m_Camera->GetTransform().m_Position.x += dt * speed;
     } else if (Input::KeyPressed(JADE_KEY_A)) {
         m_Camera->GetTransform().m_Position.x -= dt * speed;
+    }
+
+    if (Input::ScrollY() != 0) {
+        speed = 500.0f * m_Camera->GetZoom();
+        m_Camera->SetZoom(m_Camera->GetZoom() + ((float)Input::ScrollY() * 0.1f));
     }
 
     //Log::Info("Updating test scene at: %2.3fms", dt);

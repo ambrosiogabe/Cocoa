@@ -1,16 +1,78 @@
 #pragma once
 
+#include "jade/renderer/Texture.h"
+
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <vector>
 
+struct Sprite {
+    const char* m_PictureFile = nullptr;
+    int m_Width = 0;
+    int m_Height = 0;
+    Texture* m_Texture = nullptr;
+    glm::vec2 m_TexCoords[4] = {
+        glm::vec2(1.0f, 1.0f),
+        glm::vec2(1.0f, 0.0f),
+        glm::vec2(0.0f, 0.0f),
+        glm::vec2(0.0f, 1.0f)
+    };
+};
+
+struct Spritesheet {
+    Texture* m_Texture;
+    std::vector<Sprite> m_Sprites;
+
+    Spritesheet(Texture* texture, int spriteWidth, int spriteHeight, int numSprites, int spacing) {
+        // NOTE: If you don't reserve the space before hand, when the vector grows it may
+        // change the pointers it holds
+        m_Sprites.reserve(numSprites);
+
+        m_Texture = texture;
+        int currentX = 0;
+        int currentY = m_Texture->GetHeight() - spriteHeight;
+        for (int i=0; i < numSprites; i++) {
+            float topY = (currentY + spriteHeight) / (float)texture->GetHeight();
+            float rightX = (currentX + spriteWidth) / (float)texture->GetWidth();
+            float leftX = currentX / (float)texture->GetWidth();
+            float bottomY = currentY / (float)texture->GetHeight();
+
+            Sprite sprite = {
+                texture->GetFilepath(),
+                spriteWidth,
+                spriteHeight,
+                texture, {
+                    glm::vec2(rightX, topY),
+                    glm::vec2(rightX, bottomY),
+                    glm::vec2(leftX, bottomY),
+                    glm::vec2(leftX, topY)
+                }
+            };
+            m_Sprites.push_back(sprite);
+
+            currentX += spriteWidth + spacing;
+            if (currentX >= texture->GetWidth()) {
+                currentX = 0;
+                currentY -= spriteHeight + spacing;
+            }
+        }
+    }
+
+    Sprite* GetSprite(int index) {
+        return &m_Sprites[index];
+    }
+};
+
+static Sprite* defaultSprite = new Sprite();
 struct SpriteRenderer {
-    glm::vec4 m_Color;
+    glm::vec4 m_Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    Sprite* m_Sprite = defaultSprite;
 };
 
 class Transform {
-
 public:
     Transform() {
         m_Position = glm::vec3(0);

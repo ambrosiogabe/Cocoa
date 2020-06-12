@@ -9,17 +9,6 @@
 #include <entt/entt.h>
 #include <glm/gtx/transform.hpp>
 
-int indices[] = {
-    3,  2, 0,
-    0, 2, 1,
-
-    7, 6, 4,
-    4, 6, 5,
-
-    11, 10, 8,
-    8, 10, 9
-};
-
 RenderBatch::RenderBatch(RenderSystem* renderer) {
     this->m_Renderer = renderer;
     this->GenerateIndices();
@@ -45,30 +34,57 @@ void RenderBatch::Start() {
 
     glVertexAttribPointer(1, sizeof(Vertex().color) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, color));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, sizeof(Vertex().texCoords) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+    glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(3, sizeof(Vertex().texId) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, texId));
+    glEnableVertexAttribArray(3);
 }
 
 void RenderBatch::Add(entt::actor& actor) {
     int index = m_NumSprites;
-    m_Actors[index] = &actor;
+    m_Actors[index] = actor.entity();
+    m_NumSprites++;
+
+    Sprite* sprite = actor.get<SpriteRenderer>().m_Sprite;
+    Texture* tex = sprite->m_Texture;
+    if (tex != nullptr) {
+        if (!HasTexture(tex)) {
+            m_Textures[m_NumTextures] = tex;
+            m_NumTextures++;
+        }
+    }
 
     LoadVertexProperties(index);
-    
-    m_NumSprites++;
 }
 
 void RenderBatch::LoadVertexProperties(int index) {
-    entt::actor* actor = m_Actors[index];
+    entt::registry& registry = m_Renderer->GetRegistry();
+    entt::actor actor = entt::actor(m_Actors[index], registry);
 
     int offset = index * (sizeof(Vertex) / sizeof(float)) * 4;
 
-    Transform transform = actor->get<Transform>();
-    SpriteRenderer spr = actor->get<SpriteRenderer>();
+    Transform transform = actor.get<Transform>();
+    SpriteRenderer spr = actor.get<SpriteRenderer>();
     glm::mat4 matrix = glm::mat4(1.0f);
     matrix = glm::translate(matrix, transform.m_Position);
     matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));
     matrix = glm::scale(matrix, transform.m_Scale);
     
     glm::vec4 color = spr.m_Color;
+    Sprite* sprite = spr.m_Sprite;
+    glm::vec2* texCoords = &sprite->m_TexCoords[0];
+
+    int texId = 0;
+    if (sprite->m_Texture != nullptr) {
+        for (int i=0; i < 16; i++) {
+            if (m_Textures[i] == sprite->m_Texture) {
+                texId = i + 1;
+                break;
+            }
+        }
+    }
     
     float xAdd = 0.5f;
     float yAdd = -0.5f;
@@ -93,6 +109,13 @@ void RenderBatch::LoadVertexProperties(int index) {
         m_Vertices[offset + 5] = color.z;
         m_Vertices[offset + 6] = color.w;
 
+        // Load tex coords
+        m_Vertices[offset + 7] = texCoords[i].x;
+        m_Vertices[offset + 8] = texCoords[i].y;
+
+        // Load tex id
+        m_Vertices[offset + 9] = (float)texId;
+
         offset += (sizeof(Vertex) / sizeof(float));
     }
 }
@@ -115,17 +138,31 @@ void RenderBatch::Render() {
     m_Shader->Bind();
     m_Shader->UploadMat4("uProjection", m_Renderer->GetCamera().GetOrthoProjection());
     m_Shader->UploadMat4("uView", m_Renderer->GetCamera().GetOrthoView());
+    for (int i=0; i < 16; i++) {
+        if (m_Textures[i] == nullptr) {
+            break;
+        }
+        glActiveTexture(GL_TEXTURE0 + i + 1);
+        m_Textures[i]->Bind();
+    }
+    m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
     glBindVertexArray(m_VAO);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    //glDrawArrays(GL_TRIANGLES, 0, 6);
     glDrawElements(GL_TRIANGLES, m_NumSprites * 6, GL_UNSIGNED_INT, 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glBindVertexArray(0);
+
+    for (int i=0; i < 16; i++) {
+        if (m_Textures[i] == nullptr) {
+            break;
+        }
+        m_Textures[i]->Unbind();
+    }
     m_Shader->Unbind();
 }
 

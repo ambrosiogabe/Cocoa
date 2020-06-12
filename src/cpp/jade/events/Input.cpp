@@ -43,8 +43,8 @@ float Input::MouseY() {
 
 void Input::ScrollCallback(double xpos, double ypos) {
     Input* input = Input::Get();
-    input->m_ScrollX = xpos;
-    input->m_ScrollY = ypos;
+    input->m_ScrollX = (float)xpos;
+    input->m_ScrollY = -(float)ypos;
 }
 
 float Input::ScrollX() {
@@ -53,6 +53,12 @@ float Input::ScrollX() {
 
 float Input::ScrollY() {
     return Input::Get()->m_ScrollY;
+}
+
+void Input::EndFrame() {
+    Input* input = Input::Get();
+    input->m_ScrollX = 0;
+    input->m_ScrollY = 0;
 }
 
 Input* Input::Get() {

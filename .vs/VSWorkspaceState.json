@@ -6,6 +6,7 @@
     "\\src\\cpp",
     "\\src\\cpp\\jade",
     "\\src\\cpp\\jade\\renderer",
+    "\\src\\cpp\\jade\\scenes",
     "\\src\\cpp\\jade\\systems"
   ],
   "SelectedNode": "\\build\\winMain.exe",

@@ -21,6 +21,7 @@ public:
     void UploadVec2(const char* varName, const glm::vec2& vec2);
     void UploadFloat(const char* varName, float value);
     void UploadInt(const char* varName, int value);
+    void UploadIntArray(const char* varName, int size, int* array);
 
     void UploadMat4(const char* varName, const glm::mat4& mat4);
     void UploadMat3(const char* varName, const glm::mat3& mat3);

@@ -13,6 +13,7 @@ public:
     static float MouseY();
     static float ScrollX();
     static float ScrollY();
+    static void EndFrame();
 
 private:
     Input::Input() {

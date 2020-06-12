@@ -13,6 +13,8 @@
 #define LAST(k,n) ((k) & ((1<<(n))-1))
 #define MID(k,m,n) LAST((k)>>(m),((n)-(m)))
 
+//WindowUpdateFnPt Update = nullptr;
+
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     LRESULT result = 0;
     static bool modifierIsPressed = 0;
@@ -21,10 +23,10 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     switch(message) {
         case WM_KEYUP:
         case WM_KEYDOWN: {
-            int repeatCount = MID(lParam, 0, 16);
+            //int repeatCount = MID(lParam, 0, 16);
             int wScanCode = MID(lParam, 16, 24);
-            int wExtendedKey = MID(lParam, 24, 25);
-            int wContextCode = MID(lParam, 29, 30);
+            //int wExtendedKey = MID(lParam, 24, 25);
+            //int wContextCode = MID(lParam, 29, 30);
             int wPrevState = MID(lParam, 30, 31);
             int wTransitionState = MID(lParam, 31, 32); // 1 for keyup -- 0 for keydown
 
@@ -300,7 +302,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
                 case('X'):
                 case('Y'):
                 case('Z'): {
-                    Window::KeyCallback(wParam, wScanCode, action, modifierKey);
+                    Window::KeyCallback((int)wParam, wScanCode, action, modifierKey);
                     break;
                 }
             }
@@ -388,6 +390,15 @@ ATOM registerClass(HINSTANCE hInstance) {
     return RegisterClassEx(&wcex);
 }
 
+void LoadGameCode() {
+    // TODO: MAKE THIS WORK SOMEHOW!!!
+    //CopyFileA("jade.dll", "jade_temp.dll", FALSE);
+    //HMODULE gameCodeDll = LoadLibraryA("jade_temp.dll");
+    // if (gameCodeDll) {
+    //     Update = (WindowUpdateFnPt)GetProcAddress(gameCodeDll, "WindowUpdate");
+    // }
+}
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     registerClass(hInstance);
 
@@ -396,11 +407,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         return -1;
     }
     Window* window = Window::GetWindow();
+    //Update = &Window::Update;
     
     TestScene scene = TestScene();
     window->ChangeScene(&scene);
+    //int reloadGameTick = 0;
 
-    MSG msg;
+    MSG msg = {0, 0, 0, 0, 0, NULL};
     while (window->IsRunning()) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
@@ -410,12 +423,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        // reloadGameTick++;
+        // if (reloadGameTick > 120) {
+        //     LoadGameCode();
+        //     reloadGameTick = 0;
+        // }
         
-        window->Update(1.0f/60.0f);
+        Window::Update(window, 1.0f/60.0f);
         window->Render();
+        Input::EndFrame();
     }
     system("pause");
     window->Destroy();
 
-    return msg.wParam;
+    return (int)msg.wParam;
 }

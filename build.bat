@@ -3,7 +3,7 @@
 python .\prebuild.py
 
 REM Notes:
-set CommonCompilerFlags=-I..\src\vendor -I..\src\include -I.. -std:c++17
+set CommonCompilerFlags=-I..\src\vendor -I..\src\include -I.. -std:c++17 -W4 -wd4201 -wd4100 -D_CRT_SECURE_NO_WARNINGS
 set CommonLinkerFlags=user32.lib gdi32.lib opengl32.lib
 
 REM The comment below was for when I was compiling without my handy dandy python script. Now I do a unity build.
@@ -17,6 +17,7 @@ mkdir %~dp0build
 pushd %~dp0build
 REM TODO: Put commands to copy assets folder into here
 REM Debug Build
+REM cl %CommonCompilerFlags% -DJADE_EXPORT_DLL -Zi -EHsc ..\src\cpp\Jade.cpp /LD /link /INCREMENTAL:NO /DLL /EXPORT:WindowUpdate
 cl %CommonCompilerFlags% -Zi -EHsc %Files% %CommonLinkerFlags%
 REM Release build
 REM cl %CommonCompilerFlags% -Ox -EHsc %Files% %CommonLinkerFlags%

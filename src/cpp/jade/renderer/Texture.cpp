@@ -11,6 +11,8 @@ Texture::Texture(const char* resourceName) {
     int height;
 
     unsigned char* buffer = stbi_load(resourceName, &width, &height, &channels, 0);
+    m_Width = width;
+    m_Height = height;
 
     glGenTextures(1, &m_ID);
     glBindTexture(GL_TEXTURE_2D, m_ID);

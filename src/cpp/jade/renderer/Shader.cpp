@@ -44,24 +44,24 @@ Shader::Shader(const char* resourceName) {
 }
 
 void Shader::Compile(const char* filepath) {
-    std::string source = ReadFile(filepath);
+    std::string fileSource = ReadFile(filepath);
 
     std::unordered_map<GLenum, std::string> shaderSources;
 
     const char* typeToken = "#type";
     size_t typeTokenLength = strlen(typeToken);
-    size_t pos = source.find(typeToken, 0);
+    size_t pos = fileSource.find(typeToken, 0);
     while (pos != std::string::npos)
     {
-        size_t eol = source.find_first_of("\r\n", pos);
+        size_t eol = fileSource.find_first_of("\r\n", pos);
         Log::Assert(eol != std::string::npos, "Syntax error");
         size_t begin = pos + typeTokenLength + 1;
-        std::string type = source.substr(begin, eol - begin);
+        std::string type = fileSource.substr(begin, eol - begin);
         Log::Assert(ShaderTypeFromString(type), "Invalid shader type specified.");
 
-        size_t nextLinePos = source.find_first_not_of("\r\n", eol);
-        pos = source.find(typeToken, nextLinePos);
-        shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+        size_t nextLinePos = fileSource.find_first_not_of("\r\n", eol);
+        pos = fileSource.find(typeToken, nextLinePos);
+        shaderSources[ShaderTypeFromString(type)] = fileSource.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? fileSource.size() - 1 : nextLinePos));
     }
 
     GLuint program = glCreateProgram();
@@ -202,4 +202,10 @@ void Shader::UploadMat3(const char* varName, const glm::mat3& mat3) {
     int varLocation = GetVariableLocation(varName);
     if (!m_BeingUsed) this->Bind();
     glUniformMatrix3fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat3));
+}
+
+void Shader::UploadIntArray(const char* varName, int length, int* array) {
+    int varLocation = GetVariableLocation(varName);
+    if (!m_BeingUsed) this->Bind();
+    glUniform1iv(varLocation, length, array);
 }

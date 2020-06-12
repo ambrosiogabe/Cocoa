@@ -236,3 +236,14 @@ typedef void (*CursorCallbackFnPt) (double xpos, double ypos);
 typedef void (*MouseButtonCallbackFnPt) (int button, int action, int mods);
 typedef void (*ScrollCallbackFnPt) (double xoffset, double yoffset);
 typedef void (*ResizeCallbackFnPt) (int width, int height);
+
+// Forwardly declare window class
+// TODO: Figure out good way to hot-swap code
+// class Window;
+// typedef void (*WindowUpdateFnPt) (Window* window, float dt);
+
+// #ifdef JADE_EXPORT_DLL
+// #define EXPORT extern "C" __declspec(dllexport)
+// #else
+// #define EXPORT __declspec(dllimport)
+// #endif

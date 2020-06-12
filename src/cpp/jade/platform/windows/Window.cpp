@@ -204,8 +204,8 @@ void Window::Destroy() {
     }
 }
 
-void Window::Update(float dt) {
-    this->m_CurrentScene->Update(dt);
+void Window::Update(Window* window, float dt) {
+    window->m_CurrentScene->Update(dt);
 }
 
 void Window::ChangeScene(Scene* newScene) {

@@ -7,17 +7,20 @@ void RenderSystem::AddActor(entt::actor& actor) {
     
     if (hasSprite) {
         SpriteRenderer spr = actor.get<SpriteRenderer>();
+        Sprite* sprite = spr.m_Sprite;
         bool wasAdded = false;
         for (RenderBatch* batch : m_Batches) {
             if (batch->HasRoom()) {
-                batch->Add(actor);
-                wasAdded = true;
-                break;
+                Texture* tex = sprite->m_Texture;
+                if (tex == nullptr || (batch->HasTexture(tex) || batch->HasTextureRoom())) {
+                    batch->Add(actor);
+                    wasAdded = true;
+                    break;
+                }
             }
         }
 
         if (!wasAdded) {
-            Log::Info("New batch created for entity.");
             RenderBatch* newBatch = new RenderBatch(this);
             newBatch->Start();
             newBatch->Add(actor);

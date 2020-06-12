@@ -48,6 +48,7 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(void,      LinkProgram,                GLuint program) \
     GLE(void,      ShaderSource,               GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) \
     GLE(void,      Uniform1i,                  GLint location, GLint v0) \
+    GLE(void,      Uniform1iv,                 GLint location, GLsizei count, const GLint *value) \
     GLE(void,      Uniform1f,                  GLint location, GLfloat v0) \
     GLE(void,      Uniform2f,                  GLint location, GLfloat v0, GLfloat v1) \
     GLE(void,      Uniform3f,                  GLint location, GLfloat v0, GLfloat v1, GLfloat v2) \

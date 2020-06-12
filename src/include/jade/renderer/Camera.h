@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jade/components/components.h"
+#include "jade/util/Log.h"
 
 #include <glm/matrix.hpp>
 
@@ -21,6 +22,12 @@ public:
     const glm::mat4& GetInverseProjection() const { return m_InverseProjection; }
     const glm::mat4& GetOrthoInverseProjection() const { return m_OrthoInverseProjection; }
 
+    void SetZoom(float zoom) { 
+        m_Zoom = zoom; 
+        AdjustPerspective();
+    }
+    float GetZoom() { return m_Zoom; }
+
 private:
     void CalculateAspect();
 
@@ -33,4 +40,5 @@ private:
 
     float m_Fov = 45.0f;
     float m_Aspect = 1920.0f / 1080.0f;
+    float m_Zoom = 1.0f;
 };
