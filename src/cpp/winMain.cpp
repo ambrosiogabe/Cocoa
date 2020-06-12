@@ -8,14 +8,26 @@
 #include "gl/glext.h"
 #include "gl/wglext.h"
 
+#define IMGUI_IMPL_OPENGL_LOADER_GL3W
+#define IMGUI_IMPLEMENTATION
+#include "imgui/misc/single_file/imgui_single_file.h"
+#include "imgui/examples/imgui_impl_win32.cpp"
+#include "imgui/examples/imgui_impl_opengl3.cpp"
+#undef IMGUI_IMPLEMENTATION
+
 #include "build/build.h"
 
 #define LAST(k,n) ((k) & ((1<<(n))-1))
 #define MID(k,m,n) LAST((k)>>(m),((n)-(m)))
 
 //WindowUpdateFnPt Update = nullptr;
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam)) {
+        return true;
+    }
+
     LRESULT result = 0;
     static bool modifierIsPressed = 0;
     static int modifierKey = 0;

@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <io.h>
 
+#include "imgui/imgui.h"
+#include "imgui/examples/imgui_impl_win32.h"
+#include "imgui/examples/imgui_impl_opengl3.h"
+
 #define GL_LITE_IMPLEMENTATION
 #include "jade/platform/windows/GlFunctions.h"
 #undef GL_LITE_IMPLEMENTATION
@@ -169,10 +173,26 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     SetWindowTextA(win->WND, (LPCSTR(glGetString(GL_VERSION))));
     ShowWindow(win->WND, nCmdShow);
 
+    // Setup dear imGui binding
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    // Init Win32
+    ImGui_ImplWin32_Init(win->WND);
+
+    // Init OpenGL imgui implementation
+    // GL 3.0 + GLSL 130
+    const char* glsl_version = "#version 130";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
     RegisterKeyCallback(&Input::KeyCallback);
     RegisterMouseButtonCallback(&Input::MouseButtonCallback);
     RegisterCursorCallback(&Input::CursorCallback);
     RegisterScrollCallback(&Input::ScrollCallback);
+
+    // ImGui style 
+    ImGui::StyleColorsClassic();
 
     // Initialize and register window events callback
     WindowEvents::Init(win);
@@ -181,12 +201,33 @@ int Window::Create(HINSTANCE hInstance, int nCmdShow) {
     return 0;
 }
 
+static bool showDemoWindow = true;
+static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.6f, 1.0f);
 void Window::Render() {
-    glClearColor(0.128f, 0.586f, 0.949f, 1.0f);
+    //glClearColor(0.128f, 0.586f, 0.949f, 1.0f);
+    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_CurrentScene->Render();
     //Log::Assert(false == true, "Uh oh. False does not equal true.");
+
+    // Start ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Test Window");
+    ImGui::ColorEdit3("Clear Color: ", (float*)&clear_color);
+    ImGui::End();
+
+    if (showDemoWindow) {
+        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+        ImGui::ShowDemoWindow(&showDemoWindow);
+    }
+
+    // Render ImGui frame
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     SwapBuffers(DC);
 }

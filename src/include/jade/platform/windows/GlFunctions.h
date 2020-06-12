@@ -18,7 +18,10 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(void,      AttachShader,               GLuint program, GLuint shader) \
     GLE(void,      BindBuffer,                 GLenum target, GLuint buffer) \
     GLE(void,      BindFramebuffer,            GLenum target, GLuint framebuffer) \
+    GLE(void,      BindSampler,                GLuint unit, GLuint sampler) \
     GLE(void,      BindVertexArray,            GLuint array) \
+    GLE(void,      BlendEquationSeparate,      GLenum modeRGB, GLenum modeAlpha) \
+    GLE(void,      BlendFuncSeparate,          GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha) \
     GLE(void,      BufferData,                 GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage) \
     GLE(void,      BufferSubData,              GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data) \
     GLE(GLenum,    CheckFramebufferStatus,     GLenum target) \
@@ -30,9 +33,11 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(void,      DeleteFramebuffers,         GLsizei n, const GLuint *framebuffers) \
     GLE(void,      DeleteProgram,              GLuint program) \
     GLE(void,      DeleteShader,               GLuint shader) \
+    GLE(void,      DeleteVertexArrays,         GLsizei n, const GLuint *arrays) \
     GLE(void,      DetachShader,               GLuint program, GLuint shader) \
     GLE(void,      DisableVertexAttribArray,   GLuint index) \
     GLE(void,      DrawBuffers,                GLsizei n, const GLenum *bufs) \
+    GLE(void,      DrawElementsBaseVertex,     GLenum mode, GLsizei count, GLenum type, const void *indices, GLint basevertex) \
     GLE(void,      EnableVertexAttribArray,    GLuint index) \
     GLE(void,      FramebufferTexture2D,       GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) \
     GLE(void,      GenBuffers,                 GLsizei n, GLuint *buffers) \
