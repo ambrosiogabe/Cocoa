@@ -6,6 +6,7 @@ public:
 
     void Setup(void* window);
     void StartFrame();
+    void ImGui();
     void Render();
 
 private:

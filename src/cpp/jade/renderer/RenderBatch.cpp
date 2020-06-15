@@ -19,8 +19,6 @@ RenderBatch::RenderBatch(RenderSystem* renderer) {
 }
 
 void RenderBatch::Start() {
-    m_Shader = new Shader("C:/dev/C++/DungeonCrawler/assets/shaders/SpriteRenderer.glsl");
-
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
     glGenBuffers(1, &m_EBO);
@@ -28,10 +26,10 @@ void RenderBatch::Start() {
     glBindVertexArray(m_VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(m_Vertices), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4 * RenderSystem::MAX_BATCH_SIZE, nullptr, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(this->m_Indices), this->m_Indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 6 * RenderSystem::MAX_BATCH_SIZE, this->m_Indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, sizeof(Vertex().position) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
@@ -46,12 +44,10 @@ void RenderBatch::Start() {
     glEnableVertexAttribArray(3);
 }
 
-void RenderBatch::Add(entt::entity& entity) {
-    int index = m_NumSprites;
-    m_Entities[index] = entity;
+void RenderBatch::Add(const Transform& transform, const SpriteRenderer& spr) {
     m_NumSprites++;
 
-    Sprite* sprite = m_Renderer->GetRegistry().get<SpriteRenderer>(entity).m_Sprite;
+    Sprite* sprite = spr.m_Sprite;
     Texture* tex = sprite->m_Texture;
     if (tex != nullptr) {
         if (!HasTexture(tex)) {
@@ -60,22 +56,10 @@ void RenderBatch::Add(entt::entity& entity) {
         }
     }
 
-    LoadVertexProperties(index);
+    LoadVertexProperties(transform, spr);
 }
 
-void RenderBatch::LoadVertexProperties(int index) {
-    entt::registry& registry = m_Renderer->GetRegistry();
-
-    entt::entity entity = m_Entities[index];
-    int offset = index * (sizeof(Vertex) / sizeof(float)) * 4;
-
-    Transform transform = registry.get<Transform>(entity);
-    SpriteRenderer spr = registry.get<SpriteRenderer>(entity);
-    glm::mat4 matrix = glm::mat4(1.0f);
-    matrix = glm::translate(matrix, transform.m_Position);
-    matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));
-    matrix = glm::scale(matrix, transform.m_Scale);
-    
+void RenderBatch::LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr) {    
     glm::vec4 color = spr.m_Color;
     Sprite* sprite = spr.m_Sprite;
     glm::vec2* texCoords = &sprite->m_TexCoords[0];
@@ -90,6 +74,14 @@ void RenderBatch::LoadVertexProperties(int index) {
         }
     }
     
+    bool isRotated = transform.m_EulerRotation.z != 0.0f;
+    glm::mat4 matrix = glm::mat4(1.0f);
+    if (isRotated) {
+        matrix = glm::translate(matrix, transform.m_Position);
+        matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));
+        matrix = glm::scale(matrix, transform.m_Scale);
+    }
+
     float xAdd = 0.5f;
     float yAdd = -0.5f;
     for (int i=0; i < 4; i++) {
@@ -101,55 +93,35 @@ void RenderBatch::LoadVertexProperties(int index) {
             yAdd = -0.5f;
         }
 
-        glm::vec4 currentPos = matrix * glm::vec4(xAdd, yAdd, 0.0f, 1.0f);
-        // Load position
-        m_Vertices[offset] = currentPos.x;
-        m_Vertices[offset + 1] = currentPos.y;
-        m_Vertices[offset + 2] = 0.0f;
+        glm::vec4 currentPos = glm::vec4(transform.m_Position.x + (xAdd * transform.m_Scale.x), transform.m_Position.y + (yAdd * transform.m_Scale.y), 0.0f, 1.0f);
+        if (isRotated) {
+            currentPos = matrix * glm::vec4(xAdd, yAdd, 0.0f, 1.0f);
+        }
+        // Load Attributes
+        m_VertexStackPointer->position = glm::vec3(currentPos);
+        m_VertexStackPointer->color = glm::vec4(color);
+        m_VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
+        m_VertexStackPointer->texId = (float)texId;
 
-        // Load color
-        m_Vertices[offset + 3] = color.x;
-        m_Vertices[offset + 4] = color.y;
-        m_Vertices[offset + 5] = color.z;
-        m_Vertices[offset + 6] = color.w;
-
-        // Load tex coords
-        m_Vertices[offset + 7] = texCoords[i].x;
-        m_Vertices[offset + 8] = texCoords[i].y;
-
-        // Load tex id
-        m_Vertices[offset + 9] = (float)texId;
-
-        offset += (sizeof(Vertex) / sizeof(float));
+        m_VertexStackPointer++;
     }
 }
 
-void RenderBatch::LoadEmptyVertexProperties(int index) {
-    int vertexSize = (sizeof(Vertex) / sizeof(float));
-    int offset = index * vertexSize * 4;
+void RenderBatch::LoadEmptyVertexProperties() {
     for (int i=0; i < 4; i++) {
-        for (int j=0; j < vertexSize; j++) {
-            m_Vertices[offset + j] = 0;
-        }
-        offset += vertexSize;
+        m_VertexStackPointer = {};
+        m_VertexStackPointer++;
     }
 }
 
 void RenderBatch::Render() {
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4 * m_NumSprites, &m_Vertices[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4 * m_NumSprites, &m_VertexBufferBase[0]);
     
-    m_Shader->Bind();
-    m_Shader->UploadMat4("uProjection", m_Renderer->GetCamera().GetOrthoProjection());
-    m_Shader->UploadMat4("uView", m_Renderer->GetCamera().GetOrthoView());
-    for (int i=0; i < 16; i++) {
-        if (m_Textures[i] == nullptr) {
-            break;
-        }
+    for (int i=0; i < this->m_NumTextures; i++) {
         glActiveTexture(GL_TEXTURE0 + i + 1);
         m_Textures[i]->Bind();
     }
-    m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
     glBindVertexArray(m_VAO);
     glEnableVertexAttribArray(0);
@@ -161,13 +133,9 @@ void RenderBatch::Render() {
     glDisableVertexAttribArray(1);
     glBindVertexArray(0);
 
-    for (int i=0; i < 16; i++) {
-        if (m_Textures[i] == nullptr) {
-            break;
-        }
+    for (int i=0; i < this->m_NumTextures; i++) {
         m_Textures[i]->Unbind();
     }
-    m_Shader->Unbind();
 }
 
 void RenderBatch::GenerateIndices() {
@@ -189,4 +157,10 @@ void RenderBatch::LoadElementIndices(int index) {
     this->m_Indices[offsetArray + 3] = offset + 0;
     this->m_Indices[offsetArray + 4] = offset + 2;
     this->m_Indices[offsetArray + 5] = offset + 1;
+}
+
+void RenderBatch::Clear() {
+    this->m_VertexStackPointer = m_VertexBufferBase;
+    this->m_NumSprites = 0;
+    this->m_NumTextures = 0;
 }

@@ -41,9 +41,12 @@ void ImGuiLayer::StartFrame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+}
 
+void ImGuiLayer::ImGui() {
     SetupDockspace();
     RenderGameViewport();
+    JWindow::GetScene()->ImGui();
 }
 
 void ImGuiLayer::Render() {

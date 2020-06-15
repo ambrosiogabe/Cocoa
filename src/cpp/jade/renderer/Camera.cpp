@@ -1,5 +1,5 @@
 #include "jade/renderer/Camera.h"
-
+#include "jade/platform/JWindow.h"
 
 Camera::Camera(glm::vec3& position) {
     this->m_Transform = Transform(position, glm::vec3(1.0f), glm::vec3(0.0f));

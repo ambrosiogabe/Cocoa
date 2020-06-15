@@ -1,6 +1,7 @@
 #include "jade/renderer/Shader.h"
 #include "jade/platform/windows/GlFunctions.h"
 #include "jade/util/Log.h"
+#include "jade/core/Jade.h"
 
 #include <windows.h>
 #include <fstream>

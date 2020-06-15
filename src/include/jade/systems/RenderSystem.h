@@ -2,28 +2,41 @@
 
 #include "jade/renderer/Shader.h"
 #include "jade/renderer/Camera.h"
+#include "jade/systems/System.h"
+#include "jade/components/components.h"
+#include "jade/core/Jade.h"
 
 #include <vector>
 #include <entt/entt.h>
 
-typedef unsigned int uint;
+struct Vertex {
+    glm::vec3 position;
+    glm::vec4 color;
+    glm::vec2 texCoords;
+    float texId;
+};
 
 class RenderBatch;
-class RenderSystem {
+class RenderSystem : public System {
 public:
     RenderSystem(Camera* camera, entt::registry& registry) 
-        : m_Camera(camera), m_Registry(registry) {}
+        : m_Camera(camera), m_Registry(registry) {
+            m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
+        }
 
-    void AddEntity(entt::entity& entity);
+    void AddEntity(const Transform& transform, const SpriteRenderer& spr);
     void Render();
+    virtual void ImGui() override;
 
     Camera& GetCamera() const { return *m_Camera; }
     entt::registry& GetRegistry() const { return m_Registry; }
 
 public:
+    int m_TexSlots[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     static const int MAX_BATCH_SIZE;
 
 private:
+    Shader* m_Shader;
     std::vector<RenderBatch*> m_Batches;
     Camera* m_Camera;
     entt::registry& m_Registry;
@@ -31,42 +44,13 @@ private:
 
 const int RenderSystem::MAX_BATCH_SIZE = 1000;
 
-
-struct Vertex {
-    union {
-        float position[3];
-        struct {
-            float x;
-            float y;
-            float z;
-        };
-    };
-    union {
-        float color[4];
-        struct {
-            float r;
-            float g;
-            float b;
-            float a;
-        };
-    };
-    union {
-        float texCoords[2];
-        struct {
-            float uv0;
-            float uv1;
-        };
-    };
-    float texId;
-};
-
 class RenderBatch {
 public:
     RenderBatch(RenderSystem* renderer);
 
     void Clear();
     void Start();
-    void Add(entt::entity& entity);
+    void Add(const Transform& transform, const SpriteRenderer& spr);
     void Render();
 
     bool const HasRoom() {
@@ -91,25 +75,24 @@ public:
     }
 
 private:
-    void LoadVertexProperties(int index);
-    void LoadEmptyVertexProperties(int index);
+    void LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr);
+    void LoadEmptyVertexProperties();
     
     void LoadElementIndices(int index);
     void GenerateIndices();
 
 private:
-    entt::entity m_Entities[RenderSystem::MAX_BATCH_SIZE];
-    Shader* m_Shader;
     RenderSystem* m_Renderer;
     
-    float m_Vertices[RenderSystem::MAX_BATCH_SIZE * 4 * (sizeof(Vertex) / sizeof(float))];
-    int m_Indices[RenderSystem::MAX_BATCH_SIZE * 6];
+    Vertex* m_VertexBufferBase = new Vertex[RenderSystem::MAX_BATCH_SIZE * 4];
+    Vertex* m_VertexStackPointer = &m_VertexBufferBase[0];
+    uint32* m_Indices = new uint32[RenderSystem::MAX_BATCH_SIZE * 6];
     Texture* m_Textures[16];
-    int m_TexSlots[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
-    uint m_VAO, m_VBO, m_EBO;
-    int m_ZIndex = 0;
+    uint32 m_VAO, m_VBO, m_EBO;
+    uint16 m_ZIndex = 0;
     // TODO: make these like uint16s
-    int m_NumSprites = 0;
-    int m_NumTextures = 0;
+    uint16 m_NumSprites = 0;
+    uint16 m_NumTextures = 0;
+
 };

@@ -141,6 +141,7 @@ public:
     static int GetHeight() { return JWindow::Get()->m_Height; }
     static float GetTargetAspectRatio() { return JWindow::Get()->m_TargetAspectRatio; }
     static Framebuffer* GetFramebuffer() { return JWindow::Get()->m_Framebuffer; }
+    static Scene* GetScene() { return JWindow::Get()->m_CurrentScene; }
 
     static void Update(JWindow* window, float dt) { window->m_CurrentScene->Update(dt); }
     static void Render() { JWindow::Get()->_Render(); }

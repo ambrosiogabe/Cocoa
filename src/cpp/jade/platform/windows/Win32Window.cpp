@@ -208,6 +208,7 @@ void Win32Window::_Render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_ImGuiLayer.StartFrame();
+    m_ImGuiLayer.ImGui();
 
     if (showDemoWindow) {
         ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
