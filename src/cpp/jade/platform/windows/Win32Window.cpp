@@ -1,16 +1,14 @@
 #include "jade/platform/JWindow.h"
 #include "jade/util/Log.h"
 #include "jade/events/WindowEvents.h"
+#include "jade/events/Input.h"
 
+#include <imgui/imgui.h>
 #include <gl/GL.h>
 #include "gl/glext.h"
 #include "gl/wglext.h"
 #include <stdio.h>
 #include <io.h>
-
-#include "imgui/imgui.h"
-#include "imgui/examples/imgui_impl_win32.h"
-#include "imgui/examples/imgui_impl_opengl3.h"
 
 #define GL_LITE_IMPLEMENTATION
 #include "jade/platform/windows/GlFunctions.h"
@@ -18,7 +16,7 @@
 
 
 void Win32Window::ShowMessage(LPCSTR message) {
-    MessageBox(0, message, "Win32Window::Create", MB_ICONERROR);
+    MessageBoxA(0, message, "Win32Window::Create", MB_ICONERROR);
 }
 
 int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
@@ -29,8 +27,6 @@ int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
     freopen("CONOUT$", "w+", stdout);
 
     Log::Info("Console Win32Window created.");
-    Log::Warning("This is a warning. Ahh");
-    Log::Error("This is an error. Double uh oh.");
 
     // Proceed to create Win32Window...
     HWND fakeWND = CreateWindowExA(
@@ -172,31 +168,24 @@ int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
     SetWindowTextA(win->WND, (LPCSTR(glGetString(GL_VERSION))));
     ShowWindow(win->WND, nCmdShow);
 
-    // Setup dear imGui binding
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    // Init Win32
-    ImGui_ImplWin32_Init(win->WND);
-    ImGui_ImplWin32_EnableDpiAwareness();
-
-    // Init OpenGL imgui implementation
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    win->m_ImGuiLayer.Setup(win->WND);
 
     RegisterKeyCallback(&Input::KeyCallback);
     RegisterMouseButtonCallback(&Input::MouseButtonCallback);
     RegisterCursorCallback(&Input::CursorCallback);
     RegisterScrollCallback(&Input::ScrollCallback);
 
-    // ImGui style 
-    ImGui::StyleColorsClassic();
+    const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
+    const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+    Log::Info("Renderer: %s", renderer);
+    Log::Info("Vendor: %s", vendor);
 
     // Initialize and register Win32Window events callback
     WindowEvents::Init(win);
     RegisterResizeCallback(&WindowEvents::ResizeCallback);
+    
+    // Setup framebuffer
+    win->m_Framebuffer = new Framebuffer(3840, 2160);
 
     return 0;
 }
@@ -204,30 +193,32 @@ int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
 static bool showDemoWindow = true;
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.6f, 1.0f);
 void Win32Window::_Render() {
-    //glClearColor(0.128f, 0.586f, 0.949f, 1.0f);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
+    glViewport(0, 0, 3840, 2160);
     glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_CurrentScene->Render();
-    //Log::Assert(false == true, "Uh oh. False does not equal true.");
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Start ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+    glViewport(0, 0, GetWidth(), GetHeight());
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    ImGui::Begin("Test Win32Window");
-    ImGui::ColorEdit3("Clear Color: ", (float*)&clear_color);
-    ImGui::End();
+    m_ImGuiLayer.StartFrame();
 
     if (showDemoWindow) {
         ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
         ImGui::ShowDemoWindow(&showDemoWindow);
     }
 
-    // Render ImGui frame
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Begin("Test Win32Window");
+    ImGui::ColorEdit3("Clear Color: ", (float*)&clear_color);
+    ImGui::End();
+
+    m_ImGuiLayer.Render();
 
     SwapBuffers(DC);
 }

@@ -1,5 +1,5 @@
 #include "jade/events/Input.h"
-#include "jade/Jade.h"
+#include "jade/core/Jade.h"
 
 Input* Input::m_Instance = nullptr;
 

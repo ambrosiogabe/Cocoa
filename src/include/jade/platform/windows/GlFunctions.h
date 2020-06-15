@@ -40,8 +40,10 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(void,      DrawElementsBaseVertex,     GLenum mode, GLsizei count, GLenum type, const void *indices, GLint basevertex) \
     GLE(void,      EnableVertexAttribArray,    GLuint index) \
     GLE(void,      FramebufferTexture2D,       GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) \
+    GLE(void,      FramebufferRenderbuffer,    GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) \
     GLE(void,      GenBuffers,                 GLsizei n, GLuint *buffers) \
     GLE(void,      GenFramebuffers,            GLsizei n, GLuint * framebuffers) \
+    GLE(void,      GenRenderbuffers,           GLsizei n, GLuint *renderbuffers) \
     GLE(void,      GenVertexArrays,            GLsizei n, GLuint *arrays) \
     GLE(GLint,     GetAttribLocation,          GLuint program, const GLchar *name) \
     GLE(void,      GetProgramInfoLog,          GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog) \
@@ -51,6 +53,7 @@ typedef ptrdiff_t GLsizeiptr;
     GLE(GLubyte*,  GetStringi,                 GLenum name, GLuint index) \
     GLE(GLint,     GetUniformLocation,         GLuint program, const GLchar *name) \
     GLE(void,      LinkProgram,                GLuint program) \
+    GLE(void,      RenderbufferStorage,        GLenum target, GLenum internalformat, GLsizei width, GLsizei height) \
     GLE(void,      ShaderSource,               GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) \
     GLE(void,      Uniform1i,                  GLint location, GLint v0) \
     GLE(void,      Uniform1iv,                 GLint location, GLsizei count, const GLint *value) \

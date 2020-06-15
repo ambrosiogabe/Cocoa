@@ -3,6 +3,12 @@
 
 Camera::Camera(glm::vec3& position) {
     this->m_Transform = Transform(position, glm::vec3(1.0f), glm::vec3(0.0f));
+    this->m_CameraForward = glm::vec3();
+    this->m_CameraUp = glm::vec3();
+    this->m_CameraRight = glm::vec3();
+
+    this->m_InverseProjection = glm::mat4();
+    this->m_OrthoInverseProjection = glm::mat4();
 
     this->AdjustPerspective();
 }
@@ -34,7 +40,8 @@ glm::mat4& Camera::GetViewMatrix() {
 
 glm::mat4& Camera::GetOrthoView() {
     glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 0.0f);
-    glm::vec3 cameraUp = glm::vec3(0, 1, 0);
+    glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
+    glm::normalize(cameraUp);
 
     this->m_ViewMatrix = glm::lookAt(glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 20), cameraFront, cameraUp);
 

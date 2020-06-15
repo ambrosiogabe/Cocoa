@@ -1,7 +1,9 @@
 #pragma once
 
 #include "jade/renderer/Texture.h"
+#include "jade/util/Log.h"
 
+#include <entt/entt.h>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -22,7 +24,8 @@ struct Sprite {
     };
 };
 
-struct Spritesheet {
+class Spritesheet {
+public:
     Texture* m_Texture;
     std::vector<Sprite> m_Sprites;
 
@@ -72,37 +75,23 @@ struct SpriteRenderer {
     Sprite* m_Sprite = defaultSprite;
 };
 
-class Transform {
-public:
+struct Transform {
     Transform() {
-        m_Position = glm::vec3(0);
-        m_Scale = glm::vec3(1);
-        m_EulerRotation = glm::vec3(0);
-        m_Orientation = glm::toQuat(glm::orientate3(m_EulerRotation));
-        m_Forward = glm::vec3(0, 0, 1);
-        m_Up = glm::vec3(0, 1, 0);
-        m_Right = glm::vec3(1, 0, 0);
+        Init(glm::vec3(0), glm::vec3(1), glm::vec3(0));
     }
 
-    Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation)
-        : m_Position(position), m_Scale(scale), m_EulerRotation(eulerRotation) {
-            m_Orientation = glm::toQuat(glm::orientate3(m_EulerRotation));
+    Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, entt::entity parent=entt::null) {
+        Init(position, scale, eulerRotation, parent);
+    }
 
-            m_Forward = glm::vec3(0, 0, 1) * m_Orientation;
-            m_Up = glm::vec3(0, 1, 0) * m_Orientation;
-            m_Right = glm::vec3(1, 0, 0) * m_Orientation;
-
-            this->Update();
-        }
-
-    
-    void Update() {
+    void UpdateMatrices() {
         m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Position);
         m_ModelMatrix = m_ModelMatrix * glm::toMat4(m_Orientation);
         m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
     }
 
-public:
+    entt::entity m_Parent;
+    entt::entity m_Children[10];
     glm::vec3 m_Position;
     glm::vec3 m_Scale;
     glm::vec3 m_EulerRotation;
@@ -114,4 +103,23 @@ public:
 
     glm::mat4 m_ModelMatrix;
     glm::mat4 m_InverseModelMatrix;
+
+private:
+    void Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, entt::entity parent=entt::null) {
+        m_Position = position;
+        m_Scale = scale;
+        m_EulerRotation = eulerRotation;
+        m_Orientation = glm::toQuat(glm::orientate3(m_EulerRotation));
+
+        m_Forward = glm::vec3(0, 0, 1) * m_Orientation;
+        m_Up = glm::vec3(0, 1, 0) * m_Orientation;
+        m_Right = glm::vec3(1, 0, 0) * m_Orientation;
+        m_Parent = parent;
+
+        this->UpdateMatrices();
+
+        for (int i=0; i < 10; i++) {
+            m_Children[i] = entt::null;
+        }
+    }
 };

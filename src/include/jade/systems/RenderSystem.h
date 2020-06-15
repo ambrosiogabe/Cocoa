@@ -14,7 +14,7 @@ public:
     RenderSystem(Camera* camera, entt::registry& registry) 
         : m_Camera(camera), m_Registry(registry) {}
 
-    void AddActor(entt::actor& actor);
+    void AddEntity(entt::entity& entity);
     void Render();
 
     Camera& GetCamera() const { return *m_Camera; }
@@ -66,7 +66,7 @@ public:
 
     void Clear();
     void Start();
-    void Add(entt::actor& spr);
+    void Add(entt::entity& entity);
     void Render();
 
     bool const HasRoom() {
@@ -98,7 +98,7 @@ private:
     void GenerateIndices();
 
 private:
-    entt::entity m_Actors[RenderSystem::MAX_BATCH_SIZE];
+    entt::entity m_Entities[RenderSystem::MAX_BATCH_SIZE];
     Shader* m_Shader;
     RenderSystem* m_Renderer;
     

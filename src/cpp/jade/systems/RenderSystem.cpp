@@ -2,18 +2,18 @@
 
 #include "jade/util/Log.h"
 
-void RenderSystem::AddActor(entt::actor& actor) {
-    bool hasSprite = actor.has<SpriteRenderer>();
+void RenderSystem::AddEntity(entt::entity& entity) {
+    bool hasSprite = m_Registry.has<SpriteRenderer>(entity);
     
     if (hasSprite) {
-        SpriteRenderer spr = actor.get<SpriteRenderer>();
+        SpriteRenderer spr = m_Registry.get<SpriteRenderer>(entity);
         Sprite* sprite = spr.m_Sprite;
         bool wasAdded = false;
         for (RenderBatch* batch : m_Batches) {
             if (batch->HasRoom()) {
                 Texture* tex = sprite->m_Texture;
                 if (tex == nullptr || (batch->HasTexture(tex) || batch->HasTextureRoom())) {
-                    batch->Add(actor);
+                    batch->Add(entity);
                     wasAdded = true;
                     break;
                 }
@@ -23,7 +23,7 @@ void RenderSystem::AddActor(entt::actor& actor) {
         if (!wasAdded) {
             RenderBatch* newBatch = new RenderBatch(this);
             newBatch->Start();
-            newBatch->Add(actor);
+            newBatch->Add(entity);
             m_Batches.push_back(newBatch);
         }
     }

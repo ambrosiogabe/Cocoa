@@ -12,6 +12,10 @@
 RenderBatch::RenderBatch(RenderSystem* renderer) {
     this->m_Renderer = renderer;
     this->GenerateIndices();
+
+    for (int i=0; i < 16; i++) {
+        m_Textures[i] = nullptr;
+    }
 }
 
 void RenderBatch::Start() {
@@ -42,12 +46,12 @@ void RenderBatch::Start() {
     glEnableVertexAttribArray(3);
 }
 
-void RenderBatch::Add(entt::actor& actor) {
+void RenderBatch::Add(entt::entity& entity) {
     int index = m_NumSprites;
-    m_Actors[index] = actor.entity();
+    m_Entities[index] = entity;
     m_NumSprites++;
 
-    Sprite* sprite = actor.get<SpriteRenderer>().m_Sprite;
+    Sprite* sprite = m_Renderer->GetRegistry().get<SpriteRenderer>(entity).m_Sprite;
     Texture* tex = sprite->m_Texture;
     if (tex != nullptr) {
         if (!HasTexture(tex)) {
@@ -61,12 +65,12 @@ void RenderBatch::Add(entt::actor& actor) {
 
 void RenderBatch::LoadVertexProperties(int index) {
     entt::registry& registry = m_Renderer->GetRegistry();
-    entt::actor actor = entt::actor(m_Actors[index], registry);
 
+    entt::entity entity = m_Entities[index];
     int offset = index * (sizeof(Vertex) / sizeof(float)) * 4;
 
-    Transform transform = actor.get<Transform>();
-    SpriteRenderer spr = actor.get<SpriteRenderer>();
+    Transform transform = registry.get<Transform>(entity);
+    SpriteRenderer spr = registry.get<SpriteRenderer>(entity);
     glm::mat4 matrix = glm::mat4(1.0f);
     matrix = glm::translate(matrix, transform.m_Position);
     matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));

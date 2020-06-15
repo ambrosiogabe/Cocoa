@@ -3,6 +3,7 @@
 class Texture {
 public:
     Texture(const char* resourceName);
+    Texture(int width, int height);
 
     void Bind();
     void Unbind();

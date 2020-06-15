@@ -1,8 +1,10 @@
 #pragma once
 
-#include "jade/Jade.h"
+#include "jade/core/Jade.h"
 #include "jade/scenes/Scene.h"
 #include "jade/util/Log.h"
+#include "jade/core/ImGuiLayer.h"
+#include "jade/renderer/Framebuffer.h"
 
 class JWindow {
 public:
@@ -137,6 +139,8 @@ public:
 
     static int GetWidth() { return JWindow::Get()->m_Width; }
     static int GetHeight() { return JWindow::Get()->m_Height; }
+    static float GetTargetAspectRatio() { return JWindow::Get()->m_TargetAspectRatio; }
+    static Framebuffer* GetFramebuffer() { return JWindow::Get()->m_Framebuffer; }
 
     static void Update(JWindow* window, float dt) { window->m_CurrentScene->Update(dt); }
     static void Render() { JWindow::Get()->_Render(); }
@@ -181,9 +185,13 @@ protected:
     ResizeCallbackFnPt        resizeCallbacks[3];
 
     Scene* m_CurrentScene;
+    ImGuiLayer m_ImGuiLayer = ImGuiLayer();
+    Framebuffer* m_Framebuffer;
+
     bool m_Running = true;
     int m_Width = 1920;
     int m_Height = 1080;
+    float m_TargetAspectRatio = 1920.0f / 1080.0f;
 };
 
 
