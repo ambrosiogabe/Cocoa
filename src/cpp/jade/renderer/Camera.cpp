@@ -16,8 +16,8 @@ Camera::Camera(glm::vec3& position) {
 void Camera::AdjustPerspective() {
     this->CalculateAspect();
 
-    this->m_ProjectionMatrix = glm::perspective(m_Fov, m_Aspect, 0.1f, 10000.0f);
-    this->m_OrthoProjection = glm::ortho(-1080.0f * m_Aspect * m_Zoom / 2.0f, 1080.0f * m_Aspect * m_Zoom / 2.0f, -1080.0f * m_Zoom / 2.0f, 1080.0f * m_Zoom, 0.5f, 100.0f);
+    this->m_ProjectionMatrix = glm::perspective(m_Fov, m_Aspect, 0.5f, 10000.0f);
+    this->m_OrthoProjection = glm::ortho(-1920.0f * m_Zoom / 2.0f, 1920.0f * m_Zoom / 2.0f, -1080.0f * m_Zoom / 2.0f, 1080.0f * m_Zoom / 2.0f, 0.5f, 100.0f);
 
     this->m_InverseProjection = glm::inverse(m_ProjectionMatrix);
     this->m_OrthoInverseProjection = glm::inverse(m_OrthoProjection);
@@ -50,5 +50,5 @@ glm::mat4& Camera::GetOrthoView() {
 
 void Camera::CalculateAspect() {
     // TODO: actually make this calculate window's current aspect
-    this->m_Aspect = (float)JWindow::GetWidth() / (float)JWindow::GetHeight();
+    this->m_Aspect = JWindow::GetTargetAspectRatio();
 }

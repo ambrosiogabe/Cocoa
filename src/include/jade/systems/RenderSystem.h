@@ -19,17 +19,16 @@ struct Vertex {
 class RenderBatch;
 class RenderSystem : public System {
 public:
-    RenderSystem(Camera* camera, entt::registry& registry) 
-        : m_Camera(camera), m_Registry(registry) {
-            m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
-        }
+    RenderSystem(Camera* camera) {
+        m_Camera = camera;
+        m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
+    }
 
     void AddEntity(const Transform& transform, const SpriteRenderer& spr);
-    void Render();
-    virtual void ImGui() override;
+    virtual void Render(entt::registry& registry) override;
+    virtual void ImGui(entt::registry& registry) override;
 
     Camera& GetCamera() const { return *m_Camera; }
-    entt::registry& GetRegistry() const { return m_Registry; }
 
 public:
     int m_TexSlots[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
@@ -39,7 +38,6 @@ private:
     Shader* m_Shader;
     std::vector<RenderBatch*> m_Batches;
     Camera* m_Camera;
-    entt::registry& m_Registry;
 };
 
 const int RenderSystem::MAX_BATCH_SIZE = 1000;

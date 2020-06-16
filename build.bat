@@ -19,7 +19,9 @@ REM TODO: Put commands to copy assets folder into here
 REM Debug Build
 REM cl %CommonCompilerFlags% -DJADE_EXPORT_DLL -Zi -EHsc ..\src\cpp\Jade.cpp /LD /link /INCREMENTAL:NO /DLL /EXPORT:WindowUpdate
 xcopy /s /e /q /y /i "..\assets" "assets"
-REM cl %CommonCompilerFlags% -Z7 -EHsc %Files% %CommonLinkerFlags%
+cl %CommonCompilerFlags% -Z7 -EHsc %Files% %CommonLinkerFlags%
 REM Release build
-cl %CommonCompilerFlags% -Ox -EHsc %Files% %CommonLinkerFlags%
+REM cl %CommonCompilerFlags% -Ox -EHsc %Files% %CommonLinkerFlags%
 popd
+
+start .\build\winMain.exe

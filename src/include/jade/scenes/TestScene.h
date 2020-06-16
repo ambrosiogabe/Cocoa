@@ -10,7 +10,4 @@ public:
     virtual void Render() override;
     virtual void Update(float dt) override;
     virtual void Start() override;
-
-private:
-    System* m_Systems[100];
 };

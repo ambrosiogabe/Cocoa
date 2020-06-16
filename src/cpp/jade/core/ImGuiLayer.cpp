@@ -46,7 +46,10 @@ void ImGuiLayer::StartFrame() {
 void ImGuiLayer::ImGui() {
     SetupDockspace();
     RenderGameViewport();
+
+    ImGui::Begin("Inspector");
     JWindow::GetScene()->ImGui();
+    ImGui::End();
 }
 
 void ImGuiLayer::Render() {
@@ -63,20 +66,20 @@ void ImGuiLayer::RenderGameViewport() {
 
     ImVec2 windowSize = ImGui::GetWindowContentRegionMax();
     // Figure out the largest area that fits this target aspect ratio
-    int aspectWidth = (int)windowSize.x;
-    int aspectHeight = (int)((float)aspectWidth / JWindow::GetTargetAspectRatio());
+    float aspectWidth = windowSize.x;
+    float aspectHeight = (float)aspectWidth / JWindow::GetTargetAspectRatio();
     if (aspectHeight > windowSize.y) {
         // It doesn't fit our height, we must switch to pillarbox
-        aspectHeight = (int)windowSize.y;
-        aspectWidth = (int)((float)aspectHeight * JWindow::GetTargetAspectRatio());
+        aspectHeight = windowSize.y;
+        aspectWidth = (float)aspectHeight * JWindow::GetTargetAspectRatio();
     }
 
     // Center rectangle
-    int vpX = (int)(((float)windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f));
-    int vpY = (int)(((float)windowSize.y / 2.0f) - ((float)aspectHeight / 2.0f));
+    float vpX = ((float)windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f);
+    float vpY = ((float)windowSize.y / 2.0f) - ((float)aspectHeight / 2.0f);
 
-    ImGui::SetCursorPos(ImVec2((float)vpX, (float)vpY));
-    ImGui::Image((void*)JWindow::GetFramebuffer()->GetId(), ImVec2((float)aspectWidth, (float)aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::SetCursorPos(ImVec2(vpX, vpY));
+    ImGui::Image((void*)JWindow::GetFramebuffer()->GetId(), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
     ImGui::End();
     ImGui::PopStyleColor();

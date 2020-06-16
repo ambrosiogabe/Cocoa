@@ -192,7 +192,7 @@ protected:
     bool m_Running = true;
     int m_Width = 1920;
     int m_Height = 1080;
-    float m_TargetAspectRatio = 1920.0f / 1080.0f;
+    float m_TargetAspectRatio = 3840.0f / 2160.0f;
 };
 
 

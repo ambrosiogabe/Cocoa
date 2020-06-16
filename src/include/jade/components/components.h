@@ -80,8 +80,9 @@ struct Transform {
         Init(glm::vec3(0), glm::vec3(1), glm::vec3(0));
     }
 
-    Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, entt::entity parent=entt::null) {
-        Init(position, scale, eulerRotation, parent);
+    Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name="New GameObject", 
+                entt::entity parent=entt::null, entt::entity previous=entt::null) {
+        Init(position, scale, eulerRotation, name, parent, previous);
     }
 
     void UpdateMatrices() {
@@ -91,7 +92,10 @@ struct Transform {
     }
 
     entt::entity m_Parent;
-    entt::entity m_Children[10];
+    entt::entity m_Previous;
+    entt::entity m_Next;
+    entt::entity m_First;
+
     glm::vec3 m_Position;
     glm::vec3 m_Scale;
     glm::vec3 m_EulerRotation;
@@ -103,9 +107,11 @@ struct Transform {
 
     glm::mat4 m_ModelMatrix;
     glm::mat4 m_InverseModelMatrix;
+    const char* m_Name;
 
 private:
-    void Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, entt::entity parent=entt::null) {
+    void Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name="New GameObject", 
+        entt::entity parent=entt::null, entt::entity previous=entt::null) {
         m_Position = position;
         m_Scale = scale;
         m_EulerRotation = eulerRotation;
@@ -114,12 +120,12 @@ private:
         m_Forward = glm::vec3(0, 0, 1) * m_Orientation;
         m_Up = glm::vec3(0, 1, 0) * m_Orientation;
         m_Right = glm::vec3(1, 0, 0) * m_Orientation;
+        m_Name = name;
         m_Parent = parent;
+        m_Previous = previous;
+        m_First = entt::null;
+        m_Next = entt::null;
 
         this->UpdateMatrices();
-
-        for (int i=0; i < 10; i++) {
-            m_Children[i] = entt::null;
-        }
     }
 };

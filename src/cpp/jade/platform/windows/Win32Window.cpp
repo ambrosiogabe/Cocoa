@@ -190,13 +190,12 @@ int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
     return 0;
 }
 
-static bool showDemoWindow = true;
-static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.6f, 1.0f);
+static bool showDemoWindow = false;
 void Win32Window::_Render() {
     
     glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
     glViewport(0, 0, 3840, 2160);
-    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_CurrentScene->Render();
@@ -214,10 +213,6 @@ void Win32Window::_Render() {
         ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
         ImGui::ShowDemoWindow(&showDemoWindow);
     }
-
-    ImGui::Begin("Test Win32Window");
-    ImGui::ColorEdit3("Clear Color: ", (float*)&clear_color);
-    ImGui::End();
 
     m_ImGuiLayer.Render();
 

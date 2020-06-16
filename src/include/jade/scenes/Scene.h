@@ -13,11 +13,22 @@ public:
     virtual void Update(float dt) = 0;
     virtual void Start() = 0;
 
-    entt::entity* GetActiveEntity() const { return m_ActiveEntity; }
+    entt::entity GetActiveEntity() const { return m_ActiveEntity; }
+
+    void AddSystem(System* system) {
+        m_Systems[m_SystemCount++] = system;
+    }
+
+    const entt::registry& GetRegistry() const {
+        return m_Registry;
+    }
 
 protected:
-    entt::registry m_Registry;
-    RenderSystem* m_RenderSystem;
+    System* m_Systems[100];
+    uint16 m_SystemCount = 0;
+
+    entt::registry m_Registry = entt::registry();
+
     Camera* m_Camera;
-    entt::entity* m_ActiveEntity = nullptr;
+    entt::entity m_ActiveEntity = entt::null;
 };

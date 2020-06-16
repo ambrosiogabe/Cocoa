@@ -9,6 +9,7 @@ public:
         JWindow* win = Get()->m_Window;
         win->SetWidth(width);
         win->SetHeight(height);
+
         glViewport(0, 0, width, height);
     }
 
