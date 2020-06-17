@@ -1,5 +1,7 @@
 #pragma once
 
+#include "jade/core/MenuBar.h"
+
 class ImGuiLayer {
 public:
     ImGuiLayer() {}
@@ -9,11 +11,17 @@ public:
     void ImGui();
     void Render();
 
+    const glm::vec2& GetGameviewPos() const { return m_GameviewPos; }
+    const glm::vec2& GetGameviewSize() const { return m_GameviewSize; }
+
 private:
     void SetupDockspace();
     void RenderGameViewport();
 
 private:
-    void* m_Window;
+    glm::vec2 m_GameviewPos = glm::vec2();
+    glm::vec2 m_GameviewSize = glm::vec2();
 
+    void* m_Window;
+    MenuBar m_MenuBar = MenuBar();
 };

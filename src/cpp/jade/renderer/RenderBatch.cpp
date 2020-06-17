@@ -82,15 +82,15 @@ void RenderBatch::LoadVertexProperties(const Transform& transform, const SpriteR
         matrix = glm::scale(matrix, transform.m_Scale);
     }
 
-    float xAdd = 0.5f;
-    float yAdd = -0.5f;
+    float xAdd = 1.0f;
+    float yAdd = 0.0f;
     for (int i=0; i < 4; i++) {
         if (i == 1) {
-            yAdd = 0.5f;
+            yAdd = 1.0f;
         } else if (i == 2) {
-            xAdd = -0.5f;
+            xAdd = 0.0f;
         } else if (i == 3) {
-            yAdd = -0.5f;
+            yAdd = 0.0f;
         }
 
         glm::vec4 currentPos = glm::vec4(transform.m_Position.x + (xAdd * transform.m_Scale.x), transform.m_Position.y + (yAdd * transform.m_Scale.y), 0.0f, 1.0f);

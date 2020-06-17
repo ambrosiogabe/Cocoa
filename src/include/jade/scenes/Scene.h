@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jade/systems/RenderSystem.h"
+#include "jade/core/ImGuiLayer.h"
 
 #include <entt/entt.h>
 #include <vector>
@@ -13,17 +14,20 @@ public:
     virtual void Update(float dt) = 0;
     virtual void Start() = 0;
 
-    entt::entity GetActiveEntity() const { return m_ActiveEntity; }
 
-    void AddSystem(System* system) {
-        m_Systems[m_SystemCount++] = system;
-    }
+    void AddSystem(System* system) { m_Systems[m_SystemCount++] = system; }
+    
+    void SetActiveEntity(entt::entity entity) { m_ActiveEntity = entity; }
 
-    const entt::registry& GetRegistry() const {
-        return m_Registry;
-    }
+    const glm::vec2& GetGameviewPos() const { return m_ImGuiLayer.GetGameviewPos(); }
+    const glm::vec2& GetGameviewSize() const { return m_ImGuiLayer.GetGameviewSize(); }
+    entt::registry&  GetRegistry() { return m_Registry; }
+    Camera*          GetCamera() const { return m_Camera;}
+    entt::entity     GetActiveEntity() const { return m_ActiveEntity; }
 
 protected:
+    ImGuiLayer m_ImGuiLayer = ImGuiLayer();
+
     System* m_Systems[100];
     uint16 m_SystemCount = 0;
 

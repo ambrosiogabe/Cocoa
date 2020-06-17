@@ -168,7 +168,8 @@ int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
     SetWindowTextA(win->WND, (LPCSTR(glGetString(GL_VERSION))));
     ShowWindow(win->WND, nCmdShow);
 
-    win->m_ImGuiLayer.Setup(win->WND);
+    //win->m_ImGuiLayer.Setup(win->WND);
+    win->m_WindowHandle = win->WND;
 
     RegisterKeyCallback(&Input::KeyCallback);
     RegisterMouseButtonCallback(&Input::MouseButtonCallback);
@@ -190,7 +191,6 @@ int Win32Window::Create(HINSTANCE hInstance, int nCmdShow) {
     return 0;
 }
 
-static bool showDemoWindow = false;
 void Win32Window::_Render() {
     
     glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
@@ -206,16 +206,7 @@ void Win32Window::_Render() {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    m_ImGuiLayer.StartFrame();
-    m_ImGuiLayer.ImGui();
-
-    if (showDemoWindow) {
-        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
-        ImGui::ShowDemoWindow(&showDemoWindow);
-    }
-
-    m_ImGuiLayer.Render();
-
+    m_CurrentScene->ImGui();
     SwapBuffers(DC);
 }
 

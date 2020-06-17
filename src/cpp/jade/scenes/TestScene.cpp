@@ -6,6 +6,7 @@
 #include "jade/events/Input.h"
 #include "jade/core/Jade.h"
 #include "jade/systems/LevelEditorSystem.h"
+#include "jade/platform/JWindow.h"
 
 #include <windows.h>
 #include <gl/GL.h>
@@ -22,6 +23,8 @@ Spritesheet* sprites = nullptr;
 Texture* texture = nullptr;
 
 void TestScene::Init() {
+    m_ImGuiLayer.Setup(JWindow::GetWindowHandle());
+
     auto group = m_Registry.group<SpriteRenderer>(entt::get<Transform>);
 
     for (int i=0; i < 100; i++) {
@@ -30,13 +33,13 @@ void TestScene::Init() {
 
     Log::Info("Initializing test scene.");
 
-    glm::vec3 cameraPos = glm::vec3(0, 0, 0);
+    LevelEditorSystem* levelEditorSystem = new LevelEditorSystem();
+    AddSystem(levelEditorSystem);
+
+    glm::vec3 cameraPos = glm::vec3(1920.0f/2.0f, 1080.0f/2.0f, 0);
     m_Camera = new Camera(cameraPos);
     RenderSystem* renderSystem = new RenderSystem(m_Camera);
     AddSystem(renderSystem);
-
-    LevelEditorSystem* levelEditorSystem = new LevelEditorSystem();
-    AddSystem(levelEditorSystem);
 
     texture = new Texture("C:/dev/C++/DungeonCrawler/assets/images/decorationsAndBlocks.png");
     sprites = new Spritesheet(texture, 16, 16, 81, 0);
@@ -111,8 +114,24 @@ void TestScene::Update(float dt) {
     }
 }
 
+static bool showDemoWindow = true;
 void TestScene::ImGui() {
+    m_ImGuiLayer.StartFrame();
+    m_ImGuiLayer.ImGui();
+
+    if (showDemoWindow) {
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+        ImGui::ShowDemoWindow(&showDemoWindow);
+    }
+
+    ImGui::Begin("Inspector");
+
     for (int i=0; i < m_SystemCount; i++) {
         m_Systems[i]->ImGui(m_Registry);
+        ImGui::Separator();
     }
+
+    ImGui::End();
+
+    m_ImGuiLayer.Render();
 }

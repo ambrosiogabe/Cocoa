@@ -1,5 +1,8 @@
 #include "jade/events/Input.h"
 #include "jade/core/Jade.h"
+#include "jade/platform/JWindow.h"
+
+#include <glm/vec4.hpp>
 
 Input* Input::m_Instance = nullptr;
 
@@ -39,6 +42,30 @@ float Input::MouseX() {
 
 float Input::MouseY() {
     return Input::Get()->m_YPos;
+}
+
+float Input::OrthoMouseX() {
+    const glm::vec2& gameviewPos = JWindow::GetScene()->GetGameviewPos();
+    const glm::vec2& gameviewSize = JWindow::GetScene()->GetGameviewSize();
+
+    float currentX = MouseX() - gameviewPos.x;
+    currentX = (currentX / gameviewSize.x) * 2.0f - 1.0f;
+    glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
+    tmp = JWindow::GetScene()->GetCamera()->GetOrthoInverseView() * JWindow::GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
+
+    return tmp.x;
+}
+
+float Input::OrthoMouseY() {
+    const glm::vec2& gameviewPos = JWindow::GetScene()->GetGameviewPos();
+    const glm::vec2& gameviewSize = JWindow::GetScene()->GetGameviewSize();
+
+    float currentY = gameviewPos.y - MouseY();
+    currentY = (currentY / gameviewSize.y) * 2.0f - 1.0f;
+    glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
+    tmp = JWindow::GetScene()->GetCamera()->GetOrthoInverseView() * JWindow::GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
+
+    return tmp.y;
 }
 
 void Input::ScrollCallback(double xpos, double ypos) {

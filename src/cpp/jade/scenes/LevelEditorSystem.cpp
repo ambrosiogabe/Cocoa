@@ -1,7 +1,10 @@
 #include "jade/systems/LevelEditorSystem.h"
+#include "jade/platform/JWindow.h"
+#include "jade/events/Input.h"
 
 #include <string>
 #include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 void LevelEditorSystem::Start(entt::registry& registry) {
     auto view = registry.view<Transform>();
@@ -22,7 +25,24 @@ void LevelEditorSystem::Start(entt::registry& registry) {
 }
 
 void LevelEditorSystem::Update(entt::registry& registry, float dt) {
+    // TODO: FIX MOUSE EVENTS SO THAT IF IMGUI CONSUMES IT, IT DOES NOT CONTINUE TO GET PASSED ON TO MY EVENT LISTENERS!!!
+    m_DebounceLeft -= dt;
 
+    if (m_DebounceLeft <= 0.0f && Input::MouseButtonPressed(JADE_MOUSE_BUTTON_LEFT)) {
+        float worldX = Input::OrthoMouseX();
+        float worldY = Input::OrthoMouseY();
+
+        auto view = registry.view<Transform>();
+        for (auto entity : view) {
+            Transform& transform = view.get<Transform>(entity);
+            if (worldX >= transform.m_Position.x && worldX <= transform.m_Position.x + transform.m_Scale.x && 
+                worldY >= transform.m_Position.y && worldY <= transform.m_Position.y + transform.m_Scale.y) {
+                JWindow::GetScene()->SetActiveEntity(entity);
+                m_DebounceLeft = m_DebounceTime;
+                break;
+            }
+        }
+    }
 }
 
 void LevelEditorSystem::ImGui(entt::registry& registry) {
@@ -37,6 +57,16 @@ void LevelEditorSystem::ImGui(entt::registry& registry) {
         }
     }
     ImGui::End();
+
+    entt::entity activeEntity = JWindow::GetScene()->GetActiveEntity();
+    if (registry.has<Transform>(activeEntity)) {
+        Transform& transform = registry.get<Transform>(activeEntity);
+        if (ImGui::CollapsingHeader("Transform")) {
+            ImGui::DragFloat3("Position: ", glm::value_ptr(transform.m_Position));
+            ImGui::DragFloat3("Scale: ", glm::value_ptr(transform.m_Scale));
+            ImGui::DragFloat3("Rotation: ", glm::value_ptr(transform.m_EulerRotation));
+        }
+    }
 }
 
 

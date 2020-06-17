@@ -1,4 +1,5 @@
 #include "src/cpp/jade/core/ImGuiLayer.cpp"
+#include "src/cpp/jade/core/MenuBar.cpp"
 #include "src/cpp/jade/events/Input.cpp"
 #include "src/cpp/jade/platform/windows/Win32Window.cpp"
 #include "src/cpp/jade/renderer/Camera.cpp"

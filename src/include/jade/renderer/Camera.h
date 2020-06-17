@@ -21,6 +21,7 @@ public:
     const glm::mat4& GetOrthoProjection() const { return m_OrthoProjection; }
     const glm::mat4& GetInverseProjection() const { return m_InverseProjection; }
     const glm::mat4& GetOrthoInverseProjection() const { return m_OrthoInverseProjection; }
+    const glm::mat4& GetOrthoInverseView() const { return m_OrthoInverseView; }
 
     void SetZoom(float zoom) { 
         m_Zoom = zoom; 
@@ -33,7 +34,7 @@ private:
 
 private:
     // Projection/View matrices for ortho and perspective
-    glm::mat4 m_ProjectionMatrix, m_ViewMatrix, m_InverseProjection, m_OrthoProjection, m_OrthoView, m_OrthoInverseProjection;
+    glm::mat4 m_ProjectionMatrix, m_ViewMatrix, m_InverseProjection, m_OrthoProjection, m_OrthoView, m_OrthoInverseProjection, m_OrthoInverseView;
 
     Transform m_Transform;
     glm::vec3 m_CameraForward, m_CameraUp, m_CameraRight;

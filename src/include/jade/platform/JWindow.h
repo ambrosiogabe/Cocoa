@@ -142,6 +142,7 @@ public:
     static float GetTargetAspectRatio() { return JWindow::Get()->m_TargetAspectRatio; }
     static Framebuffer* GetFramebuffer() { return JWindow::Get()->m_Framebuffer; }
     static Scene* GetScene() { return JWindow::Get()->m_CurrentScene; }
+    static void* GetWindowHandle() { return JWindow::Get()->m_WindowHandle; }
 
     static void Update(JWindow* window, float dt) { window->m_CurrentScene->Update(dt); }
     static void Render() { JWindow::Get()->_Render(); }
@@ -177,6 +178,7 @@ protected:
 
 protected:
     static JWindow* m_Instance;
+    void* m_WindowHandle;
 
     // Registered callbacks
     KeyCallbackFnPt           keyCallbacks[3];
@@ -186,7 +188,6 @@ protected:
     ResizeCallbackFnPt        resizeCallbacks[3];
 
     Scene* m_CurrentScene;
-    ImGuiLayer m_ImGuiLayer = ImGuiLayer();
     Framebuffer* m_Framebuffer;
 
     bool m_Running = true;

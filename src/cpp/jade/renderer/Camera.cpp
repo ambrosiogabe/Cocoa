@@ -43,9 +43,10 @@ glm::mat4& Camera::GetOrthoView() {
     glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
     glm::normalize(cameraUp);
 
-    this->m_ViewMatrix = glm::lookAt(glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 20), cameraFront, cameraUp);
+    this->m_OrthoView = glm::lookAt(glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 20), cameraFront, cameraUp);
+    this->m_OrthoInverseView = glm::inverse(m_OrthoView);
 
-    return this->m_ViewMatrix;
+    return this->m_OrthoView;
 }
 
 void Camera::CalculateAspect() {

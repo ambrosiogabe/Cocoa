@@ -47,11 +47,12 @@ void RenderSystem::Render(entt::registry& registry) {
 }
 
 void RenderSystem::ImGui(entt::registry& registry) {
-    registry.group<SpriteRenderer>(entt::get<Transform>).each([this](auto& entity, auto& spr, auto& transform) {
-        if (entt::to_integral(JWindow::GetScene()->GetActiveEntity()) == entt::to_integral(entity)) {
-            ImGui::LabelText("Sprite Renderer", "");
+    entt::entity activeEntity = JWindow::GetScene()->GetActiveEntity();
+
+    if (registry.has<SpriteRenderer>(activeEntity)) {
+        if (ImGui::CollapsingHeader("Sprite Renderer")) {
+            SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
             ImGui::ColorPicker4("Sprite Color: ", glm::value_ptr(spr.m_Color));
-            ImGui::Separator();
         }
-    });
+    }
 }

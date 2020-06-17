@@ -15,6 +15,9 @@ public:
     static float ScrollY();
     static void EndFrame();
 
+    static float OrthoMouseX();
+    static float OrthoMouseY();
+
 private:
     Input::Input() {
         for (int i=0; i < 349; i++) {
