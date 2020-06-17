@@ -2,6 +2,7 @@
 
 #include "jade/systems/System.h"
 #include "jade/components/components.h"
+#include "jade/commands/MoveTransformCommand.h"
 
 class LevelEditorSystem : public System {
 public:
@@ -15,4 +16,11 @@ private:
 private:
     float m_DebounceTime = 0.1f;
     float m_DebounceLeft = 0.0f;
+
+    float m_KeyDebounceTime = 0.1f;
+    float m_KeyDebounceLeft = 0.0f;
+
+    bool m_IsDragging = false;
+
+    glm::vec3 m_DragOffset = glm::vec3();
 };

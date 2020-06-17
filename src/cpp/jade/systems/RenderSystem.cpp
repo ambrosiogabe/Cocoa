@@ -2,6 +2,8 @@
 #include "jade/util/Log.h"
 #include "jade/platform/JWindow.h"
 #include "jade/components/components.h"
+#include "jade/commands/CommandHistory.h"
+#include "jade/commands/ChangeSpriteColorCommand.h"
 
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -52,7 +54,14 @@ void RenderSystem::ImGui(entt::registry& registry) {
     if (registry.has<SpriteRenderer>(activeEntity)) {
         if (ImGui::CollapsingHeader("Sprite Renderer")) {
             SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
-            ImGui::ColorPicker4("Sprite Color: ", glm::value_ptr(spr.m_Color));
+            glm::vec4 color = glm::vec4(spr.m_Color);
+            if (ImGui::ColorPicker4("Sprite Color: ", glm::value_ptr(color))) {
+                CommandHistory::AddCommand(new ChangeSpriteColorCommand(spr, color));
+            }
+
+            if (ImGui::IsItemDeactivatedAfterEdit()) {
+                CommandHistory::SetNoMergeMostRecent();
+            }
         }
     }
 }

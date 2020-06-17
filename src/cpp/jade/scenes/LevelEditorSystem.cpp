@@ -1,6 +1,7 @@
 #include "jade/systems/LevelEditorSystem.h"
 #include "jade/platform/JWindow.h"
 #include "jade/events/Input.h"
+#include "jade/commands/CommandHistory.h"
 
 #include <string>
 #include <imgui/imgui.h>
@@ -27,8 +28,31 @@ void LevelEditorSystem::Start(entt::registry& registry) {
 void LevelEditorSystem::Update(entt::registry& registry, float dt) {
     // TODO: FIX MOUSE EVENTS SO THAT IF IMGUI CONSUMES IT, IT DOES NOT CONTINUE TO GET PASSED ON TO MY EVENT LISTENERS!!!
     m_DebounceLeft -= dt;
+    m_KeyDebounceLeft -= dt;
 
-    if (m_DebounceLeft <= 0.0f && Input::MouseButtonPressed(JADE_MOUSE_BUTTON_LEFT)) {
+    if (m_KeyDebounceLeft <= 0.0f && Input::KeyPressed(JADE_KEY_Z)) {
+        CommandHistory::Undo();
+        m_KeyDebounceLeft = m_KeyDebounceTime;
+    }
+
+    if (m_KeyDebounceLeft <= 0.0f && Input::KeyPressed(JADE_KEY_R)) {
+        CommandHistory::Redo();
+        m_KeyDebounceLeft = m_KeyDebounceTime;
+    }
+
+    if (m_DebounceLeft <= 0.0f && m_IsDragging) {
+        Transform& transform = registry.get<Transform>(JWindow::GetScene()->GetActiveEntity());
+        glm::vec3 newPos = glm::vec3(Input::OrthoMouseX() - m_DragOffset.x, Input::OrthoMouseY() - m_DragOffset.y, 0.0f);
+
+        CommandHistory::AddCommand(new MoveTransformCommand(transform, newPos));
+    }
+
+    if (m_IsDragging && !Input::MouseButtonPressed(JADE_MOUSE_BUTTON_LEFT)) {
+        CommandHistory::SetNoMergeMostRecent();
+        m_IsDragging = false;
+    }
+
+    if (!m_IsDragging && m_DebounceLeft <= 0.0f && Input::MouseButtonPressed(JADE_MOUSE_BUTTON_LEFT)) {
         float worldX = Input::OrthoMouseX();
         float worldY = Input::OrthoMouseY();
 
@@ -39,6 +63,10 @@ void LevelEditorSystem::Update(entt::registry& registry, float dt) {
                 worldY >= transform.m_Position.y && worldY <= transform.m_Position.y + transform.m_Scale.y) {
                 JWindow::GetScene()->SetActiveEntity(entity);
                 m_DebounceLeft = m_DebounceTime;
+
+                m_IsDragging = true;
+                m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;
+                m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
                 break;
             }
         }
