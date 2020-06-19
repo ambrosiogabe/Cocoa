@@ -1,3 +1,6 @@
 [submodule "src/vendor/imgui"]
 	path = src/vendor/imgui
 	url = https://github.com/ocornut/imgui/tree/docking
+[submodule "jade/vendor/imgui"]
+	path = jade/vendor/imgui
+	url = https://github.com/ocornut/imgui/tree/docking

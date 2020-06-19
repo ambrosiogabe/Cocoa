@@ -1,2 +1,5 @@
 build/*
 .vscode/*
+.vs/*
+bin/*
+bin-int/*

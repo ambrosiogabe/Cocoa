@@ -1,10 +1,10 @@
 from pathlib import Path
 
-files = list(Path("src/cpp").rglob("*.cpp"))
+files = list(Path("jade/cpp").rglob("*.cpp"))
 
-headerFile = open("src/cpp/build/build.h", "w")
+headerFile = open("jade/cpp/build/build.h", "w")
 for file in files:
-    if file.__str__()[-11:] != "winMain.cpp" and file.__str__()[-8:] != "Jade.cpp":
+    if file.__str__()[-8:] != "Main.cpp":
         headerFile.write("#include \"" + file.__str__().replace('\\', '/') + "\"\n")
 headerFile.close()
 
