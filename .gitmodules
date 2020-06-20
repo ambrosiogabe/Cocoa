@@ -1,0 +1,4 @@
+[submodule "jade/vendor/imgui"]
+	path = jade/vendor/imgui
+	url = https://github.com/ocornut/imgui
+	branch = docking
