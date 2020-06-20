@@ -29,7 +29,6 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary
 
 REM Change into bin-int directory and build everything, then move files and stuff
 pushd %~dp0"bin-int"
-xcopy /s /e /q /y /i "..\assets" "..\bin\Jade\assets" > nul
 xcopy /s /e /q /y /i "..\assets" "..\bin\LevelEditor\assets" > nul
 
 REM Debug Build
