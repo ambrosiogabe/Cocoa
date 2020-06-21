@@ -2,6 +2,7 @@
 #include "util/Log.h"
 #include "events/WindowEvents.h"
 #include "events/Input.h"
+#include "renderer/DebugDraw.h"
 
 #include <imgui/imgui.h>
 #include <gl/GL.h>
@@ -198,6 +199,7 @@ void Win32Window::_Render() {
     glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    DebugDraw::EndFrame();
     m_CurrentScene->Render();
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

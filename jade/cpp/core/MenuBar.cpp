@@ -1,13 +1,36 @@
 #include "core/MenuBar.h"
-
 #include "platform/JWindow.h"
 #include "components/components.h"
+#include "util/Constants.h"
 
 #include <entt/entt.h>
 #include <imgui/imgui.h>
 
+
+void MenuBar::SettingsWindow() {
+    ImGui::Begin("Settings", &m_SettingsOpen);
+    if (ImGui::DragInt2("Grid Size: ", m_GridSize)) {
+        Constants::GridSizeX = m_GridSize[0];
+        Constants::GridSizeY = m_GridSize[1];
+    }
+    ImGui::End();   
+}
+
+
 void MenuBar::ImGui() {
+    if (m_SettingsOpen) {
+        SettingsWindow();
+    }
+
     if (ImGui::BeginMenuBar()) {
+        if (ImGui::BeginMenu("Jade")) {
+            if (ImGui::Button("Settings")) {
+                m_SettingsOpen = true;
+            }
+
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Game Objects")) {
             if (ImGui::Button("Add Sprite Object")) {
                 entt::registry& registry = JWindow::GetScene()->GetRegistry();

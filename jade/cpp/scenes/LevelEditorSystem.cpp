@@ -2,10 +2,14 @@
 #include "platform/JWindow.h"
 #include "events/Input.h"
 #include "commands/CommandHistory.h"
+#include "renderer/DebugDraw.h"
+#include "util/Constants.h"
 
 #include <string>
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 void LevelEditorSystem::Start(entt::registry& registry) {
     auto view = registry.view<Transform>();
@@ -69,6 +73,35 @@ void LevelEditorSystem::Update(entt::registry& registry, float dt) {
                 m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
                 break;
             }
+        }
+    }
+
+
+
+    // Draw grid lines
+    Transform& cameraTransform = JWindow::GetScene()->GetCamera()->GetTransform();
+    int gridWidth = Constants::GridSizeX;
+    int gridHeight = Constants::GridSizeY;
+
+    float firstX = (float)(((int)(cameraTransform.m_Position.x - 1920.0f/2.0f) / gridWidth) - 1) * (float)gridWidth;
+    float firstY = (float)(((int)(cameraTransform.m_Position.y - 1080.0f/2.0f) / gridHeight) - 1) * (float)gridHeight;
+
+    int yLinesNeeded = (1920 + gridWidth) / gridWidth;
+    int xLinesNeeded = (1080 + gridHeight) / gridHeight;
+
+    for (int i=0; i < yLinesNeeded; i++) {
+        float x = (i * gridWidth) + firstX;
+        float y = (i * gridHeight) + firstY;
+        glm::vec2 from(x, firstY - gridHeight);
+        glm::vec2 to(x, firstY + 1080 + gridWidth);
+        glm::vec3 color(0.2f, 0.2f, 0.2f);
+        DebugDraw::AddLine2D(from, to, 1.0f, color);
+
+        if (i <= xLinesNeeded) {
+            glm::vec2 from2(firstX - gridWidth, y);
+            glm::vec2 to2(firstX + 1920 + gridHeight, y);
+            glm::vec3 color2(0.2f, 0.2f, 0.2f);
+            DebugDraw::AddLine2D(from2, to2, 1.0f, color2);
         }
     }
 }

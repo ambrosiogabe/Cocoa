@@ -5,6 +5,7 @@
 #include "util/Log.h"
 #include "core/ImGuiLayer.h"
 #include "renderer/Framebuffer.h"
+#include "renderer/DebugDraw.h"
 
 class JWindow {
 public:
@@ -144,7 +145,10 @@ public:
     static Scene* GetScene() { return JWindow::Get()->m_CurrentScene; }
     static void* GetWindowHandle() { return JWindow::Get()->m_WindowHandle; }
 
-    static void Update(JWindow* window, float dt) { window->m_CurrentScene->Update(dt); }
+    static void Update(JWindow* window, float dt) { 
+        DebugDraw::BeginFrame();
+        window->m_CurrentScene->Update(dt); 
+    }
     static void Render() { JWindow::Get()->_Render(); }
 
     static void ChangeScene(Scene* newScene) {

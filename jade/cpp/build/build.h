@@ -5,6 +5,7 @@
 #include "jade/cpp/platform/JWindow.cpp"
 #include "jade/cpp/platform/windows/Win32Window.cpp"
 #include "jade/cpp/renderer/Camera.cpp"
+#include "jade/cpp/renderer/DebugDraw.cpp"
 #include "jade/cpp/renderer/Framebuffer.cpp"
 #include "jade/cpp/renderer/RenderBatch.cpp"
 #include "jade/cpp/renderer/Shader.cpp"
@@ -12,4 +13,5 @@
 #include "jade/cpp/scenes/LevelEditorSystem.cpp"
 #include "jade/cpp/scenes/TestScene.cpp"
 #include "jade/cpp/systems/RenderSystem.cpp"
+#include "jade/cpp/util/Constants.cpp"
 #include "jade/cpp/util/Log.cpp"

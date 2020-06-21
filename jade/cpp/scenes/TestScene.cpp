@@ -7,6 +7,7 @@
 #include "core/Core.h"
 #include "systems/LevelEditorSystem.h"
 #include "platform/JWindow.h"
+#include "renderer/DebugDraw.h"
 
 #include <windows.h>
 #include <gl/GL.h>
