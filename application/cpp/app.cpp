@@ -1,17 +1,19 @@
 #include "Jade.h"
 
-class JadeEditor : public Jade::Application {
-public:
-    JadeEditor() {
-        Log::Info("Running app!");
+namespace Jade {
+    class JadeEditor : public Application {
+    public:
+        JadeEditor() {
+            Log::Info("Running app!");
+        }
+
+        ~JadeEditor() {
+
+        }
+    };
+
+
+    Application* CreateApplication() {
+        return new JadeEditor();
     }
-
-    ~JadeEditor() {
-
-    }
-};
-
-
-Jade::Application* Jade::CreateApplication() {
-    return new JadeEditor();
 }

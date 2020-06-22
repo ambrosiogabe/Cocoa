@@ -2,18 +2,20 @@
 
 #include "util/Constants.h"
 
-class MenuBar {
-public:
-    void ImGui();
+namespace Jade {
+    class MenuBar {
+    public:
+        void ImGui();
 
-private:
-    void SettingsWindow();
+    private:
+        void SettingsWindow();
 
-private:
-    bool m_SettingsOpen = false;
+    private:
+        bool m_SettingsOpen = false;
 
-    // -------------Settings Variables-------------------------
-    int m_GridSize[2] = {Constants::GridSizeX, Constants::GridSizeY};
-    bool m_SnapToGrid = false;
-    // ---------------------------------------------------------
-};
+        // -------------Settings Variables-------------------------
+        int m_GridSize[2] = {Constants::GridSizeX, Constants::GridSizeY};
+        bool m_SnapToGrid = false;
+        // ---------------------------------------------------------
+    };
+}

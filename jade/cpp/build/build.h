@@ -2,7 +2,7 @@
 #include "jade/cpp/core/ImGuiLayer.cpp"
 #include "jade/cpp/core/MenuBar.cpp"
 #include "jade/cpp/events/Input.cpp"
-#include "jade/cpp/platform/JWindow.cpp"
+#include "jade/cpp/platform/Window.cpp"
 #include "jade/cpp/platform/windows/Win32Window.cpp"
 #include "jade/cpp/renderer/Camera.cpp"
 #include "jade/cpp/renderer/DebugDraw.cpp"

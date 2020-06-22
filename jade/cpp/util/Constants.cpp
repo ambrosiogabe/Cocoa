@@ -1,4 +1,6 @@
 #include "util/Constants.h"
 
-int Constants::GridSizeX = 32;
-int Constants::GridSizeY = 32;
+namespace Jade {
+    int Constants::GridSizeX = 32;
+    int Constants::GridSizeY = 32;
+}

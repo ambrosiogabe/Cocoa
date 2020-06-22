@@ -1,38 +1,41 @@
 #pragma once
 
-#include "platform/JWindow.h"
+#include "platform/Window.h"
 #include "platform/windows/GlFunctions.h"
 
-class WindowEvents {
-public:
-    static void ResizeCallback(int width, int height) {
-        JWindow* win = Get()->m_Window;
-        win->SetWidth(width);
-        win->SetHeight(height);
+namespace Jade {
+    class WindowEvents {
+    public:
+        static void ResizeCallback(int width, int height) {
+            Window* win = Get()->m_Window;
+            win->SetWidth(width);
+            win->SetHeight(height);
 
-        glViewport(0, 0, width, height);
-    }
-
-    static void Init(JWindow* window) {
-        WindowEvents* winEvents = Get();
-        winEvents->m_Window = window;
-    }
-
-    static WindowEvents* Get() {
-        if (WindowEvents::m_Instance == nullptr) {
-            WindowEvents::m_Instance = new WindowEvents();
+            glViewport(0, 0, width, height);
         }
 
-        return WindowEvents::m_Instance;
-    }
+        static void Init(Window* window) {
+            WindowEvents* winEvents = Get();
+            winEvents->m_Window = window;
+        }
 
-private:
-    WindowEvents() {}
+        static WindowEvents* Get() {
+            if (WindowEvents::m_Instance == nullptr) {
+                WindowEvents::m_Instance = new WindowEvents();
+            }
 
-private:
-    static WindowEvents* m_Instance;
+            return WindowEvents::m_Instance;
+        }
 
-    JWindow* m_Window;
-};
+    private:
+        WindowEvents() {}
 
-WindowEvents* WindowEvents::m_Instance = nullptr;
+    private:
+        static WindowEvents* m_Instance;
+
+        Window* m_Window;
+    };
+
+    WindowEvents* WindowEvents::m_Instance = nullptr;
+
+}

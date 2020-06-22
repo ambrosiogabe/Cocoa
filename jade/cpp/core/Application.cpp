@@ -6,7 +6,7 @@ namespace Jade {
     Application::Application() {
         m_LayerInsertIndex = 0;
         m_Running = false;
-        m_Layers = std::vecotr<Layer*>();
+        m_Layers = std::vector<Layer*>();
     }
 
     Application::~Application() {
@@ -15,7 +15,7 @@ namespace Jade {
 
     void Application::Run() {
         while (m_Running) {
-            float time = JWindow::GetTime();
+            float time = Window::GetTime();
             float dt = m_LastFrameTime - time;
             m_LastFrameTime = time;
 
@@ -24,7 +24,7 @@ namespace Jade {
             }
 
             // ImGuiLayer->Begin();
-            for (Layer* layer : m_LayerStack) {
+            for (Layer* layer : m_Layers) {
                 layer->OnImGuiRender();
             }
             // ImGuiLayer->End();

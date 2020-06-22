@@ -2,12 +2,12 @@
 
 #include "core/Core.h"
 #include "core/Layer.h"
-#include "platform/JWindow.h"
+#include "platform/Window.h"
 
 #include <vector>
 
 namespace Jade {
-    class JADE Application {
+    class Application {
         public:
             Application();
             virtual ~Application();
