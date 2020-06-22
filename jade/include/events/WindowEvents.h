@@ -1,20 +1,20 @@
 #pragma once
 
-#include "platform/Window.h"
+#include "core/JWindow.h"
 #include "platform/windows/GlFunctions.h"
 
 namespace Jade {
     class WindowEvents {
     public:
         static void ResizeCallback(int width, int height) {
-            Window* win = Get()->m_Window;
+            JWindow* win = Get()->m_Window;
             win->SetWidth(width);
             win->SetHeight(height);
 
             glViewport(0, 0, width, height);
         }
 
-        static void Init(Window* window) {
+        static void Init(JWindow* window) {
             WindowEvents* winEvents = Get();
             winEvents->m_Window = window;
         }
@@ -33,7 +33,7 @@ namespace Jade {
     private:
         static WindowEvents* m_Instance;
 
-        Window* m_Window;
+        JWindow* m_Window;
     };
 
     WindowEvents* WindowEvents::m_Instance = nullptr;

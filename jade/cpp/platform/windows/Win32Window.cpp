@@ -16,6 +16,69 @@
 #undef GL_LITE_IMPLEMENTATION
 
 namespace Jade {
+    bool Win32Window::m_Initialized = false;
+    HINSTANCE Win32Window::m_HINSTANCE = {};
+
+    void Win32Window::DefaultResizeCallback(HWND wnd, int width, int height) {
+        for (Window* window : m_Windows) {
+            Win32Window* win = static_cast<Win32Window*>(window);
+            if (win->WND == wnd) {
+                if (window->m_ResizeCallback != nullptr) {
+                    window->m_ResizeCallback(window, width, height);
+                }
+                break;
+            }
+        }
+    }
+
+    void Win32Window::DefaultMouseButtonCallback(HWND wnd, int button, int action, int mods) {
+        for (Window* window : m_Windows) {
+            Win32Window* win = static_cast<Win32Window*>(window);
+            if (win->WND == wnd) {
+                if (window->m_MouseButtonCallback != nullptr) {
+                    window->m_MouseButtonCallback(window, button, action, mods);
+                }
+                break;
+            }
+        }
+    }
+
+    void Win32Window::DefaultCursorCallback(HWND wnd, double xpos, double ypos) {
+        for (Window* window : m_Windows) {
+            Win32Window* win = static_cast<Win32Window*>(window);
+            if (win->WND == wnd) {
+                if (window->m_CursorCallback != nullptr) {
+                    window->m_CursorCallback(window, xpos, ypos);
+                }
+                break;
+            }
+        }
+    }
+
+    void Win32Window::DefaultScrollCalback(HWND wnd, double xoffset, double yoffset) {
+        for (Window* window : m_Windows) {
+            Win32Window* win = static_cast<Win32Window*>(window);
+            if (win->WND == wnd) {
+                if (window->m_ScrollCallback != nullptr) {
+                    window->m_ScrollCallback(window, xoffset, yoffset);
+                }
+                break;
+            }
+        }
+    }
+
+    void Win32Window::DefaultKeyCallback(HWND wnd, int key, int scancode, int action, int mods) {
+        for (Window* window : m_Windows) {
+            Win32Window* win = static_cast<Win32Window*>(window);
+            if (win->WND == wnd) {
+                if (window->m_KeyCallback != nullptr) {
+                    window->m_KeyCallback(window, key, scancode, action, mods);
+                }
+                break;
+            }
+        }
+    }
+
     void Win32Window::ShowMessage(LPCSTR message) {
         MessageBoxA(0, message, "Win32Window::Create", MB_ICONERROR);
     }
@@ -49,24 +112,28 @@ namespace Jade {
         return RegisterClassExA(&wcex);
     }
 
-    void Win32Window::_Render() {
+    // void Win32Window::_Render() {
         
-        glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
-        glViewport(0, 0, 3840, 2160);
-        glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    //     glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
+    //     glViewport(0, 0, 3840, 2160);
+    //     glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+    //     glClear(GL_COLOR_BUFFER_BIT);
 
-        DebugDraw::EndFrame();
-        m_CurrentScene->Render();
+    //     DebugDraw::EndFrame();
+    //     m_CurrentScene->Render();
         
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glViewport(0, 0, GetWidth(), GetHeight());
-        glClearColor(0, 0, 0, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
+    //     glViewport(0, 0, GetWidth(), GetHeight());
+    //     glClearColor(0, 0, 0, 1);
+    //     glClear(GL_COLOR_BUFFER_BIT);
 
-        m_CurrentScene->ImGui();
-        SwapBuffers(DC);
+    //     m_CurrentScene->ImGui();
+    //     SwapBuffers(DC);
+    // }
+
+    void Win32Window::SwapBuffers() {
+        ::SwapBuffers(DC);
     }
 
     void Win32Window::Destroy() {
@@ -80,10 +147,6 @@ namespace Jade {
         if (WND) {
             DestroyWindow(WND);
         }
-    }
-
-    void Win32Window::Close() {
-        m_Running = false;
     }
 
     void Win32Window::Hide() {
@@ -103,7 +166,7 @@ namespace Jade {
         MSG msg = {0, 0, 0, 0, 0, NULL};
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
-                this->Close();
+                this->Destroy();
             }
 
             TranslateMessage(&msg);
@@ -112,18 +175,17 @@ namespace Jade {
     }
 
     void Win32Window::InitWin32(HINSTANCE hInstance) {
-        Win32Window* win = static_cast<Win32Window*>(Window::Get());
-        win->m_HINSTANCE = hInstance;
+        Win32Window::m_HINSTANCE = hInstance;
         registerClass(hInstance);
+        Win32Window::m_Initialized = true;
     }
 
-    Window* Win32Window::_CreateWindow(int width, int height, const char* title) {
-        Log::Assert(m_Initialized, "You must initialize a Win32Window before creating it.");
+    Window* Win32Window::CreateWindow(int width, int height, const char* title) {
+        Log::Assert(Win32Window::m_Initialized, "You must initialize a Win32Window before creating it.");
 
-        Win32Window* win = static_cast<Win32Window*>(Window::Get());
-        win->m_Running = true;
+        Win32Window* win = new Win32Window();
 
-        if (m_InitAllocConsole) {
+        if (win->m_InitAllocConsole) {
             // Allocate console Win32Window
             AllocConsole();
             freopen("CONOUT$", "w+", stdout);
@@ -195,30 +257,30 @@ namespace Jade {
         }
 
         DWORD winFlags = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-        if (m_InitDecorated) {
+        if (win->m_InitDecorated) {
             winFlags |= WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
         }
-        if (m_InitIconified) {
+        if (win->m_InitIconified) {
             winFlags |= WS_ICONIC;
         }
-        if (m_InitMaximized) {
+        if (win->m_InitMaximized) {
             winFlags |= WS_MAXIMIZE;
         }
-        if (m_InitResizable) {
+        if (win->m_InitResizable) {
             winFlags |= WS_SIZEBOX;
         }
-        if (m_InitAutoIconify) {
+        if (win->m_InitAutoIconify) {
             Log::Warning("Auto Iconify flag used. But it has not been implemented yet.");
         }
-        if (m_InitTransparentFramebuffer) {
+        if (win->m_InitTransparentFramebuffer) {
             Log::Warning("Transparent framebuffer flag used. But it has not been implemented yet.");
         }
-        if (m_InitHovered) {
+        if (win->m_InitHovered) {
             Log::Warning("Hovered flag used. But it has not been implemented yet.");
         }
 
         DWORD exWinFlags = 0;
-        if (m_InitFloating) {
+        if (win->m_InitFloating) {
             exWinFlags |= WS_EX_TOPMOST;
         }
 
@@ -227,20 +289,20 @@ namespace Jade {
             "Core", title,                // Win32Window class, Title
             winFlags,                     // Style
             0, 0,                         // Position x, y
-            win->m_Width, win->m_Height,  // Width, Height
+            width, height,                // Width, Height
             NULL, NULL,                   // Parent Win32Window, Menu
             win->m_HINSTANCE, NULL        // Instnce, Param
         );
 
         win->DC = GetDC(win->WND);
 
-        if (m_InitFocused) {
+        if (win->m_InitFocused) {
             SetFocus(win->WND );
         }
 
         // TODO: Take into account window position for unmaximized windows
-        if (m_InitCenterCursor) {
-            SetCursorPos(win->m_Width / 2, win->m_Height / 2);
+        if (win->m_InitCenterCursor) {
+            SetCursorPos(width / 2, height / 2);
         }
 
         // NOTE: Set process as DPI aware
@@ -309,11 +371,11 @@ namespace Jade {
         } else if (win->m_InitMaximized) {
             ShowWindow(win->WND, SW_MAXIMIZE);
         } else {
-            Show();
+            win->Show();
         }
 
         //win->m_ImGuiLayer.Setup(win->WND);
-        win->m_WindowHandle = win->WND;
+        //win->m_WindowHandle = win->WND;
 
         //RegisterKeyCallback(&Input::KeyCallback);
         //RegisterMouseButtonCallback(&Input::MouseButtonCallback);
@@ -326,11 +388,11 @@ namespace Jade {
         Log::Info("Vendor: %s", vendor);
 
         // Initialize and register Win32Window events callback
-        WindowEvents::Init(win);
+        //WindowEvents::Init(win);
         //RegisterResizeCallback(&WindowEvents::ResizeCallback);
         
         // Setup framebuffer
-        win->m_Framebuffer = new Framebuffer(3840, 2160);
+        //win->m_Framebuffer = new Framebuffer(3840, 2160);
 
         return win;
     }

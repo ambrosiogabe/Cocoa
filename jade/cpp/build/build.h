@@ -1,5 +1,6 @@
 #include "jade/cpp/core/Application.cpp"
 #include "jade/cpp/core/ImGuiLayer.cpp"
+#include "jade/cpp/core/JWindow.cpp"
 #include "jade/cpp/core/MenuBar.cpp"
 #include "jade/cpp/events/Input.cpp"
 #include "jade/cpp/platform/Window.cpp"

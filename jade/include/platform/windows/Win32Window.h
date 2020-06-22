@@ -8,23 +8,26 @@ namespace Jade {
         Win32Window() {}
         virtual void Destroy() override;
         virtual void PollEvents() override;
+        virtual void SwapBuffers() override;
 
         static void ShowMessage(LPCSTR message);
         static void InitWin32(HINSTANCE hInstance);
 
         virtual void Show() override;
         virtual void Hide() override;
-        virtual void Close() override;
 
-    protected:
-        virtual Window* _CreateWindow(int width, int height, const char* title) override;
+        static void DefaultResizeCallback(HWND window, int width, int height);
+        static void DefaultMouseButtonCallback(HWND window, int button, int action, int mods);
+        static void DefaultCursorCallback(HWND window, double xpos, double ypos);
+        static void DefaultScrollCalback(HWND window, double xoffset, double yoffset);
+        static void DefaultKeyCallback(HWND window, int key, int scancode, int action, int mods);
 
-        virtual void _Render() override;
+        static Window* CreateWindow(int width, int height, const char* title);
 
     private:
-        bool m_Initialized = false;
+        static bool m_Initialized;
 
-        HINSTANCE m_HINSTANCE;
+        static HINSTANCE m_HINSTANCE;
         HGLRC RC;
         HDC DC;
         HWND WND;

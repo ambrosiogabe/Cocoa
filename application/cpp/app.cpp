@@ -1,6 +1,14 @@
 #include "Jade.h"
 
 namespace Jade {
+    class EditorLayer : public Layer {
+        virtual void OnUpdate(float dt) override {
+            Log::Info("Updating!");
+        }
+
+
+    };
+
     class JadeEditor : public Application {
     public:
         JadeEditor() {
@@ -14,6 +22,8 @@ namespace Jade {
 
 
     Application* CreateApplication() {
-        return new JadeEditor();
+        JadeEditor* editor = new JadeEditor();
+        editor->PushLayer(new EditorLayer());
+        return editor;
     }
 }

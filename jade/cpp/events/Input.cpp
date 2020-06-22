@@ -1,6 +1,6 @@
 #include "events/Input.h"
 #include "core/Core.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 
 #include <glm/vec4.hpp>
 
@@ -46,25 +46,25 @@ namespace Jade {
     }
 
     float Input::OrthoMouseX() {
-        const glm::vec2& gameviewPos = Window::GetScene()->GetGameviewPos();
-        const glm::vec2& gameviewSize = Window::GetScene()->GetGameviewSize();
+        const glm::vec2& gameviewPos = JWindow::Get()->GetScene()->GetGameviewPos();
+        const glm::vec2& gameviewSize = JWindow::Get()->GetScene()->GetGameviewSize();
 
         float currentX = MouseX() - gameviewPos.x;
         currentX = (currentX / gameviewSize.x) * 2.0f - 1.0f;
         glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
-        tmp = Window::GetScene()->GetCamera()->GetOrthoInverseView() * Window::GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
+        tmp = JWindow::Get()->GetScene()->GetCamera()->GetOrthoInverseView() * JWindow::Get()->GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
 
         return tmp.x;
     }
 
     float Input::OrthoMouseY() {
-        const glm::vec2& gameviewPos = Window::GetScene()->GetGameviewPos();
-        const glm::vec2& gameviewSize = Window::GetScene()->GetGameviewSize();
+        const glm::vec2& gameviewPos =JWindow::Get()->GetScene()->GetGameviewPos();
+        const glm::vec2& gameviewSize = JWindow::Get()->GetScene()->GetGameviewSize();
 
         float currentY = gameviewPos.y - MouseY();
         currentY = (currentY / gameviewSize.y) * 2.0f - 1.0f;
         glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
-        tmp = Window::GetScene()->GetCamera()->GetOrthoInverseView() * Window::GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
+        tmp = JWindow::Get()->GetScene()->GetCamera()->GetOrthoInverseView() * JWindow::Get()->GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
 
         return tmp.y;
     }

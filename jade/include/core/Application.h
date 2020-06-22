@@ -2,7 +2,7 @@
 
 #include "core/Core.h"
 #include "core/Layer.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 
 #include <vector>
 
@@ -21,7 +21,7 @@ namespace Jade {
             void PopOverlay(Layer* overlay);
 
         private:
-            //std::unique_ptr<JWindow> m_Window;
+            JWindow* m_Window;
             bool m_Running;
 
             // Overlays are always on top of layers

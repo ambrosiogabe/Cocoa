@@ -289,25 +289,30 @@
 #define JADE_WH_CONTEXT_CREATION_API  0x0002200B
 #define JADE_WH_SCALE_TO_MONITOR      0x0002200C
 
-// ===========================================
-// Function pointer typedefs
-// ===========================================
-typedef void (*KeyCallbackFnPt) (int key, int scancode, int action, int mods);
-typedef void (*CursorCallbackFnPt) (double xpos, double ypos);
-typedef void (*MouseButtonCallbackFnPt) (int button, int action, int mods);
-typedef void (*ScrollCallbackFnPt) (double xoffset, double yoffset);
-typedef void (*ResizeCallbackFnPt) (int width, int height);
+
+namespace Jade {
+    // ===========================================
+    // Function pointer typedefs
+    // ===========================================
+    // Forward declare Window so we don't get circular dependency
+    class Window;
+    typedef void (*KeyCallbackFnPt) (Window* window, int key, int scancode, int action, int mods);
+    typedef void (*CursorCallbackFnPt) (Window* window, double xpos, double ypos);
+    typedef void (*MouseButtonCallbackFnPt) (Window* window, int button, int action, int mods);
+    typedef void (*ScrollCallbackFnPt) (Window* window, double xoffset, double yoffset);
+    typedef void (*ResizeCallbackFnPt) (Window* window, int width, int height);
 
 
-// ===========================================
-// Fixed-size primitive types
-// ===========================================
-typedef int8_t  int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
+    // ===========================================
+    // Fixed-size primitive types
+    // ===========================================
+    typedef int8_t  int8;
+    typedef int16_t int16;
+    typedef int32_t int32;
+    typedef int64_t int64;
 
-typedef uint8_t  uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+    typedef uint8_t  uint8;
+    typedef uint16_t uint16;
+    typedef uint32_t uint32;
+    typedef uint64_t uint64;
+}

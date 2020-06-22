@@ -1,12 +1,16 @@
 #include "core/Application.h"
 
+#include <string>
 #include <iostream>
 
 namespace Jade {
     Application::Application() {
         m_LayerInsertIndex = 0;
-        m_Running = false;
+        m_Running = true;
         m_Layers = std::vector<Layer*>();
+
+        std::string title = std::string("Test Window");
+        m_Window = JWindow::Create(1920, 1080, title);
     }
 
     Application::~Application() {
@@ -29,7 +33,7 @@ namespace Jade {
             }
             // ImGuiLayer->End();
 
-            //m_Window->OnUpdate();
+            m_Window->OnUpdate();
         }
     }
 

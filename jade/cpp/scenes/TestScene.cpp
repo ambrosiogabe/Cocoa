@@ -6,7 +6,7 @@
 #include "events/Input.h"
 #include "core/Core.h"
 #include "systems/LevelEditorSystem.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 #include "renderer/DebugDraw.h"
 
 #include <windows.h>
@@ -24,7 +24,7 @@ namespace Jade {
     Texture* texture = nullptr;
 
     void TestScene::Init() {
-        m_ImGuiLayer.Setup(Window::GetWindowHandle());
+        m_ImGuiLayer.Setup(JWindow::Get()->GetNativeWindow());
 
         auto group = m_Registry.group<SpriteRenderer>(entt::get<Transform>);
 

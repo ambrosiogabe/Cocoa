@@ -1,6 +1,6 @@
 #include "util/Log.h"
 
-#include "platform/Window.h"
+#include "core/JWindow.h"
 
 #include <windows.h>
 #include <stdlib.h>
@@ -62,7 +62,7 @@ namespace Jade {
 
             printf("\n");
 
-            Window::Get()->Close();
+            static_cast<Window*>(JWindow::Get()->GetNativeWindow())->Destroy();
         }   
     }
 }

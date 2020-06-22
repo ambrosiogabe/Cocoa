@@ -1,6 +1,6 @@
 #include "systems/RenderSystem.h"
 #include "util/Log.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 #include "components/components.h"
 #include "commands/CommandHistory.h"
 #include "commands/ChangeSpriteColorCommand.h"
@@ -52,7 +52,7 @@ namespace Jade {
     }
 
     void RenderSystem::ImGui(entt::registry& registry) {
-        entt::entity activeEntity = Window::GetScene()->GetActiveEntity();
+        entt::entity activeEntity = JWindow::Get()->GetScene()->GetActiveEntity();
 
         if (registry.has<SpriteRenderer>(activeEntity)) {
             if (ImGui::CollapsingHeader("Sprite Renderer")) {

@@ -1,5 +1,5 @@
 #include "core/ImGuiLayer.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_win32.h>
@@ -67,11 +67,11 @@ namespace Jade {
         ImVec2 windowSize = ImGui::GetWindowContentRegionMax();
         // Figure out the largest area that fits this target aspect ratio
         float aspectWidth = windowSize.x;
-        float aspectHeight = (float)aspectWidth / Window::GetTargetAspectRatio();
+        float aspectHeight = (float)aspectWidth / JWindow::Get()->GetTargetAspectRatio();
         if (aspectHeight > windowSize.y) {
             // It doesn't fit our height, we must switch to pillarbox
             aspectHeight = windowSize.y;
-            aspectWidth = (float)aspectHeight * Window::GetTargetAspectRatio();
+            aspectWidth = (float)aspectHeight * JWindow::Get()->GetTargetAspectRatio();
         }
 
         // Center rectangle
@@ -87,7 +87,7 @@ namespace Jade {
         m_GameviewSize.y = aspectHeight;
 
         
-        ImGui::Image((void*)Window::GetFramebuffer()->GetId(), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((void*)JWindow::Get()->GetFramebuffer()->GetId(), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::End();
         ImGui::PopStyleColor();

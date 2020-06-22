@@ -24,237 +24,96 @@ namespace Jade {
         
         static void Show(Window* window);
 
-        virtual void Close() = 0;
         virtual void Hide() = 0;
         virtual void Show() = 0;
 
         virtual void Destroy() = 0;
         virtual void PollEvents() = 0;
+        virtual void SwapBuffers() = 0;
 
         static float GetTime();
 
-        // DEPRECATED
-        static void KeyCallback(int key, int scancode, int action, int mods) {
-            Window* win = Get();
-            for (int i=0; i < 3; i++) {
-                if (win->keyCallbacks[i] != nullptr) {
-                    win->keyCallbacks[i](key, scancode, action, mods);
-                }
-            }
-        }
-
-        // DEPRECATED
-        static void CursorCallback(double xpos, double ypos) {
-            Window* win = Get();
-            for (int i=0; i < 3; i++) {
-                if (win->cursorCallbacks[i] != nullptr) {
-                    win->cursorCallbacks[i](xpos, ypos);
-                }
-            }
-        }
-
-        // DEPRECATED
-        static void MouseButtonCallback(int button, int action, int mods) {
-            Window* win = Get();
-            for (int i=0; i < 3; i++) {
-                if (win->mouseButtonCallbacks[i] != nullptr) {
-                    win->mouseButtonCallbacks[i](button, action, mods);
-                }
-            }
-        }
-
-        // DEPRECATED
-        static void ScrollCallback(double xoffset, double yoffset) {
-            Window* win = Get();
-            for (int i=0; i < 3; i++) {
-                if (win->scrollCallbacks[i] != nullptr) {
-                    win->scrollCallbacks[i](xoffset, yoffset);
-                }
-            }
-        }
-
-        // DEPRECATED
-        static void ResizeCallback(int width, int height) {
-            Window* win = Get();
-            for (int i=0; i < 3; i++) {
-                if (win->resizeCallbacks[i] != nullptr) {
-                    win->resizeCallbacks[i](width, height);
-                }
-            }
-        }
-
-        // DEPRECATED
-        static void RegisterKeyCallback(KeyCallbackFnPt callback) {
-            Window* win = Get();
-            bool assigned = false;
-            for (int i=0; i < 3; i++) {
-                if (win->keyCallbacks[i] == nullptr) {
-                    win->keyCallbacks[i] = callback;
-                    assigned = true;
-                    break;
-                }
-            }
-
-            if (!assigned) {
-                Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
-            }
-        }
-
-        // DEPRECATED
-        static void RegisterCursorCallback(CursorCallbackFnPt callback) {
-            Window* win = Get();
-            bool assigned = false;
-            for (int i=0; i < 3; i++) {
-                if (win->cursorCallbacks[i] == nullptr) {
-                    win->cursorCallbacks[i] = callback;
-                    assigned = true;
-                    break;
-                }
-            }
-
-            if (!assigned) {
-                Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
-            }
-        }
-
-        // DEPRECATED
-        static void RegisterMouseButtonCallback(MouseButtonCallbackFnPt callback) {
-            Window* win = Get();
-            bool assigned = false;
-            for (int i=0; i < 3; i++) {
-                if (win->mouseButtonCallbacks[i] == nullptr) {
-                    win->mouseButtonCallbacks[i] = callback;
-                    assigned = true;
-                    break;
-                }
-            }
-
-            if (!assigned) {
-                Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
-            }
-        }
-
-        // DEPRECATED
-        static void RegisterScrollCallback(ScrollCallbackFnPt callback) {
-            Window* win = Get();
-            bool assigned = false;
-            for (int i=0; i < 3; i++) {
-                if (win->scrollCallbacks[i] == nullptr) {
-                    win->scrollCallbacks[i] = callback;
-                    assigned = true;
-                    break;
-                }
-            }
-
-            if (!assigned) {
-                Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
-            }
-        }
-
-        // DEPRECATED
-        static void RegisterResizeCallback(ResizeCallbackFnPt callback) {
-            Window* win = Get();
-            bool assigned = false;
-            for (int i=0; i < 3; i++) {
-                if (win->resizeCallbacks[i] == nullptr) {
-                    win->resizeCallbacks[i] = callback;
-                    assigned = true;
-                    break;
-                }
-            }
-
-            if (!assigned) {
-                Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
-            }
-        }
+        static void SetWindowSizeCallback(Window* window, ResizeCallbackFnPt resizeCallback);
+        static void SetKeyCallback(Window* window, KeyCallbackFnPt keyCallback);
+        static void SetMouseButtonCallback(Window* window, MouseButtonCallbackFnPt mouseCallback);
+        static void SetCursorPosCallback(Window* window, CursorCallbackFnPt cursorCallback);
+        static void SetScrollCallback(Window* window, ScrollCallbackFnPt scrollCallback);
 
         // DEPRECATED -----------------------------------------------------------------
-        static bool IsRunning() { return Window::Get()->_IsRunning(); }
+        // static bool IsRunning() { return Window::Get()->_IsRunning(); }
 
-        static void SetWidth(int newWidth) { Window::Get()->m_Width = newWidth; }
-        static void SetHeight(int newHeight) { Window::Get()->m_Height = newHeight; }
+        // static void SetWidth(int newWidth) { Window::Get()->m_Width = newWidth; }
+        // static void SetHeight(int newHeight) { Window::Get()->m_Height = newHeight; }
 
-        static int GetWidth() { return Window::Get()->m_Width; }
-        static int GetHeight() { return Window::Get()->m_Height; }
-        static float GetTargetAspectRatio() { return Window::Get()->m_TargetAspectRatio; }
-        static Framebuffer* GetFramebuffer() { return Window::Get()->m_Framebuffer; }
-        static Scene* GetScene() { return Window::Get()->m_CurrentScene; }
-        static void* GetWindowHandle() { return Window::Get()->m_WindowHandle; }
+        // static int GetWidth() { return Window::Get()->m_Width; }
+        // static int GetHeight() { return Window::Get()->m_Height; }
+        // static float GetTargetAspectRatio() { return Window::Get()->m_TargetAspectRatio; }
+        // static Framebuffer* GetFramebuffer() { return Window::Get()->m_Framebuffer; }
+        // static Scene* GetScene() { return Window::Get()->m_CurrentScene; }
+        // static void* GetWindowHandle() { return Window::Get()->m_WindowHandle; }
         // DEPRECATED -----------------------------------------------------------------
 
 
         // DEPRECATED
-        static void Update(Window* window, float dt) { 
-            DebugDraw::BeginFrame();
-            window->m_CurrentScene->Update(dt); 
-        }
-
-        // DEPRECATED
-        static void Render() { Window::Get()->_Render(); }
-
-        // DEPRECATED
-        static void ChangeScene(Scene* newScene) {
-            Window* win = Window::Get();
-            win->m_CurrentScene = newScene;
-            win->m_CurrentScene->Init();
-            win->m_CurrentScene->Start();
-        }
-
-        static Window* Get();
-
-    private:
-        // DEPRECATED
-        // void Init(bool tmp=false) {
-        //     for (int i=0; i < 3; i++) {
-        //         keyCallbacks[i] = nullptr;
-        //         mouseButtonCallbacks[i] = nullptr;
-        //         scrollCallbacks[i] = nullptr;
-        //         cursorCallbacks[i] = nullptr;
-        //         resizeCallbacks[i] = nullptr;
-        //     }
+        // static void Update(Window* window, float dt) { 
+        //     DebugDraw::BeginFrame();
+        //     window->m_CurrentScene->Update(dt); 
         // }
 
+        // // DEPRECATED
+        // static void Render() { Window::Get()->_Render(); }
+
+        // // DEPRECATED
+        // static void ChangeScene(Scene* newScene) {
+        //     Window* win = Window::Get();
+        //     win->m_CurrentScene = newScene;
+        //     win->m_CurrentScene->Init();
+        //     win->m_CurrentScene->Start();
+        // }
+
+        // static Window* Get();
+
+    public:
+        // Callback function pointers
+        KeyCallbackFnPt           m_KeyCallback = nullptr;
+        CursorCallbackFnPt        m_CursorCallback = nullptr;
+        MouseButtonCallbackFnPt   m_MouseButtonCallback = nullptr;
+        ScrollCallbackFnPt        m_ScrollCallback = nullptr;
+        ResizeCallbackFnPt        m_ResizeCallback = nullptr;
+
     protected:
-        virtual Window* _CreateWindow(int width, int height, const char* title) = 0;
+        // virtual void _Render() = 0;
 
-        virtual void _Render() = 0;
-
-        const bool _IsRunning() { return m_Running; }
+        // const bool _IsRunning() { return m_Running; }
 
     protected:
         static std::chrono::steady_clock::time_point m_TimeStarted;
 
-        bool m_InitFocused = false;
-        bool m_InitIconified = false;
-        bool m_InitResizable = true;
-        bool m_InitVisible = true;
-        bool m_InitDecorated = true;
-        bool m_InitAutoIconify = false;
-        bool m_InitFloating = false;
-        bool m_InitMaximized = false;
-        bool m_InitCenterCursor = false;
-        bool m_InitTransparentFramebuffer = false;
-        bool m_InitHovered = false;
-        bool m_InitFocusOnShow = true;
-        bool m_InitAllocConsole = false;
+        static bool m_InitFocused;
+        static bool m_InitIconified;
+        static bool m_InitResizable;
+        static bool m_InitVisible;
+        static bool m_InitDecorated;
+        static bool m_InitAutoIconify;
+        static bool m_InitFloating;
+        static bool m_InitMaximized;
+        static bool m_InitCenterCursor;
+        static bool m_InitTransparentFramebuffer;
+        static bool m_InitHovered;
+        static bool m_InitFocusOnShow;
+        static bool m_InitAllocConsole;
 
-        static Window* m_Instance;
-        void* m_WindowHandle;
+        static std::vector<Window*> m_Windows;
 
-        // Registered callbacks
-        KeyCallbackFnPt           keyCallbacks[3];
-        CursorCallbackFnPt        cursorCallbacks[3];
-        MouseButtonCallbackFnPt   mouseButtonCallbacks[3];
-        ScrollCallbackFnPt        scrollCallbacks[3];
-        ResizeCallbackFnPt        resizeCallbacks[3];
+        // void* m_WindowHandle;
 
-        Scene* m_CurrentScene;
-        Framebuffer* m_Framebuffer;
+        // Scene* m_CurrentScene;
+        // Framebuffer* m_Framebuffer;
 
-        bool m_Running = true;
-        int m_Width = 1920;
-        int m_Height = 1080;
-        float m_TargetAspectRatio = 3840.0f / 2160.0f;
+        // bool m_Running = true;
+        // int m_Width = 1920;
+        // int m_Height = 1080;
+        // float m_TargetAspectRatio = 3840.0f / 2160.0f;
     };
 }
 

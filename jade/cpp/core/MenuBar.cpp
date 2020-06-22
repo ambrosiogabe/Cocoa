@@ -1,5 +1,5 @@
 #include "core/MenuBar.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 #include "components/components.h"
 #include "util/Constants.h"
 
@@ -33,7 +33,7 @@ namespace Jade {
 
             if (ImGui::BeginMenu("Game Objects")) {
                 if (ImGui::Button("Add Sprite Object")) {
-                    entt::registry& registry = Window::GetScene()->GetRegistry();
+                    entt::registry& registry = JWindow::Get()->GetScene()->GetRegistry();
                     entt::entity entity = registry.create();
                     registry.emplace<Transform>(entity, glm::vec3(), glm::vec3(32, 32, 1), glm::vec3());
                     registry.emplace<SpriteRenderer>(entity, glm::vec4(1, 1, 1, 1));

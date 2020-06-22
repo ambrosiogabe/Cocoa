@@ -1,5 +1,5 @@
 #include "renderer/DebugDraw.h"
-#include "platform/Window.h"
+#include "core/JWindow.h"
 
 #include <gl/gl3w.h>
 
@@ -106,8 +106,8 @@ namespace Jade {
 
         // Use shader
         m_Shader->Bind();
-        m_Shader->UploadMat4("uProjection", Window::GetScene()->GetCamera()->GetOrthoProjection());
-        m_Shader->UploadMat4("uView", Window::GetScene()->GetCamera()->GetOrthoView());
+        m_Shader->UploadMat4("uProjection", JWindow::Get()->GetScene()->GetCamera()->GetOrthoProjection());
+        m_Shader->UploadMat4("uView", JWindow::Get()->GetScene()->GetCamera()->GetOrthoView());
 
         // Bind vao
         glBindVertexArray(m_VAO);
