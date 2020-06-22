@@ -61,6 +61,6 @@ void Log::_Assert(const char* filename, int line, int condition, const char* for
 
         printf("\n");
 
-        JWindow::Stop();
+        JWindow::Get()->Close();
     }   
 }

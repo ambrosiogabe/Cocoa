@@ -386,69 +386,24 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     return result;
 }
 
-ATOM registerClass(HINSTANCE hInstance) {
-    WNDCLASSEX wcex;
-    ZeroMemory(&wcex, sizeof(wcex));
-    wcex.cbSize = sizeof(wcex);
-    wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wcex.lpfnWndProc = WindowProcedure;
-    wcex.hInstance = hInstance;
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.lpszClassName = "Core";
-
-    return RegisterClassEx(&wcex);
-}
-
-void LoadGameCode() {
-    // TODO: MAKE THIS WORK SOMEHOW!!!
-    //CopyFileA("jade.dll", "jade_temp.dll", FALSE);
-    //HMODULE gameCodeDll = LoadLibraryA("jade_temp.dll");
-    // if (gameCodeDll) {
-    //     Update = (WindowUpdateFnPt)GetProcAddress(gameCodeDll, "WindowUpdate");
-    // }
-}
-
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-    registerClass(hInstance);
+    Win32Window::InitWin32(hInstance);    
 
-    if (Win32Window::Create(hInstance, nCmdShow) != 0) {
-        PostQuitMessage(1);
-        return -1;
-    }
-    JWindow* JWindow = JWindow::Get();
-    //Update = &JWindow::Update;
+    JWindow::InitHint(JADE_WH_ALLOC_CONSOLE, true);
+    JWindow::InitHint(JADE_WH_CENTER_CURSOR, true);
+    JWindow* win = JWindow::CreateWindow(1920, 1080, "Some Title");
 
-	Jade::Application* app = Jade::CreateApplication();
-    app->Run();
-    delete app;
-    
     TestScene scene = TestScene();
-    JWindow->ChangeScene(&scene);
-    //int reloadGameTick = 0;
+    win->ChangeScene(&scene);
 
-    MSG msg = {0, 0, 0, 0, 0, NULL};
-    while (JWindow->IsRunning()) {
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT) {
-                JWindow->Stop();
-            }
-
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        // reloadGameTick++;
-        // if (reloadGameTick > 120) {
-        //     LoadGameCode();
-        //     reloadGameTick = 0;
-        // }
-        
-        JWindow::Update(JWindow, 1.0f/60.0f);
-        JWindow->Render();
+    while (win->IsRunning()) {
+        win->PollEvents();
+        JWindow::Update(win, 1.0f/60.0f);
+        win->Render();
         Input::EndFrame();
     }
-    system("pause");
-    JWindow->Destroy();
 
-    return (int)msg.wParam;
+    system("pause");
+    win->Destroy();
+    return 0;
 }

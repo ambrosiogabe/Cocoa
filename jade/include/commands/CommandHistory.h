@@ -29,7 +29,9 @@ public:
     }
 
     static void SetNoMergeMostRecent() {
-        m_Commands[m_CommandSize - 1]->SetNoMerge();
+        if (m_CommandSize - 1 >= 0) {
+            m_Commands[m_CommandSize - 1]->SetNoMerge();
+        }
     }
 
     static void Undo() {

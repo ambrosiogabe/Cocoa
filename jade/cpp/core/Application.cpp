@@ -4,7 +4,9 @@
 
 namespace Jade {
     Application::Application() {
-
+        m_LayerInsertIndex = 0;
+        m_Running = false;
+        m_Layers = std::vecotr<Layer*>();
     }
 
     Application::~Application() {
@@ -12,6 +14,46 @@ namespace Jade {
     }
 
     void Application::Run() {
+        while (m_Running) {
+            float time = JWindow::GetTime();
+            float dt = m_LastFrameTime - time;
+            m_LastFrameTime = time;
 
+            for (Layer* layer : m_Layers) {
+                layer->OnUpdate(dt);
+            }
+
+            // ImGuiLayer->Begin();
+            for (Layer* layer : m_LayerStack) {
+                layer->OnImGuiRender();
+            }
+            // ImGuiLayer->End();
+
+            //m_Window->OnUpdate();
+        }
+    }
+
+    void Application::PushLayer(Layer* layer) {
+        m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
+        m_LayerInsertIndex++;
+    }
+
+    void Application::PushOverlay(Layer* overlay) {
+        m_Layers.emplace_back(overlay);
+    }
+
+    void Application::PopLayer(Layer* layer) {
+        auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
+        if (it != m_Layers.end()) {
+            m_Layers.erase(it);
+            m_LayerInsertIndex--;
+        }
+    }
+
+    void Application::PopOverlay(Layer* overlay) {
+        auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
+        if (it != m_Layers.end()) {
+            m_Layers.erase(it);
+        }
     }
 }

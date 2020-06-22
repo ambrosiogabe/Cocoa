@@ -6,18 +6,24 @@ class Win32Window : public JWindow {
 public:
     Win32Window() {}
     virtual void Destroy() override;
+    virtual void PollEvents() override;
 
-    static int Create(HINSTANCE hInstance, int nCmdShow);
     static void ShowMessage(LPCSTR message);
+    static void InitWin32(HINSTANCE hInstance);
+
+    virtual void Show() override;
+    virtual void Hide() override;
+    virtual void Close() override;
 
 protected:
-    virtual JWindow* _Create() override;
-    virtual void _Hide() override;
-    virtual void _Close() override;
-    virtual void _Stop() override;
+    virtual JWindow* _CreateWindow(int width, int height, const char* title) override;
+
     virtual void _Render() override;
 
 private:
+    bool m_Initialized = false;
+
+    HINSTANCE m_HINSTANCE;
     HGLRC RC;
     HDC DC;
     HWND WND;

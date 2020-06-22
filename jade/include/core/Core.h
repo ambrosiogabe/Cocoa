@@ -229,19 +229,69 @@
  #define JADE_GAMEPAD_AXIS_RIGHT_TRIGGER 5
  #define JADE_GAMEPAD_AXIS_LAST          JADE_GAMEPAD_AXIS_RIGHT_TRIGGER
 
-#define GLFW_MOD_SHIFT           0x0001
+#define JADE_MOD_SHIFT           0x0001
 
-#define GLFW_MOD_CONTROL         0x0002
+#define JADE_MOD_CONTROL         0x0002
   
-#define GLFW_MOD_ALT             0x0004
+#define JADE_MOD_ALT             0x0004
 
-#define GLFW_MOD_SUPER           0x0008
+#define JADE_MOD_SUPER           0x0008
 
-#define GLFW_MOD_CAPS_LOCK       0x0010
+#define JADE_MOD_CAPS_LOCK       0x0010
 
-#define GLFW_MOD_NUM_LOCK        0x0020
+#define JADE_MOD_NUM_LOCK        0x0020
 
+// ===========================================
+// Window Hints
+// ===========================================
+#define JADE_WH_FOCUSED       0x00020001
+#define JADE_WH_ICONIFIED     0x00020002
+#define JADE_WH_RESIZABLE     0x00020003
+#define JADE_WH_VISIBLE       0x00020004
+#define JADE_WH_DECORATED     0x00020005
+#define JADE_WH_AUTO_ICONIFY  0x00020006
+#define JADE_WH_FLOATING      0x00020007
+#define JADE_WH_MAXIMIZED     0x00020008
+#define JADE_WH_CENTER_CURSOR 0x00020009
+#define JADE_WH_TRANSPARENT_FRAMEBUFFER 0x0002000A
+#define JADE_WH_HOVERED       0x0002000B
+#define JADE_WH_FOCUS_ON_SHOW 0x0002000C
+#define JADE_WH_ALLOC_CONSOLE 0x0002000D
 
+#define JADE_WH_RED_BITS         0x00021001
+#define JADE_WH_GREEN_BITS       0x00021002
+#define JADE_WH_BLUE_BITS        0x00021003
+#define JADE_WH_ALPHA_BITS       0x00021004
+#define JADE_WH_DEPTH_BITS       0x00021005
+#define JADE_WH_STENCIL_BITS     0x00021006
+#define JADE_WH_ACCUM_RED_BITS   0x00021007
+#define JADE_WH_ACCUM_BLUE_BITS  0x00021008
+#define JADE_WH_ACCUM_GREEN_BITS 0x00021009
+#define JADE_WH_ACCUM_ALPHA_BITS 0x0002100A
+
+#define JADE_WH_AUX_BUFFERS   0x0002100B
+#define JADE_WH_STEREO        0x0002100C
+#define JADE_WH_SAMPLES       0x0002100D
+#define JADE_WH_SRGB_CAPABLE  0x0002100E
+#define JADE_WH_REFRESH_RATE  0x0002100F
+#define JADE_WH_DOUBLEBUFFER  0x00021010
+
+#define JADE_WH_CLIENT_API            0x00022001
+#define JADE_WH_CONTEXT_VERSION_MAJOR 0x00022002
+#define JADE_WH_CONTEXT_VERSION_MINOR 0x00022003
+#define JADE_WH_CONTEXT_REVISION      0x00022004
+#define JADE_WH_CONTEXT_ROBUSTNESS    0x00022005
+#define JADE_WH_OPENGL_FORWARD_COMPAT 0x00022006
+#define JADE_WH_OPENGL_DEBUG_CONTEXT  0x00022007
+#define JADE_WH_OPENGL_PROFILE        0x00022008
+#define JADE_WH_CONTEXT_RELEASE_BEHAVIOR 0x00022009
+#define JADE_WH_CONTEXT_NO_ERROR      0x0002200A
+#define JADE_WH_CONTEXT_CREATION_API  0x0002200B
+#define JADE_WH_SCALE_TO_MONITOR      0x0002200C
+
+// ===========================================
+// Function pointer typedefs
+// ===========================================
 typedef void (*KeyCallbackFnPt) (int key, int scancode, int action, int mods);
 typedef void (*CursorCallbackFnPt) (double xpos, double ypos);
 typedef void (*MouseButtonCallbackFnPt) (int button, int action, int mods);
@@ -261,8 +311,3 @@ typedef uint8_t  uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
-
-// Forwardly declare window class
-// TODO: Figure out good way to hot-swap code
-// class Window;
-// typedef void (*WindowUpdateFnPt) (Window* window, float dt);

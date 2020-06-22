@@ -5,12 +5,33 @@
 #include "util/Log.h"
 #include "core/ImGuiLayer.h"
 #include "renderer/Framebuffer.h"
-#include "renderer/DebugDraw.h"
+
+#include <chrono>
+
+#ifdef CreateWindow
+#undef CreateWindow
+#endif
 
 class JWindow {
 public:
-    virtual void Destroy() = 0;
+    // New window functions
+    // to replace old functions
+    static int Init();
+    static void InitHint(int hint, int value);
+    static JWindow* CreateWindow(int width, int height, const char* title);
+    
+    static void ShowJWindow(JWindow* window);
 
+    virtual void Close() = 0;
+    virtual void Hide() = 0;
+    virtual void Show() = 0;
+
+    virtual void Destroy() = 0;
+    virtual void PollEvents() = 0;
+
+    static float GetTime();
+
+    // DEPRECATED
     static void KeyCallback(int key, int scancode, int action, int mods) {
         JWindow* win = Get();
         for (int i=0; i < 3; i++) {
@@ -20,6 +41,7 @@ public:
         }
     }
 
+    // DEPRECATED
     static void CursorCallback(double xpos, double ypos) {
         JWindow* win = Get();
         for (int i=0; i < 3; i++) {
@@ -29,6 +51,7 @@ public:
         }
     }
 
+    // DEPRECATED
     static void MouseButtonCallback(int button, int action, int mods) {
         JWindow* win = Get();
         for (int i=0; i < 3; i++) {
@@ -37,6 +60,8 @@ public:
             }
         }
     }
+
+    // DEPRECATED
     static void ScrollCallback(double xoffset, double yoffset) {
         JWindow* win = Get();
         for (int i=0; i < 3; i++) {
@@ -45,6 +70,8 @@ public:
             }
         }
     }
+
+    // DEPRECATED
     static void ResizeCallback(int width, int height) {
         JWindow* win = Get();
         for (int i=0; i < 3; i++) {
@@ -54,6 +81,7 @@ public:
         }
     }
 
+    // DEPRECATED
     static void RegisterKeyCallback(KeyCallbackFnPt callback) {
         JWindow* win = Get();
         bool assigned = false;
@@ -69,6 +97,8 @@ public:
             Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
         }
     }
+
+    // DEPRECATED
     static void RegisterCursorCallback(CursorCallbackFnPt callback) {
         JWindow* win = Get();
         bool assigned = false;
@@ -84,6 +114,8 @@ public:
             Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
         }
     }
+
+    // DEPRECATED
     static void RegisterMouseButtonCallback(MouseButtonCallbackFnPt callback) {
         JWindow* win = Get();
         bool assigned = false;
@@ -99,6 +131,8 @@ public:
             Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
         }
     }
+
+    // DEPRECATED
     static void RegisterScrollCallback(ScrollCallbackFnPt callback) {
         JWindow* win = Get();
         bool assigned = false;
@@ -114,6 +148,8 @@ public:
             Log::Warning("Cannot register callback. Maximum number of key callbacks is 3.");
         }
     }
+
+    // DEPRECATED
     static void RegisterResizeCallback(ResizeCallbackFnPt callback) {
         JWindow* win = Get();
         bool assigned = false;
@@ -130,9 +166,7 @@ public:
         }
     }
 
-    static void Hide() { JWindow::Get()->_Hide(); }
-    static void Close() { JWindow::Get()->_Close(); }
-    static void Stop() { JWindow::Get()->_Stop(); }
+    // DEPRECATED -----------------------------------------------------------------
     static bool IsRunning() { return JWindow::Get()->_IsRunning(); }
 
     static void SetWidth(int newWidth) { JWindow::Get()->m_Width = newWidth; }
@@ -144,13 +178,19 @@ public:
     static Framebuffer* GetFramebuffer() { return JWindow::Get()->m_Framebuffer; }
     static Scene* GetScene() { return JWindow::Get()->m_CurrentScene; }
     static void* GetWindowHandle() { return JWindow::Get()->m_WindowHandle; }
+    // DEPRECATED -----------------------------------------------------------------
 
+
+    // DEPRECATED
     static void Update(JWindow* window, float dt) { 
-        DebugDraw::BeginFrame();
+        //DebugDraw::BeginFrame();
         window->m_CurrentScene->Update(dt); 
     }
+
+    // DEPRECATED
     static void Render() { JWindow::Get()->_Render(); }
 
+    // DEPRECATED
     static void ChangeScene(Scene* newScene) {
         JWindow* win = JWindow::Get();
         win->m_CurrentScene = newScene;
@@ -161,26 +201,41 @@ public:
     static JWindow* Get();
 
 private:
-    void Init() {
-        for (int i=0; i < 3; i++) {
-            keyCallbacks[i] = nullptr;
-            mouseButtonCallbacks[i] = nullptr;
-            scrollCallbacks[i] = nullptr;
-            cursorCallbacks[i] = nullptr;
-            resizeCallbacks[i] = nullptr;
-        }
-    }
+    // DEPRECATED
+    // void Init(bool tmp=false) {
+    //     for (int i=0; i < 3; i++) {
+    //         keyCallbacks[i] = nullptr;
+    //         mouseButtonCallbacks[i] = nullptr;
+    //         scrollCallbacks[i] = nullptr;
+    //         cursorCallbacks[i] = nullptr;
+    //         resizeCallbacks[i] = nullptr;
+    //     }
+    // }
 
 protected:
-    virtual JWindow* _Create() = 0;
-    virtual void _Hide() = 0;
-    virtual void _Close() = 0;
-    virtual void _Stop() = 0;
+    virtual JWindow* _CreateWindow(int width, int height, const char* title) = 0;
+
     virtual void _Render() = 0;
 
     const bool _IsRunning() { return m_Running; }
 
 protected:
+    std::chrono::steady_clock::time_point m_TimeStarted;
+
+    bool m_InitFocused = false;
+    bool m_InitIconified = false;
+    bool m_InitResizable = true;
+    bool m_InitVisible = true;
+    bool m_InitDecorated = true;
+    bool m_InitAutoIconify = false;
+    bool m_InitFloating = false;
+    bool m_InitMaximized = false;
+    bool m_InitCenterCursor = false;
+    bool m_InitTransparentFramebuffer = false;
+    bool m_InitHovered = false;
+    bool m_InitFocusOnShow = true;
+    bool m_InitAllocConsole = false;
+
     static JWindow* m_Instance;
     void* m_WindowHandle;
 
