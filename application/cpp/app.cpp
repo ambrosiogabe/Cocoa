@@ -1,12 +1,29 @@
 #include "Jade.h"
+#include "LevelEditorScene.cpp"
+#include "LevelEditorSystem.cpp"
 
 namespace Jade {
     class EditorLayer : public Layer {
-        virtual void OnUpdate(float dt) override {
-            Log::Info("Updating!");
+    public:
+        EditorLayer() {
+            Application::Get()->ChangeScene(new LevelEditorScene());
         }
 
+        virtual void OnAttach() override {
 
+        }
+
+        virtual void OnUpdate(float dt) override {
+            Application::Get()->GetScene()->Update(dt);
+        }
+
+        virtual void OnImGuiRender() override {
+            Application::Get()->GetScene()->ImGui();
+        }
+
+        virtual void OnRender() override {
+            Application::Get()->GetScene()->Render();
+        }
     };
 
     class JadeEditor : public Application {

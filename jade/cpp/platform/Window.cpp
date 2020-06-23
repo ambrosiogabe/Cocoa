@@ -2,63 +2,64 @@
 #include "core/Core.h"
 
 namespace Jade {
-    std::vector<Window*> Window::m_Windows = std::vector<Window*>();
-    std::chrono::steady_clock::time_point Window::m_TimeStarted = std::chrono::high_resolution_clock::now();
+    std::vector<Window*> Window::s_Windows = std::vector<Window*>();
+    std::chrono::steady_clock::time_point Window::s_TimeStarted = std::chrono::high_resolution_clock::now();
+    int Window::s_SwapInterval = 0;
 
-    bool Window::m_InitFocused = false;
-    bool Window::m_InitIconified = false;
-    bool Window::m_InitResizable = true;
-    bool Window::m_InitVisible = true;
-    bool Window::m_InitDecorated = true;
-    bool Window::m_InitAutoIconify = false;
-    bool Window::m_InitFloating = false;
-    bool Window::m_InitMaximized = false;
-    bool Window::m_InitCenterCursor = false;
-    bool Window::m_InitTransparentFramebuffer = false;
-    bool Window::m_InitHovered = false;
-    bool Window::m_InitFocusOnShow = true;
-    bool Window::m_InitAllocConsole = false;
+    bool Window::s_InitFocused = false;
+    bool Window::s_InitIconified = false;
+    bool Window::s_InitResizable = true;
+    bool Window::s_InitVisible = true;
+    bool Window::s_InitDecorated = true;
+    bool Window::s_InitAutoIconify = false;
+    bool Window::s_InitFloating = false;
+    bool Window::s_InitMaximized = false;
+    bool Window::s_InitCenterCursor = false;
+    bool Window::s_InitTransparentFramebuffer = false;
+    bool Window::s_InitHovered = false;
+    bool Window::s_InitFocusOnShow = true;
+    bool Window::s_InitAllocConsole = false;
 
     void Window::InitHint(int hint, int value) {
         switch(hint) {
             case JADE_WH_FOCUSED:
-                m_InitFocused = value;
+                s_InitFocused = value;
                 break;
             case JADE_WH_ICONIFIED:
-                m_InitIconified = value;
+                s_InitIconified = value;
                 break;
             case JADE_WH_RESIZABLE:
-                m_InitResizable = value;
+                s_InitResizable = value;
                 break;
             case JADE_WH_VISIBLE:
-                m_InitVisible = value;
+                s_InitVisible = value;
                 break;
             case JADE_WH_DECORATED:
-                m_InitDecorated = value;
+                s_InitDecorated = value;
                 break;
             case JADE_WH_AUTO_ICONIFY:
-                m_InitAutoIconify = value;
+                s_InitAutoIconify = value;
                 break;
             case JADE_WH_FLOATING:
-                m_InitFloating = value;
+                s_InitFloating = value;
                 break;
             case JADE_WH_MAXIMIZED:
-                m_InitMaximized = value;
+                s_InitMaximized = value;
                 break;
             case JADE_WH_CENTER_CURSOR:
-                m_InitCenterCursor = value;
+                s_InitCenterCursor = value;
                 break;
             case JADE_WH_TRANSPARENT_FRAMEBUFFER:
-                m_InitTransparentFramebuffer = value;
+                s_InitTransparentFramebuffer = value;
                 break;
             case JADE_WH_HOVERED:
-                m_InitHovered = value;
+                s_InitHovered = value;
                 break;
             case JADE_WH_FOCUS_ON_SHOW:
-                m_InitFocusOnShow = value;
+                s_InitFocusOnShow = value;
                 break;
             case JADE_WH_ALLOC_CONSOLE:
-                m_InitAllocConsole = value;
+                s_InitAllocConsole = value;
                 break;
             default:
                 Log::Warning("Unknown window flag 0x%08x", hint);
@@ -77,13 +78,24 @@ namespace Jade {
     }
 
     int Window::Init() {
-        m_TimeStarted = std::chrono::high_resolution_clock::now();
+        s_TimeStarted = std::chrono::high_resolution_clock::now();
+#ifdef _WIN32
+        Win32Window::InitWin32();
+#endif
+
         return 0;
+    }
+
+    void Window::SwapInterval(int interval) {
+        s_SwapInterval = interval;
+        for (Window* win : s_Windows) {
+            win->UpdateSwapInterval();
+        }
     }
 
     float Window::GetTime() {
         auto time = std::chrono::high_resolution_clock::now();
-        return std::chrono::duration<float>(time - m_TimeStarted).count();
+        return std::chrono::duration<float>(time - s_TimeStarted).count();
     }
 
     void Window::SetWindowSizeCallback(Window* window, ResizeCallbackFnPt resizeCallback) {
@@ -104,5 +116,17 @@ namespace Jade {
 
     void Window::SetScrollCallback(Window* window, ScrollCallbackFnPt scrollCallback) {
         window->m_ScrollCallback = scrollCallback;
+    }
+
+    void Window::SetWindowCloseCallback(Window* window, WindowCloseCallbackFnPt closeCallback) {
+        window->m_CloseCallback = closeCallback;
+    }
+
+    void Window::SetWindowUserPointer(Window* window, void* userPointer) {
+        window->m_WindowUserPointer = userPointer;
+    }
+
+    void* Window::GetWindowUserPointer(Window* window) {
+        return window->m_WindowUserPointer;
     }
 }

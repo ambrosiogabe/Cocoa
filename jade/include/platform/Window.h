@@ -16,8 +16,6 @@
 namespace Jade {
     class Window {
     public:
-        // New window functions
-        // to replace old functions
         static int Init();
         static void InitHint(int hint, int value);
         static Window* CreateWindow(int width, int height, const char* title);
@@ -32,88 +30,51 @@ namespace Jade {
         virtual void SwapBuffers() = 0;
 
         static float GetTime();
+        static void SetWindowUserPointer(Window* window, void* pointer);
+        static void* GetWindowUserPointer(Window* window);
+        static void SwapInterval(int interval);
 
         static void SetWindowSizeCallback(Window* window, ResizeCallbackFnPt resizeCallback);
         static void SetKeyCallback(Window* window, KeyCallbackFnPt keyCallback);
         static void SetMouseButtonCallback(Window* window, MouseButtonCallbackFnPt mouseCallback);
         static void SetCursorPosCallback(Window* window, CursorCallbackFnPt cursorCallback);
         static void SetScrollCallback(Window* window, ScrollCallbackFnPt scrollCallback);
+        static void SetWindowCloseCallback(Window* window, WindowCloseCallbackFnPt closeCallback);
 
-        // DEPRECATED -----------------------------------------------------------------
-        // static bool IsRunning() { return Window::Get()->_IsRunning(); }
+    protected:
+        virtual void UpdateSwapInterval() = 0;
 
-        // static void SetWidth(int newWidth) { Window::Get()->m_Width = newWidth; }
-        // static void SetHeight(int newHeight) { Window::Get()->m_Height = newHeight; }
+    protected:
+        static int s_SwapInterval;
+        static std::chrono::steady_clock::time_point s_TimeStarted;
 
-        // static int GetWidth() { return Window::Get()->m_Width; }
-        // static int GetHeight() { return Window::Get()->m_Height; }
-        // static float GetTargetAspectRatio() { return Window::Get()->m_TargetAspectRatio; }
-        // static Framebuffer* GetFramebuffer() { return Window::Get()->m_Framebuffer; }
-        // static Scene* GetScene() { return Window::Get()->m_CurrentScene; }
-        // static void* GetWindowHandle() { return Window::Get()->m_WindowHandle; }
-        // DEPRECATED -----------------------------------------------------------------
+        static bool s_InitFocused;
+        static bool s_InitIconified;
+        static bool s_InitResizable;
+        static bool s_InitVisible;
+        static bool s_InitDecorated;
+        static bool s_InitAutoIconify;
+        static bool s_InitFloating;
+        static bool s_InitMaximized;
+        static bool s_InitCenterCursor;
+        static bool s_InitTransparentFramebuffer;
+        static bool s_InitHovered;
+        static bool s_InitFocusOnShow;
+        static bool s_InitAllocConsole;
 
+        static std::vector<Window*> s_Windows;
 
-        // DEPRECATED
-        // static void Update(Window* window, float dt) { 
-        //     DebugDraw::BeginFrame();
-        //     window->m_CurrentScene->Update(dt); 
-        // }
+        void* m_WindowUserPointer = nullptr;
 
-        // // DEPRECATED
-        // static void Render() { Window::Get()->_Render(); }
-
-        // // DEPRECATED
-        // static void ChangeScene(Scene* newScene) {
-        //     Window* win = Window::Get();
-        //     win->m_CurrentScene = newScene;
-        //     win->m_CurrentScene->Init();
-        //     win->m_CurrentScene->Start();
-        // }
-
-        // static Window* Get();
-
-    public:
         // Callback function pointers
         KeyCallbackFnPt           m_KeyCallback = nullptr;
         CursorCallbackFnPt        m_CursorCallback = nullptr;
         MouseButtonCallbackFnPt   m_MouseButtonCallback = nullptr;
         ScrollCallbackFnPt        m_ScrollCallback = nullptr;
         ResizeCallbackFnPt        m_ResizeCallback = nullptr;
+        WindowCloseCallbackFnPt   m_CloseCallback = nullptr;
 
-    protected:
-        // virtual void _Render() = 0;
-
-        // const bool _IsRunning() { return m_Running; }
-
-    protected:
-        static std::chrono::steady_clock::time_point m_TimeStarted;
-
-        static bool m_InitFocused;
-        static bool m_InitIconified;
-        static bool m_InitResizable;
-        static bool m_InitVisible;
-        static bool m_InitDecorated;
-        static bool m_InitAutoIconify;
-        static bool m_InitFloating;
-        static bool m_InitMaximized;
-        static bool m_InitCenterCursor;
-        static bool m_InitTransparentFramebuffer;
-        static bool m_InitHovered;
-        static bool m_InitFocusOnShow;
-        static bool m_InitAllocConsole;
-
-        static std::vector<Window*> m_Windows;
-
-        // void* m_WindowHandle;
-
-        // Scene* m_CurrentScene;
-        // Framebuffer* m_Framebuffer;
-
-        // bool m_Running = true;
-        // int m_Width = 1920;
-        // int m_Height = 1080;
-        // float m_TargetAspectRatio = 3840.0f / 2160.0f;
+        friend class Win32Window;
     };
 }
 

@@ -15,16 +15,13 @@ namespace Jade {
         virtual void Update(float dt) = 0;
         virtual void Start() = 0;
 
-
-        void AddSystem(System* system) { m_Systems[m_SystemCount++] = system; }
-        
-        void SetActiveEntity(entt::entity entity) { m_ActiveEntity = entity; }
-
-        const glm::vec2& GetGameviewPos() const { return m_ImGuiLayer.GetGameviewPos(); }
-        const glm::vec2& GetGameviewSize() const { return m_ImGuiLayer.GetGameviewSize(); }
-        entt::registry&  GetRegistry() { return m_Registry; }
-        Camera*          GetCamera() const { return m_Camera;}
-        entt::entity     GetActiveEntity() const { return m_ActiveEntity; }
+        void AddSystem(System* system);
+        void SetActiveEntity(entt::entity entity);
+        const glm::vec2& GetGameviewPos() const;
+        const glm::vec2& GetGameviewSize() const;
+        entt::registry& GetRegistry();
+        Camera* GetCamera() const;
+        entt::entity GetActiveEntity() const;
 
     protected:
         ImGuiLayer m_ImGuiLayer = ImGuiLayer();

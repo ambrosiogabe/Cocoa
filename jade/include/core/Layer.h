@@ -12,6 +12,7 @@ public:
     virtual void OnDetach() {}
     virtual void OnUpdate(float dt) {}
     virtual void OnImGuiRender() {}
+    virtual void OnRender() {}
 
 protected:
     std::string m_DebugName;

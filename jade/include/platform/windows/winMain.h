@@ -1,6 +1,5 @@
 #pragma once
 
-#include "scenes/TestScene.h"
 #include "util/Log.h"
 #include "core/Application.h"
 #include "platform/Window.h"
@@ -374,7 +373,9 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
             break;
         }
         
+        case WM_QUIT:
         case WM_CLOSE: {
+            Jade::Win32Window::DefaultCloseCallback(hWnd);
             PostQuitMessage(0);
             break;
         }
@@ -386,29 +387,11 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
     return result;
 }
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-    Jade::Win32Window::InitWin32(hInstance);    
 
-    Jade::Window::InitHint(JADE_WH_ALLOC_CONSOLE, true);
-
+int main() {
     Jade::Application* application = Jade::CreateApplication();
     application->Run();
     delete application;
-
-    // Jade::Window::InitHint(JADE_WH_ALLOC_CONSOLE, true);
-    // Jade::Window::InitHint(JADE_WH_CENTER_CURSOR, true);
-    // Jade::Window* win = Jade::Window::CreateWindow(1920, 1080, "Some Title");
-
-    // Jade::TestScene scene = Jade::TestScene();
-    // win->ChangeScene(&scene);
-
-    // while (win->IsRunning()) {
-    //     win->PollEvents();
-    //     Jade::Window::Update(win, 1.0f/60.0f);
-    //     win->Render();
-    //     Jade::Input::EndFrame();
-    // }
-    // win->Destroy();
 
     system("pause");
     return 0;

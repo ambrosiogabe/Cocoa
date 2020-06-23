@@ -10,8 +10,10 @@
 namespace Jade {
     class JWindow {
     public:
+        JWindow(uint32 width, uint32 height, const std::string& name);
         virtual ~JWindow() {}
 
+        virtual void Init(uint32 width, uint32 height, const std::string& name);
         virtual void OnUpdate();
 
         // Window Attributes
@@ -30,11 +32,7 @@ namespace Jade {
         int GetHeight();
 
         float GetTargetAspectRatio();
-        Framebuffer* GetFramebuffer();
-        Scene* GetScene();
-
         void Render();
-        static void ChangeScene(Scene* newScene);
 
         static JWindow* Get();
 
@@ -45,9 +43,7 @@ namespace Jade {
         static JWindow* m_Instance;
         Window* m_WindowHandle;
 
-        Scene* m_CurrentScene;
-        Framebuffer* m_Framebuffer;
-
+        bool m_VSync = false;
         bool m_Running = true;
         int m_Width = 1920;
         int m_Height = 1080;

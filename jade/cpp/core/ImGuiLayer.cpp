@@ -1,5 +1,5 @@
 #include "core/ImGuiLayer.h"
-#include "core/JWindow.h"
+#include "core/Application.h"
 
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_win32.h>
@@ -87,7 +87,7 @@ namespace Jade {
         m_GameviewSize.y = aspectHeight;
 
         
-        ImGui::Image((void*)JWindow::Get()->GetFramebuffer()->GetId(), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((void*)Application::Get()->GetFramebuffer()->GetId(), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::End();
         ImGui::PopStyleColor();

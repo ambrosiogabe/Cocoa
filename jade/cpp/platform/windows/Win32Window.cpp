@@ -5,9 +5,6 @@
 #include "renderer/DebugDraw.h"
 
 #include <imgui/imgui.h>
-#include <gl/GL.h>
-#include "gl/glext.h"
-#include "gl/wglext.h"
 #include <stdio.h>
 #include <io.h>
 
@@ -18,9 +15,10 @@
 namespace Jade {
     bool Win32Window::m_Initialized = false;
     HINSTANCE Win32Window::m_HINSTANCE = {};
+    PFNWGLSWAPINTERVALEXTPROC Win32Window::wglSwapIntervalEXT = nullptr;
 
     void Win32Window::DefaultResizeCallback(HWND wnd, int width, int height) {
-        for (Window* window : m_Windows) {
+        for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
                 if (window->m_ResizeCallback != nullptr) {
@@ -32,7 +30,7 @@ namespace Jade {
     }
 
     void Win32Window::DefaultMouseButtonCallback(HWND wnd, int button, int action, int mods) {
-        for (Window* window : m_Windows) {
+        for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
                 if (window->m_MouseButtonCallback != nullptr) {
@@ -44,7 +42,7 @@ namespace Jade {
     }
 
     void Win32Window::DefaultCursorCallback(HWND wnd, double xpos, double ypos) {
-        for (Window* window : m_Windows) {
+        for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
                 if (window->m_CursorCallback != nullptr) {
@@ -56,7 +54,7 @@ namespace Jade {
     }
 
     void Win32Window::DefaultScrollCalback(HWND wnd, double xoffset, double yoffset) {
-        for (Window* window : m_Windows) {
+        for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
                 if (window->m_ScrollCallback != nullptr) {
@@ -68,11 +66,23 @@ namespace Jade {
     }
 
     void Win32Window::DefaultKeyCallback(HWND wnd, int key, int scancode, int action, int mods) {
-        for (Window* window : m_Windows) {
+        for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
                 if (window->m_KeyCallback != nullptr) {
                     window->m_KeyCallback(window, key, scancode, action, mods);
+                }
+                break;
+            }
+        }
+    }
+
+    void Win32Window::DefaultCloseCallback(HWND wnd) {
+        for (Window* window : s_Windows) {
+            Win32Window* win = static_cast<Win32Window*>(window);
+            if (win->WND == wnd) {
+                if (window->m_CloseCallback != nullptr) {
+                    window->m_CloseCallback(window);
                 }
                 break;
             }
@@ -157,7 +167,7 @@ namespace Jade {
 
     void Win32Window::Show() {
         ShowWindow(WND, SW_SHOWNORMAL);
-        if (m_InitFocusOnShow) {
+        if (s_InitFocusOnShow) {
             SetFocus(WND);
         }
     }
@@ -180,14 +190,25 @@ namespace Jade {
         Win32Window::m_Initialized = true;
     }
 
+    void Win32Window::InitWin32() {
+        Win32Window::m_HINSTANCE = GetModuleHandle(NULL);
+        registerClass(Win32Window::m_HINSTANCE);
+        Win32Window::m_Initialized = true;
+    }
+
     Window* Win32Window::CreateWindow(int width, int height, const char* title) {
         Log::Assert(Win32Window::m_Initialized, "You must initialize a Win32Window before creating it.");
 
         Win32Window* win = new Win32Window();
 
-        if (win->m_InitAllocConsole) {
+        if (s_InitAllocConsole) {
             // Allocate console Win32Window
-            AllocConsole();
+            FreeConsole();
+            bool success = AllocConsole();
+            if (!success) {
+                Log::Error("Could not allocate console.");
+                Log::Assert(false, "%d", GetLastError());
+            }
             freopen("CONOUT$", "w+", stdout);
             Log::Info("Console Win32Window created.");
         }
@@ -257,30 +278,30 @@ namespace Jade {
         }
 
         DWORD winFlags = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-        if (win->m_InitDecorated) {
+        if (s_InitDecorated) {
             winFlags |= WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
         }
-        if (win->m_InitIconified) {
+        if (s_InitIconified) {
             winFlags |= WS_ICONIC;
         }
-        if (win->m_InitMaximized) {
+        if (s_InitMaximized) {
             winFlags |= WS_MAXIMIZE;
         }
-        if (win->m_InitResizable) {
+        if (s_InitResizable) {
             winFlags |= WS_SIZEBOX;
         }
-        if (win->m_InitAutoIconify) {
+        if (s_InitAutoIconify) {
             Log::Warning("Auto Iconify flag used. But it has not been implemented yet.");
         }
-        if (win->m_InitTransparentFramebuffer) {
+        if (s_InitTransparentFramebuffer) {
             Log::Warning("Transparent framebuffer flag used. But it has not been implemented yet.");
         }
-        if (win->m_InitHovered) {
+        if (s_InitHovered) {
             Log::Warning("Hovered flag used. But it has not been implemented yet.");
         }
 
         DWORD exWinFlags = 0;
-        if (win->m_InitFloating) {
+        if (s_InitFloating) {
             exWinFlags |= WS_EX_TOPMOST;
         }
 
@@ -296,12 +317,12 @@ namespace Jade {
 
         win->DC = GetDC(win->WND);
 
-        if (win->m_InitFocused) {
+        if (s_InitFocused) {
             SetFocus(win->WND );
         }
 
         // TODO: Take into account window position for unmaximized windows
-        if (win->m_InitCenterCursor) {
+        if (s_InitCenterCursor) {
             SetCursorPos(width / 2, height / 2);
         }
 
@@ -358,42 +379,31 @@ namespace Jade {
             return nullptr;
         }
 
-        PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
+        wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
         if (wglSwapIntervalEXT == nullptr) {
             ShowMessage("wglSwapIntervalEXT() not found. Cannot enable vsync.");
             return nullptr;
         }
-        wglSwapIntervalEXT(1);
+        wglSwapIntervalEXT(Window::s_SwapInterval);
 
         //SetWindowTextA(win->WND, (LPCSTR(glGetString(GL_VERSION))));
-        if (win->m_InitIconified) {
+        if (s_InitIconified) {
             ShowWindow(win->WND, SW_SHOWMINIMIZED);
-        } else if (win->m_InitMaximized) {
+        } else if (s_InitMaximized) {
             ShowWindow(win->WND, SW_MAXIMIZE);
         } else {
             win->Show();
         }
-
-        //win->m_ImGuiLayer.Setup(win->WND);
-        //win->m_WindowHandle = win->WND;
-
-        //RegisterKeyCallback(&Input::KeyCallback);
-        //RegisterMouseButtonCallback(&Input::MouseButtonCallback);
-        //RegisterCursorCallback(&Input::CursorCallback);
-        //RegisterScrollCallback(&Input::ScrollCallback);
 
         const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
         const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
         Log::Info("Renderer: %s", renderer);
         Log::Info("Vendor: %s", vendor);
 
-        // Initialize and register Win32Window events callback
-        //WindowEvents::Init(win);
-        //RegisterResizeCallback(&WindowEvents::ResizeCallback);
-        
-        // Setup framebuffer
-        //win->m_Framebuffer = new Framebuffer(3840, 2160);
-
         return win;
+    }
+
+    void Win32Window::UpdateSwapInterval() {
+        wglSwapIntervalEXT(Window::s_SwapInterval);
     }
 }

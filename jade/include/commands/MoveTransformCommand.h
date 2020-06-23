@@ -8,29 +8,11 @@
 namespace Jade {
     class MoveTransformCommand : public ICommand {
     public:
-        MoveTransformCommand(Transform& transform, glm::vec3& newPos) 
-            : m_Transform(transform), m_NewPos(newPos), m_OldPos(glm::vec3()) {}
+        MoveTransformCommand(Transform& transform, glm::vec3& newPos);
         
-        virtual void execute() override {
-            m_OldPos = glm::vec3(m_Transform.m_Position);
-            m_Transform.m_Position = m_NewPos;
-        }
-
-        virtual void undo() override {
-            m_Transform.m_Position = m_OldPos;
-        }
-
-        virtual bool mergeWith(ICommand* other) override {        
-            MoveTransformCommand* moveTransformCmd = dynamic_cast<MoveTransformCommand*>(other);
-            if (moveTransformCmd != nullptr) {
-                if (&moveTransformCmd->m_Transform == &this->m_Transform) {
-                    moveTransformCmd->m_NewPos = this->m_NewPos;
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        virtual void execute() override;
+        virtual void undo() override;
+        virtual bool mergeWith(ICommand* other) override;
 
 
     private:

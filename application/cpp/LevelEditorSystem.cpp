@@ -1,5 +1,5 @@
-#include "systems/LevelEditorSystem.h"
-#include "core/JWindow.h"
+#include "LevelEditorSystem.h"
+#include "core/Application.h"
 #include "events/Input.h"
 #include "commands/CommandHistory.h"
 #include "renderer/DebugDraw.h"
@@ -46,7 +46,7 @@ namespace Jade {
         }
 
         if (m_DebounceLeft <= 0.0f && m_IsDragging) {
-            Transform& transform = registry.get<Transform>(JWindow::Get()->GetScene()->GetActiveEntity());
+            Transform& transform = registry.get<Transform>(Application::Get()->GetScene()->GetActiveEntity());
             glm::vec3 newPos = glm::vec3(Input::OrthoMouseX() - m_DragOffset.x, Input::OrthoMouseY() - m_DragOffset.y, 0.0f);
 
             CommandHistory::AddCommand(new MoveTransformCommand(transform, newPos));
@@ -66,7 +66,7 @@ namespace Jade {
                 Transform& transform = view.get<Transform>(entity);
                 if (worldX >= transform.m_Position.x && worldX <= transform.m_Position.x + transform.m_Scale.x && 
                     worldY >= transform.m_Position.y && worldY <= transform.m_Position.y + transform.m_Scale.y) {
-                    JWindow::Get()->GetScene()->SetActiveEntity(entity);
+                    Application::Get()->GetScene()->SetActiveEntity(entity);
                     m_DebounceLeft = m_DebounceTime;
 
                     m_IsDragging = true;
@@ -80,7 +80,7 @@ namespace Jade {
 
 
         // Draw grid lines
-        Transform& cameraTransform = JWindow::Get()->GetScene()->GetCamera()->GetTransform();
+        Transform& cameraTransform = Application::Get()->GetScene()->GetCamera()->GetTransform();
         int gridWidth = Constants::GridSizeX;
         int gridHeight = Constants::GridSizeY;
 
@@ -120,7 +120,7 @@ namespace Jade {
         }
         ImGui::End();
 
-        entt::entity activeEntity = JWindow::Get()->GetScene()->GetActiveEntity();
+        entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
         if (registry.has<Transform>(activeEntity)) {
             Transform& transform = registry.get<Transform>(activeEntity);
             if (ImGui::CollapsingHeader("Transform")) {

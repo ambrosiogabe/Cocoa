@@ -301,6 +301,7 @@ namespace Jade {
     typedef void (*MouseButtonCallbackFnPt) (Window* window, int button, int action, int mods);
     typedef void (*ScrollCallbackFnPt) (Window* window, double xoffset, double yoffset);
     typedef void (*ResizeCallbackFnPt) (Window* window, int width, int height);
+    typedef void (*WindowCloseCallbackFnPt) (Window* wnidow);
 
 
     // ===========================================

@@ -13,6 +13,7 @@ namespace Jade {
             virtual ~Application();
             
             void Run();
+            void Stop();
 
             void PushLayer(Layer* layer);
             void PushOverlay(Layer* overlay);
@@ -20,7 +21,15 @@ namespace Jade {
             void PopLayer(Layer* layer);
             void PopOverlay(Layer* overlay);
 
+            Framebuffer* GetFramebuffer() const;
+            void ChangeScene(Scene* scene);
+            Scene* GetScene() const;
+
+            static Application* Get();
+
         private:
+            static Application* s_Instance;
+
             JWindow* m_Window;
             bool m_Running;
 
@@ -30,6 +39,10 @@ namespace Jade {
             uint32 m_LayerInsertIndex;
 
             float m_LastFrameTime = 0;
+
+        protected:
+            Framebuffer* m_Framebuffer = nullptr;
+            Scene* m_CurrentScene = nullptr;
     };
 
     // To be defined in CLIENT

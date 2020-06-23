@@ -11,6 +11,7 @@ namespace Jade {
 
         std::string title = std::string("Test Window");
         m_Window = JWindow::Create(1920, 1080, title);
+        s_Instance = this;
     }
 
     Application::~Application() {
@@ -18,6 +19,10 @@ namespace Jade {
     }
 
     void Application::Run() {
+        for (Layer* layer : m_Layers) {
+            layer->OnAttach();
+        }
+
         while (m_Running) {
             float time = Window::GetTime();
             float dt = m_LastFrameTime - time;
@@ -25,15 +30,21 @@ namespace Jade {
 
             for (Layer* layer : m_Layers) {
                 layer->OnUpdate(dt);
+                layer->OnRender();
             }
 
             // ImGuiLayer->Begin();
-            for (Layer* layer : m_Layers) {
-                layer->OnImGuiRender();
-            }
+            // for (Layer* layer : m_Layers) {
+            //     layer->OnImGuiRender();
+            // }
             // ImGuiLayer->End();
 
             m_Window->OnUpdate();
+            m_Window->Render();
+        }
+
+        for (Layer* layer : m_Layers) {
+            layer->OnDetach();
         }
     }
 
@@ -59,5 +70,29 @@ namespace Jade {
         if (it != m_Layers.end()) {
             m_Layers.erase(it);
         }
+    }
+
+    Framebuffer* Application::GetFramebuffer() const {
+        return m_Framebuffer;
+    }
+
+    void Application::ChangeScene(Scene* newScene) {
+        this->m_CurrentScene = newScene;
+        this->m_CurrentScene->Init();
+        this->m_CurrentScene->Start();
+    }
+
+    Scene* Application::GetScene() const {
+        return m_CurrentScene;
+    }
+
+    void Application::Stop() {
+        m_Running = false;
+    }
+
+    Application* Application::s_Instance = nullptr;
+    Application* Application::Get() {
+        Log::Assert(s_Instance != nullptr, "Cannot get application. It is nullptr.");
+        return s_Instance;
     }
 }
