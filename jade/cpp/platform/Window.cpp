@@ -68,9 +68,14 @@ namespace Jade {
     }
 
     Window* Window::CreateWindow(int width, int height, const char* title) {
+        Window* win = nullptr;
 #ifdef _WIN32
-        return Win32Window::CreateWindow(width, height, title);
+        win = Win32Window::CreateWindow(width, height, title);
 #endif
+
+        Log::Assert(win != nullptr, "Could not create window!");
+        s_Windows.push_back(win);
+        return win;
     }
 
     void Window::Show(Window* window) {

@@ -1,5 +1,8 @@
 #include "core/JWindow.h"
 #include "platform/Window.h"
+#include "events/WindowEvent.h"
+#include "events/KeyEvent.h"
+#include "events/MouseEvent.h"
 
 namespace Jade {
     JWindow* JWindow::Create(uint32 width, uint32 height, const std::string& name) {
@@ -7,9 +10,7 @@ namespace Jade {
     }
 
     JWindow::JWindow(uint32 width, uint32 height, const std::string& name) {
-        if (JWindow::m_Instance != nullptr) {
-            Log::Assert(false, "Instance of JWindow already exists. Cannot have two singletons.");
-        }
+        Log::Assert(JWindow::m_Instance == nullptr, "Instance of JWindow already exists. Cannot have two singletons.");
         Init(width, height, name);
     }
 
@@ -29,18 +30,16 @@ namespace Jade {
             userWin->SetWidth(width);
             userWin->SetHeight(height);
 
-            // TODO: Send event
-            // WindowResizeEvent e(width, height);
-            // userWin->EventCallback(e);
+            WindowResizeEvent e(width, height);
+            userWin->m_EventCallback(e);
         });
 
         Window::SetWindowCloseCallback(m_WindowHandle, [](Window* window) {
             JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
-            // TODO: send event
-            // WindowCloseEvent e;
-            // userWin->EventCallback(e);
+            WindowCloseEvent e;
+            userWin->m_EventCallback(e);
         });
 
         Window::SetKeyCallback(m_WindowHandle, [](Window* window, int key, int scancode, int action, int mods) {
@@ -49,20 +48,18 @@ namespace Jade {
 
             switch (action) {
                 case JADE_PRESS: {
-                    // TODO
-                    // KeyPressedEvent e(key, 0);
-                    // userWin->EventCallback(e);
+                    KeyPressedEvent e(key, 0);
+                    userWin->m_EventCallback(e);
                     break;
                 }
                 case JADE_RELEASE: {
-                    // TODO
-                    // KeyReleasedEvent e(key);
-                    // userWin->EventCallback(e);
+                    KeyReleasedEvent e(key);
+                    userWin->m_EventCallback(e);
                     break;
                 }
                 case JADE_REPEAT: {
-                    // KeyPressedEvent e(key, 1);
-                    // userWin->EventCallback(e);
+                    KeyPressedEvent e(key, 1);
+                    userWin->m_EventCallback(e);
                     break;
                 }
             }
@@ -83,13 +80,13 @@ namespace Jade {
 
             switch (action) {
                 case JADE_PRESS: {
-                    // MouseButtonPressedEvent e(button);
-                    // userWin->EventCallback(e);
+                    MouseButtonPressedEvent e(button);
+                    userWin->m_EventCallback(e);
                     break;
                 }
                 case JADE_RELEASE: {
-                    // MouseButtonReleasedEvent e(button);
-                    // userWin->EventCallback(e);
+                    MouseButtonReleasedEvent e(button);
+                    userWin->m_EventCallback(e);
                     break;
                 }
             }
@@ -99,17 +96,21 @@ namespace Jade {
             JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
-            // MouseScrolledEvent e((float)xoffset, (float)yoffset);
-            // userWin->EventCallback(e);
+            MouseScrolledEvent e((float)xoffset, (float)yoffset);
+            userWin->m_EventCallback(e);
         });
 
         Window::SetCursorPosCallback(m_WindowHandle, [](Window* window, double xpos, double ypos) {
             JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
-            // MouseMovedEvent e((float)xpos, (float)ypos);
-            // userWin->EventCallback(e);
+            MouseMovedEvent e((float)xpos, (float)ypos);
+            userWin->m_EventCallback(e);
         });
+    }
+
+    void JWindow::SetEventCallback(const EventCallbackFn& e) {
+        m_EventCallback = e;
     }
 
     void JWindow::OnUpdate() {
@@ -137,6 +138,10 @@ namespace Jade {
 
     void* JWindow::GetNativeWindow() const {
         return (void*)m_WindowHandle;
+    }
+
+    void JWindow::Destroy() {
+        m_WindowHandle->Destroy();
     }
 
     bool JWindow::IsRunning() { 

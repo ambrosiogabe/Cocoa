@@ -3,6 +3,8 @@
 #include "core/Core.h"
 #include "core/Layer.h"
 #include "core/JWindow.h"
+#include "events/Event.h"
+#include "events/WindowEvent.h"
 
 #include <vector>
 
@@ -21,6 +23,8 @@ namespace Jade {
             void PopLayer(Layer* layer);
             void PopOverlay(Layer* overlay);
 
+            virtual void OnEvent(Event& e);
+
             Framebuffer* GetFramebuffer() const;
             void ChangeScene(Scene* scene);
             Scene* GetScene() const;
@@ -28,6 +32,8 @@ namespace Jade {
             static Application* Get();
 
         private:
+            bool OnWindowClose(WindowCloseEvent& e);
+
             static Application* s_Instance;
 
             JWindow* m_Window;

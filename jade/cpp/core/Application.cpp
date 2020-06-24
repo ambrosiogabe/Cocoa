@@ -12,6 +12,8 @@ namespace Jade {
         std::string title = std::string("Test Window");
         m_Window = JWindow::Create(1920, 1080, title);
         s_Instance = this;
+
+        m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
     }
 
     Application::~Application() {
@@ -45,6 +47,24 @@ namespace Jade {
 
         for (Layer* layer : m_Layers) {
             layer->OnDetach();
+        }
+    }
+
+    bool Application::OnWindowClose(WindowCloseEvent& e) {
+        m_Running = false;
+        m_Window->Destroy();
+        return true;
+    }
+
+    void Application::OnEvent(Event& e) {
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
+
+        for (auto it = m_Layers.end(); it != m_Layers.begin();) {
+            (*--it)->OnEvent(e);
+            if (e.Handled()) {
+                break;
+            }
         }
     }
 
