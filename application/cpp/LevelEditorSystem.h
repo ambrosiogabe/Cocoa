@@ -1,10 +1,10 @@
 #pragma once
 
-#include "systems/System.h"
-#include "components/components.h"
-#include "commands/MoveTransformCommand.h"
-#include "events/KeyEvent.h"
-#include "events/MouseEvent.h"
+#include "jade/systems/System.h"
+#include "jade/components/components.h"
+#include "jade/commands/MoveTransformCommand.h"
+#include "jade/events/KeyEvent.h"
+#include "jade/events/MouseEvent.h"
 
 namespace Jade {
     class LevelEditorSystem : public System {

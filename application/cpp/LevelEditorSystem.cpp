@@ -1,9 +1,4 @@
 #include "LevelEditorSystem.h"
-#include "core/Application.h"
-#include "events/Input.h"
-#include "commands/CommandHistory.h"
-#include "renderer/DebugDraw.h"
-#include "util/Constants.h"
 
 #include <string>
 #include <imgui/imgui.h>

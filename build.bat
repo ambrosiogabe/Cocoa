@@ -4,16 +4,16 @@ REM Run python script to collect all cpp files into unity build header file
 python .\prebuild.py
 
 REM Include directories and compiler flags
-set IncludeDirs=/I..\jade\vendor /I..\jade\vendor\imgui /I..\jade\include 
+set IncludeDirs=/I..\JadeEngine\vendor /I..\JadeEngine\vendor\imgui /I..\JadeEngine\include 
 set EngineCompilerFlags=/I.. /D_JADE_DLL /D_WINDLL /c /Zl /FoJade.obj
-set AppCompilerFlags=/I..\jade
+set AppCompilerFlags=/I..\JadeEngine
 
 REM Common compiler flags
 set DebugCommonCompilerFlags= %IncludeDirs% /Zi /MTd /EHsc /std:c++17 /W4 /wd4201 /wd4100 /wd4312 /D_CRT_SECURE_NO_WARNINGS /DNOMINMAX /D_JADE_PLATFORM_WINDOWS
 set DebugCommonLinkerFlags=/link /INCREMENTAL /NOLOGO user32.lib gdi32.lib opengl32.lib
 
 REM Main cpp files
-set JadeMain="..\jade\cpp\core\Main.cpp"
+set JadeMain="..\JadeEngine\cpp\jade\core\Main.cpp"
 set AppMain="..\application\cpp\app.cpp"
 
 REM Create directories if needed for binaries and intermediate binaries
