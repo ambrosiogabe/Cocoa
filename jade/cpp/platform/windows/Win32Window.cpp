@@ -472,26 +472,6 @@ namespace Jade {
         return RegisterClassExA(&wcex);
     }
 
-    // void Win32Window::_Render() {
-        
-    //     glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
-    //     glViewport(0, 0, 3840, 2160);
-    //     glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-    //     glClear(GL_COLOR_BUFFER_BIT);
-
-    //     DebugDraw::EndFrame();
-    //     m_CurrentScene->Render();
-        
-    //     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //     glViewport(0, 0, GetWidth(), GetHeight());
-    //     glClearColor(0, 0, 0, 1);
-    //     glClear(GL_COLOR_BUFFER_BIT);
-
-    //     m_CurrentScene->ImGui();
-    //     SwapBuffers(DC);
-    // }
-
     void Win32Window::SwapBuffers() {
         ::SwapBuffers(DC);
     }
@@ -540,6 +520,10 @@ namespace Jade {
         Win32Window::m_HINSTANCE = GetModuleHandle(NULL);
         registerClass(Win32Window::m_HINSTANCE);
         Win32Window::m_Initialized = true;
+    }
+
+    void* Win32Window::GetWindowHandle() {
+        return WND;
     }
 
     Window* Win32Window::CreateWindow(int width, int height, const char* title) {

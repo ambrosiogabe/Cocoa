@@ -15,7 +15,6 @@ namespace Jade {
         virtual void Update(float dt) = 0;
         virtual void Start() = 0;
 
-        void AddSystem(System* system);
         void SetActiveEntity(entt::entity entity);
         const glm::vec2& GetGameviewPos() const;
         const glm::vec2& GetGameviewSize() const;
@@ -23,11 +22,12 @@ namespace Jade {
         Camera* GetCamera() const;
         entt::entity GetActiveEntity() const;
 
+        const std::vector<std::unique_ptr<System>>& GetSystems();
+
     protected:
         ImGuiLayer m_ImGuiLayer = ImGuiLayer();
 
-        System* m_Systems[100];
-        uint16 m_SystemCount = 0;
+        std::vector<std::unique_ptr<System>> m_Systems;
 
         entt::registry m_Registry = entt::registry();
 

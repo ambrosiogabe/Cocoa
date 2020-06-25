@@ -78,6 +78,15 @@ namespace Jade {
         return win;
     }
 
+    void* Window::GetWindowHandle(Window* window) {
+    #ifdef _WIN32
+        Win32Window* win32Window = (Win32Window*)window;
+        return win32Window->GetWindowHandle();
+    #else
+        return nullptr;
+    #endif
+    }
+
     void Window::Show(Window* window) {
         window->Show();
     }

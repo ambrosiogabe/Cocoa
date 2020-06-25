@@ -72,7 +72,14 @@ namespace Jade {
         EventDispatcher(Event& event);
 
         template<typename T>
-        bool Dispatch(EventFn<T> function);
+        bool Dispatch(EventFn<T> function) {
+            if (m_Event.GetType() == T::GetStaticType()) {
+                m_Event.m_Handled = function(*(T*)&m_Event);
+                return true;
+            }
+
+            return false;
+        }
 
     private:
         Event& m_Event;

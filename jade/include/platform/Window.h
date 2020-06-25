@@ -28,10 +28,12 @@ namespace Jade {
         virtual void Destroy() = 0;
         virtual void PollEvents() = 0;
         virtual void SwapBuffers() = 0;
+        virtual void* GetWindowHandle() = 0;
 
         static float GetTime();
         static void SetWindowUserPointer(Window* window, void* pointer);
         static void* GetWindowUserPointer(Window* window);
+        static void* GetWindowHandle(Window* window);
         static void SwapInterval(int interval);
 
         static void SetWindowSizeCallback(Window* window, ResizeCallbackFnPt resizeCallback);
@@ -65,6 +67,7 @@ namespace Jade {
         static std::vector<Window*> s_Windows;
 
         void* m_WindowUserPointer = nullptr;
+        void* m_WindowHandle = nullptr;
 
         // Callback function pointers
         KeyCallbackFnPt           m_KeyCallback = nullptr;

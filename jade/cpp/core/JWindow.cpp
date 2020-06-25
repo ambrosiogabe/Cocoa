@@ -10,7 +10,6 @@ namespace Jade {
     }
 
     JWindow::JWindow(uint32 width, uint32 height, const std::string& name) {
-        Log::Assert(JWindow::m_Instance == nullptr, "Instance of JWindow already exists. Cannot have two singletons.");
         Init(width, height, name);
     }
 
@@ -137,7 +136,7 @@ namespace Jade {
     }
 
     void* JWindow::GetNativeWindow() const {
-        return (void*)m_WindowHandle;
+        return m_WindowHandle->GetWindowHandle();
     }
 
     void JWindow::Destroy() {
@@ -166,14 +165,5 @@ namespace Jade {
     
     float JWindow::GetTargetAspectRatio() { 
         return m_TargetAspectRatio;
-    }
-
-    JWindow* JWindow::m_Instance = nullptr;
-    JWindow* JWindow::Get() {
-        if (JWindow::m_Instance == nullptr) {
-            JWindow::m_Instance = new JWindow();
-        }
-
-        return JWindow::m_Instance;
     }
 }

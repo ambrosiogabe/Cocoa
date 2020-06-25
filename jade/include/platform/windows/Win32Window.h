@@ -13,6 +13,7 @@ namespace Jade {
         virtual void Destroy() override;
         virtual void PollEvents() override;
         virtual void SwapBuffers() override;
+        virtual void* GetWindowHandle() override;
 
         static void ShowMessage(LPCSTR message);
         static void InitWin32(HINSTANCE hInstance);

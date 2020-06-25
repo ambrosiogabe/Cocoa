@@ -77,7 +77,7 @@ namespace Jade {
             }
         }
 
-
+        Application::Get()->GetScene()->GetCamera()->GetTransform().m_Position += m_CameraSpeed;
 
         // Draw grid lines
         Transform& cameraTransform = Application::Get()->GetScene()->GetCamera()->GetTransform();
@@ -161,5 +161,57 @@ namespace Jade {
             }
             ImGui::TreePop();
         }
+    }
+
+    void LevelEditorSystem::OnEvent(Event& e) {
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<KeyPressedEvent>(std::bind(&LevelEditorSystem::HandleKeyPress, this, std::placeholders::_1));
+        dispatcher.Dispatch<KeyReleasedEvent>(std::bind(&LevelEditorSystem::HandleKeyRelease, this, std::placeholders::_1));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind(&LevelEditorSystem::HandleMouseButtonPressed, this, std::placeholders::_1));
+        dispatcher.Dispatch<MouseButtonReleasedEvent>(std::bind(&LevelEditorSystem::HandleMouseButtonReleased, this, std::placeholders::_1));
+    }
+
+    bool LevelEditorSystem::HandleKeyPress(KeyPressedEvent& e) {
+        
+        static float speed = 50.0f;
+        if (e.GetKeyCode() == JADE_KEY_W) {
+            m_CameraSpeed.y = speed;
+        } else if (e.GetKeyCode() == JADE_KEY_S) {
+            m_CameraSpeed.y = -speed;
+        }
+
+        if (e.GetKeyCode() == JADE_KEY_A) {
+            m_CameraSpeed.x = -speed;
+        } else if (e.GetKeyCode() == JADE_KEY_D) {
+            m_CameraSpeed.x = speed;
+        }
+
+        return false;
+    }
+
+    bool LevelEditorSystem::HandleKeyRelease(KeyReleasedEvent& e) {
+        if (e.GetKeyCode() == JADE_KEY_W) {
+            m_CameraSpeed.y = 0;
+        } else if (e.GetKeyCode() == JADE_KEY_S) {
+            m_CameraSpeed.y = 0;
+        }
+
+        if (e.GetKeyCode() == JADE_KEY_A) {
+            m_CameraSpeed.x = 0;
+        } else if (e.GetKeyCode() == JADE_KEY_D) {
+            m_CameraSpeed.x = 0;
+        }
+
+        return false;
+    }
+
+    bool LevelEditorSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e) {
+        Log::Info("Handling mouse press inside LE: %d", e.GetMouseButton());
+        return false;
+    }
+
+    bool LevelEditorSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e) {
+        Log::Info("Handling mouse release inside LE: %d", e.GetMouseButton());
+        return false;
     }
 }

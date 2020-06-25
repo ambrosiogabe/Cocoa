@@ -28,6 +28,7 @@ namespace Jade {
             Framebuffer* GetFramebuffer() const;
             void ChangeScene(Scene* scene);
             Scene* GetScene() const;
+            JWindow* GetWindow() const;
 
             static Application* Get();
 

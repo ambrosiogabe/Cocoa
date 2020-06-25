@@ -40,13 +40,10 @@ namespace Jade {
 
         void Destroy();
 
-        static JWindow* Get();
-
     private:
         JWindow() {}
 
     private:
-        static JWindow* m_Instance;
         Window* m_WindowHandle;
 
         EventCallbackFn m_EventCallback;

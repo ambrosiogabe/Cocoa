@@ -30,8 +30,9 @@ namespace Jade {
     public:
         MouseScrolledEvent(float xoffset, float yoffset);
 
-        inline float GetXOffset() const;
-        inline float GetYOffset() const;
+        // TODO: Make these inline somehow
+        float GetXOffset() const;
+        float GetYOffset() const;
 
         std::string ToString() const override;
 
@@ -48,7 +49,8 @@ namespace Jade {
     // ===============================================================
     class MouseButtonEvent : public Event {
     public:
-        inline int GetMouseButton() const;
+        // TODO: Make this inline somehow
+        int GetMouseButton() const;
 
         EVENT_CLASS_CATEGORY_HEADER(EventCategoryInput | EventCategoryMouse)
 

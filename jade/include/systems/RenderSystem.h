@@ -20,7 +20,8 @@ namespace Jade {
     class RenderBatch;
     class RenderSystem : public System {
     public:
-        RenderSystem(Camera* camera) {
+        RenderSystem(Camera* camera, const char* name)
+            : System(name) {
             m_Camera = camera;
             m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
         }

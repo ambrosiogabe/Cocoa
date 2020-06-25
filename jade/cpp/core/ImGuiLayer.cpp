@@ -67,11 +67,11 @@ namespace Jade {
         ImVec2 windowSize = ImGui::GetWindowContentRegionMax();
         // Figure out the largest area that fits this target aspect ratio
         float aspectWidth = windowSize.x;
-        float aspectHeight = (float)aspectWidth / JWindow::Get()->GetTargetAspectRatio();
+        float aspectHeight = (float)aspectWidth / Application::Get()->GetWindow()->GetTargetAspectRatio();
         if (aspectHeight > windowSize.y) {
             // It doesn't fit our height, we must switch to pillarbox
             aspectHeight = windowSize.y;
-            aspectWidth = (float)aspectHeight * JWindow::Get()->GetTargetAspectRatio();
+            aspectWidth = (float)aspectHeight * Application::Get()->GetWindow()->GetTargetAspectRatio();
         }
 
         // Center rectangle

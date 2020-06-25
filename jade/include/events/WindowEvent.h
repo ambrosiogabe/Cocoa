@@ -8,8 +8,9 @@ namespace Jade {
     public:
         WindowResizeEvent(uint32 width, uint32 height);
 
-        inline uint32 GetWidth() const;
-        inline uint32 GetHeight() const;
+        // TODO: Make these inline somehow
+        uint32 GetWidth() const;
+        uint32 GetHeight() const;
 
         virtual std::string ToString() const override;
 

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <gl/gl3w.h>
 
 namespace Jade {
     Application::Application() {
@@ -12,6 +13,8 @@ namespace Jade {
         std::string title = std::string("Test Window");
         m_Window = JWindow::Create(1920, 1080, title);
         s_Instance = this;
+
+        m_Framebuffer = new Framebuffer(3840, 2160);
 
         m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
     }
@@ -30,16 +33,31 @@ namespace Jade {
             float dt = m_LastFrameTime - time;
             m_LastFrameTime = time;
 
+            glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
+            glViewport(0, 0, 3840, 2160);
+            glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            DebugDraw::BeginFrame();
+
             for (Layer* layer : m_Layers) {
                 layer->OnUpdate(dt);
                 layer->OnRender();
             }
 
-            // ImGuiLayer->Begin();
+            DebugDraw::EndFrame();
+            m_CurrentScene->Render();
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            glViewport(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
+            glClearColor(0, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            m_CurrentScene->ImGui();
             // for (Layer* layer : m_Layers) {
             //     layer->OnImGuiRender();
             // }
-            // ImGuiLayer->End();
 
             m_Window->OnUpdate();
             m_Window->Render();
@@ -108,6 +126,10 @@ namespace Jade {
 
     void Application::Stop() {
         m_Running = false;
+    }
+
+    JWindow* Application::GetWindow() const {
+        return m_Window;
     }
 
     Application* Application::s_Instance = nullptr;

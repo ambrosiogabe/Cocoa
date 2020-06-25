@@ -19,13 +19,6 @@
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern Jade::Application* Jade::CreateApplication();
 
-LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam)) {
-        return true;
-    }
-    return 1;
-}
-
 
 int main() {
     Jade::Application* application = Jade::CreateApplication();

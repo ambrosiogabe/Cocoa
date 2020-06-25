@@ -8,7 +8,8 @@ namespace Jade {
     // ============================================================
     class KeyEvent : public Event {
     public:
-        inline int GetKeyCode() const;
+        // TODO: Make this inline somehow
+        int GetKeyCode() const;
 
         EVENT_CLASS_CATEGORY_HEADER(EventCategoryKeyboard | EventCategoryInput)
 

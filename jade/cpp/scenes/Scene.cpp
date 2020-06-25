@@ -1,10 +1,6 @@
 #include "scenes/Scene.h"
 
-namespace Jade {
-    void Scene::AddSystem(System* system) { 
-        m_Systems[m_SystemCount++] = system;
-    }
-    
+namespace Jade {    
     void Scene::SetActiveEntity(entt::entity entity) { 
         m_ActiveEntity = entity; 
     }
@@ -27,5 +23,9 @@ namespace Jade {
 
     entt::entity Scene::GetActiveEntity() const { 
         return m_ActiveEntity; 
+    }
+
+    const std::vector<std::unique_ptr<System>>& Scene::GetSystems() {
+        return m_Systems;
     }
 }

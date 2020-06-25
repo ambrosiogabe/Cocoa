@@ -24,6 +24,14 @@ namespace Jade {
         virtual void OnRender() override {
             Application::Get()->GetScene()->Render();
         }
+
+        virtual void OnEvent(Event& e) override {
+            const auto& systems = Application::Get()->GetScene()->GetSystems();
+
+            for (const auto& system : systems) {
+                system->OnEvent(e);
+            }
+        }
     };
 
     class JadeEditor : public Application {

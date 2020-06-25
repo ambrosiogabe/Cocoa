@@ -1,5 +1,5 @@
 #include "renderer/Camera.h"
-#include "core/JWindow.h"
+#include "core/Application.h"
 
 namespace Jade {
     Camera::Camera(glm::vec3& position) {
@@ -54,6 +54,6 @@ namespace Jade {
 
     void Camera::CalculateAspect() {
         // TODO: actually make this calculate window's current aspect
-        this->m_Aspect = JWindow::Get()->GetTargetAspectRatio();
+        this->m_Aspect = Application::Get()->GetWindow()->GetTargetAspectRatio();
     }
 }
