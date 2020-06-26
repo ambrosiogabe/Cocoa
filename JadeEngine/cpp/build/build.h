@@ -21,5 +21,6 @@
 #include "JadeEngine/cpp/jade/systems/RenderSystem.cpp"
 #include "JadeEngine/cpp/jade/util/Constants.cpp"
 #include "JadeEngine/cpp/jade/util/Log.cpp"
+#include "JadeEngine/cpp/platform/imgui_jade_impl.cpp"
 #include "JadeEngine/cpp/platform/Window.cpp"
 #include "JadeEngine/cpp/platform/windows/Win32Window.cpp"

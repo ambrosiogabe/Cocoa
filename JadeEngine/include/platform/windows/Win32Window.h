@@ -5,22 +5,22 @@
 #include <gl/GL.h>
 #include <gl/glext.h>
 #include <gl/wglext.h>
+#include <vector>
+
+#ifdef CreateWindow
+#undef CreateWindow
+#endif
 
 namespace Jade {
     class Win32Window : public Window {
     public:
+        friend class Window;
+
         Win32Window() {}
-        virtual void Destroy() override;
-        virtual void PollEvents() override;
-        virtual void SwapBuffers() override;
-        virtual void* GetWindowHandle() override;
 
         static void ShowMessage(LPCSTR message);
         static void InitWin32(HINSTANCE hInstance);
         static void InitWin32();
-
-        virtual void Show() override;
-        virtual void Hide() override;
 
         static void DefaultResizeCallback(HWND window, int width, int height);
         static void DefaultMouseButtonCallback(HWND window, int button, int action, int mods);
@@ -32,7 +32,21 @@ namespace Jade {
         static Window* CreateWindow(int width, int height, const char* title);
 
     protected:
+        static void _PollEvents();
+
         virtual void UpdateSwapInterval() override;
+        virtual void _SetWindowIcon(int count, const WindowImage* images) override;
+        virtual void _Destroy() override;
+        virtual void _SwapBuffers() override;
+        virtual void _MakeContextCurrent() override;
+        virtual void* _GetWindowHandle() override;
+
+        virtual void _SetWindowPos(int x, int y) override;
+        virtual void _SetWindowSize(int width, int height) override;
+        virtual void _SetWindowTitle(const char* title) override;
+
+        virtual void _Show() override;
+        virtual void _Hide() override;
 
     private:
         static bool m_Initialized;
@@ -41,6 +55,7 @@ namespace Jade {
         HGLRC RC;
         HDC DC;
         HWND WND;
+        std::vector<HICON> m_Icons = std::vector<HICON>();
 
         static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
     };

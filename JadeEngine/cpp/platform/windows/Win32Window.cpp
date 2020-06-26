@@ -2,13 +2,13 @@
 #include "jade/util/Log.h"
 #include "jade/events/Input.h"
 
-#include <imgui/imgui.h>
+#include <windows.h>
 #include <windowsx.h>
 #include <stdio.h>
 #include <io.h>
 
 #define GL_LITE_IMPLEMENTATION
-#include "platform/windows/GlFunctions.h"
+#include <gl/gl3w.h>
 #undef GL_LITE_IMPLEMENTATION
 
 namespace Jade {
@@ -20,6 +20,8 @@ namespace Jade {
         for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
+                win->m_Width = width;
+                win->m_Height = height;
                 if (window->m_ResizeCallback != nullptr) {
                     window->m_ResizeCallback(window, width, height);
                 }
@@ -80,6 +82,7 @@ namespace Jade {
         for (Window* window : s_Windows) {
             Win32Window* win = static_cast<Win32Window*>(window);
             if (win->WND == wnd) {
+                window->m_WindowShouldClose = true;
                 if (window->m_CloseCallback != nullptr) {
                     window->m_CloseCallback(window);
                 }
@@ -90,6 +93,69 @@ namespace Jade {
 
     void Win32Window::ShowMessage(LPCSTR message) {
         MessageBoxA(0, message, "Win32Window::Create", MB_ICONERROR);
+    }
+
+    static HICON CreateIconFromBytes(HDC DC, int width, int height, uint32* bytes) {
+        HICON hIcon = NULL;
+
+        ICONINFO iconInfo = {
+            TRUE, // fIcon, set to true if this is an icon, set to false if this is a cursor
+            NULL, // xHotspot, set to null for icons
+            NULL, // yHotspot, set to null for icons
+            NULL, // Monochrome bitmap mask, set to null initially
+            NULL  // Color bitmap mask, set to null initially
+        };
+
+        uint32* rawBitmap = new uint32[width * height];
+
+        ULONG uWidth = (ULONG)width;
+        ULONG uHeight = (ULONG)height;
+        uint32* bitmapPtr = rawBitmap;
+        for (ULONG y = 0; y < uHeight; y++) {
+            for (ULONG x = 0; x < uWidth; x++) {
+                // Bytes are expected to be in RGB order (8 bits each)
+                // Swap G and B bytes, so that it is in BGR order for windows
+                uint32 byte = bytes[x + y * width];
+                uint8 A = (byte & 0xff000000) >> 24;
+                uint8 R = (byte & 0xff0000) >> 16;
+                uint8 G = (byte & 0xff00) >> 8;
+                uint8 B = (byte & 0xff);
+                *bitmapPtr = (A << 24) | (R << 16) | (G << 8) | B;
+                bitmapPtr++;
+            }
+        }
+
+        iconInfo.hbmColor = CreateBitmap(width, height, 1, 32, rawBitmap);
+        if (iconInfo.hbmColor) {
+            iconInfo.hbmMask = CreateCompatibleBitmap(DC, width, height);
+            if (iconInfo.hbmMask) {
+                hIcon = CreateIconIndirect(&iconInfo);
+                if (hIcon == NULL) {
+                    Log::Warning("Failed to create icon.");
+                }
+                DeleteObject(iconInfo.hbmMask);
+            } else {
+                Log::Warning("Failed to create color mask.");
+            }
+            DeleteObject(iconInfo.hbmColor);
+        } else {
+            Log::Warning("Failed to create bitmap mask.");
+        }
+
+        delete[] rawBitmap;
+
+        return hIcon;
+    }
+
+    void Win32Window::_SetWindowIcon(int count, const WindowImage* images) {
+        for (int i=0; i < count; i++) {
+            WindowImage image = images[i];
+            HICON icon = CreateIconFromBytes(DC, image.m_Width, image.m_Height, image.m_Pixels);
+            m_Icons.push_back(icon);
+            SendMessage(WND, WM_SETICON, ICON_SMALL, (LPARAM)icon);
+            SendMessage(WND, WM_SETICON, ICON_BIG, (LPARAM)icon);
+            SendMessage(WND, WM_SETICON, ICON_SMALL2, (LPARAM)icon);
+        }
     }
 
     static LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -441,6 +507,7 @@ namespace Jade {
                 int newHeight = rect.bottom - rect.top;
                 int newWidth = rect.right - rect.left;
                 Jade::Win32Window::DefaultResizeCallback(hWnd, newWidth, newHeight);
+                ::InvalidateRect(hWnd, NULL, FALSE);
                 break;
             }
             
@@ -466,16 +533,18 @@ namespace Jade {
         wcex.lpfnWndProc = WindowProcedure;
         wcex.hInstance = hInstance;
         wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wcex.hIcon = NULL;
+        wcex.hIconSm = NULL;
         wcex.lpszClassName = "Core";
 
         return RegisterClassExA(&wcex);
     }
 
-    void Win32Window::SwapBuffers() {
+    void Win32Window::_SwapBuffers() {
         ::SwapBuffers(DC);
     }
 
-    void Win32Window::Destroy() {
+    void Win32Window::_Destroy() {
         wglMakeCurrent(NULL, NULL);
         if (RC) {
             wglDeleteContext(RC);
@@ -488,24 +557,60 @@ namespace Jade {
         }
     }
 
-    void Win32Window::Hide() {
+    void Win32Window::_Hide() {
         if (WND) {
             ShowWindow(WND, SW_HIDE);
         }
     }
 
-    void Win32Window::Show() {
+    void Win32Window::_Show() {
         ShowWindow(WND, SW_SHOWNORMAL);
         if (s_InitFocusOnShow) {
             SetFocus(WND);
         }
     }
 
-    void Win32Window::PollEvents() {
+    void Win32Window::_PollEvents() {
         MSG msg = {0, 0, 0, 0, 0, NULL};
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        }
+    }
+
+    void Win32Window::_SetWindowPos(int x, int y) {
+        m_XPos = x;
+        m_YPos = y;
+
+        HWND zIndex = HWND_NOTOPMOST;
+        if (s_InitFloating) {
+            zIndex = HWND_TOP;
+        }
+        ::SetWindowPos(WND, zIndex, m_XPos, m_YPos, m_Width, m_Height, 0);
+    }
+
+    void Win32Window::_SetWindowSize(int width, int height) {
+        m_Width = width;
+        m_Height = height;
+
+        HWND zIndex = HWND_NOTOPMOST;
+        if (s_InitFloating) {
+            zIndex = HWND_TOP;
+        }
+        ::SetWindowPos(WND, zIndex, m_XPos, m_YPos, m_Width, m_Height, 0);
+    }
+
+    void Win32Window::_SetWindowTitle(const char* title) {
+        if (!::SetWindowTextA(WND, title)) {
+            Log::Warning("Unable to set window title: %d", GetLastError());
+        } else {
+            ::InvalidateRect(WND, NULL, FALSE);
+        }
+    }
+
+    void Win32Window::_MakeContextCurrent() {
+        if (!wglMakeCurrent(this->DC, this->RC)) {
+            ShowMessage("wglMakeCurrent() failed.");
         }
     }
 
@@ -521,7 +626,7 @@ namespace Jade {
         Win32Window::m_Initialized = true;
     }
 
-    void* Win32Window::GetWindowHandle() {
+    void* Win32Window::_GetWindowHandle() {
         return WND;
     }
 
@@ -608,7 +713,7 @@ namespace Jade {
 
         DWORD winFlags = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
         if (s_InitDecorated) {
-            winFlags |= WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
+            winFlags |= WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX;
         }
         if (s_InitIconified) {
             winFlags |= WS_ICONIC;
@@ -618,6 +723,9 @@ namespace Jade {
         }
         if (s_InitResizable) {
             winFlags |= WS_SIZEBOX;
+        }
+        if (s_InitVisible) {
+            winFlags |= WS_VISIBLE;
         }
         if (s_InitAutoIconify) {
             Log::Warning("Auto Iconify flag used. But it has not been implemented yet.");
@@ -634,11 +742,14 @@ namespace Jade {
             exWinFlags |= WS_EX_TOPMOST;
         }
 
+        // NOTE: Set process as DPI aware
+        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+
         win->WND = CreateWindowExA(
             exWinFlags,                   // dwExStyle
             "Core", title,                // Win32Window class, Title
             winFlags,                     // Style
-            0, 0,                         // Position x, y
+            CW_USEDEFAULT, CW_USEDEFAULT, // Position x, y
             width, height,                // Width, Height
             NULL, NULL,                   // Parent Win32Window, Menu
             win->m_HINSTANCE, NULL        // Instnce, Param
@@ -647,16 +758,13 @@ namespace Jade {
         win->DC = GetDC(win->WND);
 
         if (s_InitFocused) {
-            SetFocus(win->WND );
+            SetFocus(win->WND);
         }
 
         // TODO: Take into account window position for unmaximized windows
         if (s_InitCenterCursor) {
             SetCursorPos(width / 2, height / 2);
         }
-
-        // NOTE: Set process as DPI aware
-        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
         const int pixelAttribs[] = {
             WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -703,10 +811,7 @@ namespace Jade {
         wglDeleteContext(fakeRC);
         ReleaseDC(fakeWND, fakeDC);
         DestroyWindow(fakeWND);
-        if (!wglMakeCurrent(win->DC, win->RC)) {
-            ShowMessage("wglMakeCurrent() failed.");
-            return nullptr;
-        }
+        win->_MakeContextCurrent();
 
         wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
         if (wglSwapIntervalEXT == nullptr) {
@@ -721,7 +826,7 @@ namespace Jade {
         } else if (s_InitMaximized) {
             ShowWindow(win->WND, SW_MAXIMIZE);
         } else {
-            win->Show();
+            win->_Show();
         }
 
         const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor

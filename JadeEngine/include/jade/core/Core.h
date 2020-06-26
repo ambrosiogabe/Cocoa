@@ -302,6 +302,8 @@ namespace Jade {
     typedef void (*ScrollCallbackFnPt) (Window* window, double xoffset, double yoffset);
     typedef void (*ResizeCallbackFnPt) (Window* window, int width, int height);
     typedef void (*WindowCloseCallbackFnPt) (Window* window);
+    typedef void (*CharCallbackFnPt) (Window* window, unsigned int keycode); // TODO: Implement this!
+    //typedef void (*MonitorCallbackFnPt) (Monitor* monitor, int); // TODO: Implement this!!
 
 
     // ===========================================

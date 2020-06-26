@@ -117,7 +117,7 @@ namespace Jade {
     }
 
     void JWindow::Render() { 
-        m_WindowHandle->SwapBuffers();
+        Window::SwapBuffers(m_WindowHandle);
     }
 
     // Window Attributes
@@ -136,11 +136,11 @@ namespace Jade {
     }
 
     void* JWindow::GetNativeWindow() const {
-        return m_WindowHandle->GetWindowHandle();
+        return Window::GetWindowHandle(m_WindowHandle);
     }
 
     void JWindow::Destroy() {
-        m_WindowHandle->Destroy();
+        Window::Destroy(m_WindowHandle);
     }
 
     bool JWindow::IsRunning() { 

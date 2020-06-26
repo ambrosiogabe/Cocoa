@@ -17,10 +17,10 @@ namespace Jade {
     bool Window::s_InitCenterCursor = false;
     bool Window::s_InitTransparentFramebuffer = false;
     bool Window::s_InitHovered = false;
-    bool Window::s_InitFocusOnShow = true;
+    bool Window::s_InitFocusOnShow = false;
     bool Window::s_InitAllocConsole = false;
 
-    void Window::InitHint(int hint, int value) {
+    void Window::WindowHint(int hint, int value) {
         switch(hint) {
             case JADE_WH_FOCUSED:
                 s_InitFocused = value;
@@ -81,14 +81,14 @@ namespace Jade {
     void* Window::GetWindowHandle(Window* window) {
     #ifdef _WIN32
         Win32Window* win32Window = (Win32Window*)window;
-        return win32Window->GetWindowHandle();
+        return win32Window->_GetWindowHandle();
     #else
         return nullptr;
     #endif
     }
 
     void Window::Show(Window* window) {
-        window->Show();
+        window->_Show();
     }
 
     int Window::Init() {
@@ -107,9 +107,39 @@ namespace Jade {
         }
     }
 
+    void Window::Destroy(Window* window) {
+        window->_Destroy();
+    }
+
+    void Window::SwapBuffers(Window* window) {
+        window->_SwapBuffers();
+    }
+
+    void Window::MakeContextCurrent(Window* win) {
+        win->_MakeContextCurrent();
+    }
+
+    void Window::SetWindowTitle(Window* win, const char* title) {
+        win->_SetWindowTitle(title);
+    }
+
+    void Window::PollEvents() {
+#ifdef _WIN32
+        Win32Window::_PollEvents();
+#endif
+    }
+
     float Window::GetTime() {
         auto time = std::chrono::high_resolution_clock::now();
         return std::chrono::duration<float>(time - s_TimeStarted).count();
+    }
+
+    bool Window::WindowShouldClose(Window* window) {
+        return window->m_WindowShouldClose;
+    }
+
+    void Window::SetWindowIcon(Window* window, int count, const WindowImage* images) {
+        window->_SetWindowIcon(count, images);
     }
 
     void Window::SetWindowSizeCallback(Window* window, ResizeCallbackFnPt resizeCallback) {
