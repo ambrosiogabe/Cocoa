@@ -30,6 +30,9 @@ namespace Jade {
             Scene* GetScene() const;
             JWindow* GetWindow() const;
 
+            const glm::vec2& GetGameViewPos() const;
+            const glm::vec2& GetGameViewSize() const;
+
             static Application* Get();
 
         private:
@@ -44,6 +47,8 @@ namespace Jade {
             // So we keep the next index for the next layer handy at all times
             std::vector<Layer*> m_Layers;
             uint32 m_LayerInsertIndex;
+            
+            ImGuiLayer m_ImGuiLayer = ImGuiLayer();
 
             float m_LastFrameTime = 0;
 

@@ -2,14 +2,14 @@
 #include "jade/core/Application.h"
 
 #include <imgui/imgui.h>
-#include <imgui/examples/imgui_impl_win32.h>
+#include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
 
 namespace Jade {
     static void CustomStyle(bool bStyleDark_ = true, float alpha_ = 0.8f);
     void HelpMarker(const char* desc);
 
-    void ImGuiLayer::Setup(void* window) {
+    void ImGuiLayer::Setup(GLFWwindow* window) {
         m_Window = window;
 
         // Setup dear imGui binding
@@ -18,11 +18,11 @@ namespace Jade {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-        // Init Win32
-        ImGui_ImplWin32_Init(m_Window);
-        ImGui_ImplWin32_EnableDpiAwareness();
+        // Init GLFW
+        ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
+        //ImGui_ImplWin32_EnableDpiAwareness();
 
         // Init OpenGL imgui implementation
         // GL 3.0 + GLSL 130
@@ -38,24 +38,31 @@ namespace Jade {
         //float dpi = ImGui_ImplWin32_GetDpiScaleForHwnd(window);
     }
 
-    void ImGuiLayer::StartFrame() {
+    void ImGuiLayer::BeginFrame() {
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplWin32_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-    }
 
-    void ImGuiLayer::ImGui() {
         SetupDockspace();
         RenderGameViewport();
     }
 
-    void ImGuiLayer::Render() {
+    void ImGuiLayer::EndFrame() {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glViewport(0, 0, Application::Get()->GetWindow()->GetWidth(), Application::Get()->GetWindow()->GetHeight());
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         // Render ImGui frame
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        //ImGui::UpdatePlatformWindows();
+        GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backupCurrentContext);
     }
 
     void ImGuiLayer::RenderGameViewport() {

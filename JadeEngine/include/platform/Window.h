@@ -1,3 +1,6 @@
+// TODO: This code is now deprecated in favor of GLFW, may come back to it at some point
+#if 0
+
 #pragma once
 
 #include "jade/core/Core.h"
@@ -114,4 +117,6 @@ namespace Jade {
 // Put all different implementation stubs in here, so that we can get rid
 // of circular dependencies
 #include "platform/windows/Win32Window.h"
+#endif
+
 #endif

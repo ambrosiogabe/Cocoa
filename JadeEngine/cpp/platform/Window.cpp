@@ -1,3 +1,6 @@
+// TODO: This code is now deprecated in favor of GLFW, may come back to it at some point
+#if 0
+
 #include "platform/Window.h"
 #include "jade/core/Core.h"
 
@@ -138,35 +141,93 @@ namespace Jade {
         return window->m_WindowShouldClose;
     }
 
+    void Window::SetWindowPos(Window* window, int x, int y) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window position of nullptr.");
+           return;
+        }
+
+        window->_SetWindowPos(x, y);
+    }
+
+    void Window::SetWindowSize(Window* window, int width, int height) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window size of nullptr.");
+            return;
+        }
+
+        window->_SetWindowSize(width, height);
+    }
+
     void Window::SetWindowIcon(Window* window, int count, const WindowImage* images) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window icon of nullptr.");
+            return;
+        }
+
         window->_SetWindowIcon(count, images);
     }
 
     void Window::SetWindowSizeCallback(Window* window, ResizeCallbackFnPt resizeCallback) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window size callback of nullptr.");
+            return;
+        }
+
         window->m_ResizeCallback = resizeCallback;
     }
 
     void Window::SetKeyCallback(Window* window, KeyCallbackFnPt keyCallback) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window key callback of nullptr.");
+            return;
+        }
+
         window->m_KeyCallback = keyCallback;
     }
 
     void Window::SetMouseButtonCallback(Window* window, MouseButtonCallbackFnPt mouseCallback) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window mouse button callback of nullptr.");
+            return;
+        }
+
         window->m_MouseButtonCallback = mouseCallback;
     }
 
     void Window::SetCursorPosCallback(Window* window, CursorCallbackFnPt cursorCallback) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window cursor callback of nullptr.");
+            return;
+        }
+
         window->m_CursorCallback = cursorCallback;
     }
 
     void Window::SetScrollCallback(Window* window, ScrollCallbackFnPt scrollCallback) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window scroll callback of nullptr.");
+            return;
+        }
+
         window->m_ScrollCallback = scrollCallback;
     }
 
     void Window::SetWindowCloseCallback(Window* window, WindowCloseCallbackFnPt closeCallback) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window close callback of nullptr.");
+            return;
+        }
+
         window->m_CloseCallback = closeCallback;
     }
 
     void Window::SetWindowUserPointer(Window* window, void* userPointer) {
+        if (window == nullptr) {
+            Log::Warning("Tried to set window user pointer of nullptr.");
+            return;
+        }
+
         window->m_WindowUserPointer = userPointer;
     }
 
@@ -174,3 +235,5 @@ namespace Jade {
         return window->m_WindowUserPointer;
     }
 }
+
+#endif

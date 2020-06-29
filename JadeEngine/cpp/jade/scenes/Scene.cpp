@@ -5,14 +5,6 @@ namespace Jade {
         m_ActiveEntity = entity; 
     }
 
-    const glm::vec2& Scene::GetGameviewPos() const { 
-        return m_ImGuiLayer.GetGameviewPos(); 
-    }
-
-    const glm::vec2& Scene::GetGameviewSize() const { 
-        return m_ImGuiLayer.GetGameviewSize(); 
-    }
-
     entt::registry& Scene::GetRegistry() { 
         return m_Registry; 
     }

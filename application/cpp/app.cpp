@@ -14,6 +14,7 @@ namespace Jade {
         }
 
         virtual void OnUpdate(float dt) override {
+            DebugDraw::BeginFrame();
             Application::Get()->GetScene()->Update(dt);
         }
 
@@ -22,6 +23,12 @@ namespace Jade {
         }
 
         virtual void OnRender() override {
+            glBindFramebuffer(GL_FRAMEBUFFER, Application::Get()->GetFramebuffer()->GetId());
+            glViewport(0, 0, 3840, 2160);
+            glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            DebugDraw::EndFrame();
             Application::Get()->GetScene()->Render();
         }
 

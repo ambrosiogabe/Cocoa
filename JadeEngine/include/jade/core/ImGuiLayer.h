@@ -1,21 +1,22 @@
 #pragma once
 
 #include "jade/core/MenuBar.h"
+#include "jade/core/Layer.h"
 
 #include <glm/vec2.hpp>
+#include <GLFW/glfw3.h>
 
 namespace Jade {
-    class ImGuiLayer {
+    class ImGuiLayer : public Layer {
     public:
         ImGuiLayer() {}
 
-        void Setup(void* window);
-        void StartFrame();
-        void ImGui();
-        void Render();
+        void Setup(GLFWwindow* window);
+        void BeginFrame();
+        void EndFrame();
 
-        const glm::vec2& GetGameviewPos() const { return m_GameviewPos; }
-        const glm::vec2& GetGameviewSize() const { return m_GameviewSize; }
+        const glm::vec2& GetGameViewPos() const { return m_GameviewPos; }
+        const glm::vec2& GetGameViewSize() const { return m_GameviewSize; }
 
     private:
         void SetupDockspace();
@@ -25,7 +26,7 @@ namespace Jade {
         glm::vec2 m_GameviewPos = glm::vec2();
         glm::vec2 m_GameviewSize = glm::vec2();
 
-        void* m_Window;
+        GLFWwindow* m_Window;
         MenuBar m_MenuBar = MenuBar();
     };
 }

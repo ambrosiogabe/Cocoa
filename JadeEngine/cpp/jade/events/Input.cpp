@@ -46,8 +46,8 @@ namespace Jade {
     }
 
     float Input::OrthoMouseX() {
-        const glm::vec2& gameviewPos = Application::Get()->GetScene()->GetGameviewPos();
-        const glm::vec2& gameviewSize = Application::Get()->GetScene()->GetGameviewSize();
+        const glm::vec2& gameviewPos = Application::Get()->GetGameViewPos();
+        const glm::vec2& gameviewSize = Application::Get()->GetGameViewSize();
 
         float currentX = MouseX() - gameviewPos.x;
         currentX = (currentX / gameviewSize.x) * 2.0f - 1.0f;
@@ -58,8 +58,8 @@ namespace Jade {
     }
 
     float Input::OrthoMouseY() {
-        const glm::vec2& gameviewPos = Application::Get()->GetScene()->GetGameviewPos();
-        const glm::vec2& gameviewSize = Application::Get()->GetScene()->GetGameviewSize();
+        const glm::vec2& gameviewPos = Application::Get()->GetGameViewPos();
+        const glm::vec2& gameviewSize = Application::Get()->GetGameViewSize();
 
         float currentY = gameviewPos.y - MouseY();
         currentY = (currentY / gameviewSize.y) * 2.0f - 1.0f;

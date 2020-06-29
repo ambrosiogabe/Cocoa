@@ -2,7 +2,9 @@
 #include "jade/renderer/Texture.h"
 #include "jade/util/Log.h"
 
-#include <gl/gl3w.h>
+//#include <gl/gl3w.h>
+//#include <glad/include/glad.h>
+#include <glew/include/GL/glew.h>
 
 namespace Jade {
     void Framebuffer::Init() {

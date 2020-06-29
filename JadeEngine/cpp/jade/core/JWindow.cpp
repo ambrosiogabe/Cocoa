@@ -1,5 +1,4 @@
 #include "jade/core/JWindow.h"
-#include "platform/Window.h"
 #include "jade/events/WindowEvent.h"
 #include "jade/events/KeyEvent.h"
 #include "jade/events/MouseEvent.h"
@@ -14,16 +13,20 @@ namespace Jade {
     }
 
     void JWindow::Init(uint32 width, uint32 height, const std::string& name) {
-        Window::Init();
+        Log::Assert(glfwInit(), "Unable to initialize GLFW");
 
-        m_WindowHandle = Window::CreateWindow(width, height, name.c_str());
+        m_WindowHandle = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+        Log::Assert(m_WindowHandle != nullptr, "GLFW unable to create window.");
+
+        glfwMakeContextCurrent(m_WindowHandle);
         SetVSync(true);
 
-        Window::SetWindowUserPointer(m_WindowHandle, this);
+        Log::Assert(glewInit() == GLEW_OK, "Unable to initialize GLEW.");
+        glfwSetWindowUserPointer(m_WindowHandle, this);
 
         // Set up event callbacks
-        Window::SetWindowSizeCallback(m_WindowHandle, [](Window* window, int width, int height) {
-            JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
+        glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow* window, int width, int height) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
             userWin->SetWidth(width);
@@ -33,16 +36,16 @@ namespace Jade {
             userWin->m_EventCallback(e);
         });
 
-        Window::SetWindowCloseCallback(m_WindowHandle, [](Window* window) {
-            JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
+        glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow* window) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
             WindowCloseEvent e;
             userWin->m_EventCallback(e);
         });
 
-        Window::SetKeyCallback(m_WindowHandle, [](Window* window, int key, int scancode, int action, int mods) {
-            JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
+        glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
             switch (action) {
@@ -64,17 +67,16 @@ namespace Jade {
             }
         });
 
-        // TODO Create char callback function
-        // Window::SetCharCallback(m_WindowHandle, [](Window* window, uint32 keycode) {
-        //     JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
-        //     Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
+        glfwSetCharCallback(m_WindowHandle, [](GLFWwindow* window, uint32 keycode) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
+            Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
-        //     Event& e = KeyTypedEvent(keycode);
-        //     userWin->EventCallback(e);
-        // });
+            // Event& e = KeyTypedEvent(keycode);
+            // userWin->EventCallback(e);
+        });
 
-        Window::SetMouseButtonCallback(m_WindowHandle, [](Window* window, int button, int action, int mods) {
-            JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
+        glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* window, int button, int action, int mods) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
             switch (action) {
@@ -91,16 +93,16 @@ namespace Jade {
             }
         }); 
 
-        Window::SetScrollCallback(m_WindowHandle, [](Window* window, double xoffset, double yoffset) {
-            JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
+        glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow* window, double xoffset, double yoffset) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
             MouseScrolledEvent e((float)xoffset, (float)yoffset);
             userWin->m_EventCallback(e);
         });
 
-        Window::SetCursorPosCallback(m_WindowHandle, [](Window* window, double xpos, double ypos) {
-            JWindow* userWin = static_cast<JWindow*>(Window::GetWindowUserPointer(window));
+        glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow* window, double xpos, double ypos) {
+            JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
             MouseMovedEvent e((float)xpos, (float)ypos);
@@ -113,19 +115,19 @@ namespace Jade {
     }
 
     void JWindow::OnUpdate() {
-        m_WindowHandle->PollEvents();
+        glfwPollEvents();
     }
 
     void JWindow::Render() { 
-        Window::SwapBuffers(m_WindowHandle);
+        glfwSwapBuffers(m_WindowHandle);
     }
 
     // Window Attributes
     void JWindow::SetVSync(bool enabled) {
         if (enabled) {
-            Window::SwapInterval(1);
+            glfwSwapInterval(1);
         } else {
-            Window::SwapInterval(0);
+            glfwSwapInterval(0);
         }
 
         m_VSync = enabled;
@@ -135,12 +137,12 @@ namespace Jade {
         return m_VSync;
     }
 
-    void* JWindow::GetNativeWindow() const {
-        return Window::GetWindowHandle(m_WindowHandle);
+    GLFWwindow* JWindow::GetNativeWindow() const {
+        return m_WindowHandle;
     }
 
     void JWindow::Destroy() {
-        Window::Destroy(m_WindowHandle);
+        glfwDestroyWindow(m_WindowHandle);
     }
 
     bool JWindow::IsRunning() { 

@@ -1,3 +1,6 @@
+// TODO: This code is now deprecated in favor of GLFW, may come back to it at some point
+#if 0
+
 #include "platform/Window.h"
 #include "jade/util/Log.h"
 #include "jade/events/Input.h"
@@ -14,7 +17,11 @@
 namespace Jade {
     bool Win32Window::m_Initialized = false;
     HINSTANCE Win32Window::m_HINSTANCE = {};
+    HGLRC Win32Window::m_GlobalRC = NULL;
+
     PFNWGLSWAPINTERVALEXTPROC Win32Window::wglSwapIntervalEXT = nullptr;
+    PFNWGLCHOOSEPIXELFORMATARBPROC Win32Window::wglChoosePixelFormatARB = nullptr;
+    PFNWGLCREATECONTEXTATTRIBSARBPROC Win32Window::wglCreateContextAttribsARB = nullptr;
 
     void Win32Window::DefaultResizeCallback(HWND wnd, int width, int height) {
         for (Window* window : s_Windows) {
@@ -89,6 +96,17 @@ namespace Jade {
                 break;
             }
         }
+    }
+
+    Window* Win32Window::GetWindow(HWND window) {
+        for (Window* win : s_Windows) {
+            Win32Window* win32Win = static_cast<Win32Window*>(win);
+            if (win32Win->WND == window) {
+                return win;
+            }
+        }
+
+        return nullptr;
     }
 
     void Win32Window::ShowMessage(LPCSTR message) {
@@ -507,7 +525,15 @@ namespace Jade {
                 int newHeight = rect.bottom - rect.top;
                 int newWidth = rect.right - rect.left;
                 Jade::Win32Window::DefaultResizeCallback(hWnd, newWidth, newHeight);
-                ::InvalidateRect(hWnd, NULL, FALSE);
+                break;
+            }
+
+            // Window move events
+            case WM_MOVE: {
+                int xpos = (int)(short)LOWORD(lParam);
+                int ypos = (int)(short)HIWORD(lParam);
+                Window* win = Jade::Win32Window::GetWindow(hWnd);
+                Jade::Window::SetWindowPos(win, xpos, ypos);
                 break;
             }
             
@@ -624,28 +650,6 @@ namespace Jade {
         Win32Window::m_HINSTANCE = GetModuleHandle(NULL);
         registerClass(Win32Window::m_HINSTANCE);
         Win32Window::m_Initialized = true;
-    }
-
-    void* Win32Window::_GetWindowHandle() {
-        return WND;
-    }
-
-    Window* Win32Window::CreateWindow(int width, int height, const char* title) {
-        Log::Assert(Win32Window::m_Initialized, "You must initialize a Win32Window before creating it.");
-
-        Win32Window* win = new Win32Window();
-
-        if (s_InitAllocConsole) {
-            // Allocate console Win32Window
-            FreeConsole();
-            bool success = AllocConsole();
-            if (!success) {
-                Log::Error("Could not allocate console.");
-                Log::Assert(false, "%d", GetLastError());
-            }
-            freopen("CONOUT$", "w+", stdout);
-            Log::Info("Console Win32Window created.");
-        }
 
         // Proceed to create fake Win32Window...
         HWND fakeWND = CreateWindowExA(
@@ -655,7 +659,7 @@ namespace Jade {
             0, 0,                                    // Position x, y
             1, 1,                                    // Width, Height
             NULL, NULL,                              // Parent Win32Window, Menu
-            win->m_HINSTANCE, NULL);                 // Instnce, Param
+            m_HINSTANCE, NULL);                      // Instnce, Param
 
         HDC fakeDC = GetDC(fakeWND);
 
@@ -672,43 +676,70 @@ namespace Jade {
         int fakePFDID = ChoosePixelFormat(fakeDC, &fakePFD);
         if (fakePFDID == NULL) {
             ShowMessage("ChoosePixelFormat() failed.");
-            return nullptr;
+            //return nullptr;
         }
 
         if (SetPixelFormat(fakeDC, fakePFDID, &fakePFD) == false) {
             ShowMessage("SetPixelFormat() failed.");
-            return nullptr;
+            //return nullptr;
         }
 
         HGLRC fakeRC = wglCreateContext(fakeDC); // Rendering context
 
         if (fakeRC == NULL) {
             ShowMessage("wglCreateContext() failed.");
-            return nullptr;
+            //return nullptr;
         }
 
         if (wglMakeCurrent(fakeDC, fakeRC) == false) {
             ShowMessage("wglMakeCurrent() failed");
-            return nullptr;
+            //return nullptr;
         }
 
-        PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
         wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
         if (wglChoosePixelFormatARB == nullptr) {
             ShowMessage("wglGetProcAdress() failed.");
-            return nullptr;
+            //return nullptr;
         }
 
-        PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
         wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
         if (wglCreateContextAttribsARB == nullptr) {
-            ShowMessage("wglGetProcAddres() failed.");
-            return nullptr;
+            ShowMessage("wglGetProcAddress() failed.");
+            //return nullptr;
         }
 
         if (!glLiteInit()) {
             ShowMessage("glLiteInit() failed.");
-            return nullptr;
+            //return nullptr;
+        }
+
+        wglMakeCurrent(NULL, NULL);
+        wglDeleteContext(fakeRC);
+        ReleaseDC(fakeWND, fakeDC);
+        DestroyWindow(fakeWND);
+    }
+
+    void* Win32Window::_GetWindowHandle() {
+        return WND;
+    }
+
+    Window* Win32Window::CreateWindow(int width, int height, const char* title) {
+        Log::Assert(Win32Window::m_Initialized, "You must initialize a Win32Window before creating it.");
+
+        Win32Window* win = new Win32Window();
+        win->m_Width = width;
+        win->m_Height = height;
+
+        if (s_InitAllocConsole) {
+            // Allocate console Win32Window
+            FreeConsole();
+            bool success = AllocConsole();
+            if (!success) {
+                Log::Error("Could not allocate console.");
+                Log::Assert(false, "%d", GetLastError());
+            }
+            freopen("CONOUT$", "w+", stdout);
+            Log::Info("Console Win32Window created.");
         }
 
         DWORD winFlags = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
@@ -782,7 +813,7 @@ namespace Jade {
         };
 
         int pixelFormatID; UINT numFormats;
-        bool status = wglChoosePixelFormatARB(win->DC, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
+        bool status = Win32Window::wglChoosePixelFormatARB(win->DC, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
         if (status == false || numFormats == 0) {
             ShowMessage("wglChoosePixelFormatARB() failed.");
             return nullptr;
@@ -792,25 +823,25 @@ namespace Jade {
         DescribePixelFormat(win->DC, pixelFormatID, sizeof(PFD), &PFD);
         SetPixelFormat(win->DC, pixelFormatID, &PFD);
 
-        const int major_min = 4;
-        const int minor_min = 5;
-        int contextAttribs[] = {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
-            WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
-            WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-            0
-        };
+        if (Win32Window::m_GlobalRC == NULL) {
+            const int major_min = 4;
+            const int minor_min = 5;
+            int contextAttribs[] = {
+                WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
+                WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
+                WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                0
+            };
 
-        win->RC = wglCreateContextAttribsARB(win->DC, 0, contextAttribs);
-        if (win->RC == NULL) {
-            ShowMessage("wglCreateContextAttribsARB() failed.");
-            return nullptr;
+            win->RC = wglCreateContextAttribsARB(win->DC, 0, contextAttribs);
+            if (win->RC == NULL) {
+                ShowMessage("wglCreateContextAttribsARB() failed.");
+                return nullptr;
+            }
+        } else {
+            win->RC = Win32Window::m_GlobalRC;
         }
 
-        wglMakeCurrent(NULL, NULL);
-        wglDeleteContext(fakeRC);
-        ReleaseDC(fakeWND, fakeDC);
-        DestroyWindow(fakeWND);
         win->_MakeContextCurrent();
 
         wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(wglGetProcAddress("wglSwapIntervalEXT"));
@@ -841,3 +872,5 @@ namespace Jade {
         wglSwapIntervalEXT(Window::s_SwapInterval);
     }
 }
+
+#endif

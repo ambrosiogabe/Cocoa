@@ -3,7 +3,10 @@
 
 #include <string>
 #include <iostream>
-#include <gl/gl3w.h>
+//#include <gl/gl3w.h>
+//#include <glad/include/glad.h>
+//#include <gl/gl3w.h>
+#include <glew/include/GL/glew.h>
 
 namespace Jade {
     Application::Application() {
@@ -28,37 +31,21 @@ namespace Jade {
         for (Layer* layer : m_Layers) {
             layer->OnAttach();
         }
+        m_ImGuiLayer.Setup(m_Window->GetNativeWindow());
 
         while (m_Running) {
-            float time = Window::GetTime();
+            float time = glfwGetTime();
             float dt = m_LastFrameTime - time;
             m_LastFrameTime = time;
 
-            glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetId());
-            glViewport(0, 0, 3840, 2160);
-            glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            DebugDraw::BeginFrame();
-
+            m_ImGuiLayer.BeginFrame();
             for (Layer* layer : m_Layers) {
                 layer->OnUpdate(dt);
                 layer->OnRender();
+
+                layer->OnImGuiRender();
             }
-
-            DebugDraw::EndFrame();
-            m_CurrentScene->Render();
-
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            glViewport(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
-            glClearColor(0, 0, 0, 1);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            m_CurrentScene->ImGui();
-            // for (Layer* layer : m_Layers) {
-            //     layer->OnImGuiRender();
-            // }
+            m_ImGuiLayer.EndFrame();
 
             m_Window->OnUpdate();
             m_Window->Render();
@@ -82,9 +69,17 @@ namespace Jade {
         for (auto it = m_Layers.end(); it != m_Layers.begin();) {
             (*--it)->OnEvent(e);
             if (e.Handled()) {
-                break;
+                    break;
             }
         }
+    }
+
+    const glm::vec2& Application::GetGameViewPos() const {
+        return m_ImGuiLayer.GetGameViewPos();
+    }
+
+    const glm::vec2& Application::GetGameViewSize() const {
+        return m_ImGuiLayer.GetGameViewSize();
     }
 
     void Application::PushLayer(Layer* layer) {

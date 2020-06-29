@@ -7,8 +7,6 @@ namespace Jade {
     class LevelEditorScene : public Scene {
     public:
         virtual void Init() override {
-            m_ImGuiLayer.Setup(Application::Get()->GetWindow()->GetNativeWindow());
-
             auto group = m_Registry.group<SpriteRenderer>(entt::get<Transform>);
 
             Log::Info("Initializing test scene.");
@@ -93,9 +91,6 @@ namespace Jade {
         }
         
         virtual void ImGui() override {
-            m_ImGuiLayer.StartFrame();
-            m_ImGuiLayer.ImGui();
-
             if (showDemoWindow) {
                 ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
                 ImGui::ShowDemoWindow(&showDemoWindow);
@@ -109,8 +104,6 @@ namespace Jade {
             }
 
             ImGui::End();
-
-            m_ImGuiLayer.Render();
         }
 
     private:

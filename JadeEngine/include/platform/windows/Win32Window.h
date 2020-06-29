@@ -1,3 +1,6 @@
+// TODO: This code is now deprecated in favor of GLFW, may come back to it at some point
+#if 0
+
 #pragma once
 
 #include "platform/Window.h"
@@ -28,6 +31,7 @@ namespace Jade {
         static void DefaultScrollCalback(HWND window, double xoffset, double yoffset);
         static void DefaultKeyCallback(HWND window, int key, int scancode, int action, int mods);
         static void DefaultCloseCallback(HWND window);
+        static Window* GetWindow(HWND window);
 
         static Window* CreateWindow(int width, int height, const char* title);
 
@@ -50,13 +54,18 @@ namespace Jade {
 
     private:
         static bool m_Initialized;
-
+        
+        static HGLRC m_GlobalRC;
         static HINSTANCE m_HINSTANCE;
+
         HGLRC RC;
         HDC DC;
         HWND WND;
         std::vector<HICON> m_Icons = std::vector<HICON>();
 
         static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
+        static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
+        static PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
     };
 }
+#endif

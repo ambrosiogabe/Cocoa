@@ -1,10 +1,10 @@
 #include "jade/systems/RenderSystem.h"
-#include "platform/windows/GlFunctions.h"
 #include "jade/components/components.h"
 #include "jade/renderer/Shader.h"
 
-#include <windows.h>
-#include <gl/GL.h>
+//#include <gl/gl3w.h>
+//#include <glad/include/glad.h>
+#include <glew/include/GL/glew.h>
 #include <glm/vec4.hpp>
 #include <entt/entt.h>
 #include <glm/gtx/transform.hpp>

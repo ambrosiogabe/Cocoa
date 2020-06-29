@@ -427,7 +427,7 @@ static void ImGui_ImplJade_UpdateMonitors()
 {
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
     int monitors_count = 0;
-    GLFWmonitor** jade_monitors = Jade::Window::GetMonitors(&monitors_count);
+    JadeMonitor** jade_monitors = Jade::Window::GetMonitors(&monitors_count);
     platform_io.Monitors.resize(0);
     for (int n = 0; n < monitors_count; n++)
     {

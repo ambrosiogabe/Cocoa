@@ -5,7 +5,9 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <unordered_map>
-#include <gl/glcorearb.h>
+//#include <gl/gl3w.h>
+//#include <glad/include/glad.h>
+#include <glew/include/GL/glew.h>
 
 namespace Jade {
     class Shader {

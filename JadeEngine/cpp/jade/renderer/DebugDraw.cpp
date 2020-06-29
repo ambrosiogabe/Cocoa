@@ -1,7 +1,9 @@
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/Application.h"
 
-#include <gl/gl3w.h>
+//#include <gl/gl3w.h>
+//#include <glad/include/glad.h>
+#include <glew/include/GL/glew.h>
 
 namespace Jade {
     Line2D DebugDraw::m_Lines[MAX_LINES] {};

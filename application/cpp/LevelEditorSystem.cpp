@@ -201,12 +201,12 @@ namespace Jade {
     }
 
     bool LevelEditorSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e) {
-        Log::Info("Handling mouse press inside LE: %d", e.GetMouseButton());
+        //Log::Info("Handling mouse press inside LE: %d", e.GetMouseButton());
         return false;
     }
 
     bool LevelEditorSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e) {
-        Log::Info("Handling mouse release inside LE: %d", e.GetMouseButton());
+        //Log::Info("Handling mouse release inside LE: %d", e.GetMouseButton());
         return false;
     }
 }
