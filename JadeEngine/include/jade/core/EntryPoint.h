@@ -1,5 +1,5 @@
 #pragma once
 
-#ifdef _JADE_PLATFORM_WINDOWS
+#ifdef _WIN32
 #include "platform/windows/winMain.h"
 #endif

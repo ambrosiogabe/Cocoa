@@ -1,5 +1,7 @@
 #pragma once
 
+#include "jade/renderer/Texture.h"
+
 namespace Jade {
     class Framebuffer {
     public:

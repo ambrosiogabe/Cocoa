@@ -3,7 +3,7 @@
 #include "jade/renderer/Texture.h"
 #include "jade/util/Log.h"
 
-#include <entt/entt.h>
+#include <entt.h>
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>

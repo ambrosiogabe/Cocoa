@@ -4,14 +4,17 @@
 #include "jade/core/Layer.h"
 
 #include <glm/vec2.hpp>
-#include <GLFW/glfw3.h>
 
 namespace Jade {
     class ImGuiLayer : public Layer {
     public:
-        ImGuiLayer() {}
+        ImGuiLayer() {
+            m_Window = nullptr;
+        }
 
-        void Setup(GLFWwindow* window);
+        void Setup(void* window);
+
+        virtual void OnEvent(Event& e) override;
         void BeginFrame();
         void EndFrame();
 
@@ -25,8 +28,9 @@ namespace Jade {
     private:
         glm::vec2 m_GameviewPos = glm::vec2();
         glm::vec2 m_GameviewSize = glm::vec2();
+        bool m_BlockEvents = false;
 
-        GLFWwindow* m_Window;
+        void* m_Window;
         MenuBar m_MenuBar = MenuBar();
     };
 }

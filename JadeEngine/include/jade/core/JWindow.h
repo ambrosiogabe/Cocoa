@@ -5,10 +5,6 @@
 #include "jade/renderer/Framebuffer.h"
 #include "jade/events/Event.h"
 
-//#include <gl/gl3w.h>
-//#include <glad/include/glad.h>
-#include <glew/include/GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <string>
 
 namespace Jade {
@@ -26,7 +22,7 @@ namespace Jade {
         virtual void SetVSync(bool enabled);
         virtual bool IsVSync() const;
 
-        virtual GLFWwindow* GetNativeWindow() const;
+        virtual void* GetNativeWindow() const;
 
         static JWindow* Create(uint32 width, uint32 height, const std::string& name);
 
@@ -47,7 +43,7 @@ namespace Jade {
         JWindow() {}
 
     private:
-        GLFWwindow* m_WindowHandle;
+        void* m_WindowHandle;
 
         EventCallbackFn m_EventCallback;
         bool m_VSync = false;

@@ -1,15 +1,23 @@
 #include "jade/core/ImGuiLayer.h"
 #include "jade/core/Application.h"
 
-#include <imgui/imgui.h>
-#include <imgui/examples/imgui_impl_glfw.h>
-#include <imgui/examples/imgui_impl_opengl3.h>
+#include <imgui.h>
+#include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+
+#ifndef _JADE_IMPL_IMGUI
+#define _JADE_IMPL_IMGUI
+#include <imgui/examples/imgui_impl_glfw.cpp>
+#include <imgui/examples/imgui_impl_opengl3.cpp>
+#endif
 
 namespace Jade {
     static void CustomStyle(bool bStyleDark_ = true, float alpha_ = 0.8f);
     void HelpMarker(const char* desc);
 
-    void ImGuiLayer::Setup(GLFWwindow* window) {
+    void ImGuiLayer::Setup(void* window) {
         m_Window = window;
 
         // Setup dear imGui binding
@@ -21,8 +29,7 @@ namespace Jade {
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         // Init GLFW
-        ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-        //ImGui_ImplWin32_EnableDpiAwareness();
+        ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_Window, true);
 
         // Init OpenGL imgui implementation
         // GL 3.0 + GLSL 130
@@ -30,12 +37,20 @@ namespace Jade {
         ImGui_ImplOpenGL3_Init(glsl_version);
 
         // ImGui style 
-        ImGui::StyleColorsClassic();
+        ImGui::StyleColorsDark();
 
         //io.Fonts->AddFontFromFileTTF("assets/fonts/segoeui.ttf", 32);
         io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans-Regular.ttf", 32.0f);
-        CustomStyle();
-        //float dpi = ImGui_ImplWin32_GetDpiScaleForHwnd(window);
+        //CustomStyle();
+    }
+
+    void ImGuiLayer::OnEvent(Event& e) {
+        if (m_BlockEvents) {
+            ImGuiIO& io = ImGui::GetIO();
+            //e.m_Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+            //e.m_Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+            e.m_Handled = true;
+        }
     }
 
     void ImGuiLayer::BeginFrame() {
@@ -70,6 +85,8 @@ namespace Jade {
         
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 1));
         ImGui::Begin("Game Viewport", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+        m_BlockEvents = !ImGui::IsWindowFocused() || !ImGui::IsWindowHovered();
 
         ImVec2 windowSize = ImGui::GetWindowContentRegionMax();
         // Figure out the largest area that fits this target aspect ratio

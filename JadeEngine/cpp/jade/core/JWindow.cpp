@@ -3,6 +3,9 @@
 #include "jade/events/KeyEvent.h"
 #include "jade/events/MouseEvent.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 namespace Jade {
     JWindow* JWindow::Create(uint32 width, uint32 height, const std::string& name) {
         return new JWindow(width, height, name); 
@@ -15,17 +18,18 @@ namespace Jade {
     void JWindow::Init(uint32 width, uint32 height, const std::string& name) {
         Log::Assert(glfwInit(), "Unable to initialize GLFW");
 
-        m_WindowHandle = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+        GLFWwindow* window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+        m_WindowHandle = window;
         Log::Assert(m_WindowHandle != nullptr, "GLFW unable to create window.");
 
-        glfwMakeContextCurrent(m_WindowHandle);
+        glfwMakeContextCurrent(window);
         SetVSync(true);
 
-        Log::Assert(glewInit() == GLEW_OK, "Unable to initialize GLEW.");
-        glfwSetWindowUserPointer(m_WindowHandle, this);
+        Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLEW.");
+        glfwSetWindowUserPointer(window, this);
 
         // Set up event callbacks
-        glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow* window, int width, int height) {
+        glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -36,7 +40,7 @@ namespace Jade {
             userWin->m_EventCallback(e);
         });
 
-        glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow* window) {
+        glfwSetWindowCloseCallback(window, [](GLFWwindow* window) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -44,7 +48,7 @@ namespace Jade {
             userWin->m_EventCallback(e);
         });
 
-        glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -67,7 +71,7 @@ namespace Jade {
             }
         });
 
-        glfwSetCharCallback(m_WindowHandle, [](GLFWwindow* window, uint32 keycode) {
+        glfwSetCharCallback(window, [](GLFWwindow* window, uint32 keycode) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -75,7 +79,7 @@ namespace Jade {
             // userWin->EventCallback(e);
         });
 
-        glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow* window, int button, int action, int mods) {
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -93,7 +97,7 @@ namespace Jade {
             }
         }); 
 
-        glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow* window, double xoffset, double yoffset) {
+        glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -101,7 +105,7 @@ namespace Jade {
             userWin->m_EventCallback(e);
         });
 
-        glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow* window, double xpos, double ypos) {
+        glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
@@ -119,7 +123,7 @@ namespace Jade {
     }
 
     void JWindow::Render() { 
-        glfwSwapBuffers(m_WindowHandle);
+        glfwSwapBuffers((GLFWwindow*)m_WindowHandle);
     }
 
     // Window Attributes
@@ -137,12 +141,12 @@ namespace Jade {
         return m_VSync;
     }
 
-    GLFWwindow* JWindow::GetNativeWindow() const {
+    void* JWindow::GetNativeWindow() const {
         return m_WindowHandle;
     }
 
     void JWindow::Destroy() {
-        glfwDestroyWindow(m_WindowHandle);
+        glfwDestroyWindow((GLFWwindow*)m_WindowHandle);
     }
 
     bool JWindow::IsRunning() { 

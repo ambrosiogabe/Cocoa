@@ -2,7 +2,7 @@
 
 #include "jade/events/Event.h"
 
-#include <entt/entt.h>
+#include <entt.h>
 #include <string>
 
 namespace Jade {

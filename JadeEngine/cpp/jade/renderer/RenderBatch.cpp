@@ -2,11 +2,9 @@
 #include "jade/components/components.h"
 #include "jade/renderer/Shader.h"
 
-//#include <gl/gl3w.h>
-//#include <glad/include/glad.h>
-#include <glew/include/GL/glew.h>
+#include <glad/glad.h>
 #include <glm/vec4.hpp>
-#include <entt/entt.h>
+#include <entt.h>
 #include <glm/gtx/transform.hpp>
 
 namespace Jade {

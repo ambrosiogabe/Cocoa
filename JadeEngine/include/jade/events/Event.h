@@ -3,6 +3,7 @@
 #include "jade/core/Core.h"
 
 #include <string>
+#include <ostream>
 #include <functional>
 
 namespace Jade {
@@ -54,10 +55,9 @@ namespace Jade {
         virtual int GetCategoryFlags() const = 0;
         virtual std::string ToString() const { return GetName(); }
 
-        inline bool IsInCategory(EventCategory category);
-        inline bool Handled();
-    
-    protected:
+        inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & category; }
+        inline bool Handled() { return m_Handled; }
+        
         bool m_Handled = false;
     };
 
@@ -69,7 +69,8 @@ namespace Jade {
         using EventFn = std::function<bool(T&)>;
 
     public:
-        EventDispatcher(Event& event);
+        EventDispatcher::EventDispatcher(Event& e)
+            : m_Event(e) {}
 
         template<typename T>
         bool Dispatch(EventFn<T> function) {

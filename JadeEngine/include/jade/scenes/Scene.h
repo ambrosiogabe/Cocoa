@@ -3,7 +3,7 @@
 #include "jade/systems/RenderSystem.h"
 #include "jade/core/ImGuiLayer.h"
 
-#include <entt/entt.h>
+#include <entt.h>
 #include <vector>
 
 namespace Jade {

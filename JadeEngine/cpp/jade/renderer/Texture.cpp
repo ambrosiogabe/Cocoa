@@ -2,10 +2,15 @@
 #include "jade/util/Log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include <stb_image.h>
+#include <glad/glad.h>
 
 namespace Jade {
     Texture::Texture(int width, int height) {
+        m_Filepath = "";
+        m_Height = height;
+        m_Width = width;
+
         glGenTextures(1, &m_ID);
         glBindTexture(GL_TEXTURE_2D, m_ID);
 
@@ -38,7 +43,7 @@ namespace Jade {
         } else if (channels == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
         } else {
-            Log::Assert(false, "Unknown number of channels '%d'.", channels);
+            Log::Assert(false, "Unknown number of channels '%d'. In File: '%s'", channels, resourceName);
         }
 
         stbi_image_free(buffer);

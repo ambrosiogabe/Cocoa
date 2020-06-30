@@ -3,16 +3,16 @@
 
 #include <string>
 #include <iostream>
-//#include <gl/gl3w.h>
-//#include <glad/include/glad.h>
-//#include <gl/gl3w.h>
-#include <glew/include/GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace Jade {
     Application::Application() {
         m_LayerInsertIndex = 0;
         m_Running = true;
         m_Layers = std::vector<Layer*>();
+
+        PushOverlay(&m_ImGuiLayer);
 
         std::string title = std::string("Test Window");
         m_Window = JWindow::Create(1920, 1080, title);

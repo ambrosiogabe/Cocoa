@@ -6,9 +6,7 @@
 #include <unordered_map>
 #include <array>
 #include <glm/gtc/type_ptr.hpp>
-//#include <gl/gl3w.h>
-//#include <glad/include/glad.h>
-#include <glew/include/GL/glew.h>
+#include <glad/glad.h>
 
 namespace Jade {
     static GLenum ShaderTypeFromString(const std::string& type)
@@ -35,7 +33,7 @@ namespace Jade {
         }
         else
         {
-            Log::Error("Could not open file.");
+            Log::Error("Could not open file: '%s'", filepath);
         }
 
         return result;

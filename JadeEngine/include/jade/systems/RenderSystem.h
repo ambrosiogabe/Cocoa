@@ -7,7 +7,7 @@
 #include "jade/core/Core.h"
 
 #include <vector>
-#include <entt/entt.h>
+#include <entt.h>
 
 namespace Jade {
     struct Vertex {

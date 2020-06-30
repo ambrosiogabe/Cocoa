@@ -3,8 +3,8 @@
 #include "jade/util/Constants.h"
 #include "jade/core/Application.h"
 
-#include <entt/entt.h>
-#include <imgui/imgui.h>
+#include <entt.h>
+#include <imgui.h>
 
 namespace Jade {
     void MenuBar::SettingsWindow() {

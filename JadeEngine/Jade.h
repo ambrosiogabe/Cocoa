@@ -4,6 +4,7 @@
 #include "jade/util/Log.h"
 
 #include "jade/commands/CommandHistory.h"
+#include "jade/commands/MoveTransformCommand.h"
 
 #include "jade/renderer/DebugDraw.h"
 
@@ -16,9 +17,6 @@
 #include "jade/events/WindowEvent.h"
 #include "jade/events/Input.h"
 // ---------------------------------------------
-
-#include <imgui/imgui.h>
-#include <entt/entt.h>
 
 // ------------Entry Point----------------------
 #include "jade/core/EntryPoint.h"

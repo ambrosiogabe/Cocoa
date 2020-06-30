@@ -2,3 +2,6 @@
 	path = JadeEngine/vendor/imgui
 	url = https://github.com/ocornut/imgui
 	branch = docking
+[submodule "JadeEngine/vendor/GLFW"]
+	path = JadeEngine/vendor/GLFW
+	url = https://github.com/glfw/glfw

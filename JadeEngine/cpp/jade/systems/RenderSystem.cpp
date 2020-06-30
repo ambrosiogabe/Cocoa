@@ -5,7 +5,7 @@
 #include "jade/commands/CommandHistory.h"
 #include "jade/commands/ChangeSpriteColorCommand.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Jade {
