@@ -23,7 +23,6 @@ namespace Jade {
         Log::Assert(m_WindowHandle != nullptr, "GLFW unable to create window.");
 
         glfwMakeContextCurrent(window);
-        SetVSync(true);
 
         Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLEW.");
         glfwSetWindowUserPointer(window, this);
@@ -112,6 +111,8 @@ namespace Jade {
             MouseMovedEvent e((float)xpos, (float)ypos);
             userWin->m_EventCallback(e);
         });
+
+        SetVSync(true);
     }
 
     void JWindow::SetEventCallback(const EventCallbackFn& e) {

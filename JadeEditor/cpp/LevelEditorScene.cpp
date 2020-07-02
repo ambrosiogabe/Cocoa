@@ -36,8 +36,8 @@ namespace Jade {
         float height = 20.0f;
         float padding = 3.0f;
         entt::entity previous = entt::null;
-        for (int i=0; i < 100; i++) {
-            for (int j=0; j < 100; j++) {
+        for (int i=0; i < 10; i++) {
+            for (int j=0; j < 10; j++) {
                 float x = startX + i * width + i * padding;
                 float y = startY + j * height + j * padding;
 

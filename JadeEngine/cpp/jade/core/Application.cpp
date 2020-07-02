@@ -35,7 +35,7 @@ namespace Jade {
 
         while (m_Running) {
             float time = glfwGetTime();
-            float dt = m_LastFrameTime - time;
+            float dt = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
             m_ImGuiLayer.BeginFrame();
@@ -54,11 +54,12 @@ namespace Jade {
         for (Layer* layer : m_Layers) {
             layer->OnDetach();
         }
+
+        m_Window->Destroy();
     }
 
     bool Application::OnWindowClose(WindowCloseEvent& e) {
         m_Running = false;
-        m_Window->Destroy();
         return true;
     }
 

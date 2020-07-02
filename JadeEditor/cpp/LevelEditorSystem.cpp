@@ -31,7 +31,7 @@ namespace Jade {
     }
 
     void LevelEditorSystem::Update(entt::registry& registry, float dt) {
-        Application::Get()->GetScene()->GetCamera()->GetTransform().m_Position += m_CameraSpeed;
+        Application::Get()->GetScene()->GetCamera()->GetTransform().m_Position += m_CameraSpeed * dt;
 
         // Set active entity to mouse pos if dragging
         if (m_IsDragging) {
@@ -140,7 +140,7 @@ namespace Jade {
             m_ControlModifierPressed = true;
         }
 
-        static float speed = 50.0f;
+        static float speed = 500.0f;
         if (e.GetKeyCode() == JADE_KEY_W) {
             m_CameraSpeed.y = speed;
         } else if (e.GetKeyCode() == JADE_KEY_S) {

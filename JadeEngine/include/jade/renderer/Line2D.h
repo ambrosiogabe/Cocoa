@@ -10,6 +10,9 @@
 namespace Jade {
     class Line2D {
     public:
+        Line2D(glm::vec2& from, glm::vec2& to)
+            : m_From(from), m_To(to) { }
+
         Line2D()
             : m_From(glm::vec2()), m_To(glm::vec2()), m_Color(glm::vec3()), m_Stroke(0.0f), m_Lifetime(0) {}
 
