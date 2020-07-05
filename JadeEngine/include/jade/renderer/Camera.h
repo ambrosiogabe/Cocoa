@@ -24,6 +24,8 @@ namespace Jade {
         const glm::mat4& GetOrthoInverseProjection() const { return m_OrthoInverseProjection; }
         const glm::mat4& GetOrthoInverseView() const { return m_OrthoInverseView; }
 
+        glm::vec2 ScreenToOrtho();
+
         void SetZoom(float zoom) { 
             m_Zoom = zoom; 
             AdjustPerspective();

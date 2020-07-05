@@ -69,7 +69,6 @@ project "JadeEngine"
 		systemversion "latest"
 
 		defines {
-			"_JADE_PLATFORM_WINDOWS",
 			"GLFW_INCLUDE_NONE"
 		}
 

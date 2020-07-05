@@ -5,44 +5,46 @@
 #include <glm/vec4.hpp>
 
 namespace Jade {
-    Input* Input::m_Instance = nullptr;
+    bool Input::s_KeyPressed[349] { };
+    bool Input::s_MouseButtonPressed[3] { };
+    float Input::s_XPos = 0.0f;
+    float Input::s_YPos = 0.0f;
+    float Input::s_ScrollX = 0.0f;
+    float Input::s_ScrollY = 0.0f;
 
     void Input::KeyCallback(int key, int scancode, int action, int mods) {
-        Input* input = Input::Get();
-        input->m_KeyPressed[key] = (action == JADE_PRESS || action == JADE_REPEAT) ? true : false;
+        s_KeyPressed[key] = (action == JADE_PRESS || action == JADE_REPEAT) ? true : false;
     }
 
     bool Input::KeyPressed(int keyCode) {
         if (keyCode >= 0 && keyCode < 350) {
-            return Input::Get()->m_KeyPressed[keyCode];
+            return s_KeyPressed[keyCode];
         }
         return false;
     }
 
     void Input::MouseButtonCallback(int button, int action, int mods) {
-        Input* input = Input::Get();
-        input->m_MouseButtonPressed[button] = action == JADE_PRESS ? true : false;
+        s_MouseButtonPressed[button] = action == JADE_PRESS ? true : false;
     }
 
     bool Input::MouseButtonPressed(int mouseButton) {
         if (mouseButton >= 0 && mouseButton < 3) {
-            return Input::Get()->m_MouseButtonPressed[mouseButton];
+            return s_MouseButtonPressed[mouseButton];
         }
         return false;
     }
 
     void Input::CursorCallback(double xpos, double ypos) {
-        Input* input = Input::Get();
-        input->m_XPos = (float)xpos;
-        input->m_YPos = (float)ypos;
+        s_XPos = (float)xpos;
+        s_YPos = (float)ypos;
     }
 
     float Input::MouseX() {
-        return Input::Get()->m_XPos;
+        return s_XPos;
     }
 
     float Input::MouseY() {
-        return Input::Get()->m_YPos;
+        return s_YPos;
     }
 
     float Input::OrthoMouseX() {
@@ -70,30 +72,25 @@ namespace Jade {
     }
 
     void Input::ScrollCallback(double xpos, double ypos) {
-        Input* input = Input::Get();
-        input->m_ScrollX = (float)xpos;
-        input->m_ScrollY = -(float)ypos;
+        s_ScrollX = (float)xpos;
+        s_ScrollY = -(float)ypos;
     }
 
     float Input::ScrollX() {
-        return Input::Get()->m_ScrollX;
+        return s_ScrollX;
     }
 
     float Input::ScrollY() {
-        return Input::Get()->m_ScrollY;
+        return s_ScrollY;
     }
 
     void Input::EndFrame() {
-        Input* input = Input::Get();
-        input->m_ScrollX = 0;
-        input->m_ScrollY = 0;
+        s_ScrollX = 0;
+        s_ScrollY = 0;
     }
 
-    Input* Input::Get() {
-        if (Input::m_Instance == nullptr) {
-            Input::m_Instance = new Input();
-        }
-
-        return Input::m_Instance;
+    glm::vec2 Input::MousePos()
+    {
+        return glm::vec2{ s_XPos, s_YPos };
     }
 }

@@ -241,7 +241,6 @@
 
 #define JADE_MOD_NUM_LOCK        0x0020
 
-
 namespace Jade {
     // // ===========================================
     // // Function pointer typedefs

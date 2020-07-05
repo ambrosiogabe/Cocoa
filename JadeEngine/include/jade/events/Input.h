@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 namespace Jade {
     class Input {
     public:
@@ -15,28 +17,18 @@ namespace Jade {
         static float ScrollX();
         static float ScrollY();
         static void EndFrame();
+        static glm::vec2 MousePos();
 
         static float OrthoMouseX();
         static float OrthoMouseY();
 
     private:
-        Input::Input() {
-            for (int i=0; i < 349; i++) {
-                m_KeyPressed[i] = false;
-            }
-
-            for (int i=0; i < 3; i++) {
-                m_MouseButtonPressed[i] = 0;
-            }
-        }
-        static Input* Input::Get();
+        Input::Input() {}
 
     private:
-        bool m_KeyPressed[349];
-        bool m_MouseButtonPressed[3];
-        float m_XPos, m_YPos;
-        float m_ScrollX, m_ScrollY;
-
-        static Input* m_Instance;
+        static bool s_KeyPressed[349];
+        static bool s_MouseButtonPressed[3];
+        static float s_XPos, s_YPos;
+        static float s_ScrollX, s_ScrollY;
     };
 }

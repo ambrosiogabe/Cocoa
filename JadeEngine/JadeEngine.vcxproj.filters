@@ -16,6 +16,12 @@
     <Filter Include="cpp\jade\events">
       <UniqueIdentifier>{4F1334ED-BB9E-A1B1-C4AF-24A630BAFDB1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cpp\jade\physics2d">
+      <UniqueIdentifier>{5362727F-3F46-33D5-A8A6-2D2894A91D57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cpp\jade\physics2d\rigidbody">
+      <UniqueIdentifier>{9F3EA429-8BF9-93D5-34B1-0C20204BDE65}</UniqueIdentifier>
+    </Filter>
     <Filter Include="cpp\jade\renderer">
       <UniqueIdentifier>{D1318101-3D48-7F97-86BF-0AB9F214501F}</UniqueIdentifier>
     </Filter>
@@ -51,6 +57,15 @@
     </Filter>
     <Filter Include="include\jade\events">
       <UniqueIdentifier>{7055539A-DCB6-30A8-6524-775AD1846767}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\jade\physics2d">
+      <UniqueIdentifier>{D47C7430-C076-9D82-A9E3-3393957C03EF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\jade\physics2d\primitives">
+      <UniqueIdentifier>{4FF2AFB5-BB60-0535-044A-C03470F7FAD0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\jade\physics2d\rigidbody">
+      <UniqueIdentifier>{602E4623-4C7F-3165-75E3-1F276193C4CE}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\jade\renderer">
       <UniqueIdentifier>{32807973-9EEC-346E-67E0-CCCBD30B57D6}</UniqueIdentifier>
@@ -148,6 +163,24 @@
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\physics2d\primitives\AABB.h">
+      <Filter>include\jade\physics2d\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\physics2d\primitives\Box2D.h">
+      <Filter>include\jade\physics2d\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\physics2d\primitives\Circle.h">
+      <Filter>include\jade\physics2d\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\physics2d\primitives\Raycast2D.h">
+      <Filter>include\jade\physics2d\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\physics2d\rigidbody\CollisionDetector2D.h">
+      <Filter>include\jade\physics2d\rigidbody</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\physics2d\rigidbody\Rigidbody2D.h">
+      <Filter>include\jade\physics2d\rigidbody</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\renderer\Camera.h">
       <Filter>include\jade\renderer</Filter>
     </ClInclude>
@@ -176,6 +209,9 @@
       <Filter>include\jade\systems</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\Constants.h">
+      <Filter>include\jade\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\util\JMath.h">
       <Filter>include\jade\util</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\Log.h">
@@ -1297,13 +1333,9 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\physics2d\primitives\Raycast2D.h" />
-    <ClInclude Include="include\jade\physics2d\primitives\Box2D.h" />
-    <ClInclude Include="include\jade\physics2d\primitives\Circle.h" />
-    <ClInclude Include="include\jade\physics2d\rigidbody\Rigidbody2D.h" />
-    <ClInclude Include="include\jade\physics2d\primitives\AABB.h" />
-    <ClInclude Include="include\jade\physics2d\rigidbody\CollisionDetector2D.h" />
-    <ClInclude Include="include\jade\util\JMath.h" />
+    <ClInclude Include="include\jade\unitTests\CollisionDetector2DTester.h" />
+    <ClInclude Include="include\jade\unitTests\TestMain.h" />
+    <ClInclude Include="include\jade\unitTests\TestFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\ChangeSpriteColorCommand.cpp">
@@ -1342,6 +1374,9 @@
     <ClCompile Include="cpp\jade\events\WindowEvent.cpp">
       <Filter>cpp\jade\events</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\physics2d\rigidbody\CollisionDetector2D.cpp">
+      <Filter>cpp\jade\physics2d\rigidbody</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\jade\renderer\Camera.cpp">
       <Filter>cpp\jade\renderer</Filter>
     </ClCompile>
@@ -1369,6 +1404,9 @@
     <ClCompile Include="cpp\jade\util\Constants.cpp">
       <Filter>cpp\jade\util</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\util\JMath.cpp">
+      <Filter>cpp\jade\util</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\jade\util\Log.cpp">
       <Filter>cpp\jade\util</Filter>
     </ClCompile>
@@ -1381,7 +1419,5 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\physics2d\rigidbody\CollisionDetector2D.cpp" />
-    <ClCompile Include="cpp\jade\util\JMath.cpp" />
   </ItemGroup>
 </Project>

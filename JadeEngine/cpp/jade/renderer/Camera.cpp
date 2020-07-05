@@ -1,5 +1,6 @@
 #include "jade/renderer/Camera.h"
 #include "jade/core/Application.h"
+#include "jade/events/Input.h"
 
 namespace Jade {
     Camera::Camera(glm::vec3& position) {
@@ -55,5 +56,18 @@ namespace Jade {
     void Camera::CalculateAspect() {
         // TODO: actually make this calculate window's current aspect
         this->m_Aspect = Application::Get()->GetWindow()->GetTargetAspectRatio();
+    }
+
+    glm::vec2 Camera::ScreenToOrtho()
+    {
+        glm::vec2 screenCoords { Application::Get()->GetImGuiLayer().GetGameViewMousePos() };
+        glm::vec4 tmp{ screenCoords.x, screenCoords.y, 0, 1 };
+        const glm::vec2& gameviewSize = Application::Get()->GetGameViewSize();
+
+        tmp.x = (tmp.x / gameviewSize.x) * 2.0f - 1.0f;
+        tmp.y = -((tmp.y / gameviewSize.y) * 2.0f - 1.0f);
+        tmp = m_OrthoInverseView * m_OrthoInverseProjection * tmp;
+
+        return glm::vec2{ tmp.x, tmp.y };
     }
 }

@@ -95,6 +95,11 @@ namespace Jade
 				point.x <= max.x && point.y <= max.y;
 		}
 
+		bool PointOnRay(const glm::vec2& point, const Raycast2D& ray)
+		{
+			return false;
+		}
+
 
 		bool LineAndCircle(const Line2D& line, const Circle& circle)
 		{

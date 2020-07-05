@@ -28,6 +28,7 @@ namespace Jade {
             Framebuffer* GetFramebuffer() const;
             void ChangeScene(Scene* scene);
             Scene* GetScene() const;
+            const ImGuiLayer& GetImGuiLayer() { return m_ImGuiLayer; }
             JWindow* GetWindow() const;
 
             const glm::vec2& GetGameViewPos() const;

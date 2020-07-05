@@ -2,6 +2,7 @@
 #include "jade/events/WindowEvent.h"
 #include "jade/events/KeyEvent.h"
 #include "jade/events/MouseEvent.h"
+#include "jade/events/Input.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -51,6 +52,7 @@ namespace Jade {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
+            Input::KeyCallback(key, scancode, action, mods);
             switch (action) {
                 case JADE_PRESS: {
                     KeyPressedEvent e(key, 0);
@@ -82,6 +84,7 @@ namespace Jade {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
+            Input::MouseButtonCallback(button, action, mods);
             switch (action) {
                 case JADE_PRESS: {
                     MouseButtonPressedEvent e(button);
@@ -100,6 +103,7 @@ namespace Jade {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
+            Input::ScrollCallback(xoffset, yoffset);
             MouseScrolledEvent e((float)xoffset, (float)yoffset);
             userWin->m_EventCallback(e);
         });
@@ -108,6 +112,7 @@ namespace Jade {
             JWindow* userWin = static_cast<JWindow*>(glfwGetWindowUserPointer(window));
             Log::Assert(userWin != nullptr, "JWindow is nullpointer in callback.");
 
+            Input::CursorCallback(xpos, ypos);
             MouseMovedEvent e((float)xpos, (float)ypos);
             userWin->m_EventCallback(e);
         });

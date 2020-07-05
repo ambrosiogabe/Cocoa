@@ -20,6 +20,7 @@ namespace Jade {
 
         const glm::vec2& GetGameViewPos() const { return m_GameviewPos; }
         const glm::vec2& GetGameViewSize() const { return m_GameviewSize; }
+        const glm::vec2& GetGameViewMousePos() const { return m_GameviewMousePos; }
 
     private:
         void SetupDockspace();
@@ -28,6 +29,7 @@ namespace Jade {
     private:
         glm::vec2 m_GameviewPos = glm::vec2();
         glm::vec2 m_GameviewSize = glm::vec2();
+        glm::vec2 m_GameviewMousePos = glm::vec2();
         bool m_BlockEvents = false;
 
         void* m_Window;

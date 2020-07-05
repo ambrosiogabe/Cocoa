@@ -62,7 +62,10 @@ namespace Jade {
 
             printf("\n");
 
-            Application::Get()->GetWindow()->Destroy();
+            if (Application::Get() != nullptr)
+            {
+                Application::Get()->GetWindow()->Destroy();
+            }
         }   
     }
 }

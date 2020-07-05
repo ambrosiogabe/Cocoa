@@ -445,7 +445,7 @@ namespace detail
 		{
 			char const * PrefixStr = prefix<T>::value();
 			char const * LiteralStr = literal<T, std::numeric_limits<T>::is_iec559>::value();
-			std::string FormatStr(detail::format("%squat(%s, {%s, %s, %s})",
+			std::string FormatStr(detail::format("%squat(%s, {%s, %s, %s}}",
 				PrefixStr,
 				LiteralStr, LiteralStr, LiteralStr, LiteralStr));
 
@@ -464,7 +464,7 @@ namespace detail
 		{
 			char const * PrefixStr = prefix<T>::value();
 			char const * LiteralStr = literal<T, std::numeric_limits<T>::is_iec559>::value();
-			std::string FormatStr(detail::format("%sdualquat((%s, {%s, %s, %s}), (%s, {%s, %s, %s}))",
+			std::string FormatStr(detail::format("%sdualquat((%s, {%s, %s, %s}}, (%s, {%s, %s, %s}})",
 				PrefixStr,
 				LiteralStr, LiteralStr, LiteralStr, LiteralStr,
 				LiteralStr, LiteralStr, LiteralStr, LiteralStr));

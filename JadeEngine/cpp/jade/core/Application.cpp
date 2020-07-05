@@ -131,7 +131,10 @@ namespace Jade {
 
     Application* Application::s_Instance = nullptr;
     Application* Application::Get() {
-        Log::Assert(s_Instance != nullptr, "Cannot get application. It is nullptr.");
+        if (!s_Instance)
+        {
+            Log::Error("Cannot get application. It is nullptr.");
+        }
         return s_Instance;
     }
 }

@@ -16,6 +16,7 @@ namespace Jade
 		bool PointInCircle(const glm::vec2& point, const Circle& circle);
 		bool PointInBox2D(const glm::vec2& point, const Box2D& box);
 		bool PointInAABB(const glm::vec2& point, const AABB& box);
+		bool PointOnRay(const glm::vec2& point, const Raycast2D& ray);
 
 		bool LineAndCircle(const Line2D& line, const Circle& circle);
 		bool LineAndBox2D(const Line2D& line, const Box2D& box);

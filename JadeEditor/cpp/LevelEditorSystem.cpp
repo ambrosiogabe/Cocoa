@@ -196,6 +196,9 @@ namespace Jade {
     }
 
     bool LevelEditorSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e) {
+        Camera* camera = Application::Get()->GetScene()->GetCamera();
+        glm::vec2 mousePosWorld = camera->ScreenToOrtho();
+
         // if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT) {
         //     float worldX = Input::OrthoMouseX();
         //     float worldY = Input::OrthoMouseY();
