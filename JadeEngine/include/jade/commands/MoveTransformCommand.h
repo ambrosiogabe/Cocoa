@@ -1,7 +1,7 @@
 #pragma once
 
 #include "jade/commands/ICommand.h"
-#include "jade/components/components.h"
+#include "jade/components/Transform.h"
 
 #include <glm/vec3.hpp>
 

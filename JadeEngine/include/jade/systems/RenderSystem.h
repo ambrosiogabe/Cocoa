@@ -4,6 +4,7 @@
 #include "jade/renderer/Camera.h"
 #include "jade/systems/System.h"
 #include "jade/components/components.h"
+#include "jade/components/Transform.h"
 #include "jade/core/Core.h"
 
 #include <vector>

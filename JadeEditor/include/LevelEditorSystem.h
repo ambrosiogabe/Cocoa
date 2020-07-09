@@ -3,6 +3,7 @@
 //#include "Jade.h"
 #include "jade/systems/System.h"
 #include "jade/components/components.h"
+#include "jade/components/Transform.h"
 #include "jade/events/KeyEvent.h"
 #include "jade/events/MouseEvent.h"
 

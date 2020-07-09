@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
+#include "jade/components/Transform.h"
 #include "jade/util/JMath.h"
 
 #include <glm/gtx/norm.hpp>
@@ -9,6 +10,8 @@ namespace Jade
 {
 	namespace CollisionDetector2D
 	{
+		using JP2 = Jade::Physics2DSystem;
+
 		// Helper functions
 		static glm::vec2 GetInterval(const Box2D& box, const glm::vec2& axis)
 		{
@@ -17,7 +20,7 @@ namespace Jade
 			// Get the interval of the box's min and max projected onto the axis provided and 
 			// store in result (result.x = min, result.y = max)
 			glm::vec2 result{};
-			std::array<glm::vec2, 4> vertices = box.GetVertices();
+			std::array<glm::vec2, 4> vertices = JP2::GetVertices(box);
 
 			// Project each vertex of the box onto the axis, and keep track of the smallest
 			// and largest values
@@ -68,7 +71,7 @@ namespace Jade
 
 		bool PointInCircle(const glm::vec2& point, const Circle& circle)
 		{
-			glm::vec2 line = circle.m_Rigidbody->m_Position - point;
+			glm::vec2 line = JP2::GetCenter(circle) - point;
 
 			return glm::length2(line) <= circle.m_Radius * circle.m_Radius;
 		}
@@ -77,25 +80,29 @@ namespace Jade
 		{
 			// Translate the point into local space, then try to clip the point to the rectangle
 			glm::vec2 pointLocalSpace = glm::vec2(point);
-			JMath::Rotate(pointLocalSpace, box.rigidbody->m_Rotation, box.rigidbody->m_Position);
+			JMath::Rotate(pointLocalSpace, JP2::GetRotation(box), JP2::GetCenter(box));
 
-			glm::vec2 min = box.GetMin();
-			glm::vec2 max = box.GetMax();
+			glm::vec2 min = JP2::GetMin(box);
+			glm::vec2 max = JP2::GetMax(box);
 
 			return min.x <= pointLocalSpace.x && min.y <= pointLocalSpace.y &&
 				pointLocalSpace.x <= max.x && pointLocalSpace.y <= max.y;
 		}
 
-		bool PointInAABB(const glm::vec2& point, const AABB& box)
+		bool PointInAABB(const glm::vec2& point, const AABB& box, const entt::registry& registry, entt::entity entity)
 		{
-			glm::vec2 min = box.GetMin();
-			glm::vec2 max = box.GetMax();
+			const Transform& transform = registry.get<Transform>(entity);
+			glm::vec2 boxScale = transform.m_Scale;
+			glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
+			glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
 
-			return min.x <= point.x && min.y <= point.y &&
-				point.x <= max.x && point.y <= max.y;
+			glm::vec2 min = boxCenter - boxHalfSize;
+			glm::vec2 max = boxCenter + boxHalfSize;
+
+			return min.x <= point.x && min.y <= point.y && point.x <= max.x && point.y <= max.y;
 		}
 
-		bool PointOnRay(const glm::vec2& point, const Raycast2D& ray)
+		bool PointOnRay(const glm::vec2& point, const Ray2D& ray)
 		{
 			return false;
 		}
@@ -112,7 +119,7 @@ namespace Jade
 
 			// Project point (circle position) onto ab (line segment), computing the parameterized
 			// position d(t) = a + t * (b - a)
-			float t = glm::dot(circle.m_Rigidbody->m_Position - line.GetStart(), ab) / glm::dot(ab, ab);
+			float t = glm::dot(JP2::GetCenter(circle) - line.GetStart(), ab) / glm::dot(ab, ab);
 
 			// Clamp T to a 0-1 range. If t was < 0 or > 1
 			// then the closest point was outside the segment
@@ -124,19 +131,20 @@ namespace Jade
 			// Find teh closest point on the line segment
 			glm::vec2 closestPoint = line.GetStart() + (ab * t);
 
-			glm::vec2 circleToClosest = circle.m_Rigidbody->m_Position - closestPoint;
+			glm::vec2 circleToClosest = JP2::GetCenter(circle) - closestPoint;
 			return glm::length2(circleToClosest) < circle.m_Radius * circle.m_Radius;
 		}
 
 		bool LineAndBox2D(const Line2D& line, const Box2D& box)
 		{
-			float theta = -box.rigidbody->m_Rotation;
+			float theta = -JP2::GetRotation(box);
+			glm::vec2 boxCenter = JP2::GetCenter(box);
 			glm::vec2 localStart = line.GetStart();
-			JMath::Rotate(localStart, theta, box.rigidbody->m_Position);
+			JMath::Rotate(localStart, theta, boxCenter);
 			glm::vec2 localEnd = line.GetEnd();
-			JMath::Rotate(localEnd, theta, box.rigidbody->m_Position);
+			JMath::Rotate(localEnd, theta, boxCenter);
 			Line2D localLine { localStart, localEnd };
-			AABB localBox { box.GetMin(), box.GetMax() };
+			AABB localBox { JP2::GetMin(box), JP2::GetMin(box) };
 
 			return LineAndAABB(localLine, localBox);
 		}
@@ -148,8 +156,8 @@ namespace Jade
 			normal.x = (normal.x != 0.0f) ? 1.0f / normal.x : 0.0f;
 			normal.y = (normal.y != 0.0f) ? 1.0f / normal.y : 0.0f;
 
-			glm::vec2 min = box.GetMin() - (line.GetStart() * normal);
-			glm::vec2 max = box.GetMax() - (line.GetStart() * normal);
+			glm::vec2 min = JP2::GetMin(box) - (line.GetStart() * normal);
+			glm::vec2 max = JP2::GetMax(box) - (line.GetStart() * normal);
 
 			float tmin = std::max(std::min(min.x, max.x), std::min(min.y, max.y));
 			float tmax = std::min(std::max(min.x, max.x), std::max(min.y, max.y));
@@ -162,22 +170,22 @@ namespace Jade
 		}
 
 
-		bool RayAndCircle(const Raycast2D& ray, const Circle& circle)
+		bool RayAndCircle(const Ray2D& ray, const Circle& circle)
 		{
 			// TODO: IMPLEMENT ME!!
 			return false;
 		}
 
-		bool RayAndBox2D(const Raycast2D& ray, const Box2D& box)
+		bool RayAndBox2D(const Ray2D& ray, const Box2D& box)
 		{
 			// TODO: IMPLEMENT ME!!
 			return false;
 		}
 
-		bool RayAndAABB(const Raycast2D& ray, const AABB& box)
+		bool RayAndAABB(const Ray2D& ray, const AABB& box)
 		{
-			glm::vec2 min = box.GetMin();
-			glm::vec2 max = box.GetMax();
+			glm::vec2 min = JP2::GetMin(box);
+			glm::vec2 max = JP2::GetMax(box);
 			glm::vec2 origin = ray.m_Origin;
 			glm::vec2 dir = ray.m_Direction;
 			float maxDistance = ray.m_MaxDistance;
@@ -212,14 +220,14 @@ namespace Jade
 			return LineAndCircle(line, circle);
 		}
 
-		bool CircleAndRay(const Circle& circle, const Raycast2D& ray)
+		bool CircleAndRay(const Circle& circle, const Ray2D& ray)
 		{
 			return RayAndCircle(ray, circle);
 		}
 
 		bool CircleAndCircle(const Circle& c1, const Circle& c2)
 		{
-			glm::vec2 lineBetweenCenters = c1.m_Rigidbody->m_Position - c2.m_Rigidbody->m_Position;
+			glm::vec2 lineBetweenCenters = JP2::GetCenter(c1) - JP2::GetCenter(c2);
 			float radiiSum = c1.m_Radius + c2.m_Radius;
 			return glm::length2(lineBetweenCenters) <= radiiSum * radiiSum;
 		}
@@ -231,8 +239,8 @@ namespace Jade
 			glm::vec2 max = box.m_HalfSize * 2.0f;
 
 			// Create a circle in box's local space
-			glm::vec2 r = circle.m_Rigidbody->m_Position - box.rigidbody->m_Position;
-			JMath::Rotate(r, -box.rigidbody->m_Rotation, glm::vec2{});
+			glm::vec2 r = JP2::GetCenter(circle) - JP2::GetCenter(box);
+			JMath::Rotate(r, -JP2::GetRotation(box), glm::vec2{});
 			glm::vec2 localCirclePos = r + box.m_HalfSize;
 
 			glm::vec2 closestPointToCircle = localCirclePos;
@@ -265,7 +273,7 @@ namespace Jade
 			glm::vec2 max = box.m_HalfSize * 2.0f;
 
 			// Create a circle in box's local space
-			glm::vec2 localCirclePos = circle.m_Rigidbody->m_Position - box.rigidbody->m_Position;
+			glm::vec2 localCirclePos = JP2::GetCenter(circle) - box.m_Center;
 
 			glm::vec2 closestPointToCircle = localCirclePos;
 			if (closestPointToCircle.x < min.x)
@@ -296,7 +304,7 @@ namespace Jade
 			return CircleAndAABB(circle, box);
 		}
 
-		bool AABBAndRay(const AABB& box, const Raycast2D& ray)
+		bool AABBAndRay(const AABB& box, const Ray2D& ray)
 		{
 			return RayAndAABB(ray, box);
 		}
@@ -324,7 +332,7 @@ namespace Jade
 			return CircleAndBox2D(circle, box);
 		}
 
-		bool Box2DAndRay(const Box2D& box, const Raycast2D& ray)
+		bool Box2DAndRay(const Box2D& box, const Ray2D& ray)
 		{
 			return RayAndBox2D(ray, box);
 		}
@@ -345,17 +353,17 @@ namespace Jade
 			// Generate all the axes to test from box one and box two
 			glm::vec2 boxOneUp{ 0, b1.m_HalfSize.y };
 			glm::vec2 boxOneRight{ b1.m_HalfSize.x, 0 };
-			JMath::Rotate(boxOneUp, b1.rigidbody->m_Rotation, glm::vec2{});
-			JMath::Rotate(boxOneRight, b1.rigidbody->m_Rotation, glm::vec2{});
+			JMath::Rotate(boxOneUp, JP2::GetRotation(b1), glm::vec2{});
+			JMath::Rotate(boxOneRight, JP2::GetRotation(b1), glm::vec2{});
 
 			glm::vec2 boxTwoUp{ 0, b2.m_HalfSize.y };
 			glm::vec2 boxTwoRight{ b2.m_HalfSize.x, 0 };
-			JMath::Rotate(boxTwoUp, b2.rigidbody->m_Rotation, glm::vec2{});
-			JMath::Rotate(boxTwoRight, b2.rigidbody->m_Rotation, glm::vec2{});
+			JMath::Rotate(boxTwoUp, JP2::GetRotation(b2), glm::vec2{});
+			JMath::Rotate(boxTwoRight, JP2::GetRotation(b2), glm::vec2{});
 
 			// Test whether the boxes are intersecting on all axes (including global up and right axes)
 			std::array<glm::vec2, 4> axisToTest { boxOneUp, boxOneRight, boxTwoUp, boxTwoRight };
-			glm::vec2 toCenter = b2.rigidbody->m_Position - b1.rigidbody->m_Position;
+			glm::vec2 toCenter = JP2::GetCenter(b2) - JP2::GetCenter(b1);
 			int axis = -1;
 			float overlap = std::numeric_limits<int>::max();
 			for (int i = 0; i < axisToTest.size(); i++)

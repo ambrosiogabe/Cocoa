@@ -2,6 +2,7 @@
 
 #include "jade/renderer/Texture.h"
 #include "jade/util/Log.h"
+#include "jade/physics2d/Physics2D.h"
 
 #include <entt.h>
 #include <glm/vec4.hpp>
@@ -14,9 +15,10 @@
 namespace Jade {
     struct Sprite {
         const char* m_PictureFile = nullptr;
-        int m_Width = 0;
-        int m_Height = 0;
+        int m_Width = 32;
+        int m_Height = 32;
         Texture* m_Texture = nullptr;
+        BoundingBox m_BoundingBox = BoundingBox();
         glm::vec2 m_TexCoords[4] = {
             glm::vec2(1.0f, 1.0f),
             glm::vec2(1.0f, 0.0f),
@@ -36,19 +38,42 @@ namespace Jade {
             m_Sprites.reserve(numSprites);
 
             m_Texture = texture;
+            const uint8* rawPixels = texture->GetPixelBuffer();
+            // This will be used to house temporary sprite data to calculate bounding boxes for all sprites
+            int bytesPerPixel = m_Texture->BytesPerPixel();
+            std::unique_ptr<uint8[]> tmpSubImage(new uint8[spriteWidth * spriteHeight * bytesPerPixel]);
+
             int currentX = 0;
             int currentY = m_Texture->GetHeight() - spriteHeight;
-            for (int i=0; i < numSprites; i++) {
+            for (int i=0; i < numSprites; i++) 
+            {
                 float topY = (currentY + spriteHeight) / (float)texture->GetHeight();
                 float rightX = (currentX + spriteWidth) / (float)texture->GetWidth();
                 float leftX = currentX / (float)texture->GetWidth();
                 float bottomY = currentY / (float)texture->GetHeight();
 
+                for (int y = 0; y < spriteHeight; y++)
+                {
+                    for (int x = 0; x < spriteWidth; x++)
+                    {
+                        int absY = y + currentY;
+                        int absX = x + currentX;
+                        const uint8* pixel = rawPixels + ((absX + absY * m_Texture->GetWidth()) * bytesPerPixel);
+                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 0] = *(pixel + 0); // R
+                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 1] = *(pixel + 1); // G
+                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 2] = *(pixel + 2); // B
+                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 3] = *(pixel + 3); // A
+                    }
+                }
+                BoundingBox boundingBox = Physics2D::GetBoundingBoxForPixels(tmpSubImage.get(), spriteWidth, spriteHeight, texture->BytesPerPixel());
+
                 Sprite sprite = {
                     texture->GetFilepath(),
                     spriteWidth,
                     spriteHeight,
-                    texture, {
+                    texture,
+                    boundingBox, 
+                    {
                         glm::vec2(rightX, topY),
                         glm::vec2(rightX, bottomY),
                         glm::vec2(leftX, bottomY),
@@ -63,10 +88,16 @@ namespace Jade {
                     currentY -= spriteHeight + spacing;
                 }
             }
+            m_Texture->FreePixels();
         }
 
-        Sprite* GetSprite(int index) {
-            return &m_Sprites[index];
+        Sprite& GetSprite(int index) {
+            return m_Sprites[index];
+        }
+
+        int Size()
+        {
+            return m_Sprites.size();
         }
     };
 
@@ -75,60 +106,4 @@ namespace Jade {
         glm::vec4 m_Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
         Sprite* m_Sprite = defaultSprite;
     };
-
-    struct Transform {
-        Transform() {
-            Init(glm::vec3(0), glm::vec3(1), glm::vec3(0));
-        }
-
-        Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name="New GameObject", 
-                    entt::entity parent=entt::null, entt::entity previous=entt::null) {
-            Init(position, scale, eulerRotation, name, parent, previous);
-        }
-
-        void UpdateMatrices() {
-            m_ModelMatrix = glm::translate(glm::mat4(1.0f), m_Position);
-            m_ModelMatrix = m_ModelMatrix * glm::toMat4(m_Orientation);
-            m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
-        }
-
-        entt::entity m_Parent;
-        entt::entity m_Previous;
-        entt::entity m_Next;
-        entt::entity m_First;
-
-        glm::vec3 m_Position;
-        glm::vec3 m_Scale;
-        glm::vec3 m_EulerRotation;
-        glm::quat m_Orientation;
-
-        glm::vec3 m_Forward;
-        glm::vec3 m_Up;
-        glm::vec3 m_Right;
-
-        glm::mat4 m_ModelMatrix;
-        glm::mat4 m_InverseModelMatrix;
-        const char* m_Name;
-
-    private:
-        void Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name="New GameObject", 
-            entt::entity parent=entt::null, entt::entity previous=entt::null) {
-            m_Position = position;
-            m_Scale = scale;
-            m_EulerRotation = eulerRotation;
-            m_Orientation = glm::toQuat(glm::orientate3(m_EulerRotation));
-
-            m_Forward = glm::vec3(0, 0, 1) * m_Orientation;
-            m_Up = glm::vec3(0, 1, 0) * m_Orientation;
-            m_Right = glm::vec3(1, 0, 0) * m_Orientation;
-            m_Name = name;
-            m_Parent = parent;
-            m_Previous = previous;
-            m_First = entt::null;
-            m_Next = entt::null;
-
-            this->UpdateMatrices();
-        }
-    };
-
 }

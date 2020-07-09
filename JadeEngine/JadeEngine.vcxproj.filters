@@ -163,18 +163,6 @@
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\physics2d\primitives\AABB.h">
-      <Filter>include\jade\physics2d\primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\physics2d\primitives\Box2D.h">
-      <Filter>include\jade\physics2d\primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\physics2d\primitives\Circle.h">
-      <Filter>include\jade\physics2d\primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\physics2d\primitives\Raycast2D.h">
-      <Filter>include\jade\physics2d\primitives</Filter>
-    </ClInclude>
     <ClInclude Include="include\jade\physics2d\rigidbody\CollisionDetector2D.h">
       <Filter>include\jade\physics2d\rigidbody</Filter>
     </ClInclude>
@@ -207,9 +195,6 @@
     </ClInclude>
     <ClInclude Include="include\jade\systems\System.h">
       <Filter>include\jade\systems</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\util\Constants.h">
-      <Filter>include\jade\util</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\JMath.h">
       <Filter>include\jade\util</Filter>
@@ -1336,6 +1321,12 @@
     <ClInclude Include="include\jade\unitTests\CollisionDetector2DTester.h" />
     <ClInclude Include="include\jade\unitTests\TestMain.h" />
     <ClInclude Include="include\jade\unitTests\TestFactory.h" />
+    <ClInclude Include="include\jade\physics2d\Physics2D.h" />
+    <ClInclude Include="include\jade\util\Settings.h">
+      <Filter>include\jade\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\components\Transform.h" />
+    <ClInclude Include="include\jade\physics2d\Physics2DSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\ChangeSpriteColorCommand.cpp">
@@ -1401,9 +1392,6 @@
     <ClCompile Include="cpp\jade\systems\RenderSystem.cpp">
       <Filter>cpp\jade\systems</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\util\Constants.cpp">
-      <Filter>cpp\jade\util</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\jade\util\JMath.cpp">
       <Filter>cpp\jade\util</Filter>
     </ClCompile>
@@ -1419,5 +1407,8 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\physics2d\Physics2D.cpp" />
+    <ClCompile Include="cpp\jade\util\Settings.cpp" />
+    <ClCompile Include="cpp\jade\physics2d\Physics2DSystem.cpp" />
   </ItemGroup>
 </Project>

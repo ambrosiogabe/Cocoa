@@ -1,6 +1,7 @@
 #include "jade/core/MenuBar.h"
 #include "jade/components/components.h"
-#include "jade/util/Constants.h"
+#include "jade/components/Transform.h"
+#include "jade/util/Settings.h"
 #include "jade/core/Application.h"
 
 #include <entt.h>
@@ -10,9 +11,11 @@ namespace Jade {
     void MenuBar::SettingsWindow() {
         ImGui::Begin("Settings", &m_SettingsOpen);
         if (ImGui::DragInt2("Grid Size: ", m_GridSize)) {
-            Constants::GridSizeX = m_GridSize[0];
-            Constants::GridSizeY = m_GridSize[1];
+            Settings::GridSizeX = m_GridSize[0];
+            Settings::GridSizeY = m_GridSize[1];
         }
+
+        ImGui::Checkbox("Draw Grid: ", &Settings::DrawGrid);
         ImGui::End();   
     }
 

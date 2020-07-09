@@ -8,7 +8,7 @@
 
 #include "jade/renderer/DebugDraw.h"
 
-#include "jade/util/Constants.h"
+#include "jade/util/Settings.h"
 
 // ----------------Events-----------------------
 #include "jade/events/Event.h"

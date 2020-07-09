@@ -78,21 +78,22 @@ namespace Jade {
         if (isRotated) {
             matrix = glm::translate(matrix, transform.m_Position);
             matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));
-            matrix = glm::scale(matrix, transform.m_Scale);
+            matrix = glm::scale(matrix, transform.m_Scale * glm::vec3(sprite->m_Width, sprite->m_Height, 1));
         }
 
-        float xAdd = 1.0f;
-        float yAdd = 0.0f;
+        float xAdd = 0.5f;
+        float yAdd = -0.5f;
         for (int i=0; i < 4; i++) {
             if (i == 1) {
-                yAdd = 1.0f;
+                yAdd = 0.5f;
             } else if (i == 2) {
-                xAdd = 0.0f;
+                xAdd = -0.5f;
             } else if (i == 3) {
-                yAdd = 0.0f;
+                yAdd = -0.5f;
             }
 
-            glm::vec4 currentPos = glm::vec4(transform.m_Position.x + (xAdd * transform.m_Scale.x), transform.m_Position.y + (yAdd * transform.m_Scale.y), 0.0f, 1.0f);
+            glm::vec4 currentPos = glm::vec4(transform.m_Position.x + (xAdd * transform.m_Scale.x * sprite->m_Width), 
+                transform.m_Position.y + (yAdd * transform.m_Scale.y * sprite->m_Height), 0.0f, 1.0f);
             if (isRotated) {
                 currentPos = matrix * glm::vec4(xAdd, yAdd, 0.0f, 1.0f);
             }

@@ -2,11 +2,8 @@
 
 #include "TestFactory.h"
 #include "jade/renderer/Line2D.h"
-#include "jade/physics2d/primitives/AABB.h"
-#include "jade/physics2d/primitives/Circle.h"
-#include "jade/physics2d/primitives/Box2D.h"
-#include "jade/physics2d/primitives/Raycast2D.h"
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
+#include "jade/physics2d/Physics2DSystem.h"
 
 #include <glm/vec2.hpp>
 

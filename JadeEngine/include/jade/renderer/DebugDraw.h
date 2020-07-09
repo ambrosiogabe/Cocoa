@@ -19,6 +19,13 @@ namespace Jade {
         static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3& color, int lifetime);
         // ---------------------------------------------------------------------------------------------------------------
 
+        // ------Add Box2D methods---------------------------------------------------------------------------------------
+        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation);
+        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth);
+        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color);
+        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color, int lifetime);
+        // ---------------------------------------------------------------------------------------------------------------
+
     private:
         static void Start();
         static int* GetIndicesBuffer();

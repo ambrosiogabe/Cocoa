@@ -1,5 +1,6 @@
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/Application.h"
+#include "jade/util/JMath.h"
 
 #include <glad/glad.h>
 
@@ -144,6 +145,53 @@ namespace Jade {
         if (m_NumLines >= MAX_LINES) return;
         m_Lines[m_NumLines] = Line2D(from, to, color, strokeWidth, lifetime);
         m_NumLines++;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+
+    // ------Add Box2D methods---------------------------------------------------------------------------------------
+
+    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation)
+    {
+        glm::vec3 green = glm::vec3(0, 1, 0);
+        AddBox2D(center, dimensions, rotation, 1.0f, green, 1);
+    }
+
+    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth)
+    {
+        glm::vec3 green = glm::vec3(0, 1, 0);
+        AddBox2D(center, dimensions, rotation, strokeWidth, green, 1);
+    }
+
+    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color)
+    {
+        AddBox2D(center, dimensions, rotation, strokeWidth, color, 1);
+    }
+
+    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color, int lifetime)
+    {
+        if (m_NumLines >= MAX_LINES - 4) return;
+
+        glm::vec2 min = center - (dimensions / 2.0f);
+        glm::vec2 max = center + (dimensions / 2.0f);
+
+        std::array<glm::vec2, 4> vertices = {
+            glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
+            glm::vec2(max.x, max.y), glm::vec2(max.x, min.y)
+        };
+
+        if (!JMath::Compare(rotation, 0.0f))
+        {
+        	for (auto& vec : vertices)
+        	{
+        		JMath::Rotate(vec, rotation, center);
+        	}
+        }
+
+        AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime);
+        AddLine2D(vertices[0], vertices[3], strokeWidth, color, lifetime);
+        AddLine2D(vertices[1], vertices[2], strokeWidth, color, lifetime);
+        AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime);
     }
 
     // ---------------------------------------------------------------------------------------------------------------

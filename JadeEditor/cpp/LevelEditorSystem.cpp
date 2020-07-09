@@ -42,30 +42,35 @@ namespace Jade {
         }
 
         // Draw grid lines
-        Transform& cameraTransform = Application::Get()->GetScene()->GetCamera()->GetTransform();
-        float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom();
-        int gridWidth = Constants::GridSizeX * cameraZoom;
-        int gridHeight = Constants::GridSizeY * cameraZoom;
+        if (Settings::DrawGrid)
+        {
+            Transform& cameraTransform = Application::Get()->GetScene()->GetCamera()->GetTransform();
+            float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom();
+            int gridWidth = Settings::GridSizeX;// *cameraZoom;
+            int gridHeight = Settings::GridSizeY;// *cameraZoom;
 
-        float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom*1920.0f/2.0f) / gridWidth) - 1) * (float)gridWidth;
-        float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom*1080.0f/2.0f) / gridHeight) - 1) * (float)gridHeight;
+            float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
+            float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;
 
-        int yLinesNeeded = (int)((cameraZoom*1920 + gridWidth) / gridWidth);
-        int xLinesNeeded = (int)((cameraZoom*1080 + gridHeight) / gridHeight);
+            int yLinesNeeded = (int)((cameraZoom * 1920 + gridWidth) / gridWidth);
+            int xLinesNeeded = (int)((cameraZoom * 1080 + gridHeight) / gridHeight);
 
-        for (int i=0; i < yLinesNeeded; i++) {
-            float x = (i * gridWidth) + firstX;
-            float y = (i * gridHeight) + firstY;
-            glm::vec2 from(x, firstY - gridHeight);
-            glm::vec2 to(x, firstY + 1080 + gridWidth);
-            glm::vec3 color(0.2f, 0.2f, 0.2f);
-            DebugDraw::AddLine2D(from, to, 1.0f, color);
+            for (int i = 0; i < yLinesNeeded; i++)
+            {
+                float x = (i * gridWidth) + firstX + (gridWidth / 2.0f);
+                float y = (i * gridHeight) + firstY + (gridHeight / 2.0f);
+                glm::vec2 from(x, firstY - gridHeight);
+                glm::vec2 to(x, firstY + 1080 + gridWidth);
+                glm::vec3 color(0.2f, 0.2f, 0.2f);
+                DebugDraw::AddLine2D(from, to, 1.0f, color);
 
-            if (i <= xLinesNeeded) {
-                glm::vec2 from2(firstX - gridWidth, y);
-                glm::vec2 to2(firstX + 1920 + gridHeight, y);
-                glm::vec3 color2(0.2f, 0.2f, 0.2f);
-                DebugDraw::AddLine2D(from2, to2, 1.0f, color2);
+                if (i <= xLinesNeeded)
+                {
+                    glm::vec2 from2(firstX - gridWidth, y);
+                    glm::vec2 to2(firstX + 1920 + gridHeight, y);
+                    glm::vec3 color2(0.2f, 0.2f, 0.2f);
+                    DebugDraw::AddLine2D(from2, to2, 1.0f, color2);
+                }
             }
         }
     }
@@ -199,25 +204,18 @@ namespace Jade {
         Camera* camera = Application::Get()->GetScene()->GetCamera();
         glm::vec2 mousePosWorld = camera->ScreenToOrtho();
 
-        // if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT) {
-        //     float worldX = Input::OrthoMouseX();
-        //     float worldY = Input::OrthoMouseY();
+         if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT) {
+             std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
+             if (entt::to_integral(result.second) != entt::to_integral(entt::null))
+             {
+                 Application::Get()->GetScene()->SetActiveEntity(result.second);
 
-        //     auto view = registry.view<Transform>();
-        //     for (auto entity : view) {
-        //         Transform& transform = view.get<Transform>(entity);
-        //         if (worldX >= transform.m_Position.x && worldX <= transform.m_Position.x + transform.m_Scale.x && 
-        //             worldY >= transform.m_Position.y && worldY <= transform.m_Position.y + transform.m_Scale.y) {
-        //             Application::Get()->GetScene()->SetActiveEntity(entity);
-        //             m_DebounceLeft = m_DebounceTime;
-
-        //             m_IsDragging = true;
-        //             m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;
-        //             m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
-        //             break;
-        //         }
-        //     }
-        // }
+                 const Transform& transform = result.first.get<Transform>(result.second);
+                 m_IsDragging = true;
+                 m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;
+                 m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
+             }
+         }
 
         return false;
     }
