@@ -3,21 +3,27 @@
 #include "jade/core/Application.h"
 #include "jade/components/components.h"
 #include "jade/commands/CommandHistory.h"
-#include "jade/commands/ChangeSpriteColorCommand.h"
+#include "jade/commands/ChangeVec4Command.h"
+#include "jade/core/ImGuiExtended.h"
 
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace Jade {
+namespace Jade 
+{
     const int RenderSystem::MAX_BATCH_SIZE = 1000;
 
-    void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr) {    
+    void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr) 
+    {    
         Sprite* sprite = spr.m_Sprite;
         bool wasAdded = false;
-        for (RenderBatch* batch : m_Batches) {
-            if (batch->HasRoom()) {
+        for (RenderBatch* batch : m_Batches) 
+        {
+            if (batch->HasRoom()) 
+            {
                 Texture* tex = sprite->m_Texture;
-                if (tex == nullptr || (batch->HasTexture(tex) || batch->HasTextureRoom())) {
+                if (tex == nullptr || (batch->HasTexture(tex) || batch->HasTextureRoom())) 
+                {
                     batch->Add(transform, spr);
                     wasAdded = true;
                     break;
@@ -25,7 +31,8 @@ namespace Jade {
             }
         }
 
-        if (!wasAdded) {
+        if (!wasAdded) 
+        {
             RenderBatch* newBatch = new RenderBatch(this);
             newBatch->Start();
             newBatch->Add(transform, spr);
@@ -33,8 +40,10 @@ namespace Jade {
         }
     }
 
-    void RenderSystem::Render(entt::registry& registry) {
-        registry.group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, auto& spr, auto& transform) {
+    void RenderSystem::Render(entt::registry& registry) 
+    {
+        registry.group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, auto& spr, auto& transform) 
+        {
             this->AddEntity(transform, spr);
         });
 
@@ -43,7 +52,8 @@ namespace Jade {
         m_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
         m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
-        for (RenderBatch* batch : m_Batches) {
+        for (RenderBatch* batch : m_Batches) 
+        {
             batch->Render();
             batch->Clear();
         }
@@ -51,20 +61,18 @@ namespace Jade {
         m_Shader->Unbind();
     }
 
-    void RenderSystem::ImGui(entt::registry& registry) {
+    void RenderSystem::ImGui(entt::registry& registry) 
+    {
         entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
 
-        if (registry.has<SpriteRenderer>(activeEntity)) {
-            if (ImGui::CollapsingHeader("Sprite Renderer")) {
+        if (registry.has<SpriteRenderer>(activeEntity)) 
+        {
+            static bool collapsingHeaderOpen = true;
+            ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
+            if (ImGui::CollapsingHeader("Sprite Renderer")) 
+            {
                 SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
-                glm::vec4 color = glm::vec4(spr.m_Color);
-                if (ImGui::ColorPicker4("Sprite Color: ", glm::value_ptr(color))) {
-                    CommandHistory::AddCommand(new ChangeSpriteColorCommand(spr, color));
-                }
-
-                if (ImGui::IsItemDeactivatedAfterEdit()) {
-                    CommandHistory::SetNoMergeMostRecent();
-                }
+                ImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
             }
         }
     }

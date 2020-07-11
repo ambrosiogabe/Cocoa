@@ -2,6 +2,7 @@
 
 #include "jade/renderer/Line2D.h"
 #include "jade/physics2d/Physics2DSystem.h"
+#include "jade/components/Transform.h"
 
 #include <glm/vec2.hpp>
 
@@ -12,7 +13,7 @@ namespace Jade
 		bool PointOnLine(const glm::vec2& point, const Line2D& line);
 		bool PointInCircle(const glm::vec2& point, const Circle& circle);
 		bool PointInBox2D(const glm::vec2& point, const Box2D& box);
-		bool PointInAABB(const glm::vec2& point, const AABB& box, const entt::registry& registry, entt::entity entity);
+		bool PointInAABB(const glm::vec2& point, const AABB& box);
 		bool PointOnRay(const glm::vec2& point, const Ray2D& ray);
 
 		bool LineAndCircle(const Line2D& line, const Circle& circle);

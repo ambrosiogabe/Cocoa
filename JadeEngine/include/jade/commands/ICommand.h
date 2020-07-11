@@ -12,14 +12,8 @@ namespace Jade {
         virtual void undo() = 0;
         virtual bool mergeWith(ICommand* other) = 0;
 
-        void SetNoMerge();
-        bool CanMerge() const;
-
-        template<class T>
-        static int64 ID();
-
-        template<typename T>
-        static int64 ID(T object);
+        void SetNoMerge() { m_CanMerge = false; }
+        bool CanMerge() const { return m_CanMerge; }
 
     private:
         static int64 m_Id;

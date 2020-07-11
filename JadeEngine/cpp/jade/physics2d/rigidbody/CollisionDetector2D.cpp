@@ -89,15 +89,10 @@ namespace Jade
 				pointLocalSpace.x <= max.x && pointLocalSpace.y <= max.y;
 		}
 
-		bool PointInAABB(const glm::vec2& point, const AABB& box, const entt::registry& registry, entt::entity entity)
+		bool PointInAABB(const glm::vec2& point, const AABB& box)
 		{
-			const Transform& transform = registry.get<Transform>(entity);
-			glm::vec2 boxScale = transform.m_Scale;
-			glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
-			glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
-
-			glm::vec2 min = boxCenter - boxHalfSize;
-			glm::vec2 max = boxCenter + boxHalfSize;
+			glm::vec2 min = JP2::GetMin(box);
+			glm::vec2 max = JP2::GetMax(box);
 
 			return min.x <= point.x && min.y <= point.y && point.x <= max.x && point.y <= max.y;
 		}
@@ -273,7 +268,7 @@ namespace Jade
 			glm::vec2 max = box.m_HalfSize * 2.0f;
 
 			// Create a circle in box's local space
-			glm::vec2 localCirclePos = JP2::GetCenter(circle) - box.m_Center;
+			glm::vec2 localCirclePos = JP2::GetCenter(circle) - JP2::GetCenter(box);
 
 			glm::vec2 closestPointToCircle = localCirclePos;
 			if (closestPointToCircle.x < min.x)
@@ -365,7 +360,7 @@ namespace Jade
 			std::array<glm::vec2, 4> axisToTest { boxOneUp, boxOneRight, boxTwoUp, boxTwoRight };
 			glm::vec2 toCenter = JP2::GetCenter(b2) - JP2::GetCenter(b1);
 			int axis = -1;
-			float overlap = std::numeric_limits<int>::max();
+			float overlap = std::numeric_limits<float>::max();
 			for (int i = 0; i < axisToTest.size(); i++)
 			{
 				// Intervals don't overlap separating axis found

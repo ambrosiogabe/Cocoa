@@ -61,9 +61,6 @@
     <Filter Include="include\jade\physics2d">
       <UniqueIdentifier>{D47C7430-C076-9D82-A9E3-3393957C03EF}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\jade\physics2d\primitives">
-      <UniqueIdentifier>{4FF2AFB5-BB60-0535-044A-C03470F7FAD0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\jade\physics2d\rigidbody">
       <UniqueIdentifier>{602E4623-4C7F-3165-75E3-1F276193C4CE}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,9 @@
     </Filter>
     <Filter Include="include\jade\systems">
       <UniqueIdentifier>{13316D22-FFBF-F6EB-A8DE-0AE7944C0792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\jade\unitTests">
+      <UniqueIdentifier>{6E2AA431-5A24-CD83-4391-63942F2A33F0}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\jade\util">
       <UniqueIdentifier>{D9ED9097-4504-8F2D-8E7B-1A4FFAD05FB5}</UniqueIdentifier>
@@ -109,7 +109,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jade.h" />
-    <ClInclude Include="include\jade\commands\ChangeSpriteColorCommand.h">
+    <ClInclude Include="include\jade\commands\ChangeFloatCommand.h">
+      <Filter>include\jade\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\commands\ChangeVec2Command.h">
+      <Filter>include\jade\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\commands\ChangeVec3Command.h">
+      <Filter>include\jade\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\commands\ChangeVec4Command.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\commands\CommandHistory.h">
@@ -118,8 +127,8 @@
     <ClInclude Include="include\jade\commands\ICommand.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\commands\MoveTransformCommand.h">
-      <Filter>include\jade\commands</Filter>
+    <ClInclude Include="include\jade\components\Transform.h">
+      <Filter>include\jade\components</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\components\components.h">
       <Filter>include\jade\components</Filter>
@@ -163,6 +172,12 @@
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\physics2d\Physics2D.h">
+      <Filter>include\jade\physics2d</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\physics2d\Physics2DSystem.h">
+      <Filter>include\jade\physics2d</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\physics2d\rigidbody\CollisionDetector2D.h">
       <Filter>include\jade\physics2d\rigidbody</Filter>
     </ClInclude>
@@ -196,10 +211,22 @@
     <ClInclude Include="include\jade\systems\System.h">
       <Filter>include\jade\systems</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\unitTests\CollisionDetector2DTester.h">
+      <Filter>include\jade\unitTests</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\unitTests\TestFactory.h">
+      <Filter>include\jade\unitTests</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\unitTests\TestMain.h">
+      <Filter>include\jade\unitTests</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\util\JMath.h">
       <Filter>include\jade\util</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\Log.h">
+      <Filter>include\jade\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\util\Settings.h">
       <Filter>include\jade\util</Filter>
     </ClInclude>
     <ClInclude Include="include\platform\Window.h">
@@ -1318,30 +1345,15 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\unitTests\CollisionDetector2DTester.h" />
-    <ClInclude Include="include\jade\unitTests\TestMain.h" />
-    <ClInclude Include="include\jade\unitTests\TestFactory.h" />
-    <ClInclude Include="include\jade\physics2d\Physics2D.h" />
-    <ClInclude Include="include\jade\util\Settings.h">
-      <Filter>include\jade\util</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\components\Transform.h" />
-    <ClInclude Include="include\jade\physics2d\Physics2DSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cpp\jade\commands\ChangeSpriteColorCommand.cpp">
-      <Filter>cpp\jade\commands</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
       <Filter>cpp\jade\commands</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\commands\ICommand.cpp">
-      <Filter>cpp\jade\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\jade\commands\MoveTransformCommand.cpp">
-      <Filter>cpp\jade\commands</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\jade\core\Application.cpp">
+      <Filter>cpp\jade\core</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\core\ImGuiExtended.cpp">
       <Filter>cpp\jade\core</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\core\ImGuiLayer.cpp">
@@ -1364,6 +1376,12 @@
     </ClCompile>
     <ClCompile Include="cpp\jade\events\WindowEvent.cpp">
       <Filter>cpp\jade\events</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\physics2d\Physics2D.cpp">
+      <Filter>cpp\jade\physics2d</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\physics2d\Physics2DSystem.cpp">
+      <Filter>cpp\jade\physics2d</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\physics2d\rigidbody\CollisionDetector2D.cpp">
       <Filter>cpp\jade\physics2d\rigidbody</Filter>
@@ -1398,6 +1416,9 @@
     <ClCompile Include="cpp\jade\util\Log.cpp">
       <Filter>cpp\jade\util</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\util\Settings.cpp">
+      <Filter>cpp\jade\util</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\platform\Window.cpp">
       <Filter>cpp\platform</Filter>
     </ClCompile>
@@ -1407,8 +1428,5 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\physics2d\Physics2D.cpp" />
-    <ClCompile Include="cpp\jade\util\Settings.cpp" />
-    <ClCompile Include="cpp\jade\physics2d\Physics2DSystem.cpp" />
   </ItemGroup>
 </Project>

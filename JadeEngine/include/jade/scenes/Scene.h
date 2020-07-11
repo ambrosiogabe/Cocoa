@@ -22,6 +22,15 @@ namespace Jade {
 
         const std::vector<std::unique_ptr<System>>& GetSystems();
 
+    public:
+        template<typename T>
+        std::pair<entt::registry&, entt::entity> GetEntity(const T& component)
+        {
+            size_t offset = &component - m_Registry.raw<T>();
+            Log::Assert(offset < m_Registry.size(), "Tried to get nonexistent entity.");
+            return { m_Registry, *(m_Registry.data<T>() + offset) };
+        }
+
     protected:
         std::vector<std::unique_ptr<System>> m_Systems;
 

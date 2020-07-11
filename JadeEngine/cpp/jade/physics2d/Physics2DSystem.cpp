@@ -1,16 +1,69 @@
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/components/Transform.h"
+#include "jade/core/Application.h"
+#include "jade/util/JMath.h"
+#include "jade/commands/CommandHistory.h"
+#include "jade/commands/ChangeVec2Command.h"
+#include "jade/commands/ChangeFloatCommand.h"
+#include "jade/core/ImGuiExtended.h"
+
+#include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Jade
 {
-	void Physics2DSystem::Update(entt::registry& registry, float dt)
+	void Physics2DSystem::ImGui(entt::registry& registry)
 	{
-		registry.group<BoundingBox>(entt::get<Transform>).each([](auto entity, BoundingBox& aabb, Transform& transform)
-		{
-				//aabb.SyncTransform(transform);
-		});
-	}
+		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
 
+		if (registry.has<Rigidbody2D>(activeEntity))
+		{
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("Rigidbody 2D"))
+			{
+				Rigidbody2D& rb = registry.get<Rigidbody2D>(activeEntity);
+				ImGui::UndoableDragFloat2("Velocity: ", rb.m_Velocity);
+				ImGui::UndoableDragFloat("Friction: ", rb.m_Friction);
+			}
+		}
+
+		if (registry.has<AABB>(activeEntity))
+		{
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("AABB"))
+			{
+				AABB& box = registry.get<AABB>(activeEntity);
+				ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				ImGui::UndoableDragFloat2("Size: ", box.m_Size);
+			}
+		}
+
+		if (registry.has<Box2D>(activeEntity))
+		{
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("Box2D"))
+			{
+				Box2D& box = registry.get<Box2D>(activeEntity);
+				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				ImGui::UndoableDragFloat2("Size: ", box.m_Size);
+			}
+		}
+
+		if (registry.has<Circle>(activeEntity))
+		{
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("Circle"))
+			{
+				Circle& circle = registry.get<Circle>(activeEntity);
+				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				ImGui::UndoableDragFloat("Radius: ", circle.m_Radius);
+			}
+		}
+	}
 
 	// ----------------------------------------------------------------------------
 	// Box2D Helpers
@@ -33,20 +86,32 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetMin(const Box2D& box)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
-		//return rigidbody->m_Position - m_HalfSize;
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		Transform& transform = result.first.get<Transform>(result.second);
+
+		glm::vec2 boxScale = transform.m_Scale;
+		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position);// +(box.m_Offset * boxScale);
+		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
+
+		return boxCenter - boxHalfSize;
 	}
 
 	glm::vec2 Physics2DSystem::GetMax(const Box2D& box)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
-		//return rigidbody->m_Position + m_HalfSize;
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		Transform& transform = result.first.get<Transform>(result.second);
+
+		glm::vec2 boxScale = transform.m_Scale;
+		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position);// +(box.m_Offset * boxScale);
+		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
+
+		return boxCenter + boxHalfSize;
 	}
 
 	std::array<glm::vec2, 4> Physics2DSystem::GetVertices(const Box2D& box)
 	{
+		glm::vec center = GetCenter(box);
+		float rotation = GetRotation(box);
 		glm::vec2 min = GetMin(box);
 		glm::vec2 max = GetMax(box);
 
@@ -55,31 +120,33 @@ namespace Jade
 			glm::vec2(max.x, max.y), glm::vec2(max.x, min.y)
 		};
 
-		//if (!JMath::Compare(rigidbody->m_Rotation, 0.0f))
-		//{
-		//	for (auto& vec : vertices)
-		//	{
-		//		JMath::Rotate(vec, rigidbody->m_Rotation, rigidbody->m_Position);
-		//	}
-		//}
+		if (!JMath::Compare(GetRotation(box), 0.0f))
+		{
+			for (auto& vec : vertices)
+			{
+				JMath::Rotate(vec, rotation, center);
+			}
+		}
 
 		return vertices;
 	}
 
 	glm::vec2 Physics2DSystem::GetCenter(const Box2D& box)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		auto& transform = result.first.get<Transform>(result.second);
+		return JMath::Vector2From3(transform.m_Position);
 	}
 
 	float Physics2DSystem::GetRotation(const Box2D& box)
 	{
-		// TODO: IMPLEMENT ME
-		return 0.0f;
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		auto& transform = result.first.get<Transform>(result.second);
+		return transform.m_EulerRotation.z;
 	}
 
 	// ----------------------------------------------------------------------------
-	// AABB Helpers
+	// AABB Helpers and BoundingBox Helpers
 	// ----------------------------------------------------------------------------
 	AABB Physics2DSystem::AABBFrom(glm::vec2 min, glm::vec2 max)
 	{
@@ -100,38 +167,43 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetMax(const AABB& box)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
-		//return m_Center - m_HalfSize;
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		Transform& transform = result.first.get<Transform>(result.second);
+
+		glm::vec2 boxScale = transform.m_Scale;
+		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
+		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
+
+		return boxCenter + boxHalfSize;
 	}
 
 	glm::vec2 Physics2DSystem::GetMin(const AABB& box)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
-		//return m_Center + m_HalfSize;	
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		Transform& transform = result.first.get<Transform>(result.second);
+
+		glm::vec2 boxScale = transform.m_Scale;
+		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
+		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
+
+		return boxCenter - boxHalfSize;
 	}
 
 	glm::vec2 Physics2DSystem::GetCenter(const AABB& box)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
+		auto result = Application::Get()->GetScene()->GetEntity(box);
+		auto& transform = result.first.get<Transform>(result.second);
+		return JMath::Vector2From3(transform.m_Position);
 	}
-
-	// TODO: COME UP WITH BETTER SOLUTION
-	//void SyncTransform(const Transform& transform)
-	//{
-	//	m_Center.x = transform.m_Position.x;
-	//	m_Center.y = transform.m_Position.y;
-	//}
 
 	// ----------------------------------------------------------------------------
 	// Circle Helpers
 	// ----------------------------------------------------------------------------
 	glm::vec2 Physics2DSystem::GetCenter(const Circle& circle)
 	{
-		// TODO: IMPLEMENT ME
-		return glm::vec2();
+		auto result = Application::Get()->GetScene()->GetEntity(circle);
+		auto& transform = result.first.get<Transform>(result.second);
+		return JMath::Vector2From3(transform.m_Position);
 	}
 
 	// ----------------------------------------------------------------------------

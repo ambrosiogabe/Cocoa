@@ -18,7 +18,7 @@ namespace Jade {
         int m_Width = 32;
         int m_Height = 32;
         Texture* m_Texture = nullptr;
-        BoundingBox m_BoundingBox = BoundingBox();
+        AABB m_BoundingBox = Physics2DSystem::AABBFrom({ 0, 0 }, { m_Width, m_Height });
         glm::vec2 m_TexCoords[4] = {
             glm::vec2(1.0f, 1.0f),
             glm::vec2(1.0f, 0.0f),
@@ -39,9 +39,11 @@ namespace Jade {
 
             m_Texture = texture;
             const uint8* rawPixels = texture->GetPixelBuffer();
-            // This will be used to house temporary sprite data to calculate bounding boxes for all sprites
+
             int bytesPerPixel = m_Texture->BytesPerPixel();
-            std::unique_ptr<uint8[]> tmpSubImage(new uint8[spriteWidth * spriteHeight * bytesPerPixel]);
+            int area = spriteWidth * spriteHeight * bytesPerPixel;
+            // This will be used to house temporary sprite data to calculate bounding boxes for all sprites
+            std::unique_ptr<uint8> tmpSubImage(new uint8[area]);
 
             int currentX = 0;
             int currentY = m_Texture->GetHeight() - spriteHeight;
@@ -58,14 +60,15 @@ namespace Jade {
                     {
                         int absY = y + currentY;
                         int absX = x + currentX;
-                        const uint8* pixel = rawPixels + ((absX + absY * m_Texture->GetWidth()) * bytesPerPixel);
-                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 0] = *(pixel + 0); // R
-                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 1] = *(pixel + 1); // G
-                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 2] = *(pixel + 2); // B
-                        tmpSubImage[(x + y * spriteWidth) * bytesPerPixel + 3] = *(pixel + 3); // A
+                        int offset = (absX + absY * m_Texture->GetWidth()) * bytesPerPixel;
+                        const uint8* pixel = rawPixels + offset;
+                        tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 0] = *(pixel + 0); // R
+                        tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 1] = *(pixel + 1); // G
+                        tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 2] = *(pixel + 2); // B
+                        tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 3] = *(pixel + 3); // A
                     }
                 }
-                BoundingBox boundingBox = Physics2D::GetBoundingBoxForPixels(tmpSubImage.get(), spriteWidth, spriteHeight, texture->BytesPerPixel());
+                AABB boundingBox = Physics2D::GetBoundingBoxForPixels(tmpSubImage.get(), spriteWidth, spriteHeight, texture->BytesPerPixel());
 
                 Sprite sprite = {
                     texture->GetFilepath(),
@@ -97,7 +100,7 @@ namespace Jade {
 
         int Size()
         {
-            return m_Sprites.size();
+            return (int)m_Sprites.size();
         }
     };
 

@@ -9,17 +9,16 @@
 
 #include <entt/entt.h>
 #include <imgui/imgui.h>
+#include <array>
 
 namespace Jade {
     void LevelEditorScene::Init() {
         Physics2D::Init(m_Registry);
 
-        auto group = m_Registry.group<SpriteRenderer>(entt::get<Transform>);
-
         Log::Info("Initializing test scene.");
 
-        m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LE System"));
-        m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics 2D System"));
+        m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System"));
+        m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System"));
 
         glm::vec3 cameraPos = glm::vec3(1920.0f/2.0f, 1080.0f/2.0f, 0);
         m_Camera = new Camera(cameraPos);
@@ -28,20 +27,20 @@ namespace Jade {
         texture = new Texture("assets/images/decorationsAndBlocks.png", false);
         sprites = new Spritesheet(texture, 16, 16, 81, 0);
 
-        for (int i = 0; i < sprites->Size(); i++)
-        {
-            entt::entity testEntity = m_Registry.create();
-            Sprite* sprite = &sprites->GetSprite(i);
+        //for (int i = 0; i < sprites->Size(); i++)
+        //{
+        //    entt::entity testEntity = m_Registry.create();
+        //    Sprite* sprite = &sprites->GetSprite(i);
 
-            m_Registry.emplace<Transform>(testEntity, glm::vec3(-256 + (i * 64) + (i * 32), 0, 0), glm::vec3(2, 2, 1), glm::vec3(0, 0, 0), "Textured Block");
-            m_Registry.emplace<SpriteRenderer>(testEntity, glm::vec4(1, 1, 1, 1), sprite);
-            m_Registry.emplace<BoundingBox>(testEntity, sprite->m_BoundingBox);
+        //    m_Registry.emplace<Transform>(testEntity, glm::vec3(-256 + (i * 64) + (i * 32), 0, 0), glm::vec3(2, 2, 1), glm::vec3(0, 0, 0), "Textured Block");
+        //    m_Registry.emplace<SpriteRenderer>(testEntity, glm::vec4(1, 1, 1, 1), sprite);
+        //    m_Registry.emplace<AABB>(testEntity, sprite->m_BoundingBox);
 
-            if (i == 0)
-            {
-                m_ActiveEntity = testEntity;
-            }
-        }
+        //    if (i == 0)
+        //    {
+        //        m_ActiveEntity = testEntity;
+        //    }
+        //}
 
         entt::entity container = m_Registry.create();
         m_Registry.emplace<Transform>(container, glm::vec3(), glm::vec3(1), glm::vec3(), "Container");
@@ -64,9 +63,13 @@ namespace Jade {
                 entt::entity e1 = m_Registry.create();
                 m_Registry.emplace<Transform>(e1, glm::vec3(x, y, 0), glm::vec3(0.6f, 0.6f, 1.0f), glm::vec3(0, 0, 0), "Gen Block", container, previous);
                 m_Registry.emplace<SpriteRenderer>(e1, glm::vec4(r, g, b, 1));
+                AABB bounds = Physics2DSystem::AABBFrom(glm::vec2(), glm::vec2(32.0f, 32.0f));
+                m_Registry.emplace<AABB>(e1, bounds);
                 previous = e1;
             }
         }
+
+        m_ActiveEntity = container;
     }
 
     void LevelEditorScene::Start() {
@@ -85,14 +88,10 @@ namespace Jade {
 
     void LevelEditorScene::Update(float dt) {
         static glm::vec3 color{ 1, 0, 0 };
-        m_Registry.group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, SpriteRenderer& spr, Transform& transform)
+        m_Registry.group<AABB>(entt::get<Transform>).each([this](auto entity, AABB& box, Transform& transform)
             {
-                if (spr.m_Sprite->m_PictureFile != nullptr)
-                {
-                    BoundingBox& box = spr.m_Sprite->m_BoundingBox;
-                    DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position) + (box.m_Offset * JMath::Vector2From3(transform.m_Scale)), 
-                        box.m_Size * JMath::Vector2From3(transform.m_Scale), 0.0f, 1.0f, color);
-                }
+                DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position) + (box.m_Offset * JMath::Vector2From3(transform.m_Scale)), 
+                    box.m_Size * JMath::Vector2From3(transform.m_Scale), 0.0f, 1.0f, color);
         });
 
         for (const auto& system : m_Systems) {
@@ -117,14 +116,14 @@ namespace Jade {
             }
 
             static bool componentsOpen = false;
-            ImGui::SetCursorPosY(ImGui::GetWindowContentRegionMax().y - 100);
             ImGui::SetNextTreeNodeOpen(componentsOpen);
             if (ImGui::CollapsingHeader("Add Component"))
             {
                 componentsOpen = true;
-                const char* components[] = { "Sprite Renderer", "Rigidbody", "BoxCollider2D", "AABBCollider2D", "CircleCollider2D" };
-                for (int i = 0; i < 3; i++)
+                std::array<const char*, 5> components = { "Sprite Renderer", "Rigidbody", "BoxCollider2D", "CircleCollider2D", "Cancel" };
+                for (int i = 0; i < components.size(); i++)
                 {
+                    ImGui::PushID(i);
                     if (ImGui::Button(components[i]))
                     {
                         switch (i)
@@ -146,6 +145,11 @@ namespace Jade {
                             break;
                         }
                         componentsOpen = false;
+                    }
+                    ImGui::PopID();
+
+                    if (!componentsOpen)
+                    {
                         break;
                     }
                 }

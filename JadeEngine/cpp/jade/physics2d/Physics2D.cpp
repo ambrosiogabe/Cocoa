@@ -3,11 +3,13 @@
 #include "jade/components/Transform.h"
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
 
+#include "jade/core/Application.h"
+
 namespace Jade
 {
-	BoundingBox Physics2D::GetBoundingBoxForPixels(uint8* pixels, int width, int height, int channels)
+	AABB Physics2D::GetBoundingBoxForPixels(uint8* pixels, int width, int height, int channels)
 	{
-		BoundingBox result = Physics2DSystem::AABBFrom(glm::vec2{ 0, 0 }, glm::vec2{ width, height }, glm::vec2{ 0, 0 });
+		AABB result = Physics2DSystem::AABBFrom(glm::vec2{ 0, 0 }, glm::vec2{ width, height }, glm::vec2{ 0, 0 });
 
 		if (channels == 4)
 		{
@@ -44,7 +46,7 @@ namespace Jade
 
 			glm::vec2 offset = subCenter - center;
 			offset.y *= -1;
-			result = BoundingBox({ glm::vec2{minX, minY}, glm::vec2{maxX, maxY}, offset });
+			result = Physics2DSystem::AABBFrom(glm::vec2{minX, minY}, glm::vec2{maxX, maxY}, offset);
 		}
 
 		return result;
@@ -53,18 +55,18 @@ namespace Jade
 	std::pair<entt::registry&, entt::entity> Physics2D::OverlapPoint(const glm::vec2& point)
 	{
 		Physics2D* physics = Get();
-		auto group = physics->m_Registry.group<BoundingBox>(entt::get<Transform>);
+		auto group = physics->m_Registry.group<AABB>(entt::get<Transform>);
 		for (auto entity : group) 
 		{
-			auto& aabb = group.get<BoundingBox>(entity);
+			auto& aabb = group.get<AABB>(entity);
 			auto& transform = group.get<Transform>(entity);
-			if (CollisionDetector2D::PointInAABB(point, aabb, physics->m_Registry, entity))
+			if (CollisionDetector2D::PointInAABB(point, aabb))
 			{
-				return std::pair<entt::registry&, entt::entity>(physics->m_Registry, entity);
+				return { physics->m_Registry, entity };
 			}
 		};
 
-		return std::pair<entt::registry&, entt::entity>(physics->m_Registry, entt::null);
+		return { physics->m_Registry, entt::null };
 	}
 
 	// -------------------------------------------------------------------------

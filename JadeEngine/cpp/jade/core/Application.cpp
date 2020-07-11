@@ -34,7 +34,7 @@ namespace Jade {
         m_ImGuiLayer.Setup(m_Window->GetNativeWindow());
 
         while (m_Running) {
-            float time = glfwGetTime();
+            float time = (float)glfwGetTime();
             float dt = time - m_LastFrameTime;
             m_LastFrameTime = time;
 

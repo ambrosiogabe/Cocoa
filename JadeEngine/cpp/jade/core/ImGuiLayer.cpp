@@ -1,18 +1,24 @@
 #include "jade/core/ImGuiLayer.h"
 #include "jade/core/Application.h"
 
-#include <imgui.h>
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imgui_internal.h>
 #include <examples/imgui_impl_glfw.h>
-#include <examples/imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 #ifndef _JADE_IMPL_IMGUI
 #define _JADE_IMPL_IMGUI
+#pragma warning( push )
+#pragma warning ( disable : 26812 )
+#pragma warning ( disable : 26451 )
+#pragma warning ( disable : 6031 )
+#pragma warning ( disable : 26495 )
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include <imgui.h>
+#include <examples/imgui_impl_opengl3.h>
+#include <imgui/imgui_internal.h>
 #include <imgui/examples/imgui_impl_glfw.cpp>
 #include <imgui/examples/imgui_impl_opengl3.cpp>
+#pragma wanring( pop )
 #endif
 
 namespace Jade {
@@ -115,7 +121,7 @@ namespace Jade {
         m_GameviewMousePos.x = mousePos.x;
         m_GameviewMousePos.y = mousePos.y;
         
-        ImGui::Image((void*)Application::Get()->GetFramebuffer()->GetId(), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::End();
         ImGui::PopStyleColor();

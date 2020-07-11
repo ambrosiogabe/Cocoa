@@ -29,6 +29,6 @@ namespace Jade {
         bool m_PixelsFreed = false;
 
         const char* m_Filepath;
-        BoundingBox m_BoundingBox;
+        AABB m_BoundingBox;
     };
 }

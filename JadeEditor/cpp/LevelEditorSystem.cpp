@@ -2,8 +2,9 @@
 #include "jade/core/Application.h"
 #include "jade/events/Input.h"
 #include "jade/commands/CommandHistory.h"
-#include "jade/commands/MoveTransformCommand.h"
+#include "jade/commands/ChangeVec3Command.h"
 #include "jade/renderer/DebugDraw.h"
+#include "jade/core/ImGuiExtended.h"
 
 #include <string>
 #include <imgui/imgui.h>
@@ -38,7 +39,7 @@ namespace Jade {
             Transform& transform = registry.get<Transform>(Application::Get()->GetScene()->GetActiveEntity());
             glm::vec3 newPos = glm::vec3(Input::OrthoMouseX() - m_DragOffset.x, Input::OrthoMouseY() - m_DragOffset.y, 0.0f);
 
-            CommandHistory::AddCommand(new MoveTransformCommand(transform, newPos));
+            CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
         }
 
         // Draw grid lines
@@ -91,10 +92,13 @@ namespace Jade {
         entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
         if (registry.has<Transform>(activeEntity)) {
             Transform& transform = registry.get<Transform>(activeEntity);
+
+            static bool collapsingHeaderOpen = true;
+            ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
             if (ImGui::CollapsingHeader("Transform")) {
-                ImGui::DragFloat3("Position: ", glm::value_ptr(transform.m_Position));
-                ImGui::DragFloat3("Scale: ", glm::value_ptr(transform.m_Scale));
-                ImGui::DragFloat3("Rotation: ", glm::value_ptr(transform.m_EulerRotation));
+                ImGui::UndoableDragFloat3("Position: ", transform.m_Position);
+                ImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
+                ImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
             }
         }
     }

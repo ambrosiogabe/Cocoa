@@ -38,8 +38,9 @@ namespace Jade {
                 if (ImGui::Button("Add Sprite Object")) {
                     entt::registry& registry = Application::Get()->GetScene()->GetRegistry();
                     entt::entity entity = registry.create();
-                    registry.emplace<Transform>(entity, glm::vec3(), glm::vec3(32, 32, 1), glm::vec3());
+                    registry.emplace<Transform>(entity, glm::vec3(), glm::vec3(1, 1, 1), glm::vec3());
                     registry.emplace<SpriteRenderer>(entity, glm::vec4(1, 1, 1, 1));
+                    registry.emplace<AABB>(entity, glm::vec2(32, 32), glm::vec2(16, 16), glm::vec2());
                 }
 
                 ImGui::EndMenu();

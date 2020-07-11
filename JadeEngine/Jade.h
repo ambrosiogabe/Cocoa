@@ -4,7 +4,8 @@
 #include "jade/util/Log.h"
 
 #include "jade/commands/CommandHistory.h"
-#include "jade/commands/MoveTransformCommand.h"
+#include "jade/commands/ChangeVec3Command.h"
+#include "jade/commands/ChangeVec4Command.h"
 
 #include "jade/renderer/DebugDraw.h"
 

@@ -43,9 +43,9 @@ namespace Jade {
         JWindow() {}
 
     private:
-        void* m_WindowHandle;
+        void* m_WindowHandle = nullptr;
 
-        EventCallbackFn m_EventCallback;
+        EventCallbackFn m_EventCallback = nullptr;
         bool m_VSync = false;
         bool m_Running = true;
         int m_Width = 1920;

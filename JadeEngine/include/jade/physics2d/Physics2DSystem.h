@@ -23,9 +23,7 @@ namespace Jade
         glm::vec2 m_Size = glm::vec2();
         glm::vec2 m_HalfSize = glm::vec2();
         glm::vec2 m_Offset = glm::vec2();
-        glm::vec2 m_Center = glm::vec2();
     };
-    using BoundingBox = AABB;
 
     struct Circle
     {
@@ -54,8 +52,8 @@ namespace Jade
             : System(name) { }
          
         //virtual void Render(entt::registry& registry) override;
-        //virtual void ImGui(entt::registry& registry) override;
-        virtual void Update(entt::registry& registry, float dt) override;
+        virtual void ImGui(entt::registry& registry) override;
+        //virtual void Update(entt::registry& registry, float dt) override;
 
         // ----------------------------------------------------------------------------
         // Box2D Helpers
