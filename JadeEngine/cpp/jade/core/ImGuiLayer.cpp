@@ -18,7 +18,7 @@
 #include <imgui/imgui_internal.h>
 #include <imgui/examples/imgui_impl_glfw.cpp>
 #include <imgui/examples/imgui_impl_opengl3.cpp>
-#pragma wanring( pop )
+#pragma warning( pop )
 #endif
 
 namespace Jade {

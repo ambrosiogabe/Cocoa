@@ -77,18 +77,6 @@ namespace Jade {
     }
 
     void LevelEditorSystem::ImGui(entt::registry& registry) {
-        ImGui::Begin("Scene");
-        int index = 0;
-        auto view = registry.view<Transform>();
-        
-        for (auto entity : view) {
-            Transform& transform = view.get<Transform>(entity);
-            if (entt::to_integral(transform.m_Parent) == entt::to_integral(entt::null)) {
-                DoTreeNode(index, transform, registry);
-            }
-        }
-        ImGui::End();
-
         entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
         if (registry.has<Transform>(activeEntity)) {
             Transform& transform = registry.get<Transform>(activeEntity);
@@ -100,38 +88,6 @@ namespace Jade {
                 ImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
                 ImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
             }
-        }
-    }
-
-
-    void LevelEditorSystem::DoTreeNode(int& index, const Transform& transform, const entt::registry& registry) {
-        std::string str = transform.m_Name;
-        std::string res = str + "##" + std::to_string(index);
-        index++;
-
-        entt::entity next = transform.m_Next;
-        while (entt::to_integral(next) != entt::to_integral(entt::null)) {
-            const Transform& transform2 = registry.get<Transform>(next);
-            std::string str2 = transform2.m_Name;
-            std::string res2 = str2 + "##" + std::to_string(index);
-            index++;
-
-            if (ImGui::TreeNode(res2.c_str())) {
-                if (entt::to_integral(transform2.m_First) != entt::to_integral(entt::null)) {
-                    const Transform& childTrans = registry.get<Transform>(transform2.m_First);
-                    DoTreeNode(index, childTrans, registry);
-                }
-                ImGui::TreePop();
-            }
-            next = transform2.m_Next;
-        }
-
-        if(ImGui::TreeNode(res.c_str())) {
-            if (entt::to_integral(transform.m_First) != entt::to_integral(entt::null)) {
-                const Transform& firstTransform = registry.get<Transform>(transform.m_First);
-                DoTreeNode(index, firstTransform, registry);
-            }
-            ImGui::TreePop();
         }
     }
 
@@ -210,10 +166,9 @@ namespace Jade {
 
          if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT) {
              std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
+            Application::Get()->GetScene()->SetActiveEntity(result.second);
              if (entt::to_integral(result.second) != entt::to_integral(entt::null))
              {
-                 Application::Get()->GetScene()->SetActiveEntity(result.second);
-
                  const Transform& transform = result.first.get<Transform>(result.second);
                  m_IsDragging = true;
                  m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;

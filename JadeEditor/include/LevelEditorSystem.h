@@ -19,7 +19,6 @@ namespace Jade {
         virtual void OnEvent(Event& e) override;
 
     private:
-        void DoTreeNode(int& index, const Transform& transform, const entt::registry& registry);
         bool HandleKeyPress(KeyPressedEvent& e);
         bool HandleKeyRelease(KeyReleasedEvent& e);
         bool HandleMouseButtonPressed(MouseButtonPressedEvent& e);

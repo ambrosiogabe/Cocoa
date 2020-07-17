@@ -4,6 +4,7 @@
 #include "jade/core/Core.h"
 
 #include <entt/entt.h>
+#include <box2d/b2_world.h>
 
 namespace Jade
 {
@@ -16,11 +17,17 @@ namespace Jade
 		static Physics2D* Get();
 		static void Init(entt::registry& registry);
 
+		void AddEntity(entt::entity entity);
+
 	private:
 		Physics2D(entt::registry& registry)
-			: m_Registry(registry) { }
+			: m_Registry(registry) {}
 
 		entt::registry& m_Registry;
+		
+		// Box2D Stuff
+		b2Vec2 m_Gravity { 0.0f, -10.0f };
+		b2World m_World { m_Gravity };
 
 		static std::unique_ptr<Physics2D> s_Instance;
 	};

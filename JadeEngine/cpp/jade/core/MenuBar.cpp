@@ -11,11 +11,11 @@ namespace Jade {
     void MenuBar::SettingsWindow() {
         ImGui::Begin("Settings", &m_SettingsOpen);
         if (ImGui::DragInt2("Grid Size: ", m_GridSize)) {
-            Settings::GridSizeX = m_GridSize[0];
-            Settings::GridSizeY = m_GridSize[1];
+            Settings::General::s_GridSizeX = m_GridSize[0];
+            Settings::General::s_GridSizeY = m_GridSize[1];
         }
 
-        ImGui::Checkbox("Draw Grid: ", &Settings::DrawGrid);
+        ImGui::Checkbox("Draw Grid: ", &Settings::General::s_DrawGrid);
         ImGui::End();   
     }
 

@@ -2,8 +2,12 @@
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
-
 #include "jade/core/Application.h"
+#include "jade/util/JMath.h"
+
+#include <box2D/b2_body.h>
+#include <box2D/b2_shape.h>
+#include <box2D/b2_polygon_shape.h>
 
 namespace Jade
 {
@@ -67,6 +71,54 @@ namespace Jade
 		};
 
 		return { physics->m_Registry, entt::null };
+	}
+
+	void Physics2D::AddEntity(entt::entity entity)
+	{
+		if (m_Registry.has<Transform, Rigidbody2D>(entity))
+		{
+			Transform& transform = m_Registry.get<Transform>(entity);
+			Rigidbody2D& rb = m_Registry.get<Rigidbody2D>(entity);
+
+			b2BodyDef bodyDef;
+			bodyDef.position.Set(transform.m_Position.x, transform.m_Position.y);
+			bodyDef.angle = JMath::ToRadians(transform.m_EulerRotation.z);
+			bodyDef.angularDamping = rb.m_AngularDamping;
+			bodyDef.linearDamping = rb.m_LinearDamping;
+			bodyDef.fixedRotation = rb.m_FixedRotation;
+			bodyDef.bullet = rb.m_ContinuousCollision;
+			
+			if (rb.bodyType == BodyType2D::Dynamic)
+			{
+				bodyDef.type = b2BodyType::b2_dynamicBody;
+			}
+			else if (rb.bodyType == BodyType2D::Static)
+			{
+				bodyDef.type = b2BodyType::b2_staticBody;
+			}
+			else
+			{
+				bodyDef.type = b2BodyType::b2_kinematicBody;
+			}
+
+			b2Body* body = m_World.CreateBody(&bodyDef);
+			rb.m_RawRigidbody = body;
+
+			b2PolygonShape shape;
+			if (m_Registry.has<Box2D>(entity))
+			{
+				Box2D& box = m_Registry.get<Box2D>(entity);
+				shape.SetAsBox(box.m_HalfSize.x, box.m_HalfSize.y);
+
+			}
+			else if (m_Registry.has<Circle>(entity))
+			{
+				// TODO: IMPLEMENT ME
+				Circle& circle = m_Registry.get<Circle>(entity);
+			}
+
+			body->CreateFixture(&shape, rb.m_Mass);
+		}
 	}
 
 	// -------------------------------------------------------------------------

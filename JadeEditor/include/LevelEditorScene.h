@@ -19,6 +19,10 @@ namespace Jade
         virtual void ImGui() override;
 
     private:
+        void DoTreeNode(int& index, const Transform& transform);
+        void ImGuiSceneHeirarchy();
+
+    private:
         Shader* shader = nullptr;
         Spritesheet* sprites = nullptr;
         Texture* texture = nullptr;

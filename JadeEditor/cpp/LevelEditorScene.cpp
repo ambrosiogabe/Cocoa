@@ -105,6 +105,8 @@ namespace Jade {
             ImGui::ShowDemoWindow(&showDemoWindow);
         }
 
+        ImGuiSceneHeirarchy();
+
         ImGui::Begin("Inspector");
 
         if (entt::to_integral(m_ActiveEntity) != entt::to_integral(entt::null))
@@ -157,5 +159,60 @@ namespace Jade {
         }
 
         ImGui::End();
+    }
+
+
+    void LevelEditorScene::ImGuiSceneHeirarchy()
+    {
+        ImGui::Begin("Scene");
+        int index = 0;
+        auto view = m_Registry.view<Transform>();
+
+        for (auto entity : view)
+        {
+            Transform& transform = view.get<Transform>(entity);
+            if (entt::to_integral(transform.m_Parent) == entt::to_integral(entt::null))
+            {
+                DoTreeNode(index, transform);
+            }
+        }
+        ImGui::End();
+    }
+
+    void LevelEditorScene::DoTreeNode(int& index, const Transform& transform)
+    {
+        std::string str = transform.m_Name;
+        std::string res = str + "##" + std::to_string(index);
+        index++;
+
+        entt::entity next = transform.m_Next;
+        while (entt::to_integral(next) != entt::to_integral(entt::null))
+        {
+            const Transform& transform2 = m_Registry.get<Transform>(next);
+            std::string str2 = transform2.m_Name;
+            std::string res2 = str2 + "##" + std::to_string(index);
+            index++;
+
+            if (ImGui::TreeNode(res2.c_str()))
+            {
+                if (entt::to_integral(transform2.m_First) != entt::to_integral(entt::null))
+                {
+                    const Transform& childTrans = m_Registry.get<Transform>(transform2.m_First);
+                    DoTreeNode(index, childTrans);
+                }
+                ImGui::TreePop();
+            }
+            next = transform2.m_Next;
+        }
+
+        if (ImGui::TreeNode(res.c_str()))
+        {
+            if (entt::to_integral(transform.m_First) != entt::to_integral(entt::null))
+            {
+                const Transform& firstTransform = m_Registry.get<Transform>(transform.m_First);
+                DoTreeNode(index, firstTransform);
+            }
+            ImGui::TreePop();
+        }
     }
 }

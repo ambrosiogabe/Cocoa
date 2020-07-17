@@ -14,7 +14,7 @@ namespace Jade {
         bool m_SettingsOpen = false;
 
         // -------------Settings Variables-------------------------
-        int m_GridSize[2] = { Settings::GridSizeX, Settings::GridSizeY};
+        int m_GridSize[2] = { Settings::General::s_GridSizeX, Settings::General::s_GridSizeY};
         bool m_SnapToGrid = false;
         // ---------------------------------------------------------
     };
