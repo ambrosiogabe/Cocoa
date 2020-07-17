@@ -8,3 +8,6 @@
 [submodule "JadeEngine/vendor/PhysX"]
 	path = JadeEngine/vendor/PhysX
 	url = https://github.com/NVIDIAGameWorks/PhysX
+[submodule "JadeEngine/vendor/box2DVendor"]
+	path = JadeEngine/vendor/box2DVendor
+	url = https://github.com/erincatto/box2d
