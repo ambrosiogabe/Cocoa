@@ -50,7 +50,7 @@ namespace Jade
 
 			glm::vec2 offset = subCenter - center;
 			offset.y *= -1;
-			result = Physics2DSystem::AABBFrom(glm::vec2{minX, minY}, glm::vec2{maxX, maxY}, offset);
+			result = Physics2DSystem::AABBFrom(glm::vec2{ minX, minY }, glm::vec2{ maxX, maxY }, offset);
 		}
 
 		return result;
@@ -60,7 +60,7 @@ namespace Jade
 	{
 		Physics2D* physics = Get();
 		auto group = physics->m_Registry.group<AABB>(entt::get<Transform>);
-		for (auto entity : group) 
+		for (auto entity : group)
 		{
 			auto& aabb = group.get<AABB>(entity);
 			auto& transform = group.get<Transform>(entity);
@@ -87,12 +87,12 @@ namespace Jade
 			bodyDef.linearDamping = rb.m_LinearDamping;
 			bodyDef.fixedRotation = rb.m_FixedRotation;
 			bodyDef.bullet = rb.m_ContinuousCollision;
-			
-			if (rb.bodyType == BodyType2D::Dynamic)
+
+			if (rb.m_BodyType == BodyType2D::Dynamic)
 			{
 				bodyDef.type = b2BodyType::b2_dynamicBody;
 			}
-			else if (rb.bodyType == BodyType2D::Static)
+			else if (rb.m_BodyType == BodyType2D::Static)
 			{
 				bodyDef.type = b2BodyType::b2_staticBody;
 			}
@@ -109,7 +109,8 @@ namespace Jade
 			{
 				Box2D& box = m_Registry.get<Box2D>(entity);
 				shape.SetAsBox(box.m_HalfSize.x, box.m_HalfSize.y);
-
+				b2Vec2 pos = bodyDef.position;
+				bodyDef.position.Set(pos.x - box.m_HalfSize.x, pos.y - box.m_HalfSize.y);
 			}
 			else if (m_Registry.has<Circle>(entity))
 			{
@@ -118,6 +119,42 @@ namespace Jade
 			}
 
 			body->CreateFixture(&shape, rb.m_Mass);
+		}
+	}
+
+	void Physics2D::Update(float dt)
+	{
+		m_PhysicsTime += dt;
+		while (m_PhysicsTime > 0.0f)
+		{
+			m_World.Step(Settings::Physics2D::s_Timestep, Settings::Physics2D::s_VelocityIterations, Settings::Physics2D::s_PositionIterations);
+			m_PhysicsTime -= Settings::Physics2D::s_Timestep;
+		}
+
+		auto view = m_Registry.view<Transform, Rigidbody2D>();
+		for (auto entity : view)
+		{
+			Transform& transform = m_Registry.get<Transform>(entity);
+			Rigidbody2D& rb = m_Registry.get<Rigidbody2D>(entity);
+			b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
+			b2Vec2 position = body->GetPosition();
+			transform.m_Position.x = position.x;
+			transform.m_Position.y = position.y;
+			transform.m_EulerRotation.z = body->GetAngle();
+		}
+	}
+
+	void Physics2D::Destroy()
+	{
+		auto view = m_Registry.view<Rigidbody2D>();
+		for (auto entity : view)
+		{
+			Rigidbody2D& rb = m_Registry.get<Rigidbody2D>(entity);
+
+			// Manually destroy all bodies, in case the physics system would like
+			// to use this world again
+			m_World.DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+			rb.m_RawRigidbody = nullptr;
 		}
 	}
 

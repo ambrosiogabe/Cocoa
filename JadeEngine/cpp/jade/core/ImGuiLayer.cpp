@@ -90,9 +90,34 @@ namespace Jade {
 
     void ImGuiLayer::RenderGameViewport() {
         static bool open = true;
-        
         ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 1));
-        ImGui::Begin("Game Viewport", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::Begin("Game Viewport", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
+
+        if (ImGui::BeginMenuBar())
+        {
+            static bool isPlaying = false;
+            if (ImGui::BeginMenu("Play", !isPlaying))
+            {
+                if (!isPlaying)
+                {
+                    Application::Get()->GetScene()->Play();
+                    Log::Info("Starting scene!");
+                    isPlaying = true;
+                }
+                ImGui::EndMenu();
+            }
+            else if (ImGui::BeginMenu("Stop", isPlaying))
+            {
+                if (isPlaying)
+                {
+                    Application::Get()->GetScene()->Stop();
+                    Log::Info("Stopping scene!");
+                    isPlaying = false;
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
 
         m_BlockEvents = !ImGui::IsWindowFocused() || !ImGui::IsWindowHovered();
 

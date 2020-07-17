@@ -3,8 +3,6 @@
 #include "jade/commands/ICommand.h"
 #include "jade/components/components.h"
 
-#include <glm/Vec2.hpp>
-
 namespace Jade
 {
     class ChangeFloatCommand : public ICommand

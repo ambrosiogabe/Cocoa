@@ -1345,6 +1345,8 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\commands\ChangeUint8Command.h" />
+    <ClInclude Include="include\jade\commands\ChangeEnumCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">

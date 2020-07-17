@@ -18,6 +18,8 @@ namespace Jade
 		static void Init(entt::registry& registry);
 
 		void AddEntity(entt::entity entity);
+		void Update(float dt);
+		void Destroy();
 
 	private:
 		Physics2D(entt::registry& registry)
@@ -28,6 +30,7 @@ namespace Jade
 		// Box2D Stuff
 		b2Vec2 m_Gravity { 0.0f, -10.0f };
 		b2World m_World { m_Gravity };
+		float m_PhysicsTime = 0.0f;
 
 		static std::unique_ptr<Physics2D> s_Instance;
 	};

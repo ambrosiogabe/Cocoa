@@ -43,12 +43,12 @@ namespace Jade {
         }
 
         // Draw grid lines
-        if (Settings::DrawGrid)
+        if (Settings::General::s_DrawGrid)
         {
             Transform& cameraTransform = Application::Get()->GetScene()->GetCamera()->GetTransform();
             float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom();
-            int gridWidth = Settings::GridSizeX;// *cameraZoom;
-            int gridHeight = Settings::GridSizeY;// *cameraZoom;
+            int gridWidth = Settings::General::s_GridSizeX;// *cameraZoom;
+            int gridHeight = Settings::General::s_GridSizeY;// *cameraZoom;
 
             float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
             float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;

@@ -5,6 +5,7 @@
 #include "jade/commands/CommandHistory.h"
 #include "jade/commands/ChangeVec2Command.h"
 #include "jade/commands/ChangeFloatCommand.h"
+#include "jade/commands/ChangeEnumCommand.h"
 #include "jade/core/ImGuiExtended.h"
 
 #include <imgui/imgui.h>
@@ -23,8 +24,20 @@ namespace Jade
 			if (ImGui::CollapsingHeader("Rigidbody 2D"))
 			{
 				Rigidbody2D& rb = registry.get<Rigidbody2D>(activeEntity);
-				ImGui::UndoableDragFloat2("Velocity: ", rb.m_Velocity);
-				ImGui::UndoableDragFloat("Friction: ", rb.m_Friction);
+				int currentItem = static_cast<int>(rb.m_BodyType);
+				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
+				if (ImGui::Combo("Body Type:", &currentItem, &items[0], items.size()))
+				{
+					CommandHistory::AddCommand(new ChangeEnumCommand<BodyType2D>(rb.m_BodyType, static_cast<BodyType2D>(currentItem)));
+					CommandHistory::SetNoMergeMostRecent();
+				}
+
+				ImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
+				ImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);
+				ImGui::UndoableDragFloat("Linear Damping: ##2", rb.m_LinearDamping);
+				ImGui::UndoableDragFloat("Angular Damping: ##3", rb.m_AngularDamping);
+				ImGui::UndoableDragFloat("Mass: ##4", rb.m_Mass);
+				ImGui::UndoableDragFloat2("Velocity: ##5", rb.m_Velocity);
 			}
 		}
 
@@ -35,8 +48,8 @@ namespace Jade
 			if (ImGui::CollapsingHeader("AABB"))
 			{
 				AABB& box = registry.get<AABB>(activeEntity);
-				ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				ImGui::UndoableDragFloat2("Size: ", box.m_Size);
+				ImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
+				ImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
 			}
 		}
 
@@ -48,7 +61,7 @@ namespace Jade
 			{
 				Box2D& box = registry.get<Box2D>(activeEntity);
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				ImGui::UndoableDragFloat2("Size: ", box.m_Size);
+				ImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
 			}
 		}
 
@@ -60,7 +73,7 @@ namespace Jade
 			{
 				Circle& circle = registry.get<Circle>(activeEntity);
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				ImGui::UndoableDragFloat("Radius: ", circle.m_Radius);
+				ImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
 			}
 		}
 	}

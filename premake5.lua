@@ -123,6 +123,7 @@ project "JadeEditor"
         "%{IncludeDir.entt}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.ImGui}",
+        "%{IncludeDir.Box2D}"
     }
 
     links {

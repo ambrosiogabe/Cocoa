@@ -4,6 +4,7 @@
 #include "jade/commands/ChangeVec2Command.h"
 #include "jade/commands/ChangeVec3Command.h"
 #include "jade/commands/ChangeVec4Command.h"
+#include "jade/util/Log.h"
 
 #pragma warning( push )
 #pragma warning ( disable : 26812 )

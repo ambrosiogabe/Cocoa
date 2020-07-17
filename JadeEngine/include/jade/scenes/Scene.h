@@ -15,6 +15,9 @@ namespace Jade {
         virtual void Update(float dt) = 0;
         virtual void Start() = 0;
 
+        void Play();
+        void Stop();
+
         void SetActiveEntity(entt::entity entity);
         entt::registry& GetRegistry();
         Camera* GetCamera() const;
@@ -32,6 +35,7 @@ namespace Jade {
         }
 
     protected:
+        bool m_IsRunning = false;
         std::vector<std::unique_ptr<System>> m_Systems;
 
         entt::registry m_Registry = entt::registry();

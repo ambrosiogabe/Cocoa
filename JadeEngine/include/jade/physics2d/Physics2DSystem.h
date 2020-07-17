@@ -12,11 +12,11 @@ namespace Jade
     // ----------------------------------------------------------------------------
     // Collider Components
     // ---------------------------------------------------------------------------- 
-    enum class BodyType2D
+    enum class BodyType2D : uint8
     {
-        Dynamic,
-        Kinematic,
-        Static
+        Dynamic = 0,
+        Kinematic = 1,
+        Static = 2
     };
 
     struct Box2D
@@ -51,9 +51,8 @@ namespace Jade
         glm::vec2 m_Velocity = glm::vec2();
         float m_AngularDamping = 0.0f;
         float m_LinearDamping = 0.5f;
-        float m_Friction = 0.0f;
         float m_Mass = 0.0f;
-        BodyType2D bodyType = BodyType2D::Dynamic;
+        BodyType2D m_BodyType = BodyType2D::Dynamic;
 
         bool m_FixedRotation = false;
         bool m_ContinuousCollision = false;
