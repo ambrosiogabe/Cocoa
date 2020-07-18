@@ -43,6 +43,11 @@ namespace Jade
 			return degrees * PI / 180.0f;
 		}
 
+		float ToDegrees(float radians)
+		{
+			return radians * 180.0f / PI;
+		}
+
 		void Rotate(glm::vec2& vec, float angleDeg, const glm::vec2& origin)
 		{
 			float x = vec.x - origin.x;

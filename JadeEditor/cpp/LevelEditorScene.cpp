@@ -95,7 +95,7 @@ namespace Jade {
         //static glm::vec3 color{ 1, 0, 0 };
         //m_Registry.group<AABB>(entt::get<Transform>).each([this](auto entity, AABB& box, Transform& transform)
         //    {
-        //        DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position) + (box.m_Offset * JMath::Vector2From3(transform.m_Scale)), 
+        //        DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position) + (box.m_Offset * JMath::Vector2From3(transform.m_Scale)),
         //            box.m_Size * JMath::Vector2From3(transform.m_Scale), 0.0f, 1.0f, color);
         //});
 

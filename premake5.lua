@@ -20,11 +20,13 @@ IncludeDir["glm"] = "JadeEngine/vendor/glm"
 IncludeDir["stb"] = "JadeEngine/vendor/stb"
 IncludeDir["entt"] = "JadeEngine/vendor/entt"
 IncludeDir["Box2D"] = "JadeEngine/vendor/box2DVendor/include"
+IncludeDir["Json"] = "JadeEngine/vendor/nlohmann-json/single_include"
 
 include "JadeEngine/vendor/GLFW"
 include "JadeEngine/vendor/glad"
 include "JadeEngine/vendor/imgui"
 include "JadeEngine/vendor/box2DVendor"
+include "JadeEngine/vendor/nlohmann-json"
 
 project "JadeEngine"
     location "JadeEngine"
@@ -58,7 +60,8 @@ project "JadeEngine"
         "%{IncludeDir.Box2D}",
 		"%{IncludeDir.glm}",
         "%{IncludeDir.stb}",
-        "%{IncludeDir.entt}"
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.Json}"
 	}
 
 	links {
@@ -66,7 +69,8 @@ project "JadeEngine"
         "opengl32.lib",
         "Glad",
 		"ImGui",
-        "Box2D"
+        "Box2D",
+        "Json"
 	}
 
 	filter "system:windows"
@@ -123,7 +127,8 @@ project "JadeEditor"
         "%{IncludeDir.entt}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.Box2D}"
+        "%{IncludeDir.Box2D}",
+        "%{IncludeDir.Json}"
     }
 
     links {

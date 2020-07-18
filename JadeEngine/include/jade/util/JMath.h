@@ -23,5 +23,6 @@ namespace Jade
 		void Rotate(glm::vec3& vec, float angleDeg, const glm::vec3& origin);
 
 		float ToRadians(float degrees);
+		float ToDegrees(float radians);
 	}
 }

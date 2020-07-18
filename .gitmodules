@@ -11,3 +11,6 @@
 [submodule "JadeEngine/vendor/box2DVendor"]
 	path = JadeEngine/vendor/box2DVendor
 	url = https://github.com/erincatto/box2d
+[submodule "JadeEngine/vendor/nlohmann-json"]
+	path = JadeEngine/vendor/nlohmann-json
+	url = https://github.com/nlohmann/json

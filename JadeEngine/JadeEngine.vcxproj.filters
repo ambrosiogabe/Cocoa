@@ -109,7 +109,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jade.h" />
+    <ClInclude Include="include\jade\commands\ChangeEnumCommand.h">
+      <Filter>include\jade\commands</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\commands\ChangeFloatCommand.h">
+      <Filter>include\jade\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\commands\ChangeUint8Command.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\commands\ChangeVec2Command.h">
@@ -1345,8 +1351,6 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\commands\ChangeUint8Command.h" />
-    <ClInclude Include="include\jade\commands\ChangeEnumCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">

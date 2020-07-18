@@ -140,7 +140,7 @@ namespace Jade
 			b2Vec2 position = body->GetPosition();
 			transform.m_Position.x = position.x;
 			transform.m_Position.y = position.y;
-			transform.m_EulerRotation.z = body->GetAngle();
+			transform.m_EulerRotation.z = JMath::ToDegrees(body->GetAngle());
 		}
 	}
 
