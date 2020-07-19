@@ -27,49 +27,34 @@ namespace Jade {
         texture = new Texture("assets/images/decorationsAndBlocks.png", false);
         sprites = new Spritesheet(texture, 16, 16, 81, 0);
 
-        //for (int i = 0; i < sprites->Size(); i++)
-        //{
-        //    entt::entity testEntity = m_Registry.create();
-        //    Sprite* sprite = &sprites->GetSprite(i);
+        //entt::entity container = m_Registry.create();
+        //m_Registry.emplace<Transform>(container, glm::vec3(), glm::vec3(1), glm::vec3(), "Container");
 
-        //    m_Registry.emplace<Transform>(testEntity, glm::vec3(-256 + (i * 64) + (i * 32), 0, 0), glm::vec3(2, 2, 1), glm::vec3(0, 0, 0), "Textured Block");
-        //    m_Registry.emplace<SpriteRenderer>(testEntity, glm::vec4(1, 1, 1, 1), sprite);
-        //    m_Registry.emplace<AABB>(testEntity, sprite->m_BoundingBox);
+        //float startX = 100.0f;
+        //float startY = 80.0f;
+        //float width = 20.0f;
+        //float height = 20.0f;
+        //float padding = 3.0f;
+        //entt::entity previous = entt::null;
+        //for (int i=0; i < 10; i++) {
+        //    for (int j=0; j < 10; j++) {
+        //        float x = startX + i * width + i * padding;
+        //        float y = startY + j * height + j * padding;
 
-        //    if (i == 0)
-        //    {
-        //        m_ActiveEntity = testEntity;
+        //        float r = x / (100 * width);
+        //        float g = y / (80 * height);
+        //        float b = 1.0f;
+
+        //        entt::entity e1 = m_Registry.create();
+        //        m_Registry.emplace<Transform>(e1, glm::vec3(x, y, 0), glm::vec3(0.6f, 0.6f, 1.0f), glm::vec3(0, 0, 0), "Gen Block", container, previous);
+        //        m_Registry.emplace<SpriteRenderer>(e1, glm::vec4(r, g, b, 1));
+        //        AABB bounds = Physics2DSystem::AABBFrom(glm::vec2(), glm::vec2(32.0f, 32.0f));
+        //        m_Registry.emplace<AABB>(e1, bounds);
+        //        previous = e1;
         //    }
         //}
 
-        entt::entity container = m_Registry.create();
-        m_Registry.emplace<Transform>(container, glm::vec3(), glm::vec3(1), glm::vec3(), "Container");
-
-        float startX = 100.0f;
-        float startY = 80.0f;
-        float width = 20.0f;
-        float height = 20.0f;
-        float padding = 3.0f;
-        entt::entity previous = entt::null;
-        for (int i=0; i < 10; i++) {
-            for (int j=0; j < 10; j++) {
-                float x = startX + i * width + i * padding;
-                float y = startY + j * height + j * padding;
-
-                float r = x / (100 * width);
-                float g = y / (80 * height);
-                float b = 1.0f;
-
-                entt::entity e1 = m_Registry.create();
-                m_Registry.emplace<Transform>(e1, glm::vec3(x, y, 0), glm::vec3(0.6f, 0.6f, 1.0f), glm::vec3(0, 0, 0), "Gen Block", container, previous);
-                m_Registry.emplace<SpriteRenderer>(e1, glm::vec4(r, g, b, 1));
-                AABB bounds = Physics2DSystem::AABBFrom(glm::vec2(), glm::vec2(32.0f, 32.0f));
-                m_Registry.emplace<AABB>(e1, bounds);
-                previous = e1;
-            }
-        }
-
-        m_ActiveEntity = container;
+        //m_ActiveEntity = container;
     }
 
     void LevelEditorScene::Start() {
@@ -91,13 +76,6 @@ namespace Jade {
         {
             Physics2D::Get()->Update(dt);
         }
-
-        //static glm::vec3 color{ 1, 0, 0 };
-        //m_Registry.group<AABB>(entt::get<Transform>).each([this](auto entity, AABB& box, Transform& transform)
-        //    {
-        //        DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position) + (box.m_Offset * JMath::Vector2From3(transform.m_Scale)),
-        //            box.m_Size * JMath::Vector2From3(transform.m_Scale), 0.0f, 1.0f, color);
-        //});
 
         for (const auto& system : m_Systems) {
             system->Update(m_Registry, dt);

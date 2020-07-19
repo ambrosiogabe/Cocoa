@@ -16,6 +16,28 @@ namespace Jade
 {
 	void LevelEditorSystem::Start(entt::registry& registry)
 	{
+		m_GizmoTexture = std::unique_ptr<Texture>(new Texture("assets/images/gizmos.png", false));
+		m_GizmoSpritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_GizmoTexture.get(), 16, 40, 9, 0));
+
+		for (int i = 0; i < m_GizmoSpritesheet->Size(); i++)
+		{
+			entt::entity testEntity = m_GizmoRegistry.create();
+			Sprite* sprite = &m_GizmoSpritesheet->GetSprite(i);
+
+			m_GizmoRegistry.emplace<Transform>(testEntity, glm::vec3(-256 + (i * 64) + (i * 32), 0, 0), glm::vec3(2, 2, 1), glm::vec3(0, 0, 0), "Textured Block");
+			m_GizmoRegistry.emplace<SpriteRenderer>(testEntity, glm::vec4(1, 1, 1, 1), sprite);
+			m_GizmoRegistry.emplace<AABB>(testEntity, sprite->m_BoundingBox);
+
+			switch (i)
+			{
+				case 0:
+				{
+
+					break;
+				}
+			}
+		}
+
 		auto view = registry.view<Transform>();
 		for (auto entity : view)
 		{

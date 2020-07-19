@@ -40,7 +40,7 @@ namespace Jade
 		dialogStruct.lpstrFileTitle = NULL;// (LPSTR)initialPath.c_str();
 		dialogStruct.nMaxFileTitle = 0; // initialPath.length();
 		dialogStruct.lpstrInitialDir = NULL; // initialPath.c_str();
-		dialogStruct.lpstrTitle = NULL;
+		dialogStruct.lpstrTitle = "My Custom Title";
 		dialogStruct.Flags = 0; // TODO: Consider adding flags to this function
 		dialogStruct.nFileOffset = 0;
 		dialogStruct.nFileExtension = 0;
