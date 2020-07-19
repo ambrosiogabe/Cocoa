@@ -58,6 +58,9 @@
     <Filter Include="include\jade\events">
       <UniqueIdentifier>{7055539A-DCB6-30A8-6524-775AD1846767}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\jade\file">
+      <UniqueIdentifier>{BB858897-279C-862D-7013-124FDC6857B5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="include\jade\physics2d">
       <UniqueIdentifier>{D47C7430-C076-9D82-A9E3-3393957C03EF}</UniqueIdentifier>
     </Filter>
@@ -106,9 +109,21 @@
     <Filter Include="vendor\glm\glm\gtx">
       <UniqueIdentifier>{B3A6A76B-9F8A-68C1-08EB-6214F4ED5243}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\nlohmann-json">
+      <UniqueIdentifier>{04CABF80-F058-494A-9977-5D4585E559F0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\nlohmann-json\single_include">
+      <UniqueIdentifier>{F8FEDAAA-64B8-4555-ED17-602F59D0FBC4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\nlohmann-json\single_include\nlohmann">
+      <UniqueIdentifier>{02328D51-EE44-8DAA-972E-6A9783202AF8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Jade.h" />
+    <ClInclude Include="include\externalLibs.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\commands\ChangeEnumCommand.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
@@ -177,6 +192,9 @@
     </ClInclude>
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\OutputArchive.h">
+      <Filter>include\jade\file</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\physics2d\Physics2D.h">
       <Filter>include\jade\physics2d</Filter>
@@ -1351,6 +1369,10 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
+      <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\InputArchive.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1434,5 +1456,6 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\components\Transform.cpp" />
   </ItemGroup>
 </Project>

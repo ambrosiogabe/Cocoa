@@ -1,11 +1,10 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/core/Core.h"
 #include "jade/scenes/Scene.h"
 #include "jade/renderer/Framebuffer.h"
 #include "jade/events/Event.h"
-
-#include <string>
 
 namespace Jade {
     class JWindow {

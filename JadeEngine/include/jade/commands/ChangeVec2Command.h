@@ -1,9 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/commands/ICommand.h"
 #include "jade/components/components.h"
-
-#include <glm/vec2.hpp>
 
 namespace Jade
 {

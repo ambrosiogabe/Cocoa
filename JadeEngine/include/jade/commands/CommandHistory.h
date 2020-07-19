@@ -1,5 +1,4 @@
 #pragma once
-
 #include "jade/commands/ICommand.h"
 #include "jade/util/Log.h"
 

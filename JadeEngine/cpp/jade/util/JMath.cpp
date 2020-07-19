@@ -1,6 +1,8 @@
+#include "externalLibs.h"
+
 #include "jade/util/JMath.h"
 
-#include <algorithm>
+#include <jsonVendor/json.hpp>
 
 namespace Jade
 {
@@ -71,6 +73,39 @@ namespace Jade
 
 			vec.x = xPrime;
 			vec.y = yPrime;
+		}
+
+		json JMath::Serialize(const std::string& name, const glm::vec4& vec)
+		{
+			return {
+				name, {
+					{"X", vec.x},
+					{"Y", vec.y},
+					{"Z", vec.z},
+					{"W", vec.w}
+           		}
+			};
+		}
+
+		glm::vec4 JMath::DeserializeVec4(json& j)
+		{
+			return glm::vec4{ j["X"], j["Y"], j["Z"], j["W"] };
+		}
+
+		json JMath::Serialize(const std::string& name, const glm::vec3& vec)
+		{
+			return {
+				name, {
+					{"X", vec.x},
+					{"Y", vec.y},
+					{"Z", vec.z},
+				}
+			};
+		}
+
+		glm::vec3 JMath::DeserializeVec3(json& j)
+		{
+			return glm::vec3{ j["X"], j["Y"], j["Z"] };
 		}
 	}
 }

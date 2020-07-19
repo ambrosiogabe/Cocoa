@@ -241,22 +241,8 @@
 
 #define JADE_MOD_NUM_LOCK        0x0020
 
-namespace Jade {
-    // // ===========================================
-    // // Function pointer typedefs
-    // // ===========================================
-    // // Forward declare Window so we don't get circular dependency
-    // class Window;
-    // typedef void (*KeyCallbackFnPt) (Window* window, int key, int scancode, int action, int mods);
-    // typedef void (*CursorCallbackFnPt) (Window* window, double xpos, double ypos);
-    // typedef void (*MouseButtonCallbackFnPt) (Window* window, int button, int action, int mods);
-    // typedef void (*ScrollCallbackFnPt) (Window* window, double xoffset, double yoffset);
-    // typedef void (*ResizeCallbackFnPt) (Window* window, int width, int height);
-    // typedef void (*WindowCloseCallbackFnPt) (Window* window);
-    // typedef void (*CharCallbackFnPt) (Window* window, unsigned int keycode); // TODO: Implement this!
-    // //typedef void (*MonitorCallbackFnPt) (Monitor* monitor, int); // TODO: Implement this!!
-
-
+namespace Jade
+{
     // ===========================================
     // Fixed-size primitive types
     // ===========================================

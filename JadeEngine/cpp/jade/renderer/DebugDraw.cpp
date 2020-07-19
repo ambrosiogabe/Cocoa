@@ -1,8 +1,8 @@
+#include "externalLibs.h"
+
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
-
-#include <glad/glad.h>
 
 namespace Jade {
     Line2D DebugDraw::m_Lines[MAX_LINES] {};

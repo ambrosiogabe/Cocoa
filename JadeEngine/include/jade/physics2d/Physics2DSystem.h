@@ -1,11 +1,8 @@
 #pragma once
-
-#include "jade/systems/System.h"
+#include "externalLibs.h"
 #include "jade/core/Core.h"
 
-#include <vector>
-#include <entt.h>
-#include <glm/vec2.hpp>
+#include "jade/systems/System.h"
 
 namespace Jade
 {

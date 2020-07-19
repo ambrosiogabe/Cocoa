@@ -1,13 +1,11 @@
+#include "externalLibs.h"
+
 #include "jade/physics2d/Physics2D.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
-
-#include <box2D/b2_body.h>
-#include <box2D/b2_shape.h>
-#include <box2D/b2_polygon_shape.h>
 
 namespace Jade
 {

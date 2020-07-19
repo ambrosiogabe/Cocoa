@@ -1,15 +1,10 @@
+#include "externalLibs.h"
+
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/components/Transform.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
-#include "jade/commands/CommandHistory.h"
-#include "jade/commands/ChangeVec2Command.h"
-#include "jade/commands/ChangeFloatCommand.h"
-#include "jade/commands/ChangeEnumCommand.h"
-#include "jade/core/ImGuiExtended.h"
-
-#include <imgui/imgui.h>
-#include <glm/gtc/type_ptr.hpp>
+#include "jade/commands/ICommand.h"
 
 namespace Jade
 {

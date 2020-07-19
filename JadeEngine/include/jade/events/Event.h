@@ -1,10 +1,6 @@
 #pragma once
-
+#include "externalLibs.h"
 #include "jade/core/Core.h"
-
-#include <string>
-#include <ostream>
-#include <functional>
 
 namespace Jade {
 
@@ -90,3 +86,9 @@ namespace Jade {
         return os << e.ToString();
     }
 }
+
+// For convenience other classes only need to include this header
+#include "jade/events/WindowEvent.h"
+#include "jade/events/KeyEvent.h"
+#include "jade/events/MouseEvent.h"
+#include "jade/events/Input.h"

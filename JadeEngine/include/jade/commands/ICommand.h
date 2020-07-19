@@ -1,8 +1,7 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/core/Core.h"
-
-#include <typeinfo>
 
 namespace Jade {
     class ICommand {
@@ -22,3 +21,13 @@ namespace Jade {
         bool m_CanMerge = true;
     };
 }
+
+// These includes are for ease of use from other classes
+// If you wish to have all commands simply include ICommand.h
+#include "jade/commands/CommandHistory.h"
+#include "jade/commands/ChangeFloatCommand.h"
+#include "jade/commands/ChangeVec2Command.h"
+#include "jade/commands/ChangeVec3Command.h"
+#include "jade/commands/ChangeVec4Command.h"
+#include "jade/commands/ChangeUint8Command.h"
+#include "jade/commands/ChangeEnumCommand.h"

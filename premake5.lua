@@ -26,7 +26,6 @@ include "JadeEngine/vendor/GLFW"
 include "JadeEngine/vendor/glad"
 include "JadeEngine/vendor/imgui"
 include "JadeEngine/vendor/box2DVendor"
-include "JadeEngine/vendor/nlohmann-json"
 
 project "JadeEngine"
     location "JadeEngine"
@@ -43,7 +42,8 @@ project "JadeEngine"
 		"%{prj.name}/cpp/**.cpp",
 		"%{prj.name}/include/**.h",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl"
+		"%{prj.name}/vendor/glm/glm/**.inl",
+        "%{prj.name}/vendor/nlohmann-json/single_include/**.hpp"
 	}
 
 	defines {
@@ -70,14 +70,14 @@ project "JadeEngine"
         "Glad",
 		"ImGui",
         "Box2D",
-        "Json"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 
 		defines {
-			"GLFW_INCLUDE_NONE"
+			"GLFW_INCLUDE_NONE",
+            "JSON_MultipleHeaders"
 		}
 
 	filter "configurations:Debug"

@@ -1,6 +1,6 @@
-#include "jade/events/WindowEvent.h"
+#include "externalLibs.h"
 
-#include <sstream>
+#include "jade/events/WindowEvent.h"
 
 namespace Jade {
     WindowResizeEvent::WindowResizeEvent(uint32 width, uint32 height)

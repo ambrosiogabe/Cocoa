@@ -1,10 +1,8 @@
-#pragma once
+#include "externalLibs.h"
 
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
 #include "jade/components/Transform.h"
 #include "jade/util/JMath.h"
-
-#include <glm/gtx/norm.hpp>
 
 namespace Jade
 {

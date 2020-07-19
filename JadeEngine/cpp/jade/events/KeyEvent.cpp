@@ -1,6 +1,6 @@
-#include "jade/events/KeyEvent.h"
+#include "externalLibs.h"
 
-#include <sstream>
+#include "jade/events/KeyEvent.h"
 
 namespace Jade {
     // ============================================================

@@ -1,16 +1,9 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/renderer/Texture.h"
 #include "jade/util/Log.h"
 #include "jade/physics2d/Physics2D.h"
-
-#include <entt.h>
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <vector>
 
 namespace Jade {
     struct Sprite {

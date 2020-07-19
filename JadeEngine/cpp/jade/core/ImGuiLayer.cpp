@@ -1,10 +1,10 @@
+#include "externalLibs.h"
+#include "jade/core/Core.h"
+
 #include "jade/core/ImGuiLayer.h"
 #include "jade/core/Application.h"
 
 #include <examples/imgui_impl_glfw.h>
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-
 #ifndef _JADE_IMPL_IMGUI
 #define _JADE_IMPL_IMGUI
 #pragma warning( push )
@@ -12,10 +12,7 @@
 #pragma warning ( disable : 26451 )
 #pragma warning ( disable : 6031 )
 #pragma warning ( disable : 26495 )
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui.h>
 #include <examples/imgui_impl_opengl3.h>
-#include <imgui/imgui_internal.h>
 #include <imgui/examples/imgui_impl_glfw.cpp>
 #include <imgui/examples/imgui_impl_opengl3.cpp>
 #pragma warning( pop )

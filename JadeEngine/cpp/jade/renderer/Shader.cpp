@@ -1,12 +1,8 @@
+#include "externalLibs.h"
+
 #include "jade/renderer/Shader.h"
 #include "jade/util/Log.h"
 #include "jade/core/Core.h"
-
-#include <fstream>
-#include <unordered_map>
-#include <array>
-#include <glm/gtc/type_ptr.hpp>
-#include <glad/glad.h>
 
 namespace Jade {
     static GLenum ShaderTypeFromString(const std::string& type)

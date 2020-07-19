@@ -1,8 +1,5 @@
 #pragma once
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include "externalLibs.h"
 
 namespace Jade
 {
@@ -24,5 +21,11 @@ namespace Jade
 
 		float ToRadians(float degrees);
 		float ToDegrees(float radians);
+
+		// Serialize math components
+		json Serialize(const std::string& name, const glm::vec4& vec);
+		glm::vec4 DeserializeVec4(json& json);
+		json Serialize(const std::string& name, const glm::vec3& vec);
+		glm::vec3 DeserializeVec3(json& json);
 	}
 }

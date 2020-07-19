@@ -1,10 +1,8 @@
+#include "externalLibs.h"
+#include "jade/core/Core.h"
+
 #include "jade/core/Application.h"
 #include "jade/renderer/DebugDraw.h"
-
-#include <string>
-#include <iostream>
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
 
 namespace Jade {
     Application::Application() {

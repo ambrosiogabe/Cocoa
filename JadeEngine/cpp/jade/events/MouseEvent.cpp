@@ -1,6 +1,6 @@
-#include "jade/events/MouseEvent.h"
+#include "externalLibs.h"
 
-#include <sstream>
+#include "jade/events/MouseEvent.h"
 
 namespace Jade {
     // ===============================================================

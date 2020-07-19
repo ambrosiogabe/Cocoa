@@ -1,10 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/systems/RenderSystem.h"
 #include "jade/core/ImGuiLayer.h"
-
-#include <entt.h>
-#include <vector>
 
 namespace Jade {
     class Scene {
@@ -17,6 +15,8 @@ namespace Jade {
 
         void Play();
         void Stop();
+        void Save(const std::string& filename);
+        void Load(const std::string& filename);
 
         void SetActiveEntity(entt::entity entity);
         entt::registry& GetRegistry();
@@ -24,6 +24,13 @@ namespace Jade {
         entt::entity GetActiveEntity() const;
 
         const std::vector<std::unique_ptr<System>>& GetSystems();
+
+        // TODO: TEMPORARY GET BETTER SYSTEM THEN THESE!!!
+        std::ofstream& GetSaveFile();
+        inline json& GetSaveDataJson()
+        {
+            return m_SaveDataJson;
+        }
 
     public:
         template<typename T>
@@ -39,6 +46,8 @@ namespace Jade {
         std::vector<std::unique_ptr<System>> m_Systems;
 
         entt::registry m_Registry = entt::registry();
+        std::ofstream m_SaveFileStream;
+        json m_SaveDataJson;
 
         Camera* m_Camera;
         entt::entity m_ActiveEntity = entt::null;

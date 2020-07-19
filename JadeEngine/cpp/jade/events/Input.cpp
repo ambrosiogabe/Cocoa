@@ -1,8 +1,8 @@
-#include "jade/events/Input.h"
+#include "externalLibs.h"
 #include "jade/core/Core.h"
-#include "jade/core/Application.h"
 
-#include <glm/vec4.hpp>
+#include "jade/events/Input.h"
+#include "jade/core/Application.h"
 
 namespace Jade {
     bool Input::s_KeyPressed[349] { };

@@ -1,8 +1,7 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/events/Event.h"
-
-#include <string>
 
 namespace Jade {
     class Layer {

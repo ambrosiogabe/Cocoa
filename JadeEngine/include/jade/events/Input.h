@@ -1,6 +1,5 @@
 #pragma once
-
-#include <glm/vec2.hpp>
+#include "externalLibs.h"
 
 namespace Jade {
     class Input {

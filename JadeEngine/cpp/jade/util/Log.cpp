@@ -1,9 +1,9 @@
-#include "jade/util/Log.h"
+#include "externalLibs.h"
 
+#include "jade/util/Log.h"
 #include "jade/core/Application.h"
 
 #include <windows.h>
-#include <stdlib.h>
 
 namespace Jade {
     void Log::_Info(const char* filename, int line, const char* format, ...) {

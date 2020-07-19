@@ -1,11 +1,11 @@
+#include "externalLibs.h"
+#include "jade/core/Core.h"
+
 #include "jade/core/MenuBar.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/util/Settings.h"
 #include "jade/core/Application.h"
-
-#include <entt.h>
-#include <imgui.h>
 
 namespace Jade {
     void MenuBar::SettingsWindow() {

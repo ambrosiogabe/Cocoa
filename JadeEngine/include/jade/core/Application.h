@@ -1,12 +1,11 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/core/Core.h"
 #include "jade/core/Layer.h"
 #include "jade/core/JWindow.h"
 #include "jade/events/Event.h"
 #include "jade/events/WindowEvent.h"
-
-#include <vector>
 
 namespace Jade {
     class Application {

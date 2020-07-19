@@ -1,11 +1,8 @@
+#include "externalLibs.h"
+
 #include "jade/systems/RenderSystem.h"
 #include "jade/components/components.h"
 #include "jade/renderer/Shader.h"
-
-#include <glad/glad.h>
-#include <glm/vec4.hpp>
-#include <entt.h>
-#include <glm/gtx/transform.hpp>
 
 namespace Jade {
     RenderBatch::RenderBatch(RenderSystem* renderer) {

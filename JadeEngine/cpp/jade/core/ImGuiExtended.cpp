@@ -1,26 +1,6 @@
-#include "jade/core/ImGuiExtended.h"
-#include "jade/commands/CommandHistory.h"
-#include "jade/commands/ChangeFloatCommand.h"
-#include "jade/commands/ChangeVec2Command.h"
-#include "jade/commands/ChangeVec3Command.h"
-#include "jade/commands/ChangeVec4Command.h"
-#include "jade/util/Log.h"
-
-#pragma warning( push )
-#pragma warning ( disable : 26812 )
-#pragma warning ( disable : 26451 )
-#pragma warning ( disable : 26495 )
-#include <imgui.h>
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imgui_internal.h>
-#pragma warning( pop )
-#undef IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imstb_rectpack.h>
-
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "externalLibs.h"
+#include "jade/core/Core.h"
+#include "jade/commands/ICommand.h"
 
 namespace ImGui
 {

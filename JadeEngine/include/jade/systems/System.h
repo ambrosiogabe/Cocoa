@@ -1,9 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/events/Event.h"
 
-#include <entt.h>
-#include <string>
 
 namespace Jade {
     class System {

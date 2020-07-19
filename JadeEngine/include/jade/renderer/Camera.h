@@ -1,10 +1,9 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/util/Log.h"
-
-#include <glm/matrix.hpp>
 
 namespace Jade {
     class Camera {

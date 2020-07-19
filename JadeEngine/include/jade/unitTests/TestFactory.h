@@ -1,7 +1,5 @@
 #pragma once
-
-#include <functional>
-#include <unordered_map>
+#include "externalLibs.h"
 
 // UNIT TEST MACRO
 #define JADE_TEST(name) \

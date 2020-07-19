@@ -1,10 +1,6 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <entt/entt.h>
+#include "externalLibs.h"
 
 namespace Jade
 {
@@ -27,6 +23,9 @@ namespace Jade
             m_ModelMatrix = m_ModelMatrix * glm::toMat4(m_Orientation);
             m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
         }
+
+        static void Serialize(entt::entity entity, const Transform& transform);
+        static void Deserialize(json& j, entt::registry& registry, entt::entity entity);
 
         entt::entity m_Parent;
         entt::entity m_Previous;

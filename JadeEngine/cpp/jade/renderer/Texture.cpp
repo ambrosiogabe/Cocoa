@@ -1,3 +1,5 @@
+#include "externalLibs.h"
+
 #include "jade/renderer/Texture.h"
 #include "jade/util/Log.h"
 #include "jade/physics2d/Physics2D.h"
@@ -5,7 +7,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include <glad/glad.h>
 
 namespace Jade {
     Texture::Texture(int width, int height) {

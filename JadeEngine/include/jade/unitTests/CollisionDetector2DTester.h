@@ -1,11 +1,10 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "TestFactory.h"
 #include "jade/renderer/Line2D.h"
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
 #include "jade/physics2d/Physics2DSystem.h"
-
-#include <glm/vec2.hpp>
 
 namespace Jade
 {

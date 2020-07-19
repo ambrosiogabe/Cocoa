@@ -1,9 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/core/MenuBar.h"
 #include "jade/core/Layer.h"
-
-#include <glm/vec2.hpp>
 
 namespace Jade {
     class ImGuiLayer : public Layer {

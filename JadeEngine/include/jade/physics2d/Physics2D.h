@@ -1,10 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/core/Core.h"
-
-#include <entt/entt.h>
-#include <box2d/b2_world.h>
 
 namespace Jade
 {

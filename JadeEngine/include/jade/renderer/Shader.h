@@ -1,10 +1,5 @@
 #pragma once
-
-#include <glm/matrix.hpp>
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <unordered_map>
+#include "externalLibs.h"
 
 typedef unsigned int GLuint;
 

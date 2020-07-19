@@ -1,11 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/core/Core.h"
 #include "jade/util/Log.h"
-
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/glm.hpp>
 
 namespace Jade {
     class Line2D {

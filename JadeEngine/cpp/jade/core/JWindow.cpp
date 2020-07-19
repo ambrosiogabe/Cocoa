@@ -1,11 +1,7 @@
-#include "jade/core/JWindow.h"
-#include "jade/events/WindowEvent.h"
-#include "jade/events/KeyEvent.h"
-#include "jade/events/MouseEvent.h"
-#include "jade/events/Input.h"
+#include "externalLibs.h"
+#include "jade/core/Core.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "jade/core/JWindow.h"
 
 namespace Jade {
     JWindow* JWindow::Create(uint32 width, uint32 height, const std::string& name) {

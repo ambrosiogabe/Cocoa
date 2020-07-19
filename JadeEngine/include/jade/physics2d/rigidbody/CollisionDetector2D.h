@@ -1,10 +1,9 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/renderer/Line2D.h"
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/components/Transform.h"
-
-#include <glm/vec2.hpp>
 
 namespace Jade
 {

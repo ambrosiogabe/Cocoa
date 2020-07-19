@@ -1,10 +1,8 @@
 #pragma once
+#include "externalLibs.h"
 
 #include "jade/renderer/Line2D.h"
 #include "jade/renderer/Shader.h"
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 
 namespace Jade {
     class DebugDraw {
