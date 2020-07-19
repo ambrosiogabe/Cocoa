@@ -107,5 +107,20 @@ namespace Jade
 		{
 			return glm::vec3{ j["X"], j["Y"], j["Z"] };
 		}
+
+		json JMath::Serialize(const std::string& name, const glm::vec2& vec)
+		{
+			return {
+				name, {
+					{"X", vec.x},
+					{"Y", vec.y},
+				}
+			};
+		}
+
+		glm::vec2 JMath::DeserializeVec2(json& j)
+		{
+			return glm::vec2{ j["X"], j["Y"] };
+		}
 	}
 }

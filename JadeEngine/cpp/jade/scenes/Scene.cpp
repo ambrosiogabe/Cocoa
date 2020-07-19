@@ -54,7 +54,7 @@ namespace Jade {
         OutputArchive output;
         entt::snapshot { m_Registry }
             .entities(output)
-            .component<Transform, Rigidbody2D, Box2D, SpriteRenderer>(output);
+            .component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
 
         m_SaveFileStream << m_SaveDataJson.dump(4);
         m_SaveFileStream.close();
@@ -107,6 +107,48 @@ namespace Jade {
                     idKey[j["Components"][i]["Transform"]["Entity"]] = entt::to_integral(entity);
                 }
                 Transform::Deserialize(j["Components"][i], m_Registry, entity);
+            }
+            else if (!j["Components"][i]["Rigidbody2D"].is_null())
+            {
+                entt::entity entity;
+                if (idKey.find(j["Components"][i]["Rigidbody2D"]["Entity"]) != idKey.end())
+                {
+                    entity = entt::entity(idKey[j["Components"][i]["Rigidbody2D"]["Entity"]]);
+                }
+                else
+                {
+                    entity = m_Registry.create();
+                    idKey[j["Components"][i]["Rigidbody2D"]["Entity"]] = entt::to_integral(entity);
+                }
+                Physics2DSystem::DeserializeRigidbody2D(j["Components"][i], m_Registry, entity);
+            }
+            else if (!j["Components"][i]["Box2D"].is_null())
+            {
+                entt::entity entity;
+                if (idKey.find(j["Components"][i]["Box2D"]["Entity"]) != idKey.end())
+                {
+                    entity = entt::entity(idKey[j["Components"][i]["Box2D"]["Entity"]]);
+                }
+                else
+                {
+                    entity = m_Registry.create();
+                    idKey[j["Components"][i]["Box2D"]["Entity"]] = entt::to_integral(entity);
+                }
+                Physics2DSystem::DeserializeBox2D(j["Components"][i], m_Registry, entity);
+            }
+            else if (!j["Components"][i]["AABB"].is_null())
+            {
+                entt::entity entity;
+                if (idKey.find(j["Components"][i]["AABB"]["Entity"]) != idKey.end())
+                {
+                    entity = entt::entity(idKey[j["Components"][i]["AABB"]["Entity"]]);
+                }
+                else
+                {
+                    entity = m_Registry.create();
+                    idKey[j["Components"][i]["AABB"]["Entity"]] = entt::to_integral(entity);
+                }
+                Physics2DSystem::DeserializeAABB(j["Components"][i], m_Registry, entity);
             }
         }
     }

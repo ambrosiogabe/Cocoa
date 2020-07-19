@@ -97,8 +97,8 @@ namespace Jade {
             {
                 if (!isPlaying)
                 {
+                    Application::Get()->GetScene()->Save("tmp.jade");
                     Application::Get()->GetScene()->Play();
-                    Log::Info("Starting scene!");
                     isPlaying = true;
                 }
                 ImGui::EndMenu();
@@ -108,7 +108,7 @@ namespace Jade {
                 if (isPlaying)
                 {
                     Application::Get()->GetScene()->Stop();
-                    Log::Info("Stopping scene!");
+                    Application::Get()->GetScene()->Load("tmp.jade");
                     isPlaying = false;
                 }
                 ImGui::EndMenu();

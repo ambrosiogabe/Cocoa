@@ -1,4 +1,5 @@
 #pragma once
+#include "externalLibs.h"
 
 namespace Jade {
     namespace Settings
@@ -9,6 +10,7 @@ namespace Jade {
             static int s_GridSizeX;
             static int s_GridSizeY;
             static bool s_DrawGrid;
+            static std::string s_CurrentSaveFile;
         };
   
         class Physics2D

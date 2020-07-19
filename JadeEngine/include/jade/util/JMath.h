@@ -27,5 +27,7 @@ namespace Jade
 		glm::vec4 DeserializeVec4(json& json);
 		json Serialize(const std::string& name, const glm::vec3& vec);
 		glm::vec3 DeserializeVec3(json& json);
+		json Serialize(const std::string& name, const glm::vec2& vec);
+		glm::vec2 DeserializeVec2(json& json);
 	}
 }

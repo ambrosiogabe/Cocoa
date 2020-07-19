@@ -5,9 +5,25 @@
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
 #include "jade/commands/ICommand.h"
+#include "jade/renderer/DebugDraw.h"
 
 namespace Jade
 {
+	void Physics2DSystem::Render(entt::registry& registry)
+	{
+		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
+
+		if (entt::to_integral(activeEntity) != entt::to_integral(entt::null))
+		{
+			if (registry.has<Box2D, Transform>(activeEntity))
+			{
+				const Box2D& box = registry.get<Box2D>(activeEntity);
+				const Transform& transform = registry.get<Transform>(activeEntity);
+				DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position), box.m_HalfSize * 2.0f, transform.m_EulerRotation.z);
+			}
+		}
+	}
+
 	void Physics2DSystem::ImGui(entt::registry& registry)
 	{
 		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
@@ -235,5 +251,94 @@ namespace Jade
 		ray.m_MaxDistance = maxDistance;
 		ray.m_Ignore = ignore;
 		return ray;
+	}
+
+	void Physics2DSystem::Serialize(entt::entity& entity, const AABB& box)
+	{
+		json& j = Application::Get()->GetScene()->GetSaveDataJson();
+
+		json halfSize = JMath::Serialize("HalfSize", box.m_HalfSize);
+		json offset = JMath::Serialize("Offset", box.m_Offset);
+		int size = j["Size"];
+		j["Components"][size] = {
+			{"AABB", {
+				{"Entity", entt::to_integral(entity)},
+				halfSize,
+				offset
+			}}
+		};
+
+		j["Size"] = size + 1;
+	}
+
+	void Physics2DSystem::DeserializeAABB(json& j, entt::registry& registry, entt::entity entity)
+	{
+		AABB box;
+		box.m_HalfSize = JMath::DeserializeVec2(j["AABB"]["HalfSize"]);
+		box.m_Size = box.m_HalfSize * 2.0f;
+		box.m_Offset = JMath::DeserializeVec2(j["AABB"]["Offset"]);
+		registry.emplace<AABB>(entity, box);
+	}
+
+	void Physics2DSystem::Serialize(entt::entity& entity, const Box2D& box)
+	{
+		json& j = Application::Get()->GetScene()->GetSaveDataJson();
+
+		json halfSize = JMath::Serialize("HalfSize", box.m_HalfSize);
+		int size = j["Size"];
+		j["Components"][size] = {
+			{"Box2D", {
+				{"Entity", entt::to_integral(entity)},
+				halfSize,
+			}}
+		};
+
+		j["Size"] = size + 1;
+	}
+
+	void Physics2DSystem::DeserializeBox2D(json& j, entt::registry& registry, entt::entity entity)
+	{
+		Box2D box;
+		box.m_HalfSize = JMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
+		box.m_Size = box.m_HalfSize * 2.0f;
+		registry.emplace<Box2D>(entity, box);
+	}
+
+	void Physics2DSystem::Serialize(entt::entity& entity, const Rigidbody2D& rb)
+	{
+		json& j = Application::Get()->GetScene()->GetSaveDataJson();
+
+		json angularDamping = { "AngularDamping", rb.m_AngularDamping };
+		json linearDamping = { "LinearDamping", rb.m_LinearDamping };
+		json mass = { "Mass", rb.m_Mass };
+		json velocity = JMath::Serialize("Velocity", rb.m_Velocity);
+		json continousCollision = { "ContinousCollision", rb.m_ContinuousCollision };
+		json fixedRotation = { "FixedRotation", rb.m_FixedRotation };
+		int size = j["Size"];
+		j["Components"][size] = {
+			{"Rigidbody2D", {
+				{"Entity", entt::to_integral(entity)},
+				angularDamping,
+				linearDamping,
+				mass,
+				velocity,
+				continousCollision,
+				fixedRotation
+			}}
+		};
+
+		j["Size"] = size + 1;
+	}
+
+	void Physics2DSystem::DeserializeRigidbody2D(json& j, entt::registry& registry, entt::entity entity)
+	{
+		Rigidbody2D rb;
+		rb.m_AngularDamping = j["Rigidbody2D"]["AngularDamping"];
+		rb.m_LinearDamping = j["Rigidbody2D"]["LinearDamping"];
+		rb.m_Mass = j["Rigidbody2D"]["Mass"];
+		rb.m_Velocity = JMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
+		rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
+		rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
+		registry.emplace<Rigidbody2D>(entity, rb);
 	}
 }

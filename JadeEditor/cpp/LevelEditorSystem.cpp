@@ -152,14 +152,9 @@ namespace Jade
 				CommandHistory::Redo();
 			}
 
-			if (e.GetKeyCode() == JADE_KEY_L)
-			{
-				Application::Get()->GetScene()->Load("test.jade");
-			}
-
 			if (e.GetKeyCode() == JADE_KEY_S)
 			{
-				Application::Get()->GetScene()->Save("test.jade");
+				Application::Get()->GetScene()->Save(Settings::General::s_CurrentSaveFile);
 			}
 		}
 

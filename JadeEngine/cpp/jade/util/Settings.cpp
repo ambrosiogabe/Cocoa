@@ -7,6 +7,7 @@ namespace Jade
         int General::s_GridSizeX = 32;
         int General::s_GridSizeY = 32;
         bool General::s_DrawGrid = false;
+        std::string General::s_CurrentSaveFile = "New Scene.jade";
 
         int Physics2D::s_PositionIterations = 3;
         int Physics2D::s_VelocityIterations = 8;

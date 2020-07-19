@@ -1373,6 +1373,7 @@
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\file\InputArchive.h" />
+    <ClInclude Include="include\jade\file\FileDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1457,5 +1458,7 @@
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\components\Transform.cpp" />
+    <ClCompile Include="cpp\jade\file\Win32FileDialog.cpp" />
+    <ClCompile Include="cpp\jade\file\FileDialog.cpp" />
   </ItemGroup>
 </Project>

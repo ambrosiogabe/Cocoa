@@ -2,6 +2,7 @@
 #include "externalLibs.h"
 
 #include "jade/systems/RenderSystem.h"
+#include "jade/physics2d/Physics2DSystem.h"
 #include "jade/util/Log.h"
 
 namespace Jade
@@ -11,12 +12,12 @@ namespace Jade
 	public:
 		void operator()(entt::entity entity)
 		{
-			Log::Info("Archiving entity: %d", entt::to_integral(entity));
+			//Log::Info("Archiving entity: %d", entt::to_integral(entity));
 		}
 
 		void operator()(std::underlying_type_t<entt::entity> underlyingType)
 		{
-			Log::Info("Archiving underlying type entity: %d", underlyingType);
+			//Log::Info("Archiving underlying type entity: %d", underlyingType);
 		}
 
 		template <class T>
@@ -39,17 +40,25 @@ namespace Jade
 				}
 				case entt::type_info<Box2D>().id():
 				{
-					Log::Info("Archiving entity: %d  Box2D", entt::to_integral(entity));
+					const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
+					Physics2DSystem::Serialize(entity, *box2D);
 					break;
 				}
 				case entt::type_info<Rigidbody2D>().id():
 				{
-					Log::Info("Archiving entity: %d  Rigidbody2D", entt::to_integral(entity));
+					const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
+					Physics2DSystem::Serialize(entity, *rb);
+					break;
+				}
+				case entt::type_info<AABB>().id():
+				{
+					const AABB* box = reinterpret_cast<const AABB*>(&component);
+					Physics2DSystem::Serialize(entity, *box);
 					break;
 				}
 				default: 
 				{
-					Log::Info("Archiving entity: %d  DEFAULT", entt::to_integral(entity));
+					//Log::Info("Archiving entity: %d  DEFAULT", entt::to_integral(entity));
 					break;
 				}
 			}

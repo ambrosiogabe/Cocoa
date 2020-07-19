@@ -63,7 +63,7 @@ namespace Jade
         Physics2DSystem(const char* name)
             : System(name) { }
          
-        //virtual void Render(entt::registry& registry) override;
+        virtual void Render(entt::registry& registry) override;
         virtual void ImGui(entt::registry& registry) override;
         //virtual void Update(entt::registry& registry, float dt) override;
 
@@ -97,5 +97,15 @@ namespace Jade
         // ----------------------------------------------------------------------------
         static Ray2D Ray2DFrom(glm::vec2 origin, glm::vec2 direction);
         static Ray2D Ray2DFrom(glm::vec2 origin, glm::vec2 direction, float maxDistance, entt::entity ignore);
+
+        // ----------------------------------------------------------------------------
+        // Serialization
+        // ----------------------------------------------------------------------------
+        static void Serialize(entt::entity& entity, const AABB& box);
+        static void DeserializeAABB(json& j, entt::registry& registry, entt::entity entity);
+        static void Serialize(entt::entity& entity, const Box2D& box);
+        static void DeserializeBox2D(json& j, entt::registry& registry, entt::entity entity);
+        static void Serialize(entt::entity& entity, const Rigidbody2D& rigidbody);
+        static void DeserializeRigidbody2D(json& j, entt::registry& registry, entt::entity entity);
     };
 }
