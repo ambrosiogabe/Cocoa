@@ -5,16 +5,26 @@
 #include "jade/renderer/Shader.h"
 
 namespace Jade {
-    RenderBatch::RenderBatch(RenderSystem* renderer) {
-        this->m_Renderer = renderer;
-        this->GenerateIndices();
+    RenderBatch::RenderBatch(int maxBatchSize) 
+    {
+        m_MaxBatchSize = maxBatchSize;
+        m_VertexBufferBase = new Vertex[m_MaxBatchSize * 4];
+        m_VertexStackPointer = &m_VertexBufferBase[0];
+        m_Indices = new uint32[m_MaxBatchSize * 6];
 
-        for (int i=0; i < 16; i++) {
+        for (int i = 0; i < m_Textures.size(); i++)
+        {
             m_Textures[i] = nullptr;
         }
+
+        m_VAO = -1;
+        m_VBO = -1;
+        m_EBO = -1;
     }
 
     void RenderBatch::Start() {
+        this->GenerateIndices();
+
         glGenVertexArrays(1, &m_VAO);
         glGenBuffers(1, &m_VBO);
         glGenBuffers(1, &m_EBO);
@@ -22,10 +32,10 @@ namespace Jade {
         glBindVertexArray(m_VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4 * RenderSystem::MAX_BATCH_SIZE, nullptr, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4 * m_MaxBatchSize, nullptr, GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 6 * RenderSystem::MAX_BATCH_SIZE, this->m_Indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 6 * m_MaxBatchSize, this->m_Indices, GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, sizeof(Vertex().position) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, position));
         glEnableVertexAttribArray(0);
@@ -55,10 +65,34 @@ namespace Jade {
         LoadVertexProperties(transform, spr);
     }
 
+    void RenderBatch::Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color)
+    {
+        m_NumSprites++;
+        std::array<glm::vec2, 4> texCoords{
+            glm::vec2 {1, 1},
+            glm::vec2 {1, 0},
+            glm::vec2 {0, 0},
+            glm::vec2 {0, 1}
+        };
+        glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
+        glm::vec2 quadSize{ max.x - min.x, max.y - min.y };
+        glm::vec3 position{ min.x + ((max.x - min.x) / 2.0f), min.y + ((max.y - min.y) / 2.0f), 0.0f };
+        glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+        int texId = 0;
+        float rotation = 0.0f;
+
+        //Log::Info("Min: %2.3f %2.3f", min.x, min.y);
+        //Log::Info("Max: %2.3f %2.3f", max.x, max.y);
+        //Log::Info("Position: %2.3f %2.3f", position.x, position.y);
+        LoadVertexProperties(position, scale, quadSize, &texCoords[0], rotation, vec4Color, texId);
+    }
+
     void RenderBatch::LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr) {    
         glm::vec4 color = spr.m_Color;
         Sprite* sprite = spr.m_Sprite;
         glm::vec2* texCoords = &sprite->m_TexCoords[0];
+        glm::vec2 quadSize{ sprite->m_Width, sprite->m_Height };
+        float rotation = transform.m_EulerRotation.z;
 
         int texId = 0;
         if (sprite->m_Texture != nullptr) {
@@ -69,31 +103,46 @@ namespace Jade {
                 }
             }
         }
-        
-        bool isRotated = transform.m_EulerRotation.z != 0.0f;
+
+        LoadVertexProperties(transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId);
+    }
+
+    void RenderBatch::LoadVertexProperties(const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, glm::vec2* texCoords, 
+        float rotationDegrees, const glm::vec4& color, int texId)
+    {
+        bool isRotated = rotationDegrees != 0.0f;
         glm::mat4 matrix = glm::mat4(1.0f);
-        if (isRotated) {
-            matrix = glm::translate(matrix, transform.m_Position);
-            matrix = glm::rotate(matrix, glm::radians(transform.m_EulerRotation.z), glm::vec3(0, 0, 1));
-            matrix = glm::scale(matrix, transform.m_Scale * glm::vec3(sprite->m_Width, sprite->m_Height, 1));
+        if (isRotated)
+        {
+            matrix = glm::translate(matrix, position);
+            matrix = glm::rotate(matrix, glm::radians(rotationDegrees), glm::vec3(0, 0, 1));
+            matrix = glm::scale(matrix, scale * glm::vec3(quadSize.x, quadSize.y, 1));
         }
 
         float xAdd = 0.5f;
         float yAdd = -0.5f;
-        for (int i=0; i < 4; i++) {
-            if (i == 1) {
+        for (int i = 0; i < 4; i++)
+        {
+            if (i == 1)
+            {
                 yAdd = 0.5f;
-            } else if (i == 2) {
+            }
+            else if (i == 2)
+            {
                 xAdd = -0.5f;
-            } else if (i == 3) {
+            }
+            else if (i == 3)
+            {
                 yAdd = -0.5f;
             }
 
-            glm::vec4 currentPos = glm::vec4(transform.m_Position.x + (xAdd * transform.m_Scale.x * sprite->m_Width), 
-                transform.m_Position.y + (yAdd * transform.m_Scale.y * sprite->m_Height), 0.0f, 1.0f);
-            if (isRotated) {
+            glm::vec4 currentPos = glm::vec4(position.x + (xAdd * scale.x * quadSize.x),
+                position.y + (yAdd * scale.y * quadSize.y), 0.0f, 1.0f);
+            if (isRotated)
+            {
                 currentPos = matrix * glm::vec4(xAdd, yAdd, 0.0f, 1.0f);
             }
+
             // Load Attributes
             m_VertexStackPointer->position = glm::vec3(currentPos);
             m_VertexStackPointer->color = glm::vec4(color);
@@ -136,7 +185,7 @@ namespace Jade {
     }
 
     void RenderBatch::GenerateIndices() {
-        for (int i=0; i < RenderSystem::MAX_BATCH_SIZE; i++) {
+        for (int i=0; i < m_MaxBatchSize; i++) {
             this->LoadElementIndices(i);
         }
     }

@@ -4,196 +4,102 @@
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
 
-namespace Jade {
-    Line2D DebugDraw::m_Lines[MAX_LINES] {};
-    float* DebugDraw::m_VertexArray2D = new float[MAX_LINES * 6 * 4];
-    uint32 DebugDraw::m_NumLines = 0;
-    Shader* DebugDraw::m_Shader = nullptr;
-    uint32 DebugDraw::m_VAO = 0;
-    uint32 DebugDraw::m_VBO = 0;
-    bool DebugDraw::m_Started = false;
+namespace Jade
+{
+	std::vector<RenderBatch*> DebugDraw::m_Batches = std::vector<RenderBatch*>();
+	std::vector<Line2D> DebugDraw::m_Lines = std::vector<Line2D>();
+	Shader* DebugDraw::m_Shader = nullptr;
+	int DebugDraw::m_MaxBatchSize = 500;
 
-    void DebugDraw::Start() {
-        DebugDraw::m_Shader = new Shader("assets/shaders/debugLine2D.glsl");
+	void DebugDraw::BeginFrame()
+	{
+		if (m_Shader == nullptr)
+		{
+			m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
+		}
 
-        // Generate and bind vertex array
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
+		// Remove dead lines
+		for (int i=0; i < m_Lines.size(); i++)
+		{
+			if (m_Lines[i].BeginFrame() <= 0)
+			{
+				m_Lines.erase(m_Lines.begin() + i);
+				i--;
+			}
+		}
+	}
 
-        // Create a buffer object and allocate space
-        glGenBuffers(1, &m_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MAX_LINES * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+	void DebugDraw::EndFrame()
+	{
+		for (Line2D line : m_Lines)
+		{
+			bool wasAdded = false;
+			for (RenderBatch* batch : m_Batches)
+			{
+				if (batch->HasRoom())
+				{
+					batch->Add(line.GetMin(), line.GetMax(), line.GetColor());
+					wasAdded = true;
+					break;
+				}
+			}
 
-        // Create another buffer object for the indices, then upload
-        uint32 ebo;
-        glGenBuffers(1, &ebo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        // TODO: double check that these sizes are correct
-        int* indices = GetIndicesBuffer();
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * MAX_LINES * 6, indices, GL_STATIC_DRAW);
-        delete indices;
+			if (!wasAdded)
+			{
+				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize);
+				newBatch->Start();
+				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
+				m_Batches.push_back(newBatch);
+			}
+		}
 
-        // Enable the attrib pointers
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), 0);
-        glEnableVertexAttribArray(0);
+		// Use shader
+		m_Shader->Bind();
+		m_Shader->UploadMat4("uProjection", Application::Get()->GetScene()->GetCamera()->GetOrthoProjection());
+		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
 
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-    }
+		for (RenderBatch* batch : m_Batches)
+		{
+			batch->Render();
+			batch->Clear();
+		}
 
-    int* DebugDraw::GetIndicesBuffer() {
-        int* indices = new int[MAX_LINES * 6];
-        for (int i=0; i < MAX_LINES; i++) {
-            LoadElementIndices(i, indices);
-        }
-        return indices;
-    }
-
-    void DebugDraw::LoadElementIndices(int index, int* indices) {
-        int offsetArray = 6 * index;
-        int offset = 4 * index;
-
-        // Triangle 1
-        indices[offsetArray] = offset + 3;
-        indices[offsetArray + 1] = offset + 2;
-        indices[offsetArray + 2] = offset + 1;
-
-        // Triangle 2
-        indices[offsetArray + 3] = offset + 1;
-        indices[offsetArray + 4] = offset + 2;
-        indices[offsetArray + 5] = offset + 0;
-    }   
-
-    void DebugDraw::BeginFrame() {
-        if (!m_Started) {
-            Start();
-            m_Started = true;
-        }
-
-        // Remove dead lines
-        for (uint32 i=0; i < m_NumLines; i++) {
-            if (m_Lines[i].BeginFrame() <= 0) {
-                for (uint32 j=i; j < m_NumLines - 1; j++) {
-                    m_Lines[j] = m_Lines[j + 1];
-                }
-                i--;
-                m_NumLines--;
-            }
-        }
-    }
-
-    void DebugDraw::EndFrame() {
-        int index = 0;
-        for (uint32 lineIndex=0; lineIndex < m_NumLines; lineIndex++) {
-            Line2D line = m_Lines[lineIndex];
-            const glm::vec2* verts = line.GetVerts();
-            const glm::vec3& color = line.GetColor();
-            
-            for (int i=0; i < 4; i++) {
-                m_VertexArray2D[index] = verts[i].x;
-                m_VertexArray2D[index + 1] = verts[i].y;
-                m_VertexArray2D[index + 2] = -10.0f;
-                
-                m_VertexArray2D[index + 3] = color.r;
-                m_VertexArray2D[index + 4] = color.g;
-                m_VertexArray2D[index + 5] = color.b;
-                index += 6;
-            }
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * m_NumLines * 6 * 4, m_VertexArray2D);
-
-        // Use shader
-        m_Shader->Bind();
-        m_Shader->UploadMat4("uProjection", Application::Get()->GetScene()->GetCamera()->GetOrthoProjection());
-        m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
-
-        // Bind vao
-        glBindVertexArray(m_VAO);
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
-        glDrawElements(GL_TRIANGLES, m_NumLines * 6, GL_UNSIGNED_INT, 0);
-
-        // Disable location
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glBindVertexArray(0);
-    }
+		m_Shader->Unbind();
+	}
 
 
 
-    // ------Add Line2D methods---------------------------------------------------------------------------------------
+	// ------Draw Primitive Methods---------------------------------------------------------------------------------------
 
-    void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to) {
-        glm::vec3 green = glm::vec3(0, 1, 0);
-        AddLine2D(from, to, 1.0f, green, 1);
-    }
+	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime)
+	{
+		m_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime));
+	}
 
-    void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth) {
-        glm::vec3 green = glm::vec3(0, 1, 0);
-        AddLine2D(from, to, strokeWidth, green, 1);
-    }
+	void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime)
+	{
+		glm::vec2 min = center - (dimensions / 2.0f);
+		glm::vec2 max = center + (dimensions / 2.0f);
 
-    void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3& color) {
-        AddLine2D(from, to, strokeWidth, color, 1);
-    }
+		std::array<glm::vec2, 4> vertices = {
+			glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
+			glm::vec2(max.x, max.y), glm::vec2(max.x, min.y)
+		};
 
-    void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3& color, int lifetime) {
-        if (m_NumLines >= MAX_LINES) return;
-        m_Lines[m_NumLines] = Line2D(from, to, color, strokeWidth, lifetime);
-        m_NumLines++;
-    }
+		if (!JMath::Compare(rotation, 0.0f))
+		{
+			for (auto& vec : vertices)
+			{
+				JMath::Rotate(vec, rotation, center);
+			}
+		}
 
-    // ---------------------------------------------------------------------------------------------------------------
+		AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime);
+		AddLine2D(vertices[0], vertices[3], strokeWidth, color, lifetime);
+		AddLine2D(vertices[1], vertices[2], strokeWidth, color, lifetime);
+		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime);
+	}
 
-    // ------Add Box2D methods---------------------------------------------------------------------------------------
-
-    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation)
-    {
-        glm::vec3 green = glm::vec3(0, 1, 0);
-        AddBox2D(center, dimensions, rotation, 1.0f, green, 1);
-    }
-
-    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth)
-    {
-        glm::vec3 green = glm::vec3(0, 1, 0);
-        AddBox2D(center, dimensions, rotation, strokeWidth, green, 1);
-    }
-
-    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color)
-    {
-        AddBox2D(center, dimensions, rotation, strokeWidth, color, 1);
-    }
-
-    void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color, int lifetime)
-    {
-        if (m_NumLines >= MAX_LINES - 4) return;
-
-        glm::vec2 min = center - (dimensions / 2.0f);
-        glm::vec2 max = center + (dimensions / 2.0f);
-
-        std::array<glm::vec2, 4> vertices = {
-            glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
-            glm::vec2(max.x, max.y), glm::vec2(max.x, min.y)
-        };
-
-        if (!JMath::Compare(rotation, 0.0f))
-        {
-        	for (auto& vec : vertices)
-        	{
-        		JMath::Rotate(vec, rotation, center);
-        	}
-        }
-
-        AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime);
-        AddLine2D(vertices[0], vertices[3], strokeWidth, color, lifetime);
-        AddLine2D(vertices[1], vertices[2], strokeWidth, color, lifetime);
-        AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime);
-    }
-
-    // ---------------------------------------------------------------------------------------------------------------
+	// ---------------------------------------------------------------------------------------------------------------
 
 }

@@ -3,6 +3,7 @@
 
 #include "jade/renderer/Line2D.h"
 #include "jade/renderer/Shader.h"
+#include "jade/renderer/RenderBatch.h"
 
 namespace Jade {
     class DebugDraw {
@@ -10,36 +11,15 @@ namespace Jade {
         static void BeginFrame();
         static void EndFrame();
 
-        // ------Add Line2D methods---------------------------------------------------------------------------------------
-        static void AddLine2D(glm::vec2& from, glm::vec2& to);
-        static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth);
-        static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3& color);
-        static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3& color, int lifetime);
-        // ---------------------------------------------------------------------------------------------------------------
+        static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth=1.0f, glm::vec3 color={0.0f, 1.0f, 0.0f}, int lifetime=1);
+        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation=0.0f, float strokeWidth=1.0f, glm::vec3 color={0.0f, 1.0f, 0.0f}, int lifetime=1);
+        static void AddSprite(uint32 texId, glm::vec2 size, 
+            glm::vec3 tint={1.0f, 1.0f, 1.0f}, glm::vec2 texCoordMin={0.0f, 1.0f}, glm::vec2 texCoordMax={1.0f, 0.0f}, float rotation=0.0f, int lifetime=1);
 
-        // ------Add Box2D methods---------------------------------------------------------------------------------------
-        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation);
-        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth);
-        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color);
-        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3& color, int lifetime);
-        // ---------------------------------------------------------------------------------------------------------------
-
-    private:
-        static void Start();
-        static int* GetIndicesBuffer();
-        static void LoadElementIndices(int index, int* indices);
-
-    private:
-        static const int MAX_LINES = 500;
-        static Line2D m_Lines[MAX_LINES];
-        static float* m_VertexArray2D;
-        
-        static uint32 m_NumLines;
+    private:        
+        static std::vector<RenderBatch*> m_Batches;
+        static std::vector<Line2D> m_Lines;
         static Shader* m_Shader;
-
-        static uint32 m_VAO;
-        static uint32 m_VBO;
-
-        static bool m_Started;
+        static int m_MaxBatchSize;
     };
 }

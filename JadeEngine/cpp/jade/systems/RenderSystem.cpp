@@ -11,8 +11,6 @@
 
 namespace Jade
 {
-	const int RenderSystem::MAX_BATCH_SIZE = 1000;
-
 	void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr)
 	{
 		Sprite* sprite = spr.m_Sprite;
@@ -33,7 +31,7 @@ namespace Jade
 
 		if (!wasAdded)
 		{
-			RenderBatch* newBatch = new RenderBatch(this);
+			RenderBatch* newBatch = new RenderBatch(MAX_BATCH_SIZE);
 			newBatch->Start();
 			newBatch->Add(transform, spr);
 			m_Batches.push_back(newBatch);

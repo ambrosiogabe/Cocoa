@@ -25,6 +25,9 @@ namespace Jade {
             m_Verts[1] = from - (normal * halfStroke);
             m_Verts[2] = m_Verts[0] - line;
             m_Verts[3] = m_Verts[1] - line;
+
+            m_Min = m_Verts[1];
+            m_Max = m_Verts[2];
         }
 
         int BeginFrame()                     { return m_Lifetime--; }
@@ -35,7 +38,8 @@ namespace Jade {
         const glm::vec3& GetColor()    const { return m_Color; }
         float GetStroke()              const { return m_Stroke; }
         const glm::vec2* GetVerts()    const { return &m_Verts[0]; }
-        //float lengthSquared()       const { return glm::vec2.Length(m_From - m_To);}
+        const glm::vec2& GetMin() { return m_Min; }
+        const glm::vec2& GetMax() { return m_Max; }
 
 
     private:
@@ -43,6 +47,8 @@ namespace Jade {
         glm::vec2 m_To;
         glm::vec3 m_Color;
         glm::vec2 m_Verts[4]{};
+        glm::vec2 m_Min;
+        glm::vec2 m_Max;
         float m_Stroke;
         uint32 m_Lifetime;
     };

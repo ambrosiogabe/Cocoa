@@ -1374,6 +1374,7 @@
     </ClInclude>
     <ClInclude Include="include\jade\file\InputArchive.h" />
     <ClInclude Include="include\jade\file\FileDialog.h" />
+    <ClInclude Include="include\jade\renderer\RenderBatch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
