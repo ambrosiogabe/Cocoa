@@ -26,6 +26,9 @@ namespace Jade {
 
         texture = new Texture("assets/images/decorationsAndBlocks.png", false);
         sprites = new Spritesheet(texture, 16, 16, 81, 0);
+        Sprite tmpSprite = sprites->GetSprite(1);
+        DebugDraw::AddSprite(tmpSprite.m_Texture->GetId(), {128, 128}, {100.0f, 100.0f}, {1.0f, 0.0f, 0.0f}, 
+            tmpSprite.m_TexCoords[0], tmpSprite.m_TexCoords[2], 0.0f, 60);
 
         //entt::entity container = m_Registry.create();
         //m_Registry.emplace<Transform>(container, glm::vec3(), glm::vec3(1), glm::vec3(), "Container");

@@ -81,10 +81,24 @@ namespace Jade {
         int texId = 0;
         float rotation = 0.0f;
 
-        //Log::Info("Min: %2.3f %2.3f", min.x, min.y);
-        //Log::Info("Max: %2.3f %2.3f", max.x, max.y);
-        //Log::Info("Position: %2.3f %2.3f", position.x, position.y);
         LoadVertexProperties(position, scale, quadSize, &texCoords[0], rotation, vec4Color, texId);
+    }
+
+    void RenderBatch::Add(uint32 texId, const glm::vec2& size, const glm::vec2& position, 
+        const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
+    {
+        m_NumSprites++;
+        std::array<glm::vec2, 4> texCoords{
+            glm::vec2 {texCoordMax.x, texCoordMax.y},
+            glm::vec2 {texCoordMax.x, texCoordMin.y},
+            glm::vec2 {texCoordMin.x, texCoordMin.y},
+            glm::vec2 {texCoordMin.x, texCoordMax.y}
+        };
+        glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
+        glm::vec3 vec3Pos{ position.x, position.y, 0.0f };
+        glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+        
+        LoadVertexProperties(vec3Pos, scale, size, &texCoords[0], rotation, vec4Color, texId);
     }
 
     void RenderBatch::LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr) {    

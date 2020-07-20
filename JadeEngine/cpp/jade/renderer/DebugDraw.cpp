@@ -8,8 +8,10 @@ namespace Jade
 {
 	std::vector<RenderBatch*> DebugDraw::m_Batches = std::vector<RenderBatch*>();
 	std::vector<Line2D> DebugDraw::m_Lines = std::vector<Line2D>();
+	std::vector<DebugSprite> DebugDraw::m_Sprites = std::vector<DebugSprite>();
 	Shader* DebugDraw::m_Shader = nullptr;
 	int DebugDraw::m_MaxBatchSize = 500;
+
 
 	void DebugDraw::BeginFrame()
 	{
@@ -18,42 +20,16 @@ namespace Jade
 			m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
 		}
 
-		// Remove dead lines
-		for (int i=0; i < m_Lines.size(); i++)
-		{
-			if (m_Lines[i].BeginFrame() <= 0)
-			{
-				m_Lines.erase(m_Lines.begin() + i);
-				i--;
-			}
-		}
+		RemoveDeadLines();
+		RemoveDeadSprites();
 	}
 
 	void DebugDraw::EndFrame()
 	{
-		for (Line2D line : m_Lines)
-		{
-			bool wasAdded = false;
-			for (RenderBatch* batch : m_Batches)
-			{
-				if (batch->HasRoom())
-				{
-					batch->Add(line.GetMin(), line.GetMax(), line.GetColor());
-					wasAdded = true;
-					break;
-				}
-			}
+		AddLinesToBatches();
+		AddSpritesToBatches();
 
-			if (!wasAdded)
-			{
-				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize);
-				newBatch->Start();
-				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
-				m_Batches.push_back(newBatch);
-			}
-		}
-
-		// Use shader
+		// Render
 		m_Shader->Bind();
 		m_Shader->UploadMat4("uProjection", Application::Get()->GetScene()->GetCamera()->GetOrthoProjection());
 		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
@@ -67,10 +43,9 @@ namespace Jade
 		m_Shader->Unbind();
 	}
 
-
-
-	// ------Draw Primitive Methods---------------------------------------------------------------------------------------
-
+	// ===================================================================================================================
+	// Draw Primitive Methods
+	// ===================================================================================================================
 	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime)
 	{
 		m_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime));
@@ -100,6 +75,93 @@ namespace Jade
 		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime);
 	}
 
-	// ---------------------------------------------------------------------------------------------------------------
+	void DebugDraw::AddSprite(uint32 texId, glm::vec2 size, glm::vec2 position, glm::vec3 tint, 
+		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime)
+	{
+		m_Sprites.push_back({ texId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime });
+	}
+
+
+	// ===================================================================================================================
+	// Private methods
+	// ===================================================================================================================
+	void DebugDraw::RemoveDeadSprites()
+	{
+		for (int i = 0; i < m_Sprites.size(); i++)
+		{
+			if (m_Sprites[i].BeginFrame() <= 0)
+			{
+				m_Sprites.erase(m_Sprites.begin() + i);
+				i--;
+			}
+		}
+	}
+
+	void DebugDraw::RemoveDeadLines()
+	{
+		for (int i = 0; i < m_Lines.size(); i++)
+		{
+			if (m_Lines[i].BeginFrame() <= 0)
+			{
+				m_Lines.erase(m_Lines.begin() + i);
+				i--;
+			}
+		}
+	}
+
+	void DebugDraw::AddSpritesToBatches()
+	{
+		for (DebugSprite sprite : m_Sprites)
+		{
+			bool wasAdded = false;
+			uint32 texId = sprite.m_TexId;
+			for (RenderBatch* batch : m_Batches)
+			{
+				if (batch->HasRoom())
+				{
+					if (batch->HasTextureId(texId) || batch->HasTextureRoom())
+					{
+						batch->Add(texId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+						wasAdded = true;
+						break;
+					}
+				}
+			}
+
+			if (!wasAdded)
+			{
+				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize);
+				newBatch->Start();
+				newBatch->Add(texId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+				m_Batches.push_back(newBatch);
+			}
+		}
+	}
+
+	void DebugDraw::AddLinesToBatches()
+	{
+		for (Line2D line : m_Lines)
+		{
+			bool wasAdded = false;
+			for (RenderBatch* batch : m_Batches)
+			{
+				if (batch->HasRoom())
+				{
+					batch->Add(line.GetMin(), line.GetMax(), line.GetColor());
+					wasAdded = true;
+					break;
+				}
+			}
+
+			if (!wasAdded)
+			{
+				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize);
+				newBatch->Start();
+				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
+				m_Batches.push_back(newBatch);
+			}
+		}
+	}
+
 
 }

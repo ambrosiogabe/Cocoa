@@ -22,6 +22,8 @@ namespace Jade
         void Start();
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
+        void Add(uint32 texId, const glm::vec2& size, const glm::vec2& position, 
+            const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
         void Render();
 
         bool const HasRoom()
@@ -44,6 +46,18 @@ namespace Jade
             for (int i = 0; i < 16; i++)
             {
                 if (m_Textures[i] == tex)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool const HasTextureId(uint32 id)
+        {
+            for (int i = 0; i < m_NumTextures; i++)
+            {
+                if (m_Textures[i]->GetId() == id)
                 {
                     return true;
                 }
