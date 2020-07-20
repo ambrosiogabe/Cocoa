@@ -10,11 +10,17 @@
     <Filter Include="cpp\jade\commands">
       <UniqueIdentifier>{6C89B729-D89F-B5BF-2117-41E18D6C8647}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cpp\jade\components">
+      <UniqueIdentifier>{000A577D-6C6B-348B-F5D8-7A3D61396B4A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="cpp\jade\core">
       <UniqueIdentifier>{03B51061-6F75-8C97-38B0-D514A42FD173}</UniqueIdentifier>
     </Filter>
     <Filter Include="cpp\jade\events">
       <UniqueIdentifier>{4F1334ED-BB9E-A1B1-C4AF-24A630BAFDB1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cpp\jade\file">
+      <UniqueIdentifier>{DA3F1261-4600-8E97-0F3B-D7147BBAD273}</UniqueIdentifier>
     </Filter>
     <Filter Include="cpp\jade\physics2d">
       <UniqueIdentifier>{5362727F-3F46-33D5-A8A6-2D2894A91D57}</UniqueIdentifier>
@@ -193,6 +199,12 @@
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\file\FileDialog.h">
+      <Filter>include\jade\file</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\InputArchive.h">
+      <Filter>include\jade\file</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\file\OutputArchive.h">
       <Filter>include\jade\file</Filter>
     </ClInclude>
@@ -214,10 +226,16 @@
     <ClInclude Include="include\jade\renderer\DebugDraw.h">
       <Filter>include\jade\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\renderer\DebugSprite.h">
+      <Filter>include\jade\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\renderer\Framebuffer.h">
       <Filter>include\jade\renderer</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\renderer\Line2D.h">
+      <Filter>include\jade\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\renderer\RenderBatch.h">
       <Filter>include\jade\renderer</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\renderer\Shader.h">
@@ -1372,14 +1390,13 @@
     <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\file\InputArchive.h" />
-    <ClInclude Include="include\jade\file\FileDialog.h" />
-    <ClInclude Include="include\jade\renderer\RenderBatch.h" />
-    <ClInclude Include="include\jade\renderer\DebugSprite.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
       <Filter>cpp\jade\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\components\Transform.cpp">
+      <Filter>cpp\jade\components</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\core\Application.cpp">
       <Filter>cpp\jade\core</Filter>
@@ -1407,6 +1424,12 @@
     </ClCompile>
     <ClCompile Include="cpp\jade\events\WindowEvent.cpp">
       <Filter>cpp\jade\events</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\file\FileDialog.cpp">
+      <Filter>cpp\jade\file</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\file\Win32FileDialog.cpp">
+      <Filter>cpp\jade\file</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\physics2d\Physics2D.cpp">
       <Filter>cpp\jade\physics2d</Filter>
@@ -1459,8 +1482,5 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\components\Transform.cpp" />
-    <ClCompile Include="cpp\jade\file\Win32FileDialog.cpp" />
-    <ClCompile Include="cpp\jade\file\FileDialog.cpp" />
   </ItemGroup>
 </Project>

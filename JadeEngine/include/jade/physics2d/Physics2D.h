@@ -10,7 +10,9 @@ namespace Jade
 	{
 	public:
 		static AABB GetBoundingBoxForPixels(uint8* pixels, int width, int height, int channels);
+
 		static std::pair<entt::registry&, entt::entity> OverlapPoint(const glm::vec2& point);
+		static bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees);
 
 		static Physics2D* Get();
 		static void Init(entt::registry& registry);

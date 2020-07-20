@@ -71,6 +71,15 @@ namespace Jade
 		return { physics->m_Registry, entt::null };
 	}
 
+	bool Physics2D::PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
+	{
+		Physics2D* physics = Get();
+		b2PolygonShape shape;
+		shape.SetAsBox(halfSize.x, halfSize.y);
+		b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(JMath::ToRadians(rotationDegrees)));
+		return shape.TestPoint(transform, b2Vec2(point.x, point.y));
+	}
+
 	void Physics2D::AddEntity(entt::entity entity)
 	{
 		if (m_Registry.has<Transform, Rigidbody2D>(entity))

@@ -15,7 +15,7 @@
     <ClInclude Include="include\LevelEditorSystem.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Gizmos.h">
+    <ClInclude Include="include\Gizmos.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClCompile Include="cpp\app.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="Gizmos.cpp">
+    <ClCompile Include="cpp\Gizmos.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
   </ItemGroup>

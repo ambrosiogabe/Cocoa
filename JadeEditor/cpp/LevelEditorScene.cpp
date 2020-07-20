@@ -1,7 +1,8 @@
 #pragma once
 
-#include "LevelEditorSystem.h"
 #include "LevelEditorScene.h"
+#include "LevelEditorSystem.h"
+#include "Gizmos.h"
 #include "jade/systems/System.h"
 #include "jade/renderer/DebugDraw.h"
 #include "jade/physics2d/Physics2DSystem.h"
@@ -19,6 +20,7 @@ namespace Jade {
 
         m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System"));
         m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System"));
+        m_Systems.emplace_back(std::unique_ptr<GizmoSystem>(new GizmoSystem()));
 
         glm::vec3 cameraPos = glm::vec3(1920.0f/2.0f, 1080.0f/2.0f, 0);
         m_Camera = new Camera(cameraPos);
@@ -26,9 +28,6 @@ namespace Jade {
 
         texture = new Texture("assets/images/decorationsAndBlocks.png", false);
         sprites = new Spritesheet(texture, 16, 16, 81, 0);
-        Sprite tmpSprite = sprites->GetSprite(1);
-        DebugDraw::AddSprite(tmpSprite.m_Texture->GetId(), {128, 128}, {100.0f, 100.0f}, {1.0f, 0.0f, 0.0f}, 
-            tmpSprite.m_TexCoords[0], tmpSprite.m_TexCoords[2], 0.0f, 60);
 
         //entt::entity container = m_Registry.create();
         //m_Registry.emplace<Transform>(container, glm::vec3(), glm::vec3(1), glm::vec3(), "Container");
