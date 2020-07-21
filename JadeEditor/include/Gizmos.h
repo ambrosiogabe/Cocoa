@@ -30,9 +30,9 @@ namespace Jade
 
         inline bool GizmoIsActive() { return m_Active; }
         void Render();
-        void GizmoManipulateTranslate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
+        void GizmoManipulateTranslate(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset);
         void GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
-        void GizmoManipulateScale(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
+        void GizmoManipulateScale(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale);
 
     public:
         glm::vec3 m_Position;
@@ -73,8 +73,11 @@ namespace Jade
         int m_ActiveGizmo = -1;
         int m_HotGizmo = -1;
         GizmoMode m_Mode = GizmoMode::Translate;
-        glm::vec3 m_GizmoStartPos;
+
         glm::vec3 m_MouseOffset;
+        glm::vec3 m_OriginalScale;
+
+        glm::vec3 m_OriginalDragClickPos;
 
         union
         {

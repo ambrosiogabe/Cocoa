@@ -41,32 +41,27 @@ namespace Jade
 		}
 	}
 
-	void Gizmo::GizmoManipulateTranslate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset)
+	void Gizmo::GizmoManipulateTranslate(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset)
 	{
+		Camera* camera = Application::Get()->GetScene()->GetCamera();
+		glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
+		glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
+		glm::vec3 newPos;
+
 		if (m_Type == GizmoType::Vertical)
 		{
-			Camera* camera = Application::Get()->GetScene()->GetCamera();
-			glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
-			glm::vec3 startToMouse = mousePosWorld - startPos;
-			glm::vec3 newPos = glm::vec3(0, startToMouse.y, 0) + startPos - mouseOffset;
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
+			newPos = glm::vec3(0, startToMouse.y, 0) + originalDragClickPos - mouseOffset;
 		}
 		else if (m_Type == GizmoType::Horizontal)
 		{
-			Camera* camera = Application::Get()->GetScene()->GetCamera();
-			glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
-			glm::vec3 startToMouse = mousePosWorld - startPos;
-			glm::vec3 newPos = glm::vec3(startToMouse.x, 0, 0) + startPos - mouseOffset;
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
+			newPos = glm::vec3(startToMouse.x, 0, 0) + originalDragClickPos - mouseOffset;
 		}
 		else if (m_Type == GizmoType::Free)
 		{
-			Camera* camera = Application::Get()->GetScene()->GetCamera();
-			glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
-			glm::vec3 startToMouse = mousePosWorld - startPos;
-			glm::vec3 newPos = startToMouse + startPos - mouseOffset;
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
+			newPos = startToMouse + originalDragClickPos - mouseOffset;
 		}
+
+		CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
 	}
 
 	void Gizmo::GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset)
@@ -74,9 +69,24 @@ namespace Jade
 
 	}
 
-	void Gizmo::GizmoManipulateScale(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset)
+	void Gizmo::GizmoManipulateScale(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale)
 	{
+		Camera* camera = Application::Get()->GetScene()->GetCamera();
+		glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
+		glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
+		float dragSpeed = 0.2f;
+		glm::vec3 delta = glm::vec3(dragSpeed) * startToMouse;
 
+		if (m_Type == GizmoType::Vertical)
+		{
+			delta = glm::vec3(0, delta.y, 0);
+		}
+		else if (m_Type == GizmoType::Horizontal)
+		{
+			delta = glm::vec3(delta.x, 0, 0);
+		}
+
+		CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Scale, originalScale + delta));
 	}
 
 	// =================================================================================================
@@ -99,9 +109,9 @@ namespace Jade
 		m_FreeMove = Gizmo(&m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 		m_FreeMove.m_Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
 
-		m_HzScale = Gizmo(&m_Spritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, 90.0f, GizmoType::Horizontal);
-		m_VtScale = Gizmo(&m_Spritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 180.0f, GizmoType::Vertical);
-		m_FreeScale = Gizmo(&m_Spritesheet->GetSprite(1), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+		m_HzScale = Gizmo(&m_Spritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+		m_VtScale = Gizmo(&m_Spritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+		m_FreeScale = Gizmo(&m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 	}
 
 	void GizmoSystem::ImGui(entt::registry& registry)
@@ -133,13 +143,13 @@ namespace Jade
 				switch (m_Mode)
 				{
 					case GizmoMode::Translate:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateTranslate(entityTransform, m_GizmoStartPos, m_MouseOffset);
+						m_Gizmos[m_ActiveGizmo].GizmoManipulateTranslate(entityTransform, m_OriginalDragClickPos, m_MouseOffset);
 						break;
 					case GizmoMode::Rotate:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateRotate(entityTransform, m_GizmoStartPos, m_MouseOffset);
+						m_Gizmos[m_ActiveGizmo].GizmoManipulateRotate(entityTransform, m_OriginalDragClickPos, m_MouseOffset);
 						break;
 					case GizmoMode::Scale:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateScale(entityTransform, m_GizmoStartPos, m_MouseOffset);
+						m_Gizmos[m_ActiveGizmo].GizmoManipulateScale(entityTransform, m_OriginalDragClickPos, m_OriginalScale);
 						break;
 				}
 			}
@@ -187,7 +197,13 @@ namespace Jade
 
 	bool GizmoSystem::HandleKeyPress(KeyPressedEvent& e)
 	{
-
+		if (e.GetKeyCode() == JADE_KEY_S)
+		{
+			m_Mode = GizmoMode::Scale;
+		} else if (e.GetKeyCode() == JADE_KEY_G)
+		{
+			m_Mode = GizmoMode::Translate;
+		}
 		return false;
 	}
 
@@ -210,23 +226,19 @@ namespace Jade
 			Camera* camera = Application::Get()->GetScene()->GetCamera();
 			glm::vec2 mousePosWorld = camera->ScreenToOrtho();
 			std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
-			if (entt::to_integral(result.second) != entt::to_integral(entt::null))
+			entt::entity selectedEntity = m_HotGizmo == -1 ? result.second : Application::Get()->GetScene()->GetActiveEntity();
+
+			m_OriginalDragClickPos = JMath::Vector3From2(mousePosWorld);
+
+			
+			if (entt::to_integral(selectedEntity) != entt::to_integral(entt::null))
 			{
-				Application::Get()->GetScene()->SetActiveEntity(result.second);
-				const Transform& transform = result.first.get<Transform>(result.second);
+				Application::Get()->GetScene()->SetActiveEntity(selectedEntity);
+				const Transform& transform = result.first.get<Transform>(selectedEntity);
 				m_ActiveGizmo = m_HotGizmo;
 				m_MouseDragging = true;
-				m_GizmoStartPos = JMath::Vector3From2(mousePosWorld);
 				m_MouseOffset = JMath::Vector3From2(mousePosWorld) - transform.m_Position;
-			}
-			else if (m_HotGizmo != -1)
-			{
-				entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
-				const Transform& transform = Application::Get()->GetScene()->GetRegistry().get<Transform>(activeEntity);
-				m_ActiveGizmo = m_HotGizmo;
-				m_MouseDragging = true;
-				m_GizmoStartPos = JMath::Vector3From2(mousePosWorld);
-				m_MouseOffset = JMath::Vector3From2(mousePosWorld) - transform.m_Position;
+				m_OriginalScale = transform.m_Scale;
 			}
 			else
 			{

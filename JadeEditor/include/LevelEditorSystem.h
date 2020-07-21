@@ -37,8 +37,8 @@ namespace Jade
 		bool m_IsDragging = false;
 		bool m_ControlModifierPressed = false;
 
-		glm::vec3 m_DragOffset = glm::vec3();
-		glm::vec3 m_CameraSpeed = glm::vec3(0, 0, 0);
+		glm::vec3 m_OriginalDragClickPos = glm::vec3();
+		glm::vec3 m_OriginalCameraPos = glm::vec3();
 
 		//GizmoController m_GizmoController;
 	};

@@ -5,6 +5,7 @@
 #include "jade/commands/ChangeVec3Command.h"
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/ImGuiExtended.h"
+#include "jade/util/JMath.h"
 
 #include <string>
 #include <imgui/imgui.h>
@@ -16,28 +17,6 @@ namespace Jade
 {
 	void LevelEditorSystem::Start(entt::registry& registry)
 	{
-		//m_GizmoTexture = std::unique_ptr<Texture>(new Texture("assets/images/gizmos.png", false));
-		//m_GizmoSpritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_GizmoTexture.get(), 16, 40, 9, 0));
-
-		//for (int i = 0; i < m_GizmoSpritesheet->Size(); i++)
-		//{
-		//	entt::entity testEntity = m_GizmoRegistry.create();
-		//	Sprite* sprite = &m_GizmoSpritesheet->GetSprite(i);
-
-		//	m_GizmoRegistry.emplace<Transform>(testEntity, glm::vec3(-256 + (i * 64) + (i * 32), 0, 0), glm::vec3(2, 2, 1), glm::vec3(0, 0, 0), "Textured Block");
-		//	m_GizmoRegistry.emplace<SpriteRenderer>(testEntity, glm::vec4(1, 1, 1, 1), sprite);
-		//	m_GizmoRegistry.emplace<AABB>(testEntity, sprite->m_BoundingBox);
-
-		//	switch (i)
-		//	{
-		//		case 0:
-		//		{
-
-		//			break;
-		//		}
-		//	}
-		//}
-
 		auto view = registry.view<Transform>();
 		for (auto entity : view)
 		{
@@ -61,15 +40,13 @@ namespace Jade
 
 	void LevelEditorSystem::Update(entt::registry& registry, float dt)
 	{
-		Application::Get()->GetScene()->GetCamera()->GetTransform().m_Position += m_CameraSpeed * dt;
-
-		// Set active entity to mouse pos if dragging
 		if (m_IsDragging)
 		{
-			Transform& transform = registry.get<Transform>(Application::Get()->GetScene()->GetActiveEntity());
-			glm::vec3 newPos = glm::vec3(Input::OrthoMouseX() - m_DragOffset.x, Input::OrthoMouseY() - m_DragOffset.y, 0.0f);
-
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
+			Camera* camera = Application::Get()->GetScene()->GetCamera();
+			glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
+			glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
+			delta *= 0.8f;
+			camera->GetTransform().m_Position = m_OriginalCameraPos + delta;
 		}
 
 		// Draw grid lines
@@ -141,28 +118,7 @@ namespace Jade
 			m_ControlModifierPressed = true;
 		}
 
-		static float speed = 500.0f;
-		if (!m_ControlModifierPressed)
-		{
-			if (e.GetKeyCode() == JADE_KEY_W)
-			{
-				m_CameraSpeed.y = speed;
-			}
-			else if (e.GetKeyCode() == JADE_KEY_S)
-			{
-				m_CameraSpeed.y = -speed;
-			}
-
-			if (e.GetKeyCode() == JADE_KEY_A)
-			{
-				m_CameraSpeed.x = -speed;
-			}
-			else if (e.GetKeyCode() == JADE_KEY_D)
-			{
-				m_CameraSpeed.x = speed;
-			}
-		}
-		else
+		if (m_ControlModifierPressed)
 		{
 			if (e.GetKeyCode() == JADE_KEY_Z)
 			{
@@ -190,24 +146,6 @@ namespace Jade
 			m_ControlModifierPressed = false;
 		}
 
-		if (e.GetKeyCode() == JADE_KEY_W)
-		{
-			m_CameraSpeed.y = 0;
-		}
-		else if (e.GetKeyCode() == JADE_KEY_S)
-		{
-			m_CameraSpeed.y = 0;
-		}
-
-		if (e.GetKeyCode() == JADE_KEY_A)
-		{
-			m_CameraSpeed.x = 0;
-		}
-		else if (e.GetKeyCode() == JADE_KEY_D)
-		{
-			m_CameraSpeed.x = 0;
-		}
-
 		return false;
 	}
 
@@ -226,33 +164,25 @@ namespace Jade
 
 	bool LevelEditorSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
-		//Camera* camera = Application::Get()->GetScene()->GetCamera();
-		//glm::vec2 mousePosWorld = camera->ScreenToOrtho();
-
-		//if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT)
-		//{
-		//	std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
-		//	Application::Get()->GetScene()->SetActiveEntity(result.second);
-		//	if (entt::to_integral(result.second) != entt::to_integral(entt::null))
-		//	{
-		//		const Transform& transform = result.first.get<Transform>(result.second);
-		//		m_IsDragging = true;
-		//		m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;
-		//		m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
-		//	}
-		//}
+		static float speed = 500.0f;
+		if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_MIDDLE)
+		{
+			m_IsDragging = true;
+			Camera* camera = Application::Get()->GetScene()->GetCamera();
+			m_OriginalCameraPos = camera->GetTransform().m_Position;
+			m_OriginalDragClickPos = JMath::Vector3From2(camera->ScreenToOrtho());
+			//m_DragClickOffset = JMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
+		}
 
 		return false;
 	}
 
 	bool LevelEditorSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e)
 	{
-		//if (m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT)
-		//{
-		//	CommandHistory::SetNoMergeMostRecent();
-		//	m_IsDragging = false;
-		//}
-
+		if (m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_MIDDLE)
+		{
+			m_IsDragging = false;
+		}
 		return false;
 	}
 }
