@@ -5,7 +5,7 @@
 #include "jade/renderer/Shader.h"
 
 namespace Jade {
-    RenderBatch::RenderBatch(int maxBatchSize) 
+    RenderBatch::RenderBatch(int maxBatchSize, bool batchOnTop) 
     {
         m_MaxBatchSize = maxBatchSize;
         m_VertexBufferBase = new Vertex[m_MaxBatchSize * 4];
@@ -20,6 +20,8 @@ namespace Jade {
         m_VAO = -1;
         m_VBO = -1;
         m_EBO = -1;
+
+        m_BatchOnTop = batchOnTop;
     }
 
     void RenderBatch::Start() {

@@ -100,7 +100,7 @@ namespace Jade
 					glm::vec2 from2(firstX - gridWidth, y);
 					glm::vec2 to2(firstX + 1920 + gridHeight, y);
 					glm::vec3 color2(0.2f, 0.2f, 0.2f);
-					DebugDraw::AddLine2D(from2, to2, 1.0f, color2);
+					DebugDraw::AddLine2D(from2, to2, 1.0f, color2, 1, false);
 				}
 			}
 		}

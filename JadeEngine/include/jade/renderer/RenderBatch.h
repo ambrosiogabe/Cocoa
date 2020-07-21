@@ -16,7 +16,7 @@ namespace Jade
     class RenderBatch
     {
     public:
-        RenderBatch(int maxBatchSize);
+        RenderBatch(int maxBatchSize, bool batchOnTop=false);
 
         void Clear();
         void Start();
@@ -26,38 +26,17 @@ namespace Jade
             const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
         void Render();
 
-        bool const HasRoom()
-        {
-            return m_NumSprites < m_MaxBatchSize;
-        }
+        inline bool BatchOnTop() { return m_BatchOnTop; }
+        inline bool HasRoom() { return m_NumSprites < m_MaxBatchSize; }
+        inline int NumSprites() { return m_NumSprites; }
 
-        int const NumSprites()
-        {
-            return m_NumSprites;
-        }
-
-        bool const HasTextureRoom()
-        {
-            return m_NumTextures < 16;
-        }
+        inline bool HasTextureRoom() { return m_NumTextures < m_Textures.size(); }
 
         bool const HasTexture(Texture* tex)
         {
             for (int i = 0; i < m_NumTextures; i++)
             {
                 if (m_Textures[i] == tex)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        bool const HasTextureId(uint32 id)
-        {
-            for (int i = 0; i < m_NumTextures; i++)
-            {
-                if (m_Textures[i]->GetId() == id)
                 {
                     return true;
                 }
@@ -88,5 +67,6 @@ namespace Jade
         uint16 m_NumTextures = 0;
 
         int m_MaxBatchSize;
+        bool m_BatchOnTop;
     };
 }
