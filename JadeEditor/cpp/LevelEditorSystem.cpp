@@ -226,32 +226,32 @@ namespace Jade
 
 	bool LevelEditorSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
-		Camera* camera = Application::Get()->GetScene()->GetCamera();
-		glm::vec2 mousePosWorld = camera->ScreenToOrtho();
+		//Camera* camera = Application::Get()->GetScene()->GetCamera();
+		//glm::vec2 mousePosWorld = camera->ScreenToOrtho();
 
-		if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT)
-		{
-			std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
-			Application::Get()->GetScene()->SetActiveEntity(result.second);
-			if (entt::to_integral(result.second) != entt::to_integral(entt::null))
-			{
-				const Transform& transform = result.first.get<Transform>(result.second);
-				m_IsDragging = true;
-				m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;
-				m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
-			}
-		}
+		//if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT)
+		//{
+		//	std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
+		//	Application::Get()->GetScene()->SetActiveEntity(result.second);
+		//	if (entt::to_integral(result.second) != entt::to_integral(entt::null))
+		//	{
+		//		const Transform& transform = result.first.get<Transform>(result.second);
+		//		m_IsDragging = true;
+		//		m_DragOffset.x = Input::OrthoMouseX() - transform.m_Position.x;
+		//		m_DragOffset.y = Input::OrthoMouseY() - transform.m_Position.y;
+		//	}
+		//}
 
 		return false;
 	}
 
 	bool LevelEditorSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e)
 	{
-		if (m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT)
-		{
-			CommandHistory::SetNoMergeMostRecent();
-			m_IsDragging = false;
-		}
+		//if (m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_LEFT)
+		//{
+		//	CommandHistory::SetNoMergeMostRecent();
+		//	m_IsDragging = false;
+		//}
 
 		return false;
 	}

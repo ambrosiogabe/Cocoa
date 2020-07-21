@@ -10,7 +10,7 @@ namespace Jade
     {
     public:
         DebugSprite(Texture* texture, const glm::vec2& size, const glm::vec2& position, const glm::vec3& tint, 
-            const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation, int lifetime)
+            const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation, int lifetime, bool onTop)
         {
 
             m_Texture = texture;
@@ -21,6 +21,7 @@ namespace Jade
             m_TexCoordMax = texCoordMax;
             m_Rotation = rotation;
             m_Lifetime = lifetime;
+            m_OnTop = onTop;
         }
 
         int BeginFrame() { return m_Lifetime--; }
@@ -35,5 +36,6 @@ namespace Jade
         glm::vec2 m_TexCoordMax;
         float m_Rotation;
         uint32 m_Lifetime;
+        bool m_OnTop;
     };
 }

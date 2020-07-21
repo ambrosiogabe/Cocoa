@@ -15,23 +15,35 @@ namespace Jade
         Scale
     };
 
+    enum class GizmoType
+    {
+        None,
+        Vertical,
+        Horizontal,
+        Free
+    };
+
     class Gizmo
     {
     public:
-        Gizmo(Sprite* sprite, glm::vec3 startPosition, glm::vec3 offset, glm::vec2 halfSize, float spriteRotation);
+        Gizmo(Sprite* sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.8f, 0.8f, 0.8f});
 
         inline bool GizmoIsActive() { return m_Active; }
         void Render();
-        void GizmoManipulateTranslate(Transform& transform);
-        void GizmoManipulateRotate(Transform& transform);
-        void GizmoManipulateScale(Transform& transform);
+        void GizmoManipulateTranslate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
+        void GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
+        void GizmoManipulateScale(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
 
     public:
         glm::vec3 m_Position;
         glm::vec3 m_Offset;
+        glm::vec3 m_Tint;
         glm::vec2 m_HalfSize;
         glm::vec2 m_TexCoordMin;
         glm::vec2 m_TexCoordMax;
+
+        GizmoType m_Type;
+        Box2D m_Box2D;
         Texture* m_Texture;
         float m_SpriteRotation;
         bool m_Active;
@@ -52,14 +64,17 @@ namespace Jade
         bool HandleMouseButtonPressed(MouseButtonPressedEvent& e);
         bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e);
         bool HandleMouseScroll(MouseScrolledEvent& e);
-        bool HandleMouseMoved(MouseMovedEvent& e);
 
     private:
         std::unique_ptr<Texture> m_Texture = nullptr;
         std::unique_ptr<Spritesheet> m_Spritesheet = nullptr;
 
+        bool m_MouseDragging = false;
         int m_ActiveGizmo = -1;
+        int m_HotGizmo = -1;
         GizmoMode m_Mode = GizmoMode::Translate;
+        glm::vec3 m_GizmoStartPos;
+        glm::vec3 m_MouseOffset;
 
         union
         {

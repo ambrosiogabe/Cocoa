@@ -48,12 +48,12 @@ namespace Jade
 	// ===================================================================================================================
 	// Draw Primitive Methods
 	// ===================================================================================================================
-	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime)
+	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
 	{
-		m_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime));
+		m_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime, onTop));
 	}
 
-	void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime)
+	void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
 	{
 		glm::vec2 min = center - (dimensions / 2.0f);
 		glm::vec2 max = center + (dimensions / 2.0f);
@@ -71,16 +71,16 @@ namespace Jade
 			}
 		}
 
-		AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime);
-		AddLine2D(vertices[0], vertices[3], strokeWidth, color, lifetime);
-		AddLine2D(vertices[1], vertices[2], strokeWidth, color, lifetime);
-		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime);
+		AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime, onTop);
+		AddLine2D(vertices[0], vertices[3], strokeWidth, color, lifetime, onTop);
+		AddLine2D(vertices[1], vertices[2], strokeWidth, color, lifetime, onTop);
+		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime, onTop);
 	}
 
 	void DebugDraw::AddSprite(Texture* texture, glm::vec2 size, glm::vec2 position, glm::vec3 tint, 
-		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime)
+		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime, bool onTop)
 	{
-		m_Sprites.push_back({ texture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime });
+		m_Sprites.push_back({ texture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 	}
 
 

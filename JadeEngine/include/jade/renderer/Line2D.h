@@ -11,10 +11,10 @@ namespace Jade {
             : m_From(from), m_To(to) { }
 
         Line2D()
-            : m_From(glm::vec2()), m_To(glm::vec2()), m_Color(glm::vec3()), m_Stroke(0.0f), m_Lifetime(0) {}
+            : m_From(glm::vec2()), m_To(glm::vec2()), m_Color(glm::vec3()), m_Stroke(0.0f), m_Lifetime(0), m_OnTop(true) {}
 
-        Line2D(glm::vec2 from, glm::vec2 to, glm::vec3 color, float stroke, int lifetime)
-            : m_From(from), m_To(to), m_Color(color), m_Stroke(stroke), m_Lifetime(lifetime) {
+        Line2D(glm::vec2 from, glm::vec2 to, glm::vec3 color, float stroke, int lifetime, bool onTop)
+            : m_From(from), m_To(to), m_Color(color), m_Stroke(stroke), m_Lifetime(lifetime), m_OnTop(onTop) {
             
             glm::vec2 line = from - to;
             glm::vec2 normal = glm::vec2(line.y, -line.x);
@@ -40,6 +40,7 @@ namespace Jade {
         const glm::vec2* GetVerts()    const { return &m_Verts[0]; }
         const glm::vec2& GetMin() { return m_Min; }
         const glm::vec2& GetMax() { return m_Max; }
+        bool IsOnTop() const { return m_OnTop; }
 
 
     private:
@@ -51,5 +52,6 @@ namespace Jade {
         glm::vec2 m_Max;
         float m_Stroke;
         uint32 m_Lifetime;
+        bool m_OnTop;
     };
 }

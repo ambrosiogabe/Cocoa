@@ -20,6 +20,7 @@ namespace Jade
     {
         glm::vec2 m_Size = glm::vec2();
         glm::vec2 m_HalfSize = glm::vec2();
+        glm::vec2 m_Offset = glm::vec2();
     };
 
     struct AABB

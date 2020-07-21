@@ -77,6 +77,9 @@ namespace Jade
 		b2PolygonShape shape;
 		shape.SetAsBox(halfSize.x, halfSize.y);
 		b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(JMath::ToRadians(rotationDegrees)));
+		//Log::Info("Box: %2.3f %2.3f", halfSize.x, halfSize.y);
+		//Log::Info("Box Pos: %2.3f %2.3f", position.x, position.y);
+		//Log::Info("MousePos: %2.3f %2.3f", point.x, point.y);
 		return shape.TestPoint(transform, b2Vec2(point.x, point.y));
 	}
 
