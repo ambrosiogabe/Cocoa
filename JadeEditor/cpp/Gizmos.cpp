@@ -31,13 +31,14 @@ namespace Jade
 
 	void Gizmo::Render()
 	{
+		float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom() * 2;
 		if (m_Active)
 		{
-			DebugDraw::AddSprite(m_Texture, m_HalfSize * 2.0f, JMath::Vector2From3(m_Position), m_Tint, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
+			DebugDraw::AddSprite(m_Texture, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), m_Tint, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
 		}
 		else
 		{
-			DebugDraw::AddSprite(m_Texture, m_HalfSize * 2.0f, JMath::Vector2From3(m_Position), { 1.0f, 1.0f, 1.0f }, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
+			DebugDraw::AddSprite(m_Texture, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), { 1.0f, 1.0f, 1.0f }, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
 		}
 	}
 
@@ -168,9 +169,10 @@ namespace Jade
 			for (int i = start; i < end; i++)
 			{
 				Gizmo gizmo = m_Gizmos[i];
-				gizmo.m_Position = entityTransform.m_Position + gizmo.m_Offset;
-				glm::vec3 boxPos = gizmo.m_Position + JMath::Vector3From2(gizmo.m_Box2D.m_Offset);
-				if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.m_Box2D.m_HalfSize, boxPos, gizmo.m_SpriteRotation))
+				float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom() * 2;
+				gizmo.m_Position = entityTransform.m_Position + gizmo.m_Offset * cameraZoom;
+				glm::vec3 boxPos = gizmo.m_Position + JMath::Vector3From2(gizmo.m_Box2D.m_Offset) * cameraZoom;
+				if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.m_Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.m_SpriteRotation))
 				{
 					gizmo.m_Active = true;
 					m_HotGizmo = i;

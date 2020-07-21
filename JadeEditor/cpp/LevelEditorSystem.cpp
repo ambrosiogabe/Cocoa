@@ -156,7 +156,7 @@ namespace Jade
 		{
 			Camera* camera = Application::Get()->GetScene()->GetCamera();
 			//float speed = 500.0f * camera->GetZoom();
-			camera->SetZoom(camera->GetZoom() + (yOffset * 0.1f));
+			camera->SetZoom(camera->GetZoom() + (yOffset * 0.05f));
 		}
 
 		return false;
