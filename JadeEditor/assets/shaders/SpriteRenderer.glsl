@@ -39,18 +39,64 @@ uniform sampler2D uTextures[16];
 void main()
 {
     vec4 texColor = vec4(1, 1, 1, 1);
-    if (fTexSlot > 0) {
-        int texId = int(fTexSlot);
-        texColor = texture(uTextures[texId], fTexCoords);
+
+    // Static indexing for linux based machines
+    switch (int(fTexSlot)) {
+        case 1:
+            texColor = texture(uTextures[1], fTexCoords);
+            break;
+        case 2:
+            texColor = texture(uTextures[2], fTexCoords);
+            break;
+        case 3:
+            texColor = texture(uTextures[3], fTexCoords);
+            break;
+        case 4:
+            texColor = texture(uTextures[4], fTexCoords);
+            break;
+        case 5:
+            texColor = texture(uTextures[5], fTexCoords);
+            break;
+        case 6:
+            texColor = texture(uTextures[6], fTexCoords);
+            break;
+        case 7:
+            texColor = texture(uTextures[7], fTexCoords);
+            break;
+        case 8:
+            texColor = texture(uTextures[8], fTexCoords);
+            break;
+        case 9:
+            texColor = texture(uTextures[9], fTexCoords);
+            break;
+        case 10:
+            texColor = texture(uTextures[10], fTexCoords);
+            break;
+        case 11:
+            texColor = texture(uTextures[11], fTexCoords);
+            break;
+        case 12:
+            texColor = texture(uTextures[12], fTexCoords);
+            break;
+        case 13:
+            texColor = texture(uTextures[13], fTexCoords);
+            break;
+        case 14:
+            texColor = texture(uTextures[14], fTexCoords);
+            break;
+        case 15:
+            texColor = texture(uTextures[15], fTexCoords);
+            break;
     }
+
+    // If you're not on a Linux machine, you could replace the giant switch with this...
+    //if (fTexSlot > 0) {
+    //    int texId = int(fTexSlot);
+    //    texColor = texture(uTextures[texId], fTexCoords);
+    //}
 
     if (fTexSlot > 0) {
         color = texColor * fColor;
-    //    if (texColor.a > 0) {
-    //        color = vec4(1, 1, 1, 1);
-    //    } else {
-    //        color = vec4(0, 0, 0, 1);
-    //    }
     } else {
         color = fColor;
     }

@@ -9,6 +9,7 @@ namespace Jade
 	std::vector<RenderBatch*> DebugDraw::m_Batches = std::vector<RenderBatch*>();
 	std::vector<Line2D> DebugDraw::m_Lines = std::vector<Line2D>();
 	std::vector<DebugSprite> DebugDraw::m_Sprites = std::vector<DebugSprite>();
+	int DebugDraw::m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 	Shader* DebugDraw::m_Shader = nullptr;
 	int DebugDraw::m_MaxBatchSize = 500;
 
@@ -33,6 +34,7 @@ namespace Jade
 		m_Shader->Bind();
 		m_Shader->UploadMat4("uProjection", Application::Get()->GetScene()->GetCamera()->GetOrthoProjection());
 		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
+		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
 		for (RenderBatch* batch : m_Batches)
 		{
@@ -75,10 +77,10 @@ namespace Jade
 		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime);
 	}
 
-	void DebugDraw::AddSprite(uint32 texId, glm::vec2 size, glm::vec2 position, glm::vec3 tint, 
+	void DebugDraw::AddSprite(Texture* texture, glm::vec2 size, glm::vec2 position, glm::vec3 tint, 
 		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime)
 	{
-		m_Sprites.push_back({ texId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime });
+		m_Sprites.push_back({ texture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime });
 	}
 
 
@@ -111,17 +113,18 @@ namespace Jade
 
 	void DebugDraw::AddSpritesToBatches()
 	{
-		for (DebugSprite sprite : m_Sprites)
+		for (int i=m_Sprites.size() - 1; i >= 0; i--)
 		{
+			DebugSprite sprite = m_Sprites[i];
 			bool wasAdded = false;
-			uint32 texId = sprite.m_TexId;
+			Texture* texture = sprite.m_Texture;
 			for (RenderBatch* batch : m_Batches)
 			{
 				if (batch->HasRoom())
 				{
-					if (batch->HasTextureId(texId) || batch->HasTextureRoom())
+					if (batch->HasTexture(texture) || batch->HasTextureRoom())
 					{
-						batch->Add(texId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+						batch->Add(texture, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
 						wasAdded = true;
 						break;
 					}
@@ -132,7 +135,7 @@ namespace Jade
 			{
 				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize);
 				newBatch->Start();
-				newBatch->Add(texId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+				newBatch->Add(texture, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
 				m_Batches.push_back(newBatch);
 			}
 		}

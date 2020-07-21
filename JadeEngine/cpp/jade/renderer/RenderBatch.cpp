@@ -84,7 +84,7 @@ namespace Jade {
         LoadVertexProperties(position, scale, quadSize, &texCoords[0], rotation, vec4Color, texId);
     }
 
-    void RenderBatch::Add(uint32 texId, const glm::vec2& size, const glm::vec2& position, 
+    void RenderBatch::Add(Texture* texture, const glm::vec2& size, const glm::vec2& position, 
         const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
     {
         m_NumSprites++;
@@ -97,6 +97,23 @@ namespace Jade {
         glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
         glm::vec3 vec3Pos{ position.x, position.y, 0.0f };
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+
+
+        if (!HasTexture(texture))
+        {
+            m_Textures[m_NumTextures] = texture;
+            m_NumTextures++;
+        }
+
+        int texId = 0;
+        for (int i = 0; i < m_Textures.size(); i++)
+        {
+            if (m_Textures[i] == texture)
+            {
+                texId = i + 1;
+                break;
+            }
+        }
         
         LoadVertexProperties(vec3Pos, scale, size, &texCoords[0], rotation, vec4Color, texId);
     }
@@ -110,7 +127,7 @@ namespace Jade {
 
         int texId = 0;
         if (sprite->m_Texture != nullptr) {
-            for (int i=0; i < 16; i++) {
+            for (int i=0; i < m_Textures.size(); i++) {
                 if (m_Textures[i] == sprite->m_Texture) {
                     texId = i + 1;
                     break;

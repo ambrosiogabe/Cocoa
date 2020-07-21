@@ -18,7 +18,7 @@ namespace Jade
     class Gizmo
     {
     public:
-        Gizmo(Sprite* sprite, glm::vec3 startPosition, glm::vec2 halfSize, float spriteRotation);
+        Gizmo(Sprite* sprite, glm::vec3 startPosition, glm::vec3 offset, glm::vec2 halfSize, float spriteRotation);
 
         inline bool GizmoIsActive() { return m_Active; }
         void Render();
@@ -28,13 +28,13 @@ namespace Jade
 
     public:
         glm::vec3 m_Position;
+        glm::vec3 m_Offset;
         glm::vec2 m_HalfSize;
         glm::vec2 m_TexCoordMin;
         glm::vec2 m_TexCoordMax;
-        uint32 m_TexId;
+        Texture* m_Texture;
         float m_SpriteRotation;
         bool m_Active;
-        bool m_Visible = false;
     };
 
     class GizmoSystem : public System
@@ -42,8 +42,9 @@ namespace Jade
     public:
         GizmoSystem(const char* name="Gizmo System");
 
-        void Update(const entt::registry& registry, float dt);
+        virtual void Update(entt::registry& registry, float dt) override;
         virtual void OnEvent(Event& e) override;
+        virtual void ImGui(entt::registry& registry) override;
 
     private:
         bool HandleKeyPress(KeyPressedEvent& e);
@@ -51,6 +52,7 @@ namespace Jade
         bool HandleMouseButtonPressed(MouseButtonPressedEvent& e);
         bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e);
         bool HandleMouseScroll(MouseScrolledEvent& e);
+        bool HandleMouseMoved(MouseMovedEvent& e);
 
     private:
         std::unique_ptr<Texture> m_Texture = nullptr;

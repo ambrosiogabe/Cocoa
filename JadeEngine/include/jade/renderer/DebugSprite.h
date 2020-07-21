@@ -9,11 +9,11 @@ namespace Jade
     class DebugSprite
     {
     public:
-        DebugSprite(uint32 texId, const glm::vec2& size, const glm::vec2& position, const glm::vec3& tint, 
+        DebugSprite(Texture* texture, const glm::vec2& size, const glm::vec2& position, const glm::vec3& tint, 
             const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation, int lifetime)
         {
 
-            m_TexId = texId;
+            m_Texture = texture;
             m_Size = size;
             m_Position = position;
             m_Tint = tint;
@@ -27,7 +27,7 @@ namespace Jade
 
 
     public:
-        uint32 m_TexId;
+        Texture* m_Texture;
         glm::vec2 m_Size;
         glm::vec2 m_Position;
         glm::vec3 m_Tint;
