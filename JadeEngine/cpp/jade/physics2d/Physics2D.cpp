@@ -77,9 +77,6 @@ namespace Jade
 		b2PolygonShape shape;
 		shape.SetAsBox(halfSize.x, halfSize.y);
 		b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(JMath::ToRadians(rotationDegrees)));
-		//Log::Info("Box: %2.3f %2.3f", halfSize.x, halfSize.y);
-		//Log::Info("Box Pos: %2.3f %2.3f", position.x, position.y);
-		//Log::Info("MousePos: %2.3f %2.3f", point.x, point.y);
 		return shape.TestPoint(transform, b2Vec2(point.x, point.y));
 	}
 
@@ -118,9 +115,9 @@ namespace Jade
 			if (m_Registry.has<Box2D>(entity))
 			{
 				Box2D& box = m_Registry.get<Box2D>(entity);
-				shape.SetAsBox(box.m_HalfSize.x, box.m_HalfSize.y);
+				shape.SetAsBox(box.m_HalfSize.x * transform.m_Scale.x, box.m_HalfSize.y * transform.m_Scale.y);
 				b2Vec2 pos = bodyDef.position;
-				bodyDef.position.Set(pos.x - box.m_HalfSize.x, pos.y - box.m_HalfSize.y);
+				bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.m_Scale.x, pos.y - box.m_HalfSize.y * transform.m_Scale.y);
 			}
 			else if (m_Registry.has<Circle>(entity))
 			{

@@ -19,7 +19,7 @@ namespace Jade
 			{
 				const Box2D& box = registry.get<Box2D>(activeEntity);
 				const Transform& transform = registry.get<Transform>(activeEntity);
-				DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position), box.m_HalfSize * 2.0f, transform.m_EulerRotation.z);
+				DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position), box.m_HalfSize * 2.0f * JMath::Vector2From3(transform.m_Scale), transform.m_EulerRotation.z);
 			}
 		}
 	}
