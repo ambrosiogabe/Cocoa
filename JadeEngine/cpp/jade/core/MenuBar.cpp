@@ -2,7 +2,7 @@
 #include "jade/core/Core.h"
 
 #include "jade/core/MenuBar.h"
-#include "jade/file/FileDialog.h"
+#include "jade/file/IFileDialog.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/util/Settings.h"

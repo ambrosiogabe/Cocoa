@@ -26,7 +26,6 @@ namespace Jade {
         const std::vector<std::unique_ptr<System>>& GetSystems();
 
         // TODO: TEMPORARY GET BETTER SYSTEM THEN THESE!!!
-        std::ofstream& GetSaveFile();
         inline json& GetSaveDataJson()
         {
             return m_SaveDataJson;
@@ -46,7 +45,6 @@ namespace Jade {
         std::vector<std::unique_ptr<System>> m_Systems;
 
         entt::registry m_Registry = entt::registry();
-        std::ofstream m_SaveFileStream;
         json m_SaveDataJson;
 
         Camera* m_Camera;

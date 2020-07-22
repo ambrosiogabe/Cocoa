@@ -199,9 +199,6 @@
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\file\FileDialog.h">
-      <Filter>include\jade\file</Filter>
-    </ClInclude>
     <ClInclude Include="include\jade\file\InputArchive.h">
       <Filter>include\jade\file</Filter>
     </ClInclude>
@@ -1390,6 +1387,10 @@
     <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\file\IFileDialog.h">
+      <Filter>include\jade\file</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\IFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1424,9 +1425,6 @@
     </ClCompile>
     <ClCompile Include="cpp\jade\events\WindowEvent.cpp">
       <Filter>cpp\jade\events</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\jade\file\FileDialog.cpp">
-      <Filter>cpp\jade\file</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\file\Win32FileDialog.cpp">
       <Filter>cpp\jade\file</Filter>
@@ -1482,5 +1480,10 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\file\IFileDialog.cpp">
+      <Filter>cpp\jade\file</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\file\IFile.cpp" />
+    <ClCompile Include="cpp\jade\file\Win32File.cpp" />
   </ItemGroup>
 </Project>

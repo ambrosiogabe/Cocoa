@@ -1,5 +1,6 @@
 #include "jade/scenes/Scene.h"
 #include "jade/file/OutputArchive.h"
+#include "jade/file/IFile.h"
 
 #include <jsonVendor/json.hpp>
 
@@ -43,9 +44,7 @@ namespace Jade {
     }
 
     void Scene::Save(const std::string& filename)
-    {
-        m_SaveFileStream.open(filename);
-        
+    {   
         m_SaveDataJson = {
             {"Size", 0},
             {"Components", {}}
@@ -56,27 +55,18 @@ namespace Jade {
             .entities(output)
             .component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
 
-        m_SaveFileStream << m_SaveDataJson.dump(4);
-        m_SaveFileStream.close();
+        IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename.c_str());
     }
 
     void Scene::Load(const std::string& filename)
     {
         m_Registry.clear<SpriteRenderer, Transform, Box2D, AABB, Circle, Rigidbody2D>();
 
-        std::ifstream inputStream(filename);
-        std::string str;
+        File* file = IFile::OpenFile(filename.c_str());
 
         std::unordered_map<int, int> idKey;
 
-        inputStream.seekg(0, std::ios::end);
-        str.reserve(inputStream.tellg());
-        inputStream.seekg(0, std::ios::beg);
-
-        str.assign((std::istreambuf_iterator<char>(inputStream)),
-            std::istreambuf_iterator<char>());
-
-        json j = json::parse(str);
+        json j = json::parse(file->m_Data);
         int size = j["Size"];
         for (int i = 0; i < size; i++)
         {
@@ -151,10 +141,7 @@ namespace Jade {
                 Physics2DSystem::DeserializeAABB(j["Components"][i], m_Registry, entity);
             }
         }
-    }
 
-    std::ofstream& Scene::GetSaveFile()
-    {
-        return m_SaveFileStream;
+        IFile::CloseFile(file);
     }
 }

@@ -1,4 +1,4 @@
-#include "jade/file/FileDialog.h"
+#include "jade/file/IFileDialog.h"
 #include "jade/core/Application.h"
 
 #include <Windows.h>
