@@ -163,6 +163,9 @@
     <ClInclude Include="include\jade\core\Application.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\core\AssetManager.h">
+      <Filter>include\jade\core</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\core\Core.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
@@ -172,16 +175,10 @@
     <ClInclude Include="include\jade\core\ImGuiExtended.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\core\ImGuiLayer.h">
-      <Filter>include\jade\core</Filter>
-    </ClInclude>
     <ClInclude Include="include\jade\core\JWindow.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\core\Layer.h">
-      <Filter>include\jade\core</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\core\MenuBar.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\events\Event.h">
@@ -198,6 +195,12 @@
     </ClInclude>
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\IFile.h">
+      <Filter>include\jade\file</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\IFileDialog.h">
+      <Filter>include\jade\file</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\file\InputArchive.h">
       <Filter>include\jade\file</Filter>
@@ -1387,10 +1390,6 @@
     <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\file\IFileDialog.h">
-      <Filter>include\jade\file</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jade\file\IFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1402,16 +1401,13 @@
     <ClCompile Include="cpp\jade\core\Application.cpp">
       <Filter>cpp\jade\core</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\core\AssetManager.cpp">
+      <Filter>cpp\jade\core</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\jade\core\ImGuiExtended.cpp">
       <Filter>cpp\jade\core</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\core\ImGuiLayer.cpp">
-      <Filter>cpp\jade\core</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\jade\core\JWindow.cpp">
-      <Filter>cpp\jade\core</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\jade\core\MenuBar.cpp">
       <Filter>cpp\jade\core</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\events\Input.cpp">
@@ -1425,6 +1421,15 @@
     </ClCompile>
     <ClCompile Include="cpp\jade\events\WindowEvent.cpp">
       <Filter>cpp\jade\events</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\file\IFile.cpp">
+      <Filter>cpp\jade\file</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\file\IFileDialog.cpp">
+      <Filter>cpp\jade\file</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\file\Win32File.cpp">
+      <Filter>cpp\jade\file</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\file\Win32FileDialog.cpp">
       <Filter>cpp\jade\file</Filter>
@@ -1480,10 +1485,5 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\file\IFileDialog.cpp">
-      <Filter>cpp\jade\file</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\jade\file\IFile.cpp" />
-    <ClCompile Include="cpp\jade\file\Win32File.cpp" />
   </ItemGroup>
 </Project>

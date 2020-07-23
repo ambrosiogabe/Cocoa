@@ -7,56 +7,58 @@
 #include "jade/events/Event.h"
 #include "jade/events/WindowEvent.h"
 
-namespace Jade {
-    class Application {
-        public:
-            Application();
-            virtual ~Application();
-            
-            void Run();
-            void Stop();
+namespace Jade
+{
+	class Application
+	{
+	public:
+		Application();
+		virtual ~Application();
 
-            void PushLayer(Layer* layer);
-            void PushOverlay(Layer* overlay);
+		void Run();
+		void Stop();
 
-            void PopLayer(Layer* layer);
-            void PopOverlay(Layer* overlay);
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
 
-            virtual void OnEvent(Event& e);
+		void PopLayer(Layer* layer);
+		void PopOverlay(Layer* overlay);
 
-            Framebuffer* GetFramebuffer() const;
-            void ChangeScene(Scene* scene);
-            Scene* GetScene() const;
-            const ImGuiLayer& GetImGuiLayer() { return m_ImGuiLayer; }
-            JWindow* GetWindow() const;
+		virtual void OnEvent(Event& e);
 
-            const glm::vec2& GetGameViewPos() const;
-            const glm::vec2& GetGameViewSize() const;
+		Framebuffer* GetFramebuffer() const;
+		void ChangeScene(Scene* scene);
+		Scene* GetScene() const;
+		JWindow* GetWindow() const;
 
-            static Application* Get();
+		static Application* Get();
 
-        private:
-            bool OnWindowClose(WindowCloseEvent& e);
+	protected:
+		virtual void BeginFrame() {}
+		virtual void EndFrame() {}
 
-            static Application* s_Instance;
+	private:
+		bool OnWindowClose(WindowCloseEvent& e);
 
-            JWindow* m_Window;
-            bool m_Running;
+		static Application* s_Instance;
 
-            // Overlays are always on top of layers
-            // So we keep the next index for the next layer handy at all times
-            std::vector<Layer*> m_Layers;
-            uint32 m_LayerInsertIndex;
-            
-            ImGuiLayer m_ImGuiLayer = ImGuiLayer();
+		bool m_Running;
 
-            float m_LastFrameTime = 0;
+		// Overlays are always on top of layers
+		// So we keep the next index for the next layer handy at all times
+		std::vector<Layer*> m_Layers;
+		uint32 m_LayerInsertIndex;
 
-        protected:
-            Framebuffer* m_Framebuffer = nullptr;
-            Scene* m_CurrentScene = nullptr;
-    };
+		//ImGuiLayer m_ImGuiLayer = ImGuiLayer();
 
-    // To be defined in CLIENT
-    Application* CreateApplication();
+		float m_LastFrameTime = 0;
+
+	protected:
+		Framebuffer* m_Framebuffer = nullptr;
+		Scene* m_CurrentScene = nullptr;
+		JWindow* m_Window;
+	};
+
+	// To be defined in CLIENT
+	Application* CreateApplication();
 }

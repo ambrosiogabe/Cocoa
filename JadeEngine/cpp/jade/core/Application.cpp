@@ -10,8 +10,6 @@ namespace Jade {
         m_Running = true;
         m_Layers = std::vector<Layer*>();
 
-        PushOverlay(&m_ImGuiLayer);
-
         std::string title = std::string("Test Window");
         m_Window = JWindow::Create(1920, 1080, title);
         s_Instance = this;
@@ -29,21 +27,20 @@ namespace Jade {
         for (Layer* layer : m_Layers) {
             layer->OnAttach();
         }
-        m_ImGuiLayer.Setup(m_Window->GetNativeWindow());
 
         while (m_Running) {
             float time = (float)glfwGetTime();
             float dt = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
-            m_ImGuiLayer.BeginFrame();
+            BeginFrame();
             for (Layer* layer : m_Layers) {
                 layer->OnUpdate(dt);
                 layer->OnRender();
 
                 layer->OnImGuiRender();
             }
-            m_ImGuiLayer.EndFrame();
+            EndFrame();
 
             m_Window->OnUpdate();
             m_Window->Render();
@@ -71,14 +68,6 @@ namespace Jade {
                     break;
             }
         }
-    }
-
-    const glm::vec2& Application::GetGameViewPos() const {
-        return m_ImGuiLayer.GetGameViewPos();
-    }
-
-    const glm::vec2& Application::GetGameViewSize() const {
-        return m_ImGuiLayer.GetGameViewSize();
     }
 
     void Application::PushLayer(Layer* layer) {

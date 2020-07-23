@@ -28,12 +28,13 @@ namespace Jade {
         bool IsRunning();
         void SetEventCallback(const EventCallbackFn& callback);
 
-        void SetWidth(int newWidth);
-        void SetHeight(int newHeight);
-        int GetWidth();
-        int GetHeight();
+        void SetWidth(int newWidth) { m_Size.x = (float)newWidth; }
+        void SetHeight(int newHeight) { m_Size.y = (float)newHeight; }
+        int GetWidth() { return (int)m_Size.x; }
+        int GetHeight() { return (int)m_Size.y; }
+        const glm::vec2& GetSize() { return m_Size; }
 
-        float GetTargetAspectRatio();
+        float GetTargetAspectRatio() { return m_TargetAspectRatio; }
         void Render();
 
         void Destroy();
@@ -47,8 +48,7 @@ namespace Jade {
         EventCallbackFn m_EventCallback = nullptr;
         bool m_VSync = false;
         bool m_Running = true;
-        int m_Width = 1920;
-        int m_Height = 1080;
+        glm::vec2 m_Size{ 1920, 1080 };
         float m_TargetAspectRatio = 3840.0f / 2160.0f;
     };
 }

@@ -2,7 +2,6 @@
 #include "externalLibs.h"
 
 #include "jade/systems/RenderSystem.h"
-#include "jade/core/ImGuiLayer.h"
 
 namespace Jade {
     class Scene {

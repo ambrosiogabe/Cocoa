@@ -6,6 +6,7 @@
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/ImGuiExtended.h"
 #include "jade/util/JMath.h"
+#include "jade/util/Settings.h"
 
 #include <string>
 #include <imgui/imgui.h>

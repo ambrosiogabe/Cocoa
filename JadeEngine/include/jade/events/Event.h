@@ -2,6 +2,9 @@
 #include "externalLibs.h"
 #include "jade/core/Core.h"
 
+#pragma warning( push )
+#pragma warning ( disable : 26812 )
+
 namespace Jade {
 
     // ================================================================
@@ -92,3 +95,5 @@ namespace Jade {
 #include "jade/events/KeyEvent.h"
 #include "jade/events/MouseEvent.h"
 #include "jade/events/Input.h"
+
+#pragma warning(pop)

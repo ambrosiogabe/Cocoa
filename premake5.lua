@@ -128,7 +128,8 @@ project "JadeEditor"
         "%{IncludeDir.Glad}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.Box2D}",
-        "%{IncludeDir.Json}"
+        "%{IncludeDir.Json}",
+        "%{IncludeDir.GLFW}"
     }
 
     links {

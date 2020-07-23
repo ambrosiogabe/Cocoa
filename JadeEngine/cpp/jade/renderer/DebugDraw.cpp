@@ -134,7 +134,7 @@ namespace Jade
 
 	void DebugDraw::AddSpritesToBatches()
 	{
-		for (int i = m_Sprites.size() - 1; i >= 0; i--)
+		for (int i = (int)m_Sprites.size() - 1; i >= 0; i--)
 		{
 			DebugSprite sprite = m_Sprites[i];
 			bool wasAdded = false;

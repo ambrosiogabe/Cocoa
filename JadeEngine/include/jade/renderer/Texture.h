@@ -1,6 +1,6 @@
 #pragma once
 
-#include "jade/physics2d/Physics2DSystem.h"
+#include "jade/physics2d/Physics2D.h"
 #include "jade/core/Core.h"
 
 namespace Jade {

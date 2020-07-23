@@ -37,7 +37,7 @@ namespace Jade
 				Rigidbody2D& rb = registry.get<Rigidbody2D>(activeEntity);
 				int currentItem = static_cast<int>(rb.m_BodyType);
 				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
-				if (ImGui::Combo("Body Type:", &currentItem, &items[0], items.size()))
+				if (ImGui::Combo("Body Type:", &currentItem, &items[0], (int)items.size()))
 				{
 					CommandHistory::AddCommand(new ChangeEnumCommand<BodyType2D>(rb.m_BodyType, static_cast<BodyType2D>(currentItem)));
 					CommandHistory::SetNoMergeMostRecent();

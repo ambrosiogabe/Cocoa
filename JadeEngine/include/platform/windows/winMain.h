@@ -5,6 +5,7 @@
 #include "jade/util/Log.h"
 #include "jade/file/IFile.h"
 #include "jade/file/IFileDialog.h"
+#include "jade/events/Input.h"
 
 extern Jade::Application* Jade::CreateApplication();
 
@@ -17,10 +18,12 @@ int main() {
     }
 #endif
 
+    Jade::Application* application = Jade::CreateApplication();
+
     Jade::IFileDialog::Init();
     Jade::IFile::Init();
+    Jade::Input::Init();
 
-    Jade::Application* application = Jade::CreateApplication();
     application->Run();
     delete application;
     

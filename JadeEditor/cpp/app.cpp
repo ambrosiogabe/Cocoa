@@ -2,64 +2,88 @@
 
 #include "LevelEditorSystem.h"
 #include "LevelEditorScene.h"
+#include "ImGuiLayer.h"
 
 #include <glad/glad.h>
 
-namespace Jade {
-    class EditorLayer : public Layer {
-    public:
-        EditorLayer() {
-            Application::Get()->ChangeScene(new LevelEditorScene());
-        }
+namespace Jade
+{
+	class EditorLayer : public Layer
+	{
+	public:
+		EditorLayer()
+		{
+			Application::Get()->ChangeScene(new LevelEditorScene());
+		}
 
-        virtual void OnAttach() override {
+		virtual void OnAttach() override
+		{
 
-        }
+		}
 
-        virtual void OnUpdate(float dt) override {
-            DebugDraw::BeginFrame();
-            Application::Get()->GetScene()->Update(dt);
-        }
+		virtual void OnUpdate(float dt) override
+		{
+			DebugDraw::BeginFrame();
+			Application::Get()->GetScene()->Update(dt);
+		}
 
-        virtual void OnImGuiRender() override {
-            Application::Get()->GetScene()->ImGui();
-        }
+		virtual void OnImGuiRender() override
+		{
+			Application::Get()->GetScene()->ImGui();
+		}
 
-        virtual void OnRender() override {
-            glBindFramebuffer(GL_FRAMEBUFFER, Application::Get()->GetFramebuffer()->GetId());
-            glViewport(0, 0, 3840, 2160);
-            glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+		virtual void OnRender() override
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, Application::Get()->GetFramebuffer()->GetId());
+			glViewport(0, 0, 3840, 2160);
+			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
-            DebugDraw::DrawBottomBatches();
-            Application::Get()->GetScene()->Render();
-            DebugDraw::DrawTopBatches();
-        }
+			DebugDraw::DrawBottomBatches();
+			Application::Get()->GetScene()->Render();
+			DebugDraw::DrawTopBatches();
+		}
 
-        virtual void OnEvent(Event& e) override {
-            const auto& systems = Application::Get()->GetScene()->GetSystems();
+		virtual void OnEvent(Event& e) override
+		{
+			const auto& systems = Application::Get()->GetScene()->GetSystems();
 
-            for (const auto& system : systems) {
-                system->OnEvent(e);
-            }
-        }
-    };
+			for (const auto& system : systems)
+			{
+				system->OnEvent(e);
+			}
+		}
+	};
 
-    class JadeEditor : public Application {
-    public:
-        JadeEditor() {
-            Log::Info("Running app!");
-        }
+	class JadeEditor : public Application
+	{
+	public:
+		~JadeEditor() = default;
+		JadeEditor()
+		{
+			PushOverlay(&m_ImGuiLayer);
+			m_ImGuiLayer.Setup(m_Window->GetNativeWindow());
+		}
 
-        ~JadeEditor() {
+		virtual void BeginFrame() override
+		{
+			m_ImGuiLayer.BeginFrame();
+		}
 
-        }
-    };
+		virtual void EndFrame() override
+		{
+			m_ImGuiLayer.EndFrame();
+		}
+
+	private:
+		ImGuiLayer m_ImGuiLayer;
+	};
 
 
-    Application* CreateApplication() {
-        JadeEditor* editor = new JadeEditor();
-        editor->PushLayer(new EditorLayer());
-        return editor;
-    }
+	Application* CreateApplication()
+	{
+		JadeEditor* editor = new JadeEditor();
+		editor->PushLayer(new EditorLayer());
+		return editor;
+	}
 }

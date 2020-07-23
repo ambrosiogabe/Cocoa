@@ -60,14 +60,6 @@ namespace Jade {
 
     glm::vec2 Camera::ScreenToOrtho()
     {
-        glm::vec2 screenCoords { Application::Get()->GetImGuiLayer().GetGameViewMousePos() };
-        glm::vec4 tmp{ screenCoords.x, screenCoords.y, 0, 1 };
-        const glm::vec2& gameviewSize = Application::Get()->GetGameViewSize();
-
-        tmp.x = (tmp.x / gameviewSize.x) * 2.0f - 1.0f;
-        tmp.y = -((tmp.y / gameviewSize.y) * 2.0f - 1.0f);
-        tmp = m_OrthoInverseView * m_OrthoInverseProjection * tmp;
-
-        return glm::vec2{ tmp.x, tmp.y };
+        return Input::ScreenToOrtho(this);
     }
 }

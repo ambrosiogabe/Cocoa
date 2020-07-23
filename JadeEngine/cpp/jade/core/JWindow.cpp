@@ -156,24 +156,4 @@ namespace Jade {
     bool JWindow::IsRunning() { 
         return m_Running; 
     }
-
-    void JWindow::SetWidth(int newWidth) { 
-        m_Width = newWidth; 
-    }
-
-    void JWindow::SetHeight(int newHeight) { 
-        m_Height = newHeight; 
-    }
-
-    int JWindow::GetWidth() { 
-        return m_Width; 
-    }
-
-    int JWindow::GetHeight() { 
-        return m_Height; 
-    }
-    
-    float JWindow::GetTargetAspectRatio() { 
-        return m_TargetAspectRatio;
-    }
 }

@@ -6,6 +6,7 @@
 #include "jade/physics2d/rigidbody/CollisionDetector2D.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
+#include "jade/util/Settings.h"
 
 namespace Jade
 {
