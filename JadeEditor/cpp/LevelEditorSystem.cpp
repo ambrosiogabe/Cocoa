@@ -7,6 +7,7 @@
 #include "jade/core/ImGuiExtended.h"
 #include "jade/util/JMath.h"
 #include "jade/util/Settings.h"
+#include "jade/file/IFile.h"
 
 #include <string>
 #include <imgui/imgui.h>
@@ -134,6 +135,11 @@ namespace Jade
 			if (e.GetKeyCode() == JADE_KEY_S)
 			{
 				Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
+				json editorJson{
+					{"WorkingDirectory", Settings::General::s_WorkingDirectory},
+					{"CurrentScene", Settings::General::s_CurrentScene}
+				};
+				IFile::WriteFile(editorJson.dump(4).c_str(), Settings::General::s_EditorSaveData.c_str());
 			}
 		}
 

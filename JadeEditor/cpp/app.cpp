@@ -3,8 +3,11 @@
 #include "LevelEditorSystem.h"
 #include "LevelEditorScene.h"
 #include "ImGuiLayer.h"
+#include "jade/file/IFile.h"
+#include "jade/util/Settings.h"
 
 #include <glad/glad.h>
+#include <jsonVendor/json.hpp>
 
 namespace Jade
 {
@@ -18,7 +21,23 @@ namespace Jade
 
 		virtual void OnAttach() override
 		{
+			Settings::General::s_EditorSaveData = IFile::GetCwd() + "\\" + Settings::General::s_EditorSaveData;
+			File* editorData = IFile::OpenFile(Settings::General::s_EditorSaveData.c_str());
+			if (editorData->m_Data.size() > 0)
+			{
+				json j = json::parse(editorData->m_Data);
+				if (!j["CurrentProject"].is_null())
+				{
+					Settings::General::s_CurrentProject = j["CurrentProject"];
+				}
 
+				if (!j["CurrentScene"].is_null())
+				{
+					Settings::General::s_CurrentScene = j["CurrentScene"];
+					Application::Get()->GetScene()->Load(Settings::General::s_CurrentScene);
+				}
+			}
+			IFile::CloseFile(editorData);
 		}
 
 		virtual void OnUpdate(float dt) override
