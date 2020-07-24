@@ -2,6 +2,7 @@
 #include "jade/core/Core.h"
 
 #include "ImGuiLayer.h"
+#include "AssetWizard.h"
 #include "jade/core/Application.h"
 
 #include <examples/imgui_impl_glfw.h>
@@ -72,6 +73,7 @@ namespace Jade
 
         SetupDockspace();
         RenderGameViewport();
+        AssetWizard::ImGui();
     }
 
     void ImGuiLayer::EndFrame()
@@ -197,7 +199,6 @@ namespace Jade
         m_MenuBar.ImGui();
         ImGui::End();
     }
-
 
 
 

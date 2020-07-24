@@ -31,6 +31,6 @@ namespace Jade
         bool m_BlockEvents = false;
 
         void* m_Window;
-        MenuBar m_MenuBar = MenuBar();
+        MenuBar m_MenuBar{};
     };
 }

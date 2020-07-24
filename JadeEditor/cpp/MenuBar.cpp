@@ -2,6 +2,7 @@
 #include "jade/core/Core.h"
 
 #include "MenuBar.h"
+#include "AssetWizard.h"
 #include "jade/file/IFileDialog.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
@@ -35,30 +36,36 @@ namespace Jade
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				if (ImGui::Button("New Project"))
+				{
+					AssetWizard::NewProject();
+				}
+
 				if (ImGui::Button("Open Scene"))
 				{
-					std::string outFile = "";
-					if (IFileDialog::GetOpenFileName(".", outFile, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+					FileDialogResult result{};
+					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }))
 					{
-						Application::Get()->GetScene()->Load(outFile);
-						Settings::General::s_CurrentSaveFile = outFile;
+						Application::Get()->GetScene()->Load(result.filepath);
+						Settings::General::s_CurrentScene = result.filepath;
 					}
 					//ImGui::EndMenu();
 				}
 
 				if (ImGui::Button("Save Scene As"))
 				{
-					std::string outFile = "";
-					if (IFileDialog::GetSaveFileName(".", outFile, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+					FileDialogResult result{};
+					if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 					{
-						Settings::General::s_CurrentSaveFile = outFile;
-						Application::Get()->GetScene()->Save(outFile);
+						Settings::General::s_CurrentScene = result.filepath;
+						Application::Get()->GetScene()->Save(result.filepath);
 					}
 					//ImGui::EndMenu();
 				}
 
 				if (ImGui::Button("Import Asset"))
 				{
+					AssetWizard::BeginImport();
 					//ImGui::EndMenu();
 				}
 

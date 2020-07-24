@@ -133,7 +133,7 @@ namespace Jade
 
 			if (e.GetKeyCode() == JADE_KEY_S)
 			{
-				Application::Get()->GetScene()->Save(Settings::General::s_CurrentSaveFile);
+				Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
 			}
 		}
 
