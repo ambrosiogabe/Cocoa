@@ -21,7 +21,10 @@ namespace Jade
 
 		virtual void OnAttach() override
 		{
-			Settings::General::s_EditorSaveData = IFile::GetCwd() + "\\" + Settings::General::s_EditorSaveData;
+			IFile::CreateDirIfNotExists((IFile::GetSpecialAppFolder() + "\\JadeEngine").c_str());
+
+			Settings::General::s_EditorSaveData = IFile::GetSpecialAppFolder() + "\\JadeEngine\\" + Settings::General::s_EditorSaveData;
+			Settings::General::s_EditorStyleData = IFile::GetSpecialAppFolder() + "\\JadeEngine\\" + Settings::General::s_EditorStyleData;
 			File* editorData = IFile::OpenFile(Settings::General::s_EditorSaveData.c_str());
 			if (editorData->m_Data.size() > 0)
 			{
@@ -35,6 +38,11 @@ namespace Jade
 				{
 					Settings::General::s_CurrentScene = j["CurrentScene"];
 					Application::Get()->GetScene()->Load(Settings::General::s_CurrentScene);
+				}
+
+				if (!j["EditorStyle"].is_null())
+				{
+					Settings::General::s_EditorStyleData = j["EditorStyle"];
 				}
 			}
 			IFile::CloseFile(editorData);
@@ -81,7 +89,6 @@ namespace Jade
 		JadeEditor()
 		{
 			PushOverlay(&m_ImGuiLayer);
-			m_ImGuiLayer.Setup(m_Window->GetNativeWindow());
 		}
 
 		virtual void BeginFrame() override

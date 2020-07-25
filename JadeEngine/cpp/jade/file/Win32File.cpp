@@ -1,4 +1,10 @@
 #include "jade/file/IFile.h"
+#include "jade/util/Log.h"
+
+#include <direct.h>
+#include <shobjidl_core.h>
+#include <shlobj.h>
+#include <knownfolders.h>
 
 namespace Jade
 {
@@ -30,5 +36,36 @@ namespace Jade
         outStream << data;
         outStream.close();
         return true;
+    }
+
+    std::string Win32File::ImplGetCwd()
+    {
+        char buff[FILENAME_MAX];
+        _getcwd(buff, FILENAME_MAX);
+        return std::string(buff);
+    }
+
+    std::string Win32File::ImplGetSpecialAppFolder()
+    {
+        PWSTR pszPath;
+        if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pszPath)))
+        {
+            char* tmp = new char[256];
+            wcstombs(tmp, pszPath, 256);
+            std::string result = std::string(tmp);
+            delete tmp;
+            return result;
+        }
+
+        Log::Assert(false, "Could not retrieve AppRoamingData folder.");
+        return std::string();
+    }
+
+    void Win32File::ImplCreateDirIfNotExists(const char* directory)
+    {
+        if (!(CreateDirectoryA(directory, NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
+        {
+            Log::Assert(false, "Failed to create directory %s", directory);
+        }
     }
 }

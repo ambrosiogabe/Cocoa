@@ -89,7 +89,17 @@ namespace Jade
 
 		glm::vec4 JMath::DeserializeVec4(json& j)
 		{
-			return glm::vec4{ j["X"], j["Y"], j["Z"], j["W"] };
+			float x = j["X"].is_null() ? 0.0f : j["X"];
+			float y = j["Y"].is_null() ? 0.0f : j["Y"];
+			float z = j["Z"].is_null() ? 0.0f : j["Z"];
+			float w = j["W"].is_null() ? 0.0f : j["W"];
+			return glm::vec4{ x, y, z, w };
+		}
+
+		glm::vec4 JMath::DeserializeVec4(json& j, bool& success)
+		{
+			success = !j["X"].is_null() && !j["Y"].is_null() && !j["Z"].is_null() && !j["W"].is_null();
+			return DeserializeVec4(j);
 		}
 
 		json JMath::Serialize(const std::string& name, const glm::vec3& vec)
@@ -105,7 +115,16 @@ namespace Jade
 
 		glm::vec3 JMath::DeserializeVec3(json& j)
 		{
-			return glm::vec3{ j["X"], j["Y"], j["Z"] };
+			float x = j["X"].is_null() ? 0.0f : j["X"];
+			float y = j["Y"].is_null() ? 0.0f : j["Y"];
+			float z = j["Z"].is_null() ? 0.0f : j["Z"];
+			return glm::vec3{ x, y, z };
+		}
+
+		glm::vec3 JMath::DeserializeVec3(json& j, bool& success)
+		{
+			success = !j["X"].is_null() && !j["Y"].is_null() && !j["Z"].is_null();
+			return DeserializeVec3(j);
 		}
 
 		json JMath::Serialize(const std::string& name, const glm::vec2& vec)
@@ -120,7 +139,15 @@ namespace Jade
 
 		glm::vec2 JMath::DeserializeVec2(json& j)
 		{
-			return glm::vec2{ j["X"], j["Y"] };
+			float x = j["X"].is_null() ? 0.0f : j["X"];
+			float y = j["Y"].is_null() ? 0.0f : j["Y"];
+			return glm::vec2{ x, y };
+		}
+
+		glm::vec2 JMath::DeserializeVec2(json& j, bool& success)
+		{
+			success = !j["X"].is_null() && !j["Y"].is_null();
+			return DeserializeVec2(j);
 		}
 	}
 }

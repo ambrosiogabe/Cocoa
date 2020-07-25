@@ -16,6 +16,7 @@ namespace Jade
 
         void Setup(void* window);
 
+        virtual void OnAttach() override;
         virtual void OnEvent(Event& e) override;
         void BeginFrame();
         void EndFrame();

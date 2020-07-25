@@ -40,8 +40,11 @@ namespace Jade
 				json j{
 					{"WorkingDirectory", s_FileImporting.filepath}
 				};
-				std::string prjFile = std::string(s_FileImporting.filepath.c_str()) + "/" + std::string(s_TmpFilename) + ".prj";
+				std::string prjFile = s_FileImporting.filepath + "\\" + std::string(s_TmpFilename) + ".prj";
 				IFile::WriteFile(j.dump(4).c_str(), prjFile.c_str());
+				IFile::CreateDirIfNotExists((s_FileImporting.filepath + "\\assets").c_str());
+				IFile::CreateDirIfNotExists((s_FileImporting.filepath + "\\scripts").c_str());
+				IFile::CreateDirIfNotExists((s_FileImporting.filepath + "\\scenes").c_str());
 
 				json j2{
 					{"CurrentProject", prjFile}

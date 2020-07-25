@@ -4,6 +4,13 @@
 
 namespace Jade
 {
+	struct FileDialogResult
+	{
+		std::string filepath;
+		const char* filename;
+		const char* extension;
+	};
+
 	class IFileDialog
 	{
 	public:
@@ -11,21 +18,27 @@ namespace Jade
 		static void Destroy();
 
 		static bool GetOpenFileName(
-			const std::string& initialPath, 
-			std::string& outFile,
-			std::vector<std::pair<std::string, std::string>> extensionFilters = { {"All Files", "*.*"} },
-			std::string extToAppend = "")
+			const std::string& initialPath,
+			FileDialogResult& result,
+			std::vector<std::pair<std::string, std::string>> extensionFilters = { {"All Files", "*.*"} })
 		{
-			return Get()->IGetOpenFileName(initialPath, outFile, extensionFilters, extToAppend);
+			return Get()->IGetOpenFileName(initialPath, result, extensionFilters);
+		}
+
+		static bool GetOpenFolderName(
+			const std::string initialPath,
+			FileDialogResult& result)
+		{
+			return Get()->IGetOpenFolderName(initialPath, result);
 		}
 
 		static bool GetSaveFileName(
 			const std::string& initialPath,
-			std::string& outPath,
+			FileDialogResult& result,
 			std::vector<std::pair<std::string, std::string>> extensionFilters = { {"All Files", "*.*"} },
 			std::string extToAppend = "")
 		{
-			return Get()->IGetSaveFileName(initialPath, outPath, extensionFilters, extToAppend);
+			return Get()->IGetSaveFileName(initialPath, result, extensionFilters, extToAppend);
 		}
 
 	protected:
@@ -34,15 +47,18 @@ namespace Jade
 		// ---------------------------------------------------------------------------
 		virtual bool IGetOpenFileName(
 			const std::string& initialPath, 
-			std::string& outPath, 
-			std::vector<std::pair<std::string, std::string>> extensionFilters,
-			std::string extToAppend) = 0;
+			FileDialogResult& result,
+			std::vector<std::pair<std::string, std::string>> extensionFilters) = 0;
 
 		virtual bool IGetSaveFileName(
 			const std::string& initialPath,
-			std::string& outPath,
+			FileDialogResult& result,
 			std::vector<std::pair<std::string, std::string>> extensionFilters,
 			std::string extToAppend) = 0;
+
+		virtual bool IGetOpenFolderName(
+			const std::string& initialPath,
+			FileDialogResult& result) = 0;
 
 	protected:
 		static IFileDialog* Get();
@@ -67,15 +83,18 @@ namespace Jade
 	protected:
 		virtual bool IGetOpenFileName(
 			const std::string& initialPath, 
-			std::string& outFile,
-			std::vector<std::pair<std::string, std::string>> extensionFilters,
-			std::string extToAppend) override;
+			FileDialogResult& outFile,
+			std::vector<std::pair<std::string, std::string>> extensionFilters) override;
 
 		virtual bool IGetSaveFileName(
 			const std::string& initialPath,
-			std::string& outPath,
+			FileDialogResult& outPath,
 			std::vector<std::pair<std::string, std::string>> extensionFilters,
 			std::string extToAppend) override;
+
+		virtual bool IGetOpenFolderName(
+			const std::string& initialPath,
+			FileDialogResult& result) override;
 	};
 #endif
 }

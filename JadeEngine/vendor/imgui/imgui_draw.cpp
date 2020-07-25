@@ -1093,6 +1093,41 @@ void ImDrawList::AddRectFilled(const ImVec2& p_min, const ImVec2& p_max, ImU32 c
     }
 }
 
+void ImDrawList::AddRectFilledGradient(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding, ImDrawCornerFlags rounding_corners)
+{
+    if ((col & IM_COL32_A_MASK) == 0)
+        return;
+    ImU32 vtx_begin_index = _VtxCurrentIdx;
+    if (rounding > 0.0f)
+    {
+        PathRect(p_min, p_max, rounding, rounding_corners);
+        PathFillConvex(col);
+    }
+    else
+    {
+        PrimReserve(6, 4);
+        PrimRect(p_min, p_max, col);
+    }
+    ImDrawVert* vtx_paint_start = _VtxWritePtr - (_VtxCurrentIdx - vtx_begin_index);
+    ImDrawVert* vtx_paint_end = _VtxWritePtr;
+    for (ImDrawVert* vert = vtx_paint_start; vert != vtx_paint_end; vert++)
+    {
+        if (vert->pos.y < p_max.y)
+        {
+            ImVec4 colVec = ImGui::ColorConvertU32ToFloat4(vert->col);
+            float col[4] = { colVec.x, colVec.y, colVec.z, colVec.w };
+            float H = col[0], S = col[1], V = col[2];
+            float R = col[0], G = col[1], B = col[2];
+            // Hue is lost when converting from greyscale rgb (saturation=0). Restore it.
+            ImGui::ColorConvertRGBtoHSV(R, G, B, H, S, V);
+            V += 0.05f;
+            //V += 20;
+            ImGui::ColorConvertHSVtoRGB(H, S, V, R, G, B);
+            vert->col = ImGui::ColorConvertFloat4ToU32(ImVec4(R, G, B, 1.0f));
+        }
+    }
+}
+
 // p_min = upper-left, p_max = lower-right
 void ImDrawList::AddRectFilledMultiColor(const ImVec2& p_min, const ImVec2& p_max, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left)
 {

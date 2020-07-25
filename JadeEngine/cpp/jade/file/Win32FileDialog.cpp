@@ -2,6 +2,9 @@
 #include "jade/core/Application.h"
 
 #include <Windows.h>
+#include <shobjidl_core.h>
+#include <shlobj.h>
+#include <knownfolders.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
@@ -9,9 +12,8 @@ namespace Jade
 {
 	bool Win32FileDialog::IGetOpenFileName(
 		const std::string& initialPath,
-		std::string& outFile,
-		std::vector<std::pair<std::string, std::string>> extensionFilters,
-		std::string extToAppend)
+		FileDialogResult& fileResult,
+		std::vector<std::pair<std::string, std::string>> extensionFilters)
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
 		HWND wnd = glfwGetWin32Window(window);
@@ -49,11 +51,9 @@ namespace Jade
 		bool result = GetOpenFileNameA(&dialogStruct);
 		if (result)
 		{
-			outFile = std::string(dialogStruct.lpstrFile);
-			if (dialogStruct.nFileExtension == 0)
-			{
-				outFile += extToAppend;
-			}
+			fileResult.filepath = std::string(dialogStruct.lpstrFile);
+			fileResult.filename = fileResult.filepath.c_str() + dialogStruct.nFileOffset;
+			fileResult.extension = fileResult.filepath.c_str() + dialogStruct.nFileExtension;
 		}
 		delete dialogStruct.lpstrFile;
 
@@ -62,7 +62,7 @@ namespace Jade
 
 	bool Win32FileDialog::IGetSaveFileName(
 		const std::string& initialPath,
-		std::string& outFile,
+		FileDialogResult& fileResult,
 		std::vector<std::pair<std::string, std::string>> extensionFilters,
 		std::string extToAppend)
 	{
@@ -102,13 +102,67 @@ namespace Jade
 		bool result = GetSaveFileNameA(&dialogStruct);
 		if (result)
 		{
-			outFile = std::string(dialogStruct.lpstrFile);
+			fileResult.filepath = std::string(dialogStruct.lpstrFile);
 			if (dialogStruct.nFileExtension == 0)
 			{
-				outFile += extToAppend;
+				dialogStruct.nFileExtension = fileResult.filepath.size();
+				fileResult.filepath += extToAppend;
 			}
+			fileResult.filename = fileResult.filepath.c_str() + dialogStruct.nFileOffset;
+			fileResult.extension = fileResult.filepath.c_str() + dialogStruct.nFileExtension;
 		}
 		delete dialogStruct.lpstrFile;
+
+		return result;
+	}
+
+	bool Win32FileDialog::IGetOpenFolderName(
+		const std::string& initialPath,
+		FileDialogResult& fileResult)
+	{
+		GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
+		HWND wnd = glfwGetWin32Window(window);
+
+		LPWSTR g_path{};
+		::IFileDialog* pfd;
+		
+		bool result = true;
+		if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd))))
+		{	
+			DWORD dwOptions;
+			if (SUCCEEDED(pfd->GetOptions(&dwOptions)))
+			{
+				pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+			}
+
+			IShellItem* psi;
+			SHGetKnownFolderItem(FOLDERID_RecycleBinFolder, KF_FLAG_DEFAULT, nullptr, IID_PPV_ARGS(&psi));
+			pfd->SetDefaultFolder(psi);
+			psi->Release();
+
+			if (SUCCEEDED(pfd->Show(NULL)))
+			{
+				IShellItem* psi;
+				if (SUCCEEDED(pfd->GetResult(&psi)))
+				{
+					if (!SUCCEEDED(psi->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &g_path)))
+					{
+						MessageBoxA(NULL, "GetIDListName() failed", NULL, NULL);
+						result = false;
+					}
+					else
+					{
+						char* tmp = new char[256];
+						wcstombs(tmp, g_path, 256);
+						fileResult.filepath = std::string(tmp);
+						Log::Info("Selected folder: %s", fileResult.filepath.c_str());
+						delete tmp;
+					}
+					psi->Release();
+				}
+			}
+			pfd->Release();
+		}
 
 		return result;
 	}

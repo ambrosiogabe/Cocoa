@@ -11,19 +11,15 @@ namespace Jade
 		Spritesheet
 	};
 
-	struct AssetHandle
-	{
-		AssetType type;
-		void* data;
-	};
-
-	class Assets
+	class AssetManager
 	{
 	public:
-		void ImportSpritesheet(const std::string& filename, Spritesheet* spritesheet);
-		void ImportSprite(const std::string& filename);
+		static void ImportSpritesheet(const std::string& filename, Spritesheet* spritesheet);
+		static void ImportSprite(const std::string& filename);
+
+		static Texture* GetTexture(const std::string& filename);
 
 	private:
-		std::unordered_map<std::string, AssetHandle> m_Assets;
+		static std::unordered_map<std::string, Texture*> s_Textures;
 	};
 }
