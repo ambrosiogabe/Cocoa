@@ -1120,7 +1120,7 @@ void ImDrawList::AddRectFilledGradient(const ImVec2& p_min, const ImVec2& p_max,
             float R = col[0], G = col[1], B = col[2];
             // Hue is lost when converting from greyscale rgb (saturation=0). Restore it.
             ImGui::ColorConvertRGBtoHSV(R, G, B, H, S, V);
-            V += 0.05f;
+            //V += 0.05f;
             //V += 20;
             ImGui::ColorConvertHSVtoRGB(H, S, V, R, G, B);
             vert->col = ImGui::ColorConvertFloat4ToU32(ImVec4(R, G, B, 1.0f));

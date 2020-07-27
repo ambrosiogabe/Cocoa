@@ -7,6 +7,8 @@
 #include "jade/renderer/DebugDraw.h"
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/util/JMath.h"
+#include "jade/core/ImGuiExtended.h"
+#include "jade/util/Settings.h"
 
 #include <entt/entt.h>
 #include <imgui/imgui.h>
@@ -99,7 +101,6 @@ namespace Jade {
             for (const auto& system : m_Systems)
             {
                 system->ImGui(m_Registry);
-                ImGui::Separator();
             }
 
             static bool componentsOpen = false;
@@ -166,6 +167,7 @@ namespace Jade {
 
     void LevelEditorScene::DoTreeNode(int& index, const Transform& transform)
     {
+        static bool isDark = true;
         std::string str = transform.m_Name;
         std::string res = str + "##" + std::to_string(index);
         index++;

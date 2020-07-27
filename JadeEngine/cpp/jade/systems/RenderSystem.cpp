@@ -6,6 +6,7 @@
 #include "jade/components/components.h"
 #include "jade/commands/ICommand.h"
 #include "jade/util/JMath.h"
+#include "jade/core/ImGuiExtended.h"
 
 #include <jsonVendor/json.hpp>
 
@@ -69,8 +70,12 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 			if (ImGui::CollapsingHeader("Sprite Renderer"))
 			{
+				static ImVec2 rectMin(0, 0);
+				static ImVec2 rectMax(0, 0);
+				ImGui::BeginCollapsingHeaderGroup(rectMin, rectMax);
 				SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
 				ImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
+				ImGui::EndCollapsingHeaderGroup(rectMin, rectMax);
 			}
 		}
 	}

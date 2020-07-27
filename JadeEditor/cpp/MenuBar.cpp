@@ -8,6 +8,7 @@
 #include "jade/components/Transform.h"
 #include "jade/util/Settings.h"
 #include "jade/core/Application.h"
+#include "jade/core/ImGuiExtended.h"
 
 namespace Jade
 {

@@ -67,7 +67,6 @@ using json = nlohmann::json;
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <imgui/imstb_rectpack.h>
-#include "jade/core/ImGuiExtended.h"
 #pragma warning( pop )
 
 // STB

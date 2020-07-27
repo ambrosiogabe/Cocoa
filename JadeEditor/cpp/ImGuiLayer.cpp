@@ -6,6 +6,7 @@
 #include "jade/file/IFile.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
+#include "jade/core/ImGuiExtended.h"
 
 #include <examples/imgui_impl_glfw.h>
 #ifndef _JADE_IMPL_IMGUI
@@ -27,6 +28,16 @@ namespace Jade
 	static void CustomStyle(bool bStyleDark_ = true, float alpha_ = 0.8f);
 	static void LoadStyle(const std::string filepath);
 	void HelpMarker(const char* desc);
+
+	ImVec4 From(const glm::vec4& vec4)
+	{
+		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
+	}
+
+	ImVec2 From(const glm::vec2& vec2)
+	{
+		return ImVec2(vec2.x, vec2.y);
+	}
 
 	void ImGuiLayer::OnAttach()
 	{
@@ -134,6 +145,14 @@ namespace Jade
 			}
 			ImGui::EndMenuBar();
 		}
+		float menuBarHeight = ImGui::GetItemRectSize().y;
+
+		static ImVec2 rectMin(0, 0);
+		static ImVec2 rectMax(0, 0);
+		float windowWidth = ImGui::GetWindowSize().x;
+		ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax,
+			ImGui::ColorConvertFloat4ToU32(From(Settings::EditorStyle::s_DarkBgColor)), 20.0f, 15, 20.0f);
+		ImGui::BeginGroup();
 
 		m_BlockEvents = !ImGui::IsWindowFocused() || !ImGui::IsWindowHovered();
 
@@ -152,13 +171,13 @@ namespace Jade
 		float vpX = ((float)windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f);
 		float vpY = ((float)windowSize.y / 2.0f) - ((float)aspectHeight / 2.0f);
 
-		ImGui::SetCursorPos(ImVec2(vpX, vpY));
+		ImGui::SetCursorPos(ImVec2(vpX + 10.5f, vpY));
 
 		ImVec2 topLeft = ImGui::GetCursorScreenPos();
 		m_GameviewPos.x = topLeft.x;
 		m_GameviewPos.y = topLeft.y + aspectHeight;
 		Input::SetGameViewPos(m_GameviewPos);
-		m_GameviewSize.x = aspectWidth;
+		m_GameviewSize.x = aspectWidth - 21;
 		m_GameviewSize.y = aspectHeight;
 		Input::SetGameViewSize(m_GameviewSize);
 
@@ -167,7 +186,11 @@ namespace Jade
 		m_GameviewMousePos.y = mousePos.y;
 		Input::SetGameViewMousePos(m_GameviewMousePos);
 
-		ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth - 21, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+
+		ImGui::EndGroup();
+		rectMin = ImGui::GetWindowPos() + ImVec2(0, menuBarHeight + 50);// ImGui::GetItemRectMin();
+		rectMax = rectMin + windowSize - ImVec2(0, menuBarHeight + 50);// ImGui::GetItemRectMax();
 
 		ImGui::End();
 		ImGui::PopStyleColor();
@@ -196,6 +219,7 @@ namespace Jade
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImGui::From(Settings::EditorStyle::s_MenubarColor));
 		ImGui::Begin("DockSpace Demo", &p_open, window_flags);
 		ImGui::PopStyleVar();
 
@@ -205,17 +229,13 @@ namespace Jade
 		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
+
 		m_MenuBar.ImGui();
+		ImGui::PopStyleColor();
 		ImGui::End();
 	}
 
-
-	ImVec4 From(const glm::vec4& vec4)
-	{
-		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
-	}
-
-	void AssignIfNotNull(json& j, glm::vec4& vector)
+	static void AssignIfNotNull(json& j, glm::vec4& vector)
 	{
 		if (!j.is_null())
 		{
@@ -228,6 +248,27 @@ namespace Jade
 		}
 	}
 
+	static void AssignIfNotNull(json& j, glm::vec2& vector)
+	{
+		if (!j.is_null())
+		{
+			bool success = true;
+			glm::vec2 tmp = JMath::DeserializeVec2(j, success);
+			if (success)
+			{
+				vector = tmp;
+			}
+		}
+	}
+
+	static void AssignIfNotNull(json& j, int& value)
+	{
+		if (!j.is_null())
+		{
+			value = j;
+		}
+	}
+
 	void LoadStyle(const std::string filepath)
 	{
 		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData.c_str());
@@ -236,51 +277,82 @@ namespace Jade
 			json j = json::parse(styleData->m_Data);
 			AssignIfNotNull(j["DarkBgColor"], Settings::EditorStyle::s_DarkBgColor);
 			AssignIfNotNull(j["LighBgColor"], Settings::EditorStyle::s_LightBgColor);
+			AssignIfNotNull(j["InputElementColor"], Settings::EditorStyle::s_InputElementColor);
 			AssignIfNotNull(j["DarkInset"], Settings::EditorStyle::s_DarkInset);
 			AssignIfNotNull(j["DarkAccent"], Settings::EditorStyle::s_DarkAccentColor);
 			AssignIfNotNull(j["LightAccent"], Settings::EditorStyle::s_LightAccentColor);
+			AssignIfNotNull(j["FramePadding"], Settings::EditorStyle::s_FramePadding);
+			AssignIfNotNull(j["ItemSpacing"], Settings::EditorStyle::s_ItemSpacing);
+			AssignIfNotNull(j["ScrollbarSize"], Settings::EditorStyle::s_ScrollbarSize);
+			AssignIfNotNull(j["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
+			AssignIfNotNull(j["FrameRounding"], Settings::EditorStyle::s_FrameRounding);
+			AssignIfNotNull(j["GrabRounding"], Settings::EditorStyle::s_GrabRounding);
+			AssignIfNotNull(j["TabRounding"], Settings::EditorStyle::s_TabRounding);
 		}
 		else
 		{
 			json styles = {
 				JMath::Serialize("DarkBgColor", Settings::EditorStyle::s_DarkBgColor),
 				JMath::Serialize("LightBgColor", Settings::EditorStyle::s_LightBgColor),
+				JMath::Serialize("InputElementColor", Settings::EditorStyle::s_InputElementColor),
 				JMath::Serialize("DarkInset", Settings::EditorStyle::s_DarkInset),
 				JMath::Serialize("DarkAccent", Settings::EditorStyle::s_DarkAccentColor),
-				JMath::Serialize("LightAccent", Settings::EditorStyle::s_LightAccentColor)
+				JMath::Serialize("LightAccent", Settings::EditorStyle::s_LightAccentColor),
+				JMath::Serialize("FramePadding", Settings::EditorStyle::s_FramePadding),
+				JMath::Serialize("ItemSpacing", Settings::EditorStyle::s_ItemSpacing),
+				{"ScrollbarSize", Settings::EditorStyle::s_ScrollbarSize},
+				{"ScrollbarRounding", Settings::EditorStyle::s_ScrollbarRounding},
+				{"FrameRounding", Settings::EditorStyle::s_FrameRounding},
+				{"GrabRounding", Settings::EditorStyle::s_GrabRounding},
+				{"TabRounding", Settings::EditorStyle::s_TabRounding}
 			};
 			IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData.c_str());
 		}
 		IFile::CloseFile(styleData);
 
 		ImGuiStyle* style = &ImGui::GetStyle();
+
+		style->WindowPadding = ImVec2(0, 0);
+		style->WindowBorderSize = 0;
+		style->ChildBorderSize = 0;
+		style->FramePadding = From(Settings::EditorStyle::s_FramePadding);
+		style->ItemSpacing = From(Settings::EditorStyle::s_ItemSpacing);
+		style->ScrollbarSize = Settings::EditorStyle::s_ScrollbarSize;
+		style->ScrollbarRounding = Settings::EditorStyle::s_ScrollbarRounding;
+		style->FrameRounding = Settings::EditorStyle::s_FrameRounding;
+		style->GrabRounding = Settings::EditorStyle::s_GrabRounding;
+		style->TabRounding = Settings::EditorStyle::s_TabRounding;
+
 		ImVec4* colors = style->Colors;
 		colors[ImGuiCol_WindowBg] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_FrameBg] = From(Settings::EditorStyle::s_DarkInset);
-		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.55f, 0.55f, 0.55f, 1.00f);
-		colors[ImGuiCol_FrameBgActive] = ImVec4(0.58f, 0.58f, 0.58f, 0.67f);
-		colors[ImGuiCol_TitleBg] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_TitleBgActive] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_MenuBarBg] = From(Settings::EditorStyle::s_DarkBgColor);
+		colors[ImGuiCol_ChildBg] = From(Settings::EditorStyle::s_LightBgColor);
+		colors[ImGuiCol_FrameBg] = From(Settings::EditorStyle::s_InputElementColor);
+		colors[ImGuiCol_FrameBgHovered] = From(Settings::EditorStyle::s_InputElementColor);
+		colors[ImGuiCol_FrameBgActive] = From(Settings::EditorStyle::s_InputElementColor);
+		colors[ImGuiCol_TitleBg] = From(Settings::EditorStyle::s_TitleBgColor);
+		colors[ImGuiCol_TitleBgCollapsed] = From(Settings::EditorStyle::s_TitleBgColor);
+		colors[ImGuiCol_TitleBgActive] = From(Settings::EditorStyle::s_TitleBgColor);
+		colors[ImGuiCol_MenuBarBg] = From(Settings::EditorStyle::s_MenubarColor);
 		colors[ImGuiCol_ScrollbarBg] = From(Settings::EditorStyle::s_DarkBgColor);
 		colors[ImGuiCol_CheckMark] = From(Settings::EditorStyle::s_LightAccentColor);
-		colors[ImGuiCol_SliderGrab] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-		colors[ImGuiCol_SliderGrabActive] = From(Settings::EditorStyle::s_DarkAccentColor);
+		colors[ImGuiCol_SliderGrab] = From(Settings::EditorStyle::s_LightBgColor);
+		colors[ImGuiCol_SliderGrabActive] = From(Settings::EditorStyle::s_LightColorHover);
 		colors[ImGuiCol_Button] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_ButtonHovered] = ImVec4(0.15f, 0.55f, 0.38f, 1.00f);
-		colors[ImGuiCol_ButtonActive] = From(Settings::EditorStyle::s_DarkAccentColor);
+		colors[ImGuiCol_ButtonHovered] = From(Settings::EditorStyle::s_LightColorHover);
+		colors[ImGuiCol_ButtonActive] = From(Settings::EditorStyle::s_LightColorHover);
 		colors[ImGuiCol_Header] = From(Settings::EditorStyle::s_LightBgColor);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.43f, 0.43f, 0.43f, 0.78f);
-		colors[ImGuiCol_SeparatorActive] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
+		colors[ImGuiCol_Separator] = From(Settings::EditorStyle::s_DarkBgColor);
+		colors[ImGuiCol_SeparatorHovered] = From(Settings::EditorStyle::s_DarkBgColor);
+		colors[ImGuiCol_SeparatorActive] = From(Settings::EditorStyle::s_DarkBgColor);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.21f, 0.21f, 0.21f, 0.25f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.39f, 0.39f, 0.39f, 0.67f);
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.44f, 0.44f, 0.44f, 0.95f);
-		colors[ImGuiCol_Tab] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_TabHovered] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_TabActive] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_TabUnfocusedActive] = From(Settings::EditorStyle::s_LightBgColor);
+		colors[ImGuiCol_Tab] = From(Settings::EditorStyle::s_TabColor);
+		colors[ImGuiCol_TabHovered] = From(Settings::EditorStyle::s_TabActiveColor);
+		colors[ImGuiCol_TabActive] = From(Settings::EditorStyle::s_TabActiveColor);
+		colors[ImGuiCol_TabUnfocusedActive] = From(Settings::EditorStyle::s_TitleBgColor);
 		colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_DarkAccentColor);
 		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_DarkAccentColor);
 		colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_DarkAccentColor);

@@ -85,6 +85,11 @@ namespace Jade
 		}
 	}
 
+	static ImVec4 From(const glm::vec4& vec4)
+	{
+		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
+	}
+
 	void LevelEditorSystem::ImGui(entt::registry& registry)
 	{
 		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
@@ -96,9 +101,13 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 			if (ImGui::CollapsingHeader("Transform"))
 			{
+				static ImVec2 itemRectMin = ImVec2(0, 0);
+				static ImVec2 itemRectMax = ImVec2(0, 0);
+				ImGui::BeginCollapsingHeaderGroup(itemRectMin, itemRectMax);
 				ImGui::UndoableDragFloat3("Position: ", transform.m_Position);
 				ImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
 				ImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
+				ImGui::EndCollapsingHeaderGroup(itemRectMin, itemRectMax);
 			}
 		}
 	}
