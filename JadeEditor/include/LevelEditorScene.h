@@ -27,6 +27,6 @@ namespace Jade
         Spritesheet* sprites = nullptr;
         Texture* texture = nullptr;
 
-        bool showDemoWindow = true;
+        bool showDemoWindow = false;
     };
 }

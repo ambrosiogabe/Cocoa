@@ -2,6 +2,7 @@
 #include "externalLibs.h"
 
 #include "MenuBar.h"
+#include "AssetWindow.h"
 #include "jade/core/Layer.h"
 
 namespace Jade
@@ -33,5 +34,6 @@ namespace Jade
 
         void* m_Window;
         MenuBar m_MenuBar{};
+        AssetWindow m_AssetWindow;
     };
 }

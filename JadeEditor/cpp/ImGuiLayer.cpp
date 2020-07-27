@@ -3,6 +3,7 @@
 
 #include "ImGuiLayer.h"
 #include "AssetWizard.h"
+#include "FontAwesome.h"
 #include "jade/file/IFile.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
@@ -68,7 +69,16 @@ namespace Jade
 		//ImGui::StyleColorsLight();
 
 		//io.Fonts->AddFontFromFileTTF("assets/fonts/segoeui.ttf", 32);
-		io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans-Regular.ttf", 32.0f);
+		//io.Fonts->AddFontDefault();
+
+		ImFontConfig config;
+		io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans-Regular.ttf", 32.0f, &config);
+		config.MergeMode = true;
+		config.GlyphMinAdvanceX = 64.0f;
+		const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont.ttf", 64.0f, &config, iconRanges);
+		io.Fonts->Build();
+
 		//CustomStyle();
 		LoadStyle(Settings::General::s_EditorStyleData);
 	}
@@ -94,6 +104,7 @@ namespace Jade
 		SetupDockspace();
 		RenderGameViewport();
 		AssetWizard::ImGui();
+		m_AssetWindow.ImGui();
 	}
 
 	void ImGuiLayer::EndFrame()
@@ -151,7 +162,7 @@ namespace Jade
 		static ImVec2 rectMax(0, 0);
 		float windowWidth = ImGui::GetWindowSize().x;
 		ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax,
-			ImGui::ColorConvertFloat4ToU32(From(Settings::EditorStyle::s_DarkBgColor)), 20.0f, 15, 20.0f);
+			ImGui::ColorConvertFloat4ToU32(From(Settings::EditorStyle::s_DarkBgColor)), 20.0f, 15, 15.0f);
 		ImGui::BeginGroup();
 
 		m_BlockEvents = !ImGui::IsWindowFocused() || !ImGui::IsWindowHovered();
@@ -171,14 +182,14 @@ namespace Jade
 		float vpX = ((float)windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f);
 		float vpY = ((float)windowSize.y / 2.0f) - ((float)aspectHeight / 2.0f);
 
-		ImGui::SetCursorPos(ImVec2(vpX + 10.5f, vpY));
+		ImGui::SetCursorPos(ImVec2(vpX + 8, vpY + 8));
 
 		ImVec2 topLeft = ImGui::GetCursorScreenPos();
 		m_GameviewPos.x = topLeft.x;
 		m_GameviewPos.y = topLeft.y + aspectHeight;
 		Input::SetGameViewPos(m_GameviewPos);
-		m_GameviewSize.x = aspectWidth - 21;
-		m_GameviewSize.y = aspectHeight;
+		m_GameviewSize.x = aspectWidth - 16;
+		m_GameviewSize.y = aspectHeight - 16;
 		Input::SetGameViewSize(m_GameviewSize);
 
 		ImVec2 mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
@@ -186,7 +197,7 @@ namespace Jade
 		m_GameviewMousePos.y = mousePos.y;
 		Input::SetGameViewMousePos(m_GameviewMousePos);
 
-		ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth - 21, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
 		ImGui::EndGroup();
 		rectMin = ImGui::GetWindowPos() + ImVec2(0, menuBarHeight + 50);// ImGui::GetItemRectMin();

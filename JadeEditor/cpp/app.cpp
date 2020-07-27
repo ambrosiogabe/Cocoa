@@ -32,11 +32,13 @@ namespace Jade
 				if (!j["CurrentProject"].is_null())
 				{
 					Settings::General::s_CurrentProject = j["CurrentProject"];
+					Settings::General::s_WorkingDirectory = j["WorkingDirectory"];
 				}
 
 				if (!j["CurrentScene"].is_null())
 				{
 					Settings::General::s_CurrentScene = j["CurrentScene"];
+					Settings::General::s_WorkingDirectory = j["WorkingDirectory"];
 					Application::Get()->GetScene()->Load(Settings::General::s_CurrentScene);
 				}
 
