@@ -1,6 +1,6 @@
 #pragma once
 #include "externalLibs.h"
-
+#include "jade/file/IFile.h"
 
 namespace Jade
 {
@@ -14,6 +14,9 @@ namespace Jade
 		inline const char* Filename() { return m_Filename; }
 		inline const char* Filepath() { return m_Filepath; }
 		inline const char* FileExt()  { return m_FileExt; }
+		inline bool IsFile() { return IFile::IsFile(m_Filepath); }
+		inline bool IsDirectory() { return IFile::IsDirectory(m_Filepath); }
+		std::string GetDirectory(int level);
 
 		void Join(const JPath& other);
 

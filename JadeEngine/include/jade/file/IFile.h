@@ -25,6 +25,8 @@ namespace Jade
 		static std::vector<std::string> GetFilesInDir(const char* directory) { return Get()->ImplGetFilesInDir(directory); }
 		static std::vector<std::string> GetFoldersInDir(const char* directory) { return Get()->ImplGetFoldersInDir(directory); }
 		static void CreateDirIfNotExists(const char* directory) { Get()->ImplCreateDirIfNotExists(directory); }
+		static bool IsFile(const char* filepath) { return Get()->ImplIsFile(filepath); }
+		static bool IsDirectory(const char* directory) { return Get()->ImplIsDirectory(directory); }
 
 	protected:
 		virtual File* ImplOpenFile(const char* filename) = 0;
@@ -35,6 +37,8 @@ namespace Jade
 		virtual std::vector<std::string> ImplGetFilesInDir(const char* directory) = 0;
 		virtual std::vector<std::string> ImplGetFoldersInDir(const char* directory) = 0;
 		virtual void ImplCreateDirIfNotExists(const char* directory) = 0;
+		virtual bool ImplIsFile(const char* filepath) = 0;
+		virtual bool ImplIsDirectory(const char* filepath) = 0;
 
 	private:
 		static IFile* Get();
@@ -60,6 +64,8 @@ namespace Jade
 		virtual std::vector<std::string> ImplGetFilesInDir(const char* directory) override;
 		virtual std::vector<std::string> ImplGetFoldersInDir(const char* directory) override;
 		virtual void ImplCreateDirIfNotExists(const char* directory) override;
+		virtual bool ImplIsFile(const char* filepath) override;
+		virtual bool ImplIsDirectory(const char* filepath) override;
 	};
 #endif
 }

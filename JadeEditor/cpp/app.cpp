@@ -16,11 +16,12 @@ namespace Jade
 	public:
 		EditorLayer()
 		{
-			Application::Get()->ChangeScene(new LevelEditorScene());
 		}
 
 		virtual void OnAttach() override
 		{
+			Application::Get()->ChangeScene(new LevelEditorScene());
+
 			IFile::CreateDirIfNotExists((IFile::GetSpecialAppFolder() + "\\JadeEngine").c_str());
 
 			Settings::General::s_EditorSaveData = IFile::GetSpecialAppFolder() + "\\JadeEngine\\" + Settings::General::s_EditorSaveData;

@@ -130,4 +130,62 @@ namespace Jade
 		m_Filepath[newLength] = '\0';
 		m_PathLength = newLength;
 	}
+
+	/*
+	 *  Gets the directory at 'level' of the path. For example given the directory:
+	 *  
+	 *   0  1   2        3           4   Undefined
+	 *  'C:/dev/Projects/SomeProject/Src/Somefile.txt'
+	 *   -5 -4  -3       -2          -1  Undefined    
+	 *  
+	 *  The levels are listed above and below the path respectively
+	 *  So, to get a directory one path level above the current directory, you would simply say:
+	 *  GetDirectory(-2);
+	 */
+	std::string JPath::GetDirectory(int level)
+	{
+		char* startCopy = m_Filepath;
+		char* endCopy = m_Filepath;
+		if (level < 0)
+		{
+			if (IsFile())
+			{
+				level--;
+			}
+
+			for (int i = m_PathLength - 1; i >= 0; i--)
+			{
+				if (IsSeparator(m_Filepath[i]))
+				{
+					level++;
+					if (level >= 0)
+					{
+						endCopy = &m_Filepath[i];
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < m_PathLength; i++)
+			{
+				if (IsSeparator(m_Filepath[i]))
+				{
+					level--;
+					if (level < 0)
+					{
+						endCopy = &m_Filepath[i];
+						if (IsFile() && endCopy == m_Filename)
+						{
+							endCopy = m_Filepath;
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		return { startCopy, endCopy };
+	}
 }

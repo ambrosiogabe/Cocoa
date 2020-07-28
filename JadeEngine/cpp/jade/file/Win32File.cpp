@@ -138,4 +138,14 @@ namespace Jade
 
 		return result;
 	}
+
+	bool Win32File::ImplIsFile(const char* filepath)
+	{
+		return !IsDirectory(filepath);
+	}
+
+	bool Win32File::ImplIsDirectory(const char* filepath)
+	{
+		return (GetFileAttributesA(filepath) & FILE_ATTRIBUTE_DIRECTORY);
+	}
 }
