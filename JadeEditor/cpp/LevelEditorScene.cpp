@@ -9,6 +9,7 @@
 #include "jade/util/JMath.h"
 #include "jade/core/ImGuiExtended.h"
 #include "jade/util/Settings.h"
+#include "jade/file/JPath.h"
 
 #include <entt/entt.h>
 #include <imgui/imgui.h>
@@ -17,8 +18,6 @@
 namespace Jade {
     void LevelEditorScene::Init() {
         Physics2D::Init(m_Registry);
-
-        Log::Info("Initializing test scene.");
 
         m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System"));
         m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System"));
