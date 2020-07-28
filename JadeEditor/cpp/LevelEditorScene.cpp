@@ -19,14 +19,6 @@ namespace Jade {
     void LevelEditorScene::Init() {
         Physics2D::Init(m_Registry);
 
-        JPath test("C:/dev/Projects/SomeProject/Src/Somefile.txt");
-        Log::Info(test.GetDirectory(-1).c_str());
-        Log::Info(test.GetDirectory(-2).c_str());
-        Log::Info(test.GetDirectory(1).c_str());
-        Log::Info(test.GetDirectory(2).c_str());
-        Log::Info(test.GetDirectory(0).c_str());
-        Log::Info(test.GetDirectory(5).c_str());
-
         m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System"));
         m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System"));
         m_Systems.emplace_back(std::unique_ptr<GizmoSystem>(new GizmoSystem()));

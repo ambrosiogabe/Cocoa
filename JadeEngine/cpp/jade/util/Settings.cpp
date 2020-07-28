@@ -10,11 +10,11 @@ namespace Jade
         int General::s_GridSizeX = 32;
         int General::s_GridSizeY = 32;
         bool General::s_DrawGrid = false;
-        std::string General::s_CurrentScene = "New Scene.jade";
-        std::string General::s_CurrentProject = "New Project.prj";
-        std::string General::s_WorkingDirectory = "";
-        std::string General::s_EditorSaveData = "EditorSaveData.json";
-        std::string General::s_EditorStyleData = "EditorStyle.json";
+        JPath General::s_CurrentScene = "New Scene.jade";
+        JPath General::s_CurrentProject = "New Project.prj";
+        JPath General::s_WorkingDirectory = "";
+        JPath General::s_EditorSaveData = "EditorSaveData.json";
+        JPath General::s_EditorStyleData = "EditorStyle.json";
 
         // =======================================================================
         // Physics Settings

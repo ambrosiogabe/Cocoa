@@ -145,10 +145,10 @@ namespace Jade
 			{
 				Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
 				json editorJson{
-					{"WorkingDirectory", Settings::General::s_WorkingDirectory},
-					{"CurrentScene", Settings::General::s_CurrentScene}
+					{"WorkingDirectory", Settings::General::s_WorkingDirectory.Filepath()},
+					{"CurrentScene", Settings::General::s_CurrentScene.Filepath()}
 				};
-				IFile::WriteFile(editorJson.dump(4).c_str(), Settings::General::s_EditorSaveData.c_str());
+				IFile::WriteFile(editorJson.dump(4).c_str(), Settings::General::s_EditorSaveData);
 			}
 		}
 

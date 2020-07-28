@@ -1,5 +1,6 @@
 #include "jade/file/JPath.h"
 #include "jade/util/Log.h"
+#include "jade/file/IFile.h"
 
 namespace Jade
 {
@@ -9,14 +10,43 @@ namespace Jade
 
 	JPath::JPath(std::string path)
 	{
-		char* sanitizedPath = new char[path.size()];
+		Init(path.c_str(), path.size());
+	}
+
+	JPath::JPath(const char* path)
+	{
+		int pathSize = 0;
+		for (const char* iter = path; *iter != '\0'; iter++)
+		{
+			pathSize++;
+		}
+
+		Init(path, pathSize);
+	}
+
+	JPath::JPath(const JPath& other)
+	{
+		m_PathLength = other.m_PathLength;
+		m_Filepath = new char[m_PathLength + 1];
+		m_Filepath[m_PathLength] = '\0';
+		int result = memcpy_s(m_Filepath, m_PathLength, other.m_Filepath, m_PathLength);
+		Log::Assert(result == 0, "Failed to copy path.");
+		m_Filename = &this->m_Filepath[other.m_Filename - other.m_Filepath];
+		m_FileExt = &this->m_Filepath[other.m_FileExt - other.m_Filepath];
+	}
+
+	void JPath::Init(const char* path, int pathSize)
+	{
+		char* sanitizedPath = new char[pathSize];
 		int lastPathSeparator = -1;
 		int stringIndex = 0;
 		int pathIndex = 0;
 		int lastDot = -1;
 
-		for (char c : path)
+		const char* iterEnd = path + pathSize;
+		for (const char* iter=path; iter != iterEnd; iter++)
 		{
+			char c = *iter;
 			if (c == '.' && stringIndex > 0 && sanitizedPath[stringIndex - 1] != '.')
 			{
 				lastDot = pathIndex;
@@ -25,7 +55,7 @@ namespace Jade
 			{
 				// We have a double dot ..
 				// If .. is at the end of the path or .. is followed by a path separator '/'
-				if (stringIndex == path.size() - 1 || (stringIndex + 1 < path.size() && IsSeparator(path[stringIndex + 1])))
+				if (stringIndex == pathSize - 1 || (stringIndex + 1 < pathSize && IsSeparator(path[stringIndex + 1])))
 				{
 					lastDot = -1;
 				}
@@ -63,23 +93,66 @@ namespace Jade
 		delete[] sanitizedPath;
 	}
 
-	JPath::JPath(const JPath& other)
+	JPath::JPath(JPath&& other) noexcept
 	{
+		m_Filepath = other.m_Filepath;
+		m_Filename = other.m_Filename;
+		m_FileExt = other.m_FileExt;
 		m_PathLength = other.m_PathLength;
-		m_Filepath = new char[m_PathLength + 1];
-		m_Filepath[m_PathLength] = '\0';
-		int result = memcpy_s(m_Filepath, m_PathLength, other.m_Filepath, m_PathLength);
-		Log::Assert(result == 0, "Failed to copy path.");
-		m_Filename = &this->m_Filepath[other.m_Filename - other.m_Filepath];
-		m_FileExt = &this->m_Filepath[other.m_FileExt - other.m_Filepath];
+
+		other.m_Filepath = nullptr;
+		other.m_Filename = nullptr;
+		other.m_FileExt = nullptr;
+		other.m_PathLength = 0;
+	}
+
+	JPath& JPath::operator=(JPath&& other) noexcept
+	{
+		if (this != &other)
+		{
+			// Free the existing resource
+			delete m_Filepath;
+
+			// Copy the data pointers from other to here
+			m_Filepath = other.m_Filepath;
+			m_FileExt = other.m_FileExt;
+			m_Filename = other.m_Filename;
+			m_PathLength = other.m_PathLength;
+
+			// Release the data pointers from source, so destructor does not free multiple times
+			other.m_Filepath = nullptr;
+			other.m_Filename = nullptr;
+			other.m_FileExt = nullptr;
+			other.m_PathLength = 0;
+		}
+
+		return *this;
 	}
 
 	JPath::~JPath()
 	{
-		delete[] m_Filepath;
+		if (m_Filepath != nullptr)
+			delete[] m_Filepath;
 	}
 
-	JPath JPath::operator+(std::string other)
+	JPath& JPath::operator=(JPath& other)
+	{
+		if (&other == this)
+			return *this;
+		if (other.m_PathLength != m_PathLength)
+		{
+			delete[] m_Filepath;
+			m_Filepath = new char[other.m_PathLength + 1];
+			m_PathLength = other.m_PathLength;
+		}
+
+		memcpy_s(m_Filepath, m_PathLength, other.m_Filepath, other.m_PathLength);
+		m_Filename = &m_Filepath[other.m_Filename - other.m_Filepath];
+		m_FileExt = &m_Filepath[other.m_FileExt - other.m_Filepath];
+		return *this;
+	}
+
+	JPath JPath::operator+(std::string other) const
 	{
 		JPath tmp(other);
 		JPath copy = JPath(*this);
@@ -87,11 +160,28 @@ namespace Jade
 		return copy;
 	}
 
-	JPath JPath::operator+(const JPath& other)
+	JPath JPath::operator+(const JPath& other) const
 	{
 		JPath copy = JPath(*this);
 		copy.Join(other);
 		return copy;
+	}
+
+	JPath JPath::operator+(const char* other) const
+	{
+		JPath copy = JPath(*this);
+		copy.Join(JPath(other));
+		return copy;
+	}
+
+	void JPath::operator+=(const JPath& other)
+	{
+		this->Join(other);
+	}
+
+	char JPath::operator[](int index) const
+	{
+		return m_Filepath[index];
 	}
 
 	void JPath::Join(const JPath& other)
@@ -186,6 +276,16 @@ namespace Jade
 			}
 		}
 
-		return { startCopy, endCopy };
+		return std::string(startCopy, endCopy);
+	}
+
+	bool JPath::IsFile()
+	{
+		return IFile::IsFile(*this);
+	}
+
+	bool JPath::IsDirectory()
+	{
+		return IFile::IsDirectory(*this);
 	}
 }

@@ -22,30 +22,31 @@ namespace Jade
 		{
 			Application::Get()->ChangeScene(new LevelEditorScene());
 
-			IFile::CreateDirIfNotExists((IFile::GetSpecialAppFolder() + "\\JadeEngine").c_str());
+			IFile::CreateDirIfNotExists(IFile::GetSpecialAppFolder() + "JadeEngine");
 
-			Settings::General::s_EditorSaveData = IFile::GetSpecialAppFolder() + "\\JadeEngine\\" + Settings::General::s_EditorSaveData;
-			Settings::General::s_EditorStyleData = IFile::GetSpecialAppFolder() + "\\JadeEngine\\" + Settings::General::s_EditorStyleData;
-			File* editorData = IFile::OpenFile(Settings::General::s_EditorSaveData.c_str());
+			Settings::General::s_EditorSaveData = IFile::GetSpecialAppFolder() + "JadeEngine" + Settings::General::s_EditorSaveData;
+			Settings::General::s_EditorStyleData = IFile::GetSpecialAppFolder() + "JadeEngine" + Settings::General::s_EditorStyleData;
+
+			File* editorData = IFile::OpenFile(Settings::General::s_EditorSaveData);
 			if (editorData->m_Data.size() > 0)
 			{
 				json j = json::parse(editorData->m_Data);
 				if (!j["CurrentProject"].is_null())
 				{
-					Settings::General::s_CurrentProject = j["CurrentProject"];
-					Settings::General::s_WorkingDirectory = j["WorkingDirectory"];
+					Settings::General::s_CurrentProject = JPath(j["CurrentProject"]);
+					Settings::General::s_WorkingDirectory = JPath(j["WorkingDirectory"]);
 				}
 
 				if (!j["CurrentScene"].is_null())
 				{
-					Settings::General::s_CurrentScene = j["CurrentScene"];
-					Settings::General::s_WorkingDirectory = j["WorkingDirectory"];
+					Settings::General::s_CurrentScene = JPath(j["CurrentScene"]);
+					Settings::General::s_WorkingDirectory = JPath(j["WorkingDirectory"]);
 					Application::Get()->GetScene()->Load(Settings::General::s_CurrentScene);
 				}
 
 				if (!j["EditorStyle"].is_null())
 				{
-					Settings::General::s_EditorStyleData = j["EditorStyle"];
+					Settings::General::s_EditorStyleData = JPath(j["EditorStyle"]);
 				}
 			}
 			IFile::CloseFile(editorData);

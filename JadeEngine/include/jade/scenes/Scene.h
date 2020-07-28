@@ -1,6 +1,7 @@
 #pragma once
 #include "externalLibs.h"
 
+#include "jade/file/JPath.h"
 #include "jade/systems/RenderSystem.h"
 
 namespace Jade {
@@ -14,8 +15,8 @@ namespace Jade {
 
         void Play();
         void Stop();
-        void Save(const std::string& filename);
-        void Load(const std::string& filename);
+        void Save(const JPath& filename);
+        void Load(const JPath& filename);
 
         void SetActiveEntity(entt::entity entity);
         entt::registry& GetRegistry();

@@ -1,5 +1,6 @@
 #pragma once
 #include "externalLibs.h"
+#include "jade/file/JPath.h"
 
 namespace Jade
 {
@@ -17,28 +18,30 @@ namespace Jade
 		static void Init();
 		static void Destroy();
 
-		static File* OpenFile(const char* filename) { return Get()->ImplOpenFile(filename); }
+		static File* OpenFile(const JPath& filename) { return Get()->ImplOpenFile(filename); }
 		static void CloseFile(File* file) { Get()->ImplCloseFile(file); }
-		static bool WriteFile(const char* data, const char* filename) { return Get()->ImplWriteFile(data, filename); }
-		static std::string GetCwd() { return Get()->ImplGetCwd(); }
-		static std::string GetSpecialAppFolder() { return Get()->ImplGetSpecialAppFolder(); }
-		static std::vector<std::string> GetFilesInDir(const char* directory) { return Get()->ImplGetFilesInDir(directory); }
-		static std::vector<std::string> GetFoldersInDir(const char* directory) { return Get()->ImplGetFoldersInDir(directory); }
-		static void CreateDirIfNotExists(const char* directory) { Get()->ImplCreateDirIfNotExists(directory); }
-		static bool IsFile(const char* filepath) { return Get()->ImplIsFile(filepath); }
-		static bool IsDirectory(const char* directory) { return Get()->ImplIsDirectory(directory); }
+		static bool WriteFile(const char* data, const JPath& filename) { return Get()->ImplWriteFile(data, filename); }
+		static JPath GetCwd() { return Get()->ImplGetCwd(); }
+		static JPath GetSpecialAppFolder() { return Get()->ImplGetSpecialAppFolder(); }
+		static std::vector<JPath> GetFilesInDir(const JPath& directory) { return Get()->ImplGetFilesInDir(directory); }
+		static std::vector<JPath> GetFoldersInDir(const JPath& directory) { return Get()->ImplGetFoldersInDir(directory); }
+		static void CreateDirIfNotExists(const JPath& directory) { Get()->ImplCreateDirIfNotExists(directory); }
+		static bool IsFile(const JPath& filepath) { return Get()->ImplIsFile(filepath); }
+		static bool IsDirectory(const JPath& directory) { return Get()->ImplIsDirectory(directory); }
+		static JPath GetAbsolutePath(const JPath& path) { return Get()->ImplGetAbsolutePath(path); }
 
 	protected:
-		virtual File* ImplOpenFile(const char* filename) = 0;
+		virtual File* ImplOpenFile(const JPath& filename) = 0;
 		virtual void ImplCloseFile(File* file) = 0;
-		virtual bool ImplWriteFile(const char* data, const char* filename) = 0;
-		virtual std::string ImplGetCwd() = 0;
-		virtual std::string ImplGetSpecialAppFolder() = 0;
-		virtual std::vector<std::string> ImplGetFilesInDir(const char* directory) = 0;
-		virtual std::vector<std::string> ImplGetFoldersInDir(const char* directory) = 0;
-		virtual void ImplCreateDirIfNotExists(const char* directory) = 0;
-		virtual bool ImplIsFile(const char* filepath) = 0;
-		virtual bool ImplIsDirectory(const char* filepath) = 0;
+		virtual bool ImplWriteFile(const char* data, const JPath& filename) = 0;
+		virtual JPath ImplGetCwd() = 0;
+		virtual JPath ImplGetSpecialAppFolder() = 0;
+		virtual std::vector<JPath> ImplGetFilesInDir(const JPath& directory) = 0;
+		virtual std::vector<JPath> ImplGetFoldersInDir(const JPath& directory) = 0;
+		virtual void ImplCreateDirIfNotExists(const JPath& directory) = 0;
+		virtual bool ImplIsFile(const JPath& filepath) = 0;
+		virtual bool ImplIsDirectory(const JPath& filepath) = 0;
+		virtual JPath ImplGetAbsolutePath(const JPath& path) = 0;
 
 	private:
 		static IFile* Get();
@@ -56,16 +59,17 @@ namespace Jade
 			return new Win32File();
 		}
 
-		virtual File* ImplOpenFile(const char* filename) override;
+		virtual File* ImplOpenFile(const JPath& filename) override;
 		virtual void ImplCloseFile(File* file) override;
-		virtual bool ImplWriteFile(const char* data, const char* filename) override;
-		virtual std::string ImplGetCwd() override;
-		virtual std::string ImplGetSpecialAppFolder() override;
-		virtual std::vector<std::string> ImplGetFilesInDir(const char* directory) override;
-		virtual std::vector<std::string> ImplGetFoldersInDir(const char* directory) override;
-		virtual void ImplCreateDirIfNotExists(const char* directory) override;
-		virtual bool ImplIsFile(const char* filepath) override;
-		virtual bool ImplIsDirectory(const char* filepath) override;
+		virtual bool ImplWriteFile(const char* data, const JPath& filename) override;
+		virtual JPath ImplGetCwd() override;
+		virtual JPath ImplGetSpecialAppFolder() override;
+		virtual std::vector<JPath> ImplGetFilesInDir(const JPath& directory) override;
+		virtual std::vector<JPath> ImplGetFoldersInDir(const JPath& directory) override;
+		virtual void ImplCreateDirIfNotExists(const JPath& directory) override;
+		virtual bool ImplIsFile(const JPath& filepath) override;
+		virtual bool ImplIsDirectory(const JPath& filepath) override;
+		virtual JPath ImplGetAbsolutePath(const JPath& path) override;
 	};
 #endif
 }

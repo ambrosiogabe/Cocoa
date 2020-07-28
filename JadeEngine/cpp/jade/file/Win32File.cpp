@@ -8,12 +8,12 @@
 
 namespace Jade
 {
-	File* Win32File::ImplOpenFile(const char* filename)
+	File* Win32File::ImplOpenFile(const JPath& filename)
 	{
 		File* file = new File();
-		file->m_Filename = filename;
+		file->m_Filename = filename.Filepath();
 
-		std::ifstream inputStream(filename);
+		std::ifstream inputStream(filename.Filepath());
 
 		inputStream.seekg(0, std::ios::end);
 		file->m_Size = inputStream.tellg();
@@ -30,53 +30,53 @@ namespace Jade
 		delete file;
 	}
 
-	bool Win32File::ImplWriteFile(const char* data, const char* filename)
+	bool Win32File::ImplWriteFile(const char* data, const JPath& filename)
 	{
-		std::ofstream outStream(filename);
+		std::ofstream outStream(filename.Filepath());
 		outStream << data;
 		outStream.close();
 		return true;
 	}
 
-	std::string Win32File::ImplGetCwd()
+	JPath Win32File::ImplGetCwd()
 	{
 		char buff[FILENAME_MAX];
 		_getcwd(buff, FILENAME_MAX);
-		return std::string(buff);
+		return {buff};
 	}
 
-	std::string Win32File::ImplGetSpecialAppFolder()
+	JPath Win32File::ImplGetSpecialAppFolder()
 	{
 		PWSTR pszPath;
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pszPath)))
 		{
 			char* tmp = new char[256];
 			wcstombs(tmp, pszPath, 256);
-			std::string result = std::string(tmp);
-			delete tmp;
+			JPath result(tmp);
+			delete[] tmp;
 			return result;
 		}
 
 		Log::Assert(false, "Could not retrieve AppRoamingData folder.");
-		return std::string();
+		return JPath("");
 	}
 
-	void Win32File::ImplCreateDirIfNotExists(const char* directory)
+	void Win32File::ImplCreateDirIfNotExists(const JPath& directory)
 	{
-		if (!(CreateDirectoryA(directory, NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
+		if (!(CreateDirectoryA(directory.Filepath(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 		{
 			Log::Assert(false, "Failed to create directory %s", directory);
 		}
 	}
 
-	std::vector<std::string> Win32File::ImplGetFilesInDir(const char* directory)
+	std::vector<JPath> Win32File::ImplGetFilesInDir(const JPath& directory)
 	{
-		std::vector<std::string> result;
+		std::vector<JPath> result;
 		HANDLE dir;
 		WIN32_FIND_DATAA fileData;
 
-		std::string dirString = std::string(directory);
-		if ((dir = FindFirstFileA((dirString + "\\*").c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+		JPath dirString{directory};
+		if ((dir = FindFirstFileA((dirString + JPath("*")).Filepath(), &fileData)) == INVALID_HANDLE_VALUE)
 		{
 			// No file found
 			return result;
@@ -84,8 +84,8 @@ namespace Jade
 
 		do
 		{
-			const std::string filename = fileData.cFileName;
-			const std::string fullFilename = dirString + "\\" + filename;
+			const JPath filename{ fileData.cFileName };
+			const JPath fullFilename = dirString + filename;
 			const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
 			if (filename[0] == '.')
@@ -104,14 +104,14 @@ namespace Jade
 		return result;
 	}
 
-	std::vector<std::string> Win32File::ImplGetFoldersInDir(const char* directory)
+	std::vector<JPath> Win32File::ImplGetFoldersInDir(const JPath& directory)
 	{
-		std::vector<std::string> result;
+		std::vector<JPath> result;
 		HANDLE dir;
 		WIN32_FIND_DATAA fileData;
 
-		std::string dirString = std::string(directory);
-		if ((dir = FindFirstFileA((dirString + "\\*").c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+		JPath dirString = JPath(directory);
+		if ((dir = FindFirstFileA((dirString + JPath("*")).Filepath(), &fileData)) == INVALID_HANDLE_VALUE)
 		{
 			// No file found
 			return result;
@@ -119,8 +119,8 @@ namespace Jade
 
 		do
 		{
-			const std::string filename = fileData.cFileName;
-			const std::string fullFilename = dirString + "\\" + filename;
+			const JPath filename = fileData.cFileName;
+			const JPath fullFilename = dirString + filename;
 			const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
 			if (filename[0] == '.')
@@ -139,13 +139,22 @@ namespace Jade
 		return result;
 	}
 
-	bool Win32File::ImplIsFile(const char* filepath)
+	JPath Win32File::ImplGetAbsolutePath(const JPath& path)
+	{
+		char* buffer = new char[MAX_PATH];
+		GetFullPathNameA(path.Filepath(), MAX_PATH, buffer, NULL);
+		JPath result = JPath(buffer);
+		delete[] buffer;
+		return result;
+	}
+
+	bool Win32File::ImplIsFile(const JPath& filepath)
 	{
 		return !IsDirectory(filepath);
 	}
 
-	bool Win32File::ImplIsDirectory(const char* filepath)
+	bool Win32File::ImplIsDirectory(const JPath& filepath)
 	{
-		return (GetFileAttributesA(filepath) & FILE_ATTRIBUTE_DIRECTORY);
+		return (GetFileAttributesA(filepath.Filepath()) & FILE_ATTRIBUTE_DIRECTORY);
 	}
 }

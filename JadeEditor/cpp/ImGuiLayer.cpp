@@ -27,7 +27,7 @@
 namespace Jade
 {
 	static void CustomStyle(bool bStyleDark_ = true, float alpha_ = 0.8f);
-	static void LoadStyle(const std::string filepath);
+	static void LoadStyle(const JPath& filepath);
 	void HelpMarker(const char* desc);
 
 	ImVec4 From(const glm::vec4& vec4)
@@ -138,7 +138,7 @@ namespace Jade
 			{
 				if (!isPlaying)
 				{
-					Application::Get()->GetScene()->Save("tmp.jade");
+					Application::Get()->GetScene()->Save(JPath("tmp.jade"));
 					Application::Get()->GetScene()->Play();
 					isPlaying = true;
 				}
@@ -149,7 +149,7 @@ namespace Jade
 				if (isPlaying)
 				{
 					Application::Get()->GetScene()->Stop();
-					Application::Get()->GetScene()->Load("tmp.jade");
+					Application::Get()->GetScene()->Load(JPath("tmp.jade"));
 					isPlaying = false;
 				}
 				ImGui::EndMenu();
@@ -280,9 +280,9 @@ namespace Jade
 		}
 	}
 
-	void LoadStyle(const std::string filepath)
+	void LoadStyle(const JPath& filepath)
 	{
-		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData.c_str());
+		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData);
 		if (styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
@@ -317,7 +317,7 @@ namespace Jade
 				{"GrabRounding", Settings::EditorStyle::s_GrabRounding},
 				{"TabRounding", Settings::EditorStyle::s_TabRounding}
 			};
-			IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData.c_str());
+			IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
 		}
 		IFile::CloseFile(styleData);
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "externalLibs.h"
+#include "jade/file/JPath.h"
 
 namespace Jade {
     namespace Settings
@@ -10,11 +11,11 @@ namespace Jade {
             static int s_GridSizeX;
             static int s_GridSizeY;
             static bool s_DrawGrid;
-            static std::string s_WorkingDirectory;
-            static std::string s_CurrentProject;
-            static std::string s_CurrentScene;
-            static std::string s_EditorSaveData;
-            static std::string s_EditorStyleData;
+            static JPath s_WorkingDirectory;
+            static JPath s_CurrentProject;
+            static JPath s_CurrentScene;
+            static JPath s_EditorSaveData;
+            static JPath s_EditorStyleData;
         };
   
         class Physics2D

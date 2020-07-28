@@ -50,12 +50,12 @@ namespace Jade
 		m_IsRunning = false;
 	}
 
-	void Scene::Save(const std::string& filename)
+	void Scene::Save(const JPath& filename)
 	{
 		m_SaveDataJson = {
 			{"Size", 0},
 			{"Components", {}},
-			{"Project", Settings::General::s_CurrentProject}
+			{"Project", Settings::General::s_CurrentProject.Filepath()}
 		};
 
 		OutputArchive output;
@@ -63,21 +63,21 @@ namespace Jade
 			.entities(output)
 			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
 
-		IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename.c_str());
+		IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename);
 	}
 
-	void Scene::Load(const std::string& filename)
+	void Scene::Load(const JPath& filename)
 	{
 		m_Registry.clear<SpriteRenderer, Transform, Box2D, AABB, Circle, Rigidbody2D>();
 
-		File* file = IFile::OpenFile(filename.c_str());
+		File* file = IFile::OpenFile(filename);
 
 		std::unordered_map<int, int> idKey;
 
 		json j = json::parse(file->m_Data);
 		if (!j["Project"].is_null())
 		{
-			Settings::General::s_CurrentProject = j["Project"];
+			Settings::General::s_CurrentProject = JPath(j["Project"]);
 		}
 
 		int size = j["Size"];

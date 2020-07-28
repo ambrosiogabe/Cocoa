@@ -40,16 +40,16 @@ namespace Jade
 				json j{
 					{"WorkingDirectory", s_FileImporting.filepath}
 				};
-				std::string prjFile = s_FileImporting.filepath + "\\" + std::string(s_TmpFilename) + ".prj";
-				IFile::WriteFile(j.dump(4).c_str(), prjFile.c_str());
-				IFile::CreateDirIfNotExists((s_FileImporting.filepath + "\\assets").c_str());
-				IFile::CreateDirIfNotExists((s_FileImporting.filepath + "\\scripts").c_str());
-				IFile::CreateDirIfNotExists((s_FileImporting.filepath + "\\scenes").c_str());
+				JPath prjFile = s_FileImporting.filepath + (std::string(s_TmpFilename) + ".prj");
+				IFile::WriteFile(j.dump(4).c_str(), prjFile);
+				IFile::CreateDirIfNotExists(s_FileImporting.filepath + "assets");
+				IFile::CreateDirIfNotExists(s_FileImporting.filepath + "scripts");
+				IFile::CreateDirIfNotExists(s_FileImporting.filepath + "scenes");
 
 				json j2{
-					{"CurrentProject", prjFile}
+					{"CurrentProject", prjFile.Filepath()}
 				};
-				IFile::WriteFile(j2.dump(4).c_str(), Settings::General::s_EditorSaveData.c_str());
+				IFile::WriteFile(j2.dump(4).c_str(), Settings::General::s_EditorSaveData);
 				s_CreatingProject = false;
 			}
 			ImGui::End();
