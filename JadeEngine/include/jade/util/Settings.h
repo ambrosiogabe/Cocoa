@@ -44,6 +44,28 @@ namespace Jade {
             static glm::vec4 s_TreeItemDark;
             static glm::vec4 s_TreeItemLight;
 
+            // Fonts
+            static ImFont* s_DefaultFont;
+            static ImFont* s_LargeIconFont;
+
+            // New Style Colors
+            static glm::vec4 s_MainBgLight0;
+            static glm::vec4 s_MainBg;
+            static glm::vec4 s_MainBgDark0;
+            static glm::vec4 s_MainBgDark1;
+            static glm::vec4 s_MainBgDark2;
+
+            static glm::vec4 s_Accent;
+            static glm::vec4 s_DarkAccent0;
+            static glm::vec4 s_DarkAccent1;
+
+            static glm::vec4 s_Button;
+            static glm::vec4 s_ButtonHovered;
+
+            static glm::vec4 s_Font;
+            static glm::vec4 s_FontDisabled;
+
+            // Sizing
             static glm::vec2 s_WindowPadding;
             static glm::vec2 s_FramePadding;
             static glm::vec2 s_ItemSpacing;

@@ -25,6 +25,6 @@ namespace Jade
 		static bool s_FileChosen;
 		static FileDialogResult s_FileImporting;
 		static char s_TmpFilename[256];
-		static AssetType s_TypeOfImport;
+		static uint32 s_TypeOfImport;
 	};
 }

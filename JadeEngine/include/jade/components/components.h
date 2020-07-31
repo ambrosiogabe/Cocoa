@@ -12,7 +12,7 @@ namespace Jade
 		const char* m_PictureFile = nullptr;
 		int m_Width = 32;
 		int m_Height = 32;
-		Texture* m_Texture = nullptr;
+		std::shared_ptr<Texture> m_Texture = nullptr;
 		AABB m_BoundingBox = Physics2DSystem::AABBFrom({ 0, 0 }, { m_Width, m_Height });
 		glm::vec2 m_TexCoords[4] = {
 			glm::vec2(1.0f, 1.0f),
@@ -25,7 +25,7 @@ namespace Jade
 	class Spritesheet
 	{
 	public:
-		Texture* m_Texture;
+		std::shared_ptr<Texture> m_Texture;
 		std::vector<Sprite> m_Sprites;
 
 		Spritesheet(Texture* texture, std::vector<Sprite> sprites)
@@ -33,7 +33,7 @@ namespace Jade
 		{
 		}
 
-		Spritesheet(Texture* texture, int spriteWidth, int spriteHeight, int numSprites, int spacing)
+		Spritesheet(std::shared_ptr<Texture> texture, int spriteWidth, int spriteHeight, int numSprites, int spacing)
 		{
 			// NOTE: If you don't reserve the space before hand, when the vector grows it may
 			// change the pointers it holds
@@ -94,10 +94,9 @@ namespace Jade
 					currentY -= spriteHeight + spacing;
 				}
 			}
-			m_Texture->FreePixels();
 		}
 
-		Sprite& GetSprite(int index)
+		const Sprite& GetSprite(int index)
 		{
 			return m_Sprites[index];
 		}

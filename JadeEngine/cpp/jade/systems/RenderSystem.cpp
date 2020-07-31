@@ -20,8 +20,8 @@ namespace Jade
 		{
 			if (batch->HasRoom())
 			{
-				Texture* tex = sprite->m_Texture;
-				if (tex == nullptr || (batch->HasTexture(tex) || batch->HasTextureRoom()))
+				std::shared_ptr<Texture> tex = sprite->m_Texture;
+				if (tex == nullptr || (batch->HasTexture(tex->GetResourceId()) || batch->HasTextureRoom()))
 				{
 					batch->Add(transform, spr);
 					wasAdded = true;
@@ -70,12 +70,10 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 			if (ImGui::CollapsingHeader("Sprite Renderer"))
 			{
-				static ImVec2 rectMin(0, 0);
-				static ImVec2 rectMax(0, 0);
-				ImGui::BeginCollapsingHeaderGroup(rectMin, rectMax);
+				ImGui::BeginCollapsingHeaderGroup();
 				SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
 				ImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
-				ImGui::EndCollapsingHeaderGroup(rectMin, rectMax);
+				ImGui::EndCollapsingHeaderGroup();
 			}
 		}
 	}

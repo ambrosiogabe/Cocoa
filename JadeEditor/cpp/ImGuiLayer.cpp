@@ -72,11 +72,21 @@ namespace Jade
 		//io.Fonts->AddFontDefault();
 
 		ImFontConfig config;
-		io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans-Regular.ttf", 32.0f, &config);
+		Settings::EditorStyle::s_DefaultFont = io.Fonts->AddFontFromFileTTF("assets/fonts/UbuntuMono-Regular.ttf", 24.0f, &config);
 		config.MergeMode = true;
-		config.GlyphMinAdvanceX = 64.0f;
+		//config.GlyphMinAdvanceX = 30.0f;
 		const ImWchar iconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont.ttf", 64.0f, &config, iconRanges);
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont.ttf", 24.0f, &config, iconRanges);
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont2.ttf", 24.0f, &config, iconRanges);
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont3.ttf", 24.0f, &config, iconRanges);
+		io.Fonts->Build();
+
+		config.MergeMode = false;
+		const ImWchar customIconRanges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		Settings::EditorStyle::s_LargeIconFont = io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont.ttf", 64.0f, &config, customIconRanges);
+		config.MergeMode = true;
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont2.ttf", 64.0f, &config, customIconRanges);
+		io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont3.ttf", 64.0f, &config, customIconRanges);
 		io.Fonts->Build();
 
 		//CustomStyle();
@@ -128,7 +138,7 @@ namespace Jade
 	void ImGuiLayer::RenderGameViewport()
 	{
 		static bool open = true;
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 1));
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
 		ImGui::Begin("Game Viewport", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
 
 		if (ImGui::BeginMenuBar())
@@ -156,14 +166,6 @@ namespace Jade
 			}
 			ImGui::EndMenuBar();
 		}
-		float menuBarHeight = ImGui::GetItemRectSize().y;
-
-		static ImVec2 rectMin(0, 0);
-		static ImVec2 rectMax(0, 0);
-		float windowWidth = ImGui::GetWindowSize().x;
-		ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax,
-			ImGui::ColorConvertFloat4ToU32(From(Settings::EditorStyle::s_DarkBgColor)), 20.0f, 15, 15.0f);
-		ImGui::BeginGroup();
 
 		m_BlockEvents = !ImGui::IsWindowFocused() || !ImGui::IsWindowHovered();
 
@@ -199,10 +201,6 @@ namespace Jade
 
 		ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
-		ImGui::EndGroup();
-		rectMin = ImGui::GetWindowPos() + ImVec2(0, menuBarHeight + 50);// ImGui::GetItemRectMin();
-		rectMax = rectMin + windowSize - ImVec2(0, menuBarHeight + 50);// ImGui::GetItemRectMax();
-
 		ImGui::End();
 		ImGui::PopStyleColor();
 	}
@@ -230,19 +228,38 @@ namespace Jade
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImGui::From(Settings::EditorStyle::s_MenubarColor));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+		ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::From(Settings::EditorStyle::s_Accent));
+		ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImGui::From(Settings::EditorStyle::s_Accent));
+		ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImGui::From(Settings::EditorStyle::s_Accent));
+		ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImGui::From(Settings::EditorStyle::s_Accent));
 		ImGui::Begin("DockSpace Demo", &p_open, window_flags);
-		ImGui::PopStyleVar();
 
-		ImGui::PopStyleVar(2);
+		ImGui::PopStyleVar(5);
+		ImGui::PopStyleColor(4);
 
 		// DockSpace
 		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
+		ImGui::PushStyleColor(ImGuiCol_Border, ImGui::From(Settings::EditorStyle::s_MainBgDark2));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::From(Settings::EditorStyle::s_DarkAccent1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_DarkAccent1));
+		ImGui::PushStyleColor(ImGuiCol_Header, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
 		m_MenuBar.ImGui();
-		ImGui::PopStyleColor();
+		ImGui::PopStyleVar(4);
+		ImGui::PopStyleColor(9);
 		ImGui::End();
 	}
 
@@ -283,7 +300,7 @@ namespace Jade
 	void LoadStyle(const JPath& filepath)
 	{
 		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData);
-		if (styleData->m_Data.size() > 0)
+		if (false)//styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
 			AssignIfNotNull(j["DarkBgColor"], Settings::EditorStyle::s_DarkBgColor);
@@ -317,15 +334,15 @@ namespace Jade
 				{"GrabRounding", Settings::EditorStyle::s_GrabRounding},
 				{"TabRounding", Settings::EditorStyle::s_TabRounding}
 			};
-			IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
+			//IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
 		}
 		IFile::CloseFile(styleData);
 
 		ImGuiStyle* style = &ImGui::GetStyle();
 
-		style->WindowPadding = ImVec2(0, 0);
-		style->WindowBorderSize = 0;
-		style->ChildBorderSize = 0;
+		style->WindowPadding = From(Settings::EditorStyle::s_WindowPadding);
+		style->WindowBorderSize = 1;
+		style->ChildBorderSize = 1;
 		style->FramePadding = From(Settings::EditorStyle::s_FramePadding);
 		style->ItemSpacing = From(Settings::EditorStyle::s_ItemSpacing);
 		style->ScrollbarSize = Settings::EditorStyle::s_ScrollbarSize;
@@ -333,40 +350,59 @@ namespace Jade
 		style->FrameRounding = Settings::EditorStyle::s_FrameRounding;
 		style->GrabRounding = Settings::EditorStyle::s_GrabRounding;
 		style->TabRounding = Settings::EditorStyle::s_TabRounding;
+		style->FrameBorderSize = 1.0f;
 
 		ImVec4* colors = style->Colors;
-		colors[ImGuiCol_WindowBg] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_ChildBg] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_FrameBg] = From(Settings::EditorStyle::s_InputElementColor);
-		colors[ImGuiCol_FrameBgHovered] = From(Settings::EditorStyle::s_InputElementColor);
-		colors[ImGuiCol_FrameBgActive] = From(Settings::EditorStyle::s_InputElementColor);
-		colors[ImGuiCol_TitleBg] = From(Settings::EditorStyle::s_TitleBgColor);
-		colors[ImGuiCol_TitleBgCollapsed] = From(Settings::EditorStyle::s_TitleBgColor);
-		colors[ImGuiCol_TitleBgActive] = From(Settings::EditorStyle::s_TitleBgColor);
-		colors[ImGuiCol_MenuBarBg] = From(Settings::EditorStyle::s_MenubarColor);
-		colors[ImGuiCol_ScrollbarBg] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_CheckMark] = From(Settings::EditorStyle::s_LightAccentColor);
-		colors[ImGuiCol_SliderGrab] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_SliderGrabActive] = From(Settings::EditorStyle::s_LightColorHover);
-		colors[ImGuiCol_Button] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_ButtonHovered] = From(Settings::EditorStyle::s_LightColorHover);
-		colors[ImGuiCol_ButtonActive] = From(Settings::EditorStyle::s_LightColorHover);
-		colors[ImGuiCol_Header] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-		colors[ImGuiCol_HeaderActive] = From(Settings::EditorStyle::s_LightBgColor);
-		colors[ImGuiCol_Separator] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_SeparatorHovered] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_SeparatorActive] = From(Settings::EditorStyle::s_DarkBgColor);
-		colors[ImGuiCol_ResizeGrip] = ImVec4(0.21f, 0.21f, 0.21f, 0.25f);
-		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.39f, 0.39f, 0.39f, 0.67f);
-		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.44f, 0.44f, 0.44f, 0.95f);
-		colors[ImGuiCol_Tab] = From(Settings::EditorStyle::s_TabColor);
-		colors[ImGuiCol_TabHovered] = From(Settings::EditorStyle::s_TabActiveColor);
-		colors[ImGuiCol_TabActive] = From(Settings::EditorStyle::s_TabActiveColor);
-		colors[ImGuiCol_TabUnfocusedActive] = From(Settings::EditorStyle::s_TitleBgColor);
-		colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_DarkAccentColor);
-		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_DarkAccentColor);
-		colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_DarkAccentColor);
+		colors[ImGuiCol_WindowBg] = From(Settings::EditorStyle::s_MainBg);
+		colors[ImGuiCol_ChildBg] = From(Settings::EditorStyle::s_MainBg);
+
+		colors[ImGuiCol_Text] = From(Settings::EditorStyle::s_Font);
+		colors[ImGuiCol_TextDisabled] = From(Settings::EditorStyle::s_FontDisabled);
+		colors[ImGuiCol_TextInverted] = From(Settings::EditorStyle::s_MainBgDark1);
+
+		colors[ImGuiCol_FrameBg] = From(Settings::EditorStyle::s_MainBgDark1);
+		colors[ImGuiCol_FrameBgHovered] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_FrameBgActive] = From(Settings::EditorStyle::s_MainBgDark2);
+
+		colors[ImGuiCol_TitleBg] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_TitleBgCollapsed] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_TitleBgActive] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_MenuBarBg] = From(Settings::EditorStyle::s_MainBgDark0);
+
+		colors[ImGuiCol_Tab] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_TabUnfocused] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_TabHovered] = From(Settings::EditorStyle::s_MainBgDark1);
+		colors[ImGuiCol_TabActive] = From(Settings::EditorStyle::s_MainBgDark1);
+		colors[ImGuiCol_TabUnfocusedActive] = From(Settings::EditorStyle::s_MainBgDark1);
+
+		colors[ImGuiCol_ScrollbarBg] = From(Settings::EditorStyle::s_MainBgDark1);
+		colors[ImGuiCol_ScrollbarGrab] = From(Settings::EditorStyle::s_Font);
+		colors[ImGuiCol_ScrollbarGrabActive] = From(Settings::EditorStyle::s_FontDisabled);
+		colors[ImGuiCol_ScrollbarGrabHovered] = From(Settings::EditorStyle::s_FontDisabled);
+		colors[ImGuiCol_CheckMark] = From(Settings::EditorStyle::s_Font);
+		colors[ImGuiCol_SliderGrab] = From(Settings::EditorStyle::s_Font);
+		colors[ImGuiCol_SliderGrabActive] = From(Settings::EditorStyle::s_FontDisabled);
+
+		colors[ImGuiCol_Button] = From(Settings::EditorStyle::s_Button);
+		colors[ImGuiCol_ButtonHovered] = From(Settings::EditorStyle::s_ButtonHovered);
+		colors[ImGuiCol_ButtonActive] = From(Settings::EditorStyle::s_ButtonHovered);
+
+		colors[ImGuiCol_Header] = From(Settings::EditorStyle::s_MainBg);
+		colors[ImGuiCol_HeaderHovered] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_HeaderActive] = From(Settings::EditorStyle::s_MainBgDark1);
+
+		colors[ImGuiCol_Separator] = From(Settings::EditorStyle::s_MainBgLight0);
+		colors[ImGuiCol_SeparatorHovered] = From(Settings::EditorStyle::s_MainBgLight0);
+		colors[ImGuiCol_SeparatorActive] = From(Settings::EditorStyle::s_MainBgLight0);
+		colors[ImGuiCol_Border] = From(Settings::EditorStyle::s_MainBgLight0);
+
+		colors[ImGuiCol_ResizeGrip] = From(Settings::EditorStyle::s_MainBg);
+		colors[ImGuiCol_ResizeGripHovered] = From(Settings::EditorStyle::s_MainBg);
+		colors[ImGuiCol_ResizeGripActive] = From(Settings::EditorStyle::s_MainBg);
+
+		colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_DarkAccent0);
+		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_DarkAccent0);
+		colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_DarkAccent0);
 	}
 
 	void CustomStyle(bool bStyleDark_, float alpha_)

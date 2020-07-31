@@ -26,7 +26,7 @@ namespace Jade
     class Gizmo
     {
     public:
-        Gizmo(Sprite* sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.8f, 0.8f, 0.8f});
+        Gizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.4f, 0.4f, 0.4f});
 
         inline bool GizmoIsActive() { return m_Active; }
         void Render();
@@ -44,7 +44,7 @@ namespace Jade
 
         GizmoType m_Type;
         Box2D m_Box2D;
-        Texture* m_Texture;
+        uint32 m_TextureAssetId;
         float m_SpriteRotation;
         bool m_Active;
     };
@@ -52,6 +52,7 @@ namespace Jade
     class GizmoSystem : public System
     {
     public:
+        ~GizmoSystem() {}
         GizmoSystem(const char* name="Gizmo System");
 
         virtual void Update(entt::registry& registry, float dt) override;
@@ -66,7 +67,7 @@ namespace Jade
         bool HandleMouseScroll(MouseScrolledEvent& e);
 
     private:
-        std::unique_ptr<Texture> m_Texture = nullptr;
+        std::shared_ptr<Texture> m_Texture = nullptr;
         std::unique_ptr<Spritesheet> m_Spritesheet = nullptr;
 
         bool m_MouseDragging = false;

@@ -10,6 +10,9 @@
 #include "jade/core/ImGuiExtended.h"
 #include "jade/util/Settings.h"
 #include "jade/file/JPath.h"
+#include "jade/core/AssetManager.h"
+#include "FontAwesome.h"
+#include "jade/core/Audio.h"
 
 #include <entt/entt.h>
 #include <imgui/imgui.h>
@@ -27,37 +30,8 @@ namespace Jade {
         m_Camera = new Camera(cameraPos);
         m_Systems.emplace_back(std::make_unique<RenderSystem>(m_Camera, "Render System"));
 
-        texture = new Texture("assets/images/decorationsAndBlocks.png", false);
+        texture = std::static_pointer_cast<Texture>(AssetManager::LoadTextureFromFile("assets/images/decorationsAndBlocks.png"));
         sprites = new Spritesheet(texture, 16, 16, 81, 0);
-
-        //entt::entity container = m_Registry.create();
-        //m_Registry.emplace<Transform>(container, glm::vec3(), glm::vec3(1), glm::vec3(), "Container");
-
-        //float startX = 100.0f;
-        //float startY = 80.0f;
-        //float width = 20.0f;
-        //float height = 20.0f;
-        //float padding = 3.0f;
-        //entt::entity previous = entt::null;
-        //for (int i=0; i < 10; i++) {
-        //    for (int j=0; j < 10; j++) {
-        //        float x = startX + i * width + i * padding;
-        //        float y = startY + j * height + j * padding;
-
-        //        float r = x / (100 * width);
-        //        float g = y / (80 * height);
-        //        float b = 1.0f;
-
-        //        entt::entity e1 = m_Registry.create();
-        //        m_Registry.emplace<Transform>(e1, glm::vec3(x, y, 0), glm::vec3(0.6f, 0.6f, 1.0f), glm::vec3(0, 0, 0), "Gen Block", container, previous);
-        //        m_Registry.emplace<SpriteRenderer>(e1, glm::vec4(r, g, b, 1));
-        //        AABB bounds = Physics2DSystem::AABBFrom(glm::vec2(), glm::vec2(32.0f, 32.0f));
-        //        m_Registry.emplace<AABB>(e1, bounds);
-        //        previous = e1;
-        //    }
-        //}
-
-        //m_ActiveEntity = container;
     }
 
     void LevelEditorScene::Start() {
@@ -86,14 +60,14 @@ namespace Jade {
     }
         
     void LevelEditorScene::ImGui() {
-        if (showDemoWindow) {
+        if (m_ShowDemoWindow) {
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
-            ImGui::ShowDemoWindow(&showDemoWindow);
+            ImGui::ShowDemoWindow(&m_ShowDemoWindow);
         }
 
         ImGuiSceneHeirarchy();
 
-        ImGui::Begin("Inspector");
+        ImGui::Begin(ICON_FA_CUBE " Inspector");
 
         if (entt::to_integral(m_ActiveEntity) != entt::to_integral(entt::null))
         {
@@ -102,43 +76,24 @@ namespace Jade {
                 system->ImGui(m_Registry);
             }
 
-            static bool componentsOpen = false;
-            ImGui::SetNextTreeNodeOpen(componentsOpen);
-            if (ImGui::CollapsingHeader("Add Component"))
+            int itemPressed = 0;
+            std::array<const char*, 4> components = { "Sprite Renderer", "Rigidbody", "BoxCollider2D", "CircleCollider2D" };
+            if (ImGui::JButtonDropdown(ICON_FA_PLUS " Add Component", components.data(), components.size(), itemPressed))
             {
-                componentsOpen = true;
-                std::array<const char*, 5> components = { "Sprite Renderer", "Rigidbody", "BoxCollider2D", "CircleCollider2D", "Cancel" };
-                for (int i = 0; i < components.size(); i++)
+                switch (itemPressed)
                 {
-                    ImGui::PushID(i);
-                    if (ImGui::Button(components[i]))
-                    {
-                        switch (i)
-                        {
-                        case 0:
-                            m_Registry.emplace<SpriteRenderer>(m_ActiveEntity);
-                            break;
-                        case 1:
-                            m_Registry.emplace<Rigidbody2D>(m_ActiveEntity);
-                            break;
-                        case 2:
-                            m_Registry.emplace<Box2D>(m_ActiveEntity);
-                            break;
-                        case 3:
-                            m_Registry.emplace<AABB>(m_ActiveEntity);
-                            break;
-                        case 4:
-                            m_Registry.emplace<Circle>(m_ActiveEntity);
-                            break;
-                        }
-                        componentsOpen = false;
-                    }
-                    ImGui::PopID();
-
-                    if (!componentsOpen)
-                    {
-                        break;
-                    }
+                case 0:
+                    m_Registry.emplace<SpriteRenderer>(m_ActiveEntity);
+                    break;
+                case 1:
+                    m_Registry.emplace<Rigidbody2D>(m_ActiveEntity);
+                    break;
+                case 2:
+                    m_Registry.emplace<Box2D>(m_ActiveEntity);
+                    break;
+                case 4:
+                    m_Registry.emplace<Circle>(m_ActiveEntity);
+                    break;
                 }
             }
         }
@@ -149,7 +104,7 @@ namespace Jade {
 
     void LevelEditorScene::ImGuiSceneHeirarchy()
     {
-        ImGui::Begin("Scene");
+        ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
         int index = 0;
         auto view = m_Registry.view<Transform>();
 
@@ -179,7 +134,7 @@ namespace Jade {
             std::string res2 = str2 + "##" + std::to_string(index);
             index++;
 
-            if (ImGui::TreeNode(res2.c_str()))
+            if (ImGui::TreeNodeEx(res2.c_str(), ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth))
             {
                 if (entt::to_integral(transform2.m_First) != entt::to_integral(entt::null))
                 {
@@ -191,7 +146,7 @@ namespace Jade {
             next = transform2.m_Next;
         }
 
-        if (ImGui::TreeNode(res.c_str()))
+        if (ImGui::TreeNodeEx(res.c_str(), ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth))
         {
             if (entt::to_integral(transform.m_First) != entt::to_integral(entt::null))
             {

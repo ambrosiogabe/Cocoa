@@ -22,7 +22,7 @@ namespace Jade
         void Start();
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
-        void Add(Texture* texture, const glm::vec2& size, const glm::vec2& position, 
+        void Add(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, 
             const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
         void Render();
 
@@ -32,11 +32,11 @@ namespace Jade
 
         inline bool HasTextureRoom() { return m_NumTextures < m_Textures.size(); }
 
-        bool const HasTexture(Texture* tex)
+        bool const HasTexture(uint32 resourceId)
         {
             for (int i = 0; i < m_NumTextures; i++)
             {
-                if (m_Textures[i] == tex)
+                if (m_Textures[i]->GetResourceId() == resourceId)
                 {
                     return true;
                 }
@@ -59,7 +59,7 @@ namespace Jade
         Vertex* m_VertexBufferBase;
         Vertex* m_VertexStackPointer;
         uint32* m_Indices;
-        std::array<Texture*, 16> m_Textures;
+        std::array<std::shared_ptr<Texture>, 16> m_Textures;
 
         uint32 m_VAO, m_VBO, m_EBO;
         uint16 m_ZIndex = 0;

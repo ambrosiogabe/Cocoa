@@ -25,8 +25,6 @@ namespace Jade
     private:
         Shader* shader = nullptr;
         Spritesheet* sprites = nullptr;
-        Texture* texture = nullptr;
-
-        bool showDemoWindow = false;
+        std::shared_ptr<Texture> texture = nullptr;
     };
 }

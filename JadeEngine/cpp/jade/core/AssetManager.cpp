@@ -1,41 +1,105 @@
 #include "jade/core/AssetManager.h"
+#include "jade/util/Log.h"
+#include "jade/renderer/Texture.h"
 
 namespace Jade
 {
-	std::unordered_map<std::string, Texture*> AssetManager::s_Textures{};
-
-	void AssetManager::ImportSpritesheet(const std::string& filename, Spritesheet* spritesheet)
+	std::unique_ptr<AssetManager> AssetManager::s_Instance = nullptr;
+	AssetManager* AssetManager::Get()
 	{
-		//if (m_Textures.find(filename) == m_Assets.end())
-		//{
-		//	m_Assets.emplace(filename, AssetHandle{AssetType::Spritesheet, (void*)spritesheet});
-		//}
-		//else
-		//{
-		//	Log::Warning("Importing spritesheet that already exists. %s", filename.c_str());
-		//}
+		Log::Assert(s_Instance != nullptr, "Asset Manager never initialized.");
+		return s_Instance.get();
 	}
 
-	void AssetManager::ImportSprite(const std::string& filename)
+	void AssetManager::Init(uint32 scene)
 	{
-		if (s_Textures.find(filename) == s_Textures.end())
-		{
-			Texture* texture = new Texture(filename.c_str());
-			s_Textures.emplace(filename, texture);
-		}
-		else
-		{
-			Log::Warning("Importing sprite with texture that already exists. %d", filename.c_str());
-		}
+		Log::Assert(s_Instance == nullptr, "Asset Manager is already initialized. Cannot initailze twice.");
+		s_Instance = std::unique_ptr<AssetManager>(new AssetManager(scene));
 	}
 
-	Texture* AssetManager::GetTexture(const std::string& filename)
+	std::unordered_map<uint32, std::shared_ptr<Asset>>& AssetManager::GetAllAssets(uint32 scene)
 	{
-		bool has = s_Textures.find(filename) != s_Textures.end();
-		if (!has)
+		AssetManager* manager = Get();
+		auto it = manager->m_Assets.find(scene);
+		if (it == manager->m_Assets.end())
 		{
-			Log::Warning("Requesting uninitialized texture: %s", filename.c_str());
+			return std::unordered_map<uint32, std::shared_ptr<Asset>>();
 		}
-		return has ? s_Textures.at(filename) : nullptr;
+		return it->second;
+	}
+
+	std::shared_ptr<Asset> AssetManager::GetAsset(uint32 assetId)
+	{
+		AssetManager* manager = Get();
+		auto assetsIt = manager->m_Assets.find(manager->m_CurrentScene);
+		if (assetsIt != manager->m_Assets.end())
+		{
+			auto assetIt = assetsIt->second.find(assetId);
+			if (assetIt != assetsIt->second.end())
+			{
+				return assetIt->second;
+			}
+		}
+
+		return std::shared_ptr<Asset>(new NullAsset());
+	}
+
+	std::shared_ptr<Asset> AssetManager::GetAsset(const JPath& path)
+	{
+		AssetManager* manager = Get();
+		auto assetsIt = manager->m_Assets.find(manager->m_CurrentScene);
+		if (assetsIt != manager->m_Assets.end())
+		{
+			for (auto asset = assetsIt->second.begin(); asset != assetsIt->second.end(); asset++)
+			{
+				if (asset->second->GetPath() == path)
+				{
+					return asset->second;
+				}
+			}
+		}
+
+		return std::shared_ptr<Asset>(new NullAsset());
+	}
+
+	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const JPath& path)
+	{
+		AssetManager* manager = Get();
+
+		std::shared_ptr<Asset> assetExists = GetAsset(path);
+		if (!assetExists->IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded.");
+			return std::shared_ptr<Asset>(new NullAsset());
+		}
+
+		std::shared_ptr<Asset> newAsset = std::make_shared<Texture>(path.Filepath());
+
+		auto& assets = manager->m_Assets[manager->m_CurrentScene];
+
+		uint32 newId = assets.size();
+		newAsset->SetResourceId(newId);
+		assets.insert({newId, newAsset});
+		newAsset->Load();
+		return newAsset;
+	}
+
+	void AssetManager::Clear()
+	{
+		AssetManager* manager = Get();
+		for (auto assetListIt = manager->m_Assets.begin(); assetListIt != manager->m_Assets.end(); assetListIt++)
+		{
+			for (auto assetIt = assetListIt->second.begin(); assetIt != assetListIt->second.end(); assetIt++)
+			{
+				auto asset = assetIt->second;
+				if (!asset->IsNull())
+				{
+					asset->Unload();
+				}
+			}
+			assetListIt->second.clear();
+		}
+
+		manager->m_Assets.clear();
 	}
 }

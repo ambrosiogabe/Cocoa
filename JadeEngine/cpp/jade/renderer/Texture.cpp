@@ -26,13 +26,18 @@ namespace Jade {
         m_PixelsFreed = true;
     }
 
-    Texture::Texture(const char* resourceName, bool freePixelsOnLoad) {
+    Texture::Texture(const char* resourceName) {
+        GenerateTypeId<Texture>();
         m_Filepath = resourceName;
+    }
+
+    void Texture::Load()
+    {
         int channels;
         int width;
         int height;
 
-        m_PixelBuffer = stbi_load(resourceName, &width, &height, &channels, 0);
+        m_PixelBuffer = stbi_load(m_Filepath, &width, &height, &channels, 0);
         m_Width = width;
         m_Height = height;
         m_BytesPerPixel = channels;
@@ -48,20 +53,27 @@ namespace Jade {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-        if (channels == 4) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_PixelBuffer);
-        } else if (channels == 3) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_PixelBuffer);
-        } else {
-            Log::Assert(false, "Unknown number of channels '%d'. In File: '%s'", channels, resourceName);
-        }
-
-        if (freePixelsOnLoad)
+        if (channels == 4)
         {
-            stbi_image_free(m_PixelBuffer);
-            m_PixelBuffer = nullptr;
-            m_PixelsFreed = true;
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_PixelBuffer);
         }
+        else if (channels == 3)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_PixelBuffer);
+        }
+        else
+        {
+            Log::Assert(false, "Unknown number of channels '%d'. In File: '%s'", channels, m_Filepath);
+        }
+    }
+
+    void Texture::Unload()
+    {
+        stbi_image_free(m_PixelBuffer);
+        m_PixelBuffer = nullptr;
+        m_PixelsFreed = true;
+        glDeleteTextures(1, &m_ID);
+        m_Loaded = false;
     }
 
     void Texture::Bind() {

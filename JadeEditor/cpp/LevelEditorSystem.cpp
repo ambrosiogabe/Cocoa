@@ -8,6 +8,7 @@
 #include "jade/util/JMath.h"
 #include "jade/util/Settings.h"
 #include "jade/file/IFile.h"
+#include "FontAwesome.h"
 
 #include <string>
 #include <imgui/imgui.h>
@@ -99,15 +100,13 @@ namespace Jade
 
 			static bool collapsingHeaderOpen = true;
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
-			if (ImGui::CollapsingHeader("Transform"))
+			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
 			{
-				static ImVec2 itemRectMin = ImVec2(0, 0);
-				static ImVec2 itemRectMax = ImVec2(0, 0);
-				ImGui::BeginCollapsingHeaderGroup(itemRectMin, itemRectMax);
+				ImGui::BeginCollapsingHeaderGroup();
 				ImGui::UndoableDragFloat3("Position: ", transform.m_Position);
 				ImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
 				ImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
-				ImGui::EndCollapsingHeaderGroup(itemRectMin, itemRectMax);
+				ImGui::EndCollapsingHeaderGroup();
 			}
 		}
 	}

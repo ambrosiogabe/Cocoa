@@ -1163,6 +1163,7 @@ enum ImGuiCol_
 {
     ImGuiCol_Text,
     ImGuiCol_TextDisabled,
+    ImGuiCol_TextInverted,
     ImGuiCol_WindowBg,              // Background of normal windows
     ImGuiCol_ChildBg,               // Background of child windows
     ImGuiCol_PopupBg,               // Background of popups, menus, tooltips windows

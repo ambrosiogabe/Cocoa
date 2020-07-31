@@ -30,19 +30,21 @@ namespace Jade
 	{
 		if (m_SettingsOpen)
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
 			SettingsWindow();
+			ImGui::PopStyleVar();
 		}
 
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::Button("New Project"))
+				if (ImGui::MenuButton("New Project"))
 				{
 					AssetWizard::NewProject();
 				}
 
-				if (ImGui::Button("Open Scene"))
+				if (ImGui::MenuButton("Open Scene"))
 				{
 					FileDialogResult result{};
 					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }))
@@ -53,7 +55,7 @@ namespace Jade
 					//ImGui::EndMenu();
 				}
 
-				if (ImGui::Button("Save Scene As"))
+				if (ImGui::MenuButton("Save Scene As"))
 				{
 					FileDialogResult result{};
 					if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
@@ -64,7 +66,7 @@ namespace Jade
 					//ImGui::EndMenu();
 				}
 
-				if (ImGui::Button("Import Asset"))
+				if (ImGui::MenuButton("Import Asset"))
 				{
 					AssetWizard::BeginImport();
 					//ImGui::EndMenu();
@@ -75,9 +77,14 @@ namespace Jade
 
 			if (ImGui::BeginMenu("Jade"))
 			{
-				if (ImGui::Button("Settings"))
+				if (ImGui::MenuButton("Settings"))
 				{
 					m_SettingsOpen = true;
+				}
+
+				if (ImGui::MenuButton("Show Demo Window"))
+				{
+					Application::Get()->GetScene()->ShowDemoWindow();
 				}
 
 				ImGui::EndMenu();
@@ -85,7 +92,7 @@ namespace Jade
 
 			if (ImGui::BeginMenu("Game Objects"))
 			{
-				if (ImGui::Button("Add Sprite Object"))
+				if (ImGui::MenuButton("Add Sprite Object"))
 				{
 					entt::registry& registry = Application::Get()->GetScene()->GetRegistry();
 					entt::entity entity = registry.create();

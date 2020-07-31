@@ -1391,6 +1391,7 @@
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\file\JPath.h" />
+    <ClInclude Include="include\jade\core\Audio.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">

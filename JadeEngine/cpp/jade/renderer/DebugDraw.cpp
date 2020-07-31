@@ -98,10 +98,10 @@ namespace Jade
 		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime, onTop);
 	}
 
-	void DebugDraw::AddSprite(Texture* texture, glm::vec2 size, glm::vec2 position, glm::vec3 tint,
+	void DebugDraw::AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position, glm::vec3 tint,
 		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime, bool onTop)
 	{
-		m_Sprites.push_back({ texture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
+		m_Sprites.push_back({ textureAssetId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 	}
 
 
@@ -138,13 +138,12 @@ namespace Jade
 		{
 			DebugSprite sprite = m_Sprites[i];
 			bool wasAdded = false;
-			Texture* texture = sprite.m_Texture;
 			bool spriteOnTop = sprite.m_OnTop;
 			for (RenderBatch* batch : m_Batches)
 			{
-				if (batch->HasRoom() && (batch->HasTexture(texture) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
+				if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
 				{
-					batch->Add(texture, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+					batch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
 					wasAdded = true;
 					break;
 				}
@@ -154,7 +153,7 @@ namespace Jade
 			{
 				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize, spriteOnTop);
 				newBatch->Start();
-				newBatch->Add(texture, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+				newBatch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
 				m_Batches.push_back(newBatch);
 			}
 		}

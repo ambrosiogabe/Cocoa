@@ -13,7 +13,7 @@ namespace Jade
 	// =================================================================================================
 	// Gizmo
 	// =================================================================================================
-	Gizmo::Gizmo(Sprite* sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 darkTint)
+	Gizmo::Gizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 darkTint)
 	{
 		m_Active = false;
 		m_Position = glm::vec3();
@@ -22,9 +22,10 @@ namespace Jade
 
 		m_Offset = offset;
 		m_SpriteRotation = spriteRotation;
-		m_TexCoordMin = sprite->m_TexCoords[0];
-		m_TexCoordMax = sprite->m_TexCoords[2];
-		m_Texture = sprite->m_Texture;
+		m_TexCoordMin = sprite.m_TexCoords[0];
+		m_TexCoordMax = sprite.m_TexCoords[2];
+		m_TextureAssetId = sprite.m_Texture->GetResourceId();
+		Log::Info("Tex Id: %d", m_TextureAssetId);
 		m_Tint = darkTint;
 		m_Type = type;
 	}
@@ -34,11 +35,11 @@ namespace Jade
 		float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom() * 2;
 		if (m_Active)
 		{
-			DebugDraw::AddSprite(m_Texture, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), m_Tint, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
+			DebugDraw::AddSprite(m_TextureAssetId, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), m_Tint, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
 		}
 		else
 		{
-			DebugDraw::AddSprite(m_Texture, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), { 1.0f, 1.0f, 1.0f }, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
+			DebugDraw::AddSprite(m_TextureAssetId, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), { 1.0f, 1.0f, 1.0f }, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
 		}
 	}
 
@@ -96,8 +97,8 @@ namespace Jade
 	GizmoSystem::GizmoSystem(const char* name)
 		: System(name)
 	{
-		m_Texture = std::unique_ptr<Texture>(new Texture("assets/images/gizmos.png", false));
-		m_Spritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_Texture.get(), 16, 40, 9, 0));
+		m_Texture = std::static_pointer_cast<Texture>(AssetManager::LoadTextureFromFile("assets/images/gizmos.png"));
+		m_Spritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_Texture, 16, 40, 9, 0));
 
 		float hzOffsetX = 15;
 		float hzOffsetY = -10;
@@ -105,14 +106,14 @@ namespace Jade
 		float squareOffsetY = 15;
 		float vtOffsetX = -8;
 		float vtOffsetY = 12;
-		m_HzMove = Gizmo(&m_Spritesheet->GetSprite(1), { hzOffsetX, hzOffsetY, 0.0f}, -90.0f, GizmoType::Horizontal);
-		m_VtMove = Gizmo(&m_Spritesheet->GetSprite(4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-		m_FreeMove = Gizmo(&m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+		m_HzMove = Gizmo(m_Spritesheet->GetSprite(1), { hzOffsetX, hzOffsetY, 0.0f}, -90.0f, GizmoType::Horizontal);
+		m_VtMove = Gizmo(m_Spritesheet->GetSprite(4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+		m_FreeMove = Gizmo(m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 		m_FreeMove.m_Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
 
-		m_HzScale = Gizmo(&m_Spritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-		m_VtScale = Gizmo(&m_Spritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-		m_FreeScale = Gizmo(&m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+		m_HzScale = Gizmo(m_Spritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+		m_VtScale = Gizmo(m_Spritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+		m_FreeScale = Gizmo(m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 	}
 
 	void GizmoSystem::ImGui(entt::registry& registry)
@@ -168,7 +169,7 @@ namespace Jade
 			bool anyHot = false;
 			for (int i = start; i < end; i++)
 			{
-				Gizmo gizmo = m_Gizmos[i];
+				Gizmo& gizmo = m_Gizmos[i];
 				float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom() * 2;
 				gizmo.m_Position = entityTransform.m_Position + gizmo.m_Offset * cameraZoom;
 				glm::vec3 boxPos = gizmo.m_Position + JMath::Vector3From2(gizmo.m_Box2D.m_Offset) * cameraZoom;

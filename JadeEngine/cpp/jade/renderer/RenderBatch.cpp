@@ -56,9 +56,9 @@ namespace Jade {
         m_NumSprites++;
 
         Sprite* sprite = spr.m_Sprite;
-        Texture* tex = sprite->m_Texture;
+        std::shared_ptr<Texture> tex = sprite->m_Texture;
         if (tex != nullptr) {
-            if (!HasTexture(tex)) {
+            if (!HasTexture(tex->GetResourceId())) {
                 m_Textures[m_NumTextures] = tex;
                 m_NumTextures++;
             }
@@ -86,7 +86,7 @@ namespace Jade {
         LoadVertexProperties(position, scale, quadSize, &texCoords[0], rotation, vec4Color, texId);
     }
 
-    void RenderBatch::Add(Texture* texture, const glm::vec2& size, const glm::vec2& position, 
+    void RenderBatch::Add(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, 
         const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
     {
         m_NumSprites++;
@@ -101,16 +101,16 @@ namespace Jade {
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
 
-        if (!HasTexture(texture))
+        if (!HasTexture(textureAssetId))
         {
-            m_Textures[m_NumTextures] = texture;
+            m_Textures[m_NumTextures] = std::dynamic_pointer_cast<Texture>(AssetManager::GetAsset(textureAssetId));
             m_NumTextures++;
         }
 
         int texId = 0;
         for (int i = 0; i < m_Textures.size(); i++)
         {
-            if (m_Textures[i] == texture)
+            if (m_Textures[i]->GetResourceId() == textureAssetId)
             {
                 texId = i + 1;
                 break;
@@ -242,5 +242,9 @@ namespace Jade {
         this->m_VertexStackPointer = m_VertexBufferBase;
         this->m_NumSprites = 0;
         this->m_NumTextures = 0;
+        for (int i = 0; i < m_NumTextures; i++)
+        {
+            m_Textures[i] = nullptr;
+        }
     }
 }

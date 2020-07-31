@@ -6,6 +6,7 @@
 #include "jade/file/IFile.h"
 #include "jade/file/IFileDialog.h"
 #include "jade/events/Input.h"
+#include "jade/core/AssetManager.h"
 
 extern Jade::Application* Jade::CreateApplication();
 
@@ -20,6 +21,7 @@ int main() {
 
     Jade::Application* application = Jade::CreateApplication();
 
+    Jade::AssetManager::Init(0);
     Jade::IFileDialog::Init();
     Jade::IFile::Init();
     Jade::Input::Init();

@@ -1,6 +1,7 @@
 #include "AssetWizard.h"
 #include "jade/util/Settings.h"
 #include "jade/file/IFile.h"
+#include "jade/util/Log.h"
 
 #include <jsonVendor/json.hpp>
 
@@ -11,7 +12,7 @@ namespace Jade
 	bool AssetWizard::s_CreatingProject = false;
 	char AssetWizard::s_TmpFilename[256];
 	FileDialogResult AssetWizard::s_FileImporting{};
-	AssetType AssetWizard::s_TypeOfImport = AssetType::None;
+	uint32 AssetWizard::s_TypeOfImport = 0;
 
 	void AssetWizard::ImGui()
 	{
@@ -65,10 +66,10 @@ namespace Jade
 			{
 				switch (s_TypeOfImport)
 				{
-				case AssetType::Spritesheet:
+				case 0://Asset<Texture>::GetResourceTypeID();
 					ImGuiImportSpritesheet();
 					break;
-				case AssetType::Sprite:
+				case 1://AssetType::Sprite:
 					ImGuiImportSprite();
 					break;
 				}
@@ -83,7 +84,7 @@ namespace Jade
 			s_FileChosen = true;
 			if (std::string("png").compare(s_FileImporting.extension) == 0)
 			{
-				s_TypeOfImport = AssetType::Sprite;
+				//s_TypeOfImport = Asset<Sprite>::GetResourceTypeID();
 			}
 		}
 		else
@@ -100,7 +101,7 @@ namespace Jade
 
 	void AssetWizard::ImGuiImportSprite()
 	{
-		AssetManager::ImportSprite(s_FileImporting.filepath);
+		//AssetManager::ImportSprite(JPath(s_FileImporting.filepath));
 		s_IsImporting = false;
 	}
 }

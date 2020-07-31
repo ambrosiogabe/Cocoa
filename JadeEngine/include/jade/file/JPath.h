@@ -26,6 +26,7 @@ namespace Jade
 		JPath operator+(std::string other) const;
 		JPath operator+(const JPath& other) const;
 		JPath operator+(const char* other) const;
+		bool operator==(const JPath& other) const;
 
 		void operator+=(const JPath& other);
 		char operator[](int index) const;

@@ -179,6 +179,11 @@ namespace Jade
 		this->Join(other);
 	}
 
+	bool JPath::operator==(const JPath& other) const
+	{
+		return strcmp(other.m_Filepath, this->m_Filepath) == 0;
+	}
+
 	char JPath::operator[](int index) const
 	{
 		return m_Filepath[index];

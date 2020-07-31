@@ -52,21 +52,70 @@ namespace ImGui
 		}
 	}
 
-	void BeginCollapsingHeaderGroup(const ImVec2& itemRectMin, const ImVec2& itemRectMax)
+	bool MenuButton(const char* label, const glm::vec2& size)
 	{
-		ImGui::BeginGroup();
-		ImGui::GetWindowDrawList()->AddRectFilled(itemRectMin, itemRectMax,
-			ImGui::ColorConvertFloat4ToU32(From(Jade::Settings::EditorStyle::s_DarkInset)));
-		ImGui::Dummy(ImVec2(0, 10.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+		bool res = ImGui::Button(label, ImVec2(size.x, size.y));
+		ImGui::PopStyleVar();
+		return res;
 	}
 
-	void EndCollapsingHeaderGroup(ImVec2& itemRectMin, ImVec2& itemRectMax)
+	bool JButton(const char* label, const glm::vec2& size)
+	{
+		ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_TextInverted);
+		ImGui::PushStyleColor(ImGuiCol_Text, color);
+		bool res = ImGui::Button(label, ImVec2(size.x, size.y));
+		ImGui::PopStyleColor();
+		return res;
+	}
+
+	bool JButtonDropdown(const char* label, const char* const items[], int items_count, int& item_pressed)
+	{
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, GetStyleColorVec4(ImGuiCol_Button));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, GetStyleColorVec4(ImGuiCol_ButtonHovered));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgActive, GetStyleColorVec4(ImGuiCol_ButtonActive));
+		ImGui::PushStyleColor(ImGuiCol_Text, GetStyleColorVec4(ImGuiCol_TextInverted));
+		if (!BeginCombo((std::string("##") + std::string(label)).c_str(), label, ImGuiComboFlags_NoArrowButton))
+		{
+			ImGui::PopStyleColor(4);
+			return false;
+		}
+		ImGui::PopStyleColor(4);
+
+		// Display items
+		bool value_changed = false;
+		for (int i = 0; i < items_count; i++)
+		{
+			PushID((void*)(intptr_t)i);
+			const char* item_text = items[i];
+			if (!item_text)
+				item_text = "*Unknown item*";
+			if (Selectable(item_text, false))
+			{
+				value_changed = true;
+				item_pressed = i;
+			}
+			PopID();
+		}
+
+		EndCombo();
+
+		return value_changed;
+	}
+
+	void BeginCollapsingHeaderGroup()
+	{
+		ImGui::BeginGroup();
+		ImGui::Dummy(ImVec2(0, 10.0f));
+		ImGui::Indent();
+	}
+
+	void EndCollapsingHeaderGroup()
 	{
 		float windowWidth = ImGui::GetWindowSize().x;
 		ImGui::Dummy(ImVec2(0, 10.0f));
+		ImGui::Unindent();
 		ImGui::EndGroup();
-		itemRectMin = ImGui::GetItemRectMin();
-		itemRectMax = ImGui::GetItemRectMax() + ImVec2(windowWidth, 0);
 	}
 
 	void UndoableDragFloat4(const char* label, glm::vec4& vector)

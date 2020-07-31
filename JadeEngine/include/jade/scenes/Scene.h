@@ -26,10 +26,8 @@ namespace Jade {
         const std::vector<std::unique_ptr<System>>& GetSystems();
 
         // TODO: TEMPORARY GET BETTER SYSTEM THEN THESE!!!
-        inline json& GetSaveDataJson()
-        {
-            return m_SaveDataJson;
-        }
+        inline json& GetSaveDataJson() { return m_SaveDataJson; }
+        inline void ShowDemoWindow() { m_ShowDemoWindow = true; }
 
     public:
         template<typename T>
@@ -41,6 +39,7 @@ namespace Jade {
         }
 
     protected:
+        bool m_ShowDemoWindow = false;
         bool m_IsRunning = false;
         std::vector<std::unique_ptr<System>> m_Systems;
 
