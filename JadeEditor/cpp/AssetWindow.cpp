@@ -111,8 +111,19 @@ namespace Jade
 		std::vector<std::shared_ptr<Texture>> textures = AssetManager::GetAllAssets<Texture>(AssetManager::GetScene());
 		for (auto tex : textures)
 		{
+			int texResourceId = tex->GetResourceId();
+			ImGui::PushID(texResourceId);
 			ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize);
+			// Our buttons are both drag sources and drag targets here!
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+			{
+				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+				ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize);
+				ImGui::EndDragDropSource();
+			}
 			ImGui::SameLine();
+
+			ImGui::PopID();
 		}
 
 		if (IconButton(ICON_FA_PLUS, "Add Texture", m_ButtonSize))

@@ -55,8 +55,8 @@ namespace Jade {
     void RenderBatch::Add(const Transform& transform, const SpriteRenderer& spr) {
         m_NumSprites++;
 
-        Sprite* sprite = spr.m_Sprite;
-        std::shared_ptr<Texture> tex = sprite->m_Texture;
+        const Sprite& sprite = spr.m_Sprite;
+        std::shared_ptr<Texture> tex = sprite.m_Texture;
         if (tex != nullptr) {
             if (!HasTexture(tex->GetResourceId())) {
                 m_Textures[m_NumTextures] = tex;
@@ -122,15 +122,15 @@ namespace Jade {
 
     void RenderBatch::LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr) {    
         glm::vec4 color = spr.m_Color;
-        Sprite* sprite = spr.m_Sprite;
-        glm::vec2* texCoords = &sprite->m_TexCoords[0];
-        glm::vec2 quadSize{ sprite->m_Width, sprite->m_Height };
+        const Sprite& sprite = spr.m_Sprite;
+        const glm::vec2* texCoords = &sprite.m_TexCoords[0];
+        glm::vec2 quadSize{ sprite.m_Width, sprite.m_Height };
         float rotation = transform.m_EulerRotation.z;
 
         int texId = 0;
-        if (sprite->m_Texture != nullptr) {
+        if (sprite.m_Texture) {
             for (int i=0; i < m_Textures.size(); i++) {
-                if (m_Textures[i] == sprite->m_Texture) {
+                if (m_Textures[i] == sprite.m_Texture) {
                     texId = i + 1;
                     break;
                 }
@@ -140,7 +140,7 @@ namespace Jade {
         LoadVertexProperties(transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId);
     }
 
-    void RenderBatch::LoadVertexProperties(const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, glm::vec2* texCoords, 
+    void RenderBatch::LoadVertexProperties(const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
         float rotationDegrees, const glm::vec4& color, int texId)
     {
         bool isRotated = rotationDegrees != 0.0f;

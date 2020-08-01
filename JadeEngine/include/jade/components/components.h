@@ -9,10 +9,9 @@ namespace Jade
 {
 	struct Sprite
 	{
-		const char* m_PictureFile = nullptr;
+		std::shared_ptr<Texture> m_Texture = nullptr;
 		int m_Width = 32;
 		int m_Height = 32;
-		std::shared_ptr<Texture> m_Texture = nullptr;
 		AABB m_BoundingBox = Physics2DSystem::AABBFrom({ 0, 0 }, { m_Width, m_Height });
 		glm::vec2 m_TexCoords[4] = {
 			glm::vec2(1.0f, 1.0f),
@@ -73,10 +72,9 @@ namespace Jade
 				AABB boundingBox = Physics2D::GetBoundingBoxForPixels(tmpSubImage.get(), spriteWidth, spriteHeight, texture->BytesPerPixel());
 
 				Sprite sprite = {
-					texture->GetFilepath().Filepath(),
+					texture,
 					spriteWidth,
 					spriteHeight,
-					texture,
 					boundingBox,
 					{
 						glm::vec2(rightX, topY),
@@ -96,7 +94,7 @@ namespace Jade
 			}
 		}
 
-		const Sprite& GetSprite(int index)
+		Sprite GetSprite(int index)
 		{
 			return m_Sprites[index];
 		}
@@ -107,10 +105,9 @@ namespace Jade
 		}
 	};
 
-	static Sprite* defaultSprite = new Sprite();
 	struct SpriteRenderer
 	{
 		glm::vec4 m_Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		Sprite* m_Sprite = defaultSprite;
+		Sprite m_Sprite{};
 	};
 }

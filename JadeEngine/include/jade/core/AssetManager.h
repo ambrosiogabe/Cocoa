@@ -95,7 +95,7 @@ namespace Jade
 		uint32 m_CurrentScene;
 		uint32 m_ResourceCount;
 
-		// Map from scope -> AssetID -> Asset
+		// Map from scene -> AssetID -> Asset
 		std::unordered_map<uint32, std::unordered_map<uint32, std::shared_ptr<Asset>>> m_Assets;
 	};
 

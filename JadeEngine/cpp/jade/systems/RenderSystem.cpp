@@ -14,13 +14,13 @@ namespace Jade
 {
 	void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr)
 	{
-		Sprite* sprite = spr.m_Sprite;
+		const Sprite& sprite = spr.m_Sprite;
 		bool wasAdded = false;
 		for (RenderBatch* batch : m_Batches)
 		{
 			if (batch->HasRoom())
 			{
-				std::shared_ptr<Texture> tex = sprite->m_Texture;
+				std::shared_ptr<Texture> tex = sprite.m_Texture;
 				if (tex == nullptr || (batch->HasTexture(tex->GetResourceId()) || batch->HasTextureRoom()))
 				{
 					batch->Add(transform, spr);
@@ -73,6 +73,27 @@ namespace Jade
 				ImGui::BeginCollapsingHeaderGroup();
 				SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
 				ImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
+
+				if (spr.m_Sprite.m_Texture)
+				{
+					ImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture->GetFilepath().Filename(),
+						spr.m_Sprite.m_Texture->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+				}
+				else
+				{
+					ImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
+				}
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_HANDLE_ID"))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(int));
+						int textureResourceId = *(const int*)payload->Data;
+						spr.m_Sprite.m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset(textureResourceId));
+					}
+					ImGui::EndDragDropTarget();
+				}
+
 				ImGui::EndCollapsingHeaderGroup();
 			}
 		}
@@ -88,7 +109,7 @@ namespace Jade
 			{"SpriteRenderer", {
 				{"Entity", entt::to_integral(entity)},
 				color
-	     	}}
+			}}
 		};
 
 		j["Size"] = size + 1;

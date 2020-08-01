@@ -47,7 +47,7 @@ namespace Jade
     private:
         void LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr);
         void LoadVertexProperties(const glm::vec3& position, 
-            const glm::vec3& scale, const glm::vec2& quadSize, glm::vec2* texCoords, 
+            const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
             float rotationDegrees, const glm::vec4& color, int texId);
 
         void LoadEmptyVertexProperties();
