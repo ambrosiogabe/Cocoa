@@ -1,5 +1,5 @@
 #pragma once
-#include <imgui/imgui.h>
+#include "jade/renderer/Texture.h"
 
 namespace Jade
 {
@@ -19,10 +19,11 @@ namespace Jade
 		void ShowFileBrowser();
 		void ShowMenuBar();
 		void ShowTextureBrowser();
-		bool IconButton(const char* icon, const char* label, const ImVec2& size=ImVec2(0, 0));
+		bool IconButton(const char* icon, const char* label, const glm::vec2& size=glm::vec2());
+		bool ImageButton(Texture* texture, const char* label, const glm::vec2& size=glm::vec2());
 
 	private:
-		ImVec2 m_ButtonSize{ 128, 128 };
+		glm::vec2 m_ButtonSize{ 128, 128 };
 		AssetView m_CurrentView = AssetView::FileBrowser;
 	};
 }

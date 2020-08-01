@@ -1,6 +1,7 @@
 #include "externalLibs.h"
 #include "jade/util/Settings.h"
 #include "jade/commands/ICommand.h"
+#include "jade/renderer/Texture.h"
 
 #include <imgui.h>
 #include <glm/vec4.hpp>
@@ -14,7 +15,7 @@ namespace ImGui {
 	bool MenuButton(const char* label, const glm::vec2& size = {0, 0});
 	bool JButton(const char* label, const glm::vec2& size = {0, 0});
 	bool JButtonDropdown(const char* label, const char* const items[], int items_size, int& item_pressed);
-	bool JImageButton(const Jade::Sprite& texture, const glm::vec2& size, int framePadding = -1, 
+	bool JImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding = -1, 
 		const glm::vec4& bgColor={0, 0, 0, 0}, const glm::vec4& tintColor={1, 1, 1, 1});
 
 	void UndoableColorEdit4(const char* label, glm::vec4& color);
@@ -25,7 +26,7 @@ namespace ImGui {
 	void UndoableDragFloat(const char* label, float& val);
 
 	template <typename T>
-	bool UndoableCombo(T enumVal, const char* label, const char* const items[], int items_count, int popup_max_items_in_height = -1)
+	bool UndoableCombo(T& enumVal, const char* label, const char* const items[], int items_count, int popup_max_items_in_height = -1)
 	{
 		int current_item = static_cast<int>(enumVal);
 		ImGui::Text(label);

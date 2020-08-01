@@ -2,9 +2,12 @@
 #include "jade/core/ImGuiExtended.h"
 #include "jade/core/AssetManager.h"
 #include "jade/file/IFile.h"
+#include "jade/file/IFileDialog.h"
 #include "jade/file/JPath.h"
 #include "jade/util/Settings.h"
 #include "FontAwesome.h"
+
+#include <imgui/imgui.h>
 
 namespace Jade
 {
@@ -37,24 +40,34 @@ namespace Jade
 		ImGui::BeginGroup();
 
 		std::array<const char*, (int)AssetView::Length> assetViews = { "FileBrowser", "TextureBrowser" };
-		if (ImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length))
-		{
-			Log::Info("Changed...");
-		}
-
+		ImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 		ImGui::EndGroup();
 		ImGui::Separator();
 	}
 
-	bool AssetWindow::IconButton(const char* icon, const char* label, const ImVec2& size)
+	bool AssetWindow::IconButton(const char* icon, const char* label, const glm::vec2& size)
 	{
 		ImGui::BeginGroup();
 		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-		bool res = ImGui::Button(icon, size);
+		bool res = ImGui::Button(icon, ImVec2(size.x, size.y));
 		ImGui::PopFont();
 		
 		ImVec2 textSize = ImGui::CalcTextSize(label);
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(size.x / 2.0f, 0.0f) -  ImVec2(textSize.x / 2.0f, 0.0f));
+		ImGui::Text(label);
+		ImGui::EndGroup();
+		return res;
+	}
+
+	bool AssetWindow::ImageButton(Texture* texture, const char* label, const glm::vec2& size)
+	{
+		ImGui::BeginGroup();
+		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
+		bool res = ImGui::JImageButton(*texture, size);
+		ImGui::PopFont();
+
+		ImVec2 textSize = ImGui::CalcTextSize(label);
+		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(size.x / 2.0f, 0.0f) - ImVec2(textSize.x / 2.0f, 0.0f));
 		ImGui::Text(label);
 		ImGui::EndGroup();
 		return res;
@@ -95,15 +108,21 @@ namespace Jade
 
 	void AssetWindow::ShowTextureBrowser()
 	{
-		std::vector<JPath> textures = {};// AssetManager::GetAllTexturePaths();
-		for (auto path : textures)
+		std::vector<std::shared_ptr<Texture>> textures = AssetManager::GetAllAssets<Texture>(AssetManager::GetScene());
+		for (auto tex : textures)
 		{
-			IconButton(ICON_FA_PAPER_PLANE, path.Filepath(), m_ButtonSize);
+			ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize);
+			ImGui::SameLine();
 		}
 
 		if (IconButton(ICON_FA_PLUS, "Add Texture", m_ButtonSize))
 		{
-			Log::Info("ADD A TEXTURE");
+			std::string initialPath;
+			FileDialogResult result;
+			if (IFileDialog::GetOpenFileName(initialPath, result))
+			{
+				AssetManager::LoadTextureFromFile(JPath(result.filepath));
+			}
 		}
 	}
 }

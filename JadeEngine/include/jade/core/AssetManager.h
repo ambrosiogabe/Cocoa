@@ -53,10 +53,33 @@ namespace Jade
 		static std::shared_ptr<Asset> GetAsset(uint32 resourceID);
 		static std::shared_ptr<Asset> GetAsset(const JPath& path);
 		static std::shared_ptr<Asset> LoadTextureFromFile(const JPath& path);
-		
+
+		template<typename T>
+		static std::vector<std::shared_ptr<T>> GetAllAssets(uint32 scene)
+		{
+			AssetManager* manager = Get();
+			auto it = manager->m_Assets.find(scene);
+			if (it == manager->m_Assets.end())
+			{
+				return std::vector<std::shared_ptr<T>>{};
+			}
+
+			std::vector<std::shared_ptr<T>> res{};
+			for (auto assetIt = it->second.begin(); assetIt != it->second.end(); assetIt++)
+			{
+				if (assetIt->second->GetType() == Asset::GetResourceTypeId<T>())
+				{
+					res.push_back(std::static_pointer_cast<T>(assetIt->second));
+				}
+			}
+
+			return res;
+		}
+
 		static void Clear();
 		static void Init(uint32 scene);
 
+		static uint32 GetScene() { return Get()->m_CurrentScene; }
 		static void SetScene(uint32 scene) { Get()->m_CurrentScene = scene; }
 
 	private:

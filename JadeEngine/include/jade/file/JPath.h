@@ -15,7 +15,7 @@ namespace Jade
 		JPath& operator=(JPath&& other) noexcept;
 
 		inline const char* Filename() const { return m_Filename; }
-		inline const char* Filepath() const { return m_Filepath; }
+		inline const char* Filepath() const { return m_Filepath.c_str(); }
 		inline const char* FileExt()  const { return m_FileExt; }
 		inline bool IsFile();
 		inline bool IsDirectory();
@@ -46,8 +46,7 @@ namespace Jade
 		static const char WIN_SEPARTOR = '\\';
 		static const char UNIX_SEPARATOR = '/';
 
-		int m_PathLength;
-		char* m_Filepath;
+		std::string m_Filepath;
 		char* m_Filename;
 		char* m_FileExt;
 	};

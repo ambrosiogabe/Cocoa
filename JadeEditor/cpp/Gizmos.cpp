@@ -25,7 +25,6 @@ namespace Jade
 		m_TexCoordMin = sprite.m_TexCoords[0];
 		m_TexCoordMax = sprite.m_TexCoords[2];
 		m_TextureAssetId = sprite.m_Texture->GetResourceId();
-		Log::Info("Tex Id: %d", m_TextureAssetId);
 		m_Tint = darkTint;
 		m_Type = type;
 	}
@@ -178,6 +177,10 @@ namespace Jade
 					gizmo.m_Active = true;
 					m_HotGizmo = i;
 					anyHot = true;
+				}
+				else if (!m_MouseDragging && m_HotGizmo != i)
+				{
+					gizmo.m_Active = false;
 				}
 				gizmo.Render();
 			}

@@ -141,8 +141,9 @@ namespace Jade
 
 	JPath Win32File::ImplGetAbsolutePath(const JPath& path)
 	{
-		char* buffer = new char[MAX_PATH];
-		GetFullPathNameA(path.Filepath(), MAX_PATH, buffer, NULL);
+		int bufferLength = GetFullPathNameA(path.Filepath(), 0, NULL, NULL);
+		char* buffer = new char[bufferLength];
+		GetFullPathNameA(path.Filepath(), bufferLength, buffer, NULL);
 		JPath result = JPath(buffer);
 		delete[] buffer;
 		return result;

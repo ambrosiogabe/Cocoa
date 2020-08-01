@@ -1,6 +1,7 @@
 #include "jade/core/AssetManager.h"
 #include "jade/util/Log.h"
 #include "jade/renderer/Texture.h"
+#include "jade/file/IFile.h"
 
 namespace Jade
 {
@@ -73,7 +74,8 @@ namespace Jade
 			return std::shared_ptr<Asset>(new NullAsset());
 		}
 
-		std::shared_ptr<Asset> newAsset = std::make_shared<Texture>(path.Filepath());
+		JPath absPath = IFile::GetAbsolutePath(path);
+		std::shared_ptr<Texture> newAsset = std::make_shared<Texture>(absPath.Filepath());
 
 		auto& assets = manager->m_Assets[manager->m_CurrentScene];
 

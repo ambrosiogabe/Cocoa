@@ -26,17 +26,21 @@ namespace Jade
 
 	JPath::JPath(const JPath& other)
 	{
-		m_PathLength = other.m_PathLength;
-		m_Filepath = new char[m_PathLength + 1];
-		m_Filepath[m_PathLength] = '\0';
-		int result = memcpy_s(m_Filepath, m_PathLength, other.m_Filepath, m_PathLength);
-		Log::Assert(result == 0, "Failed to copy path.");
-		m_Filename = &this->m_Filepath[other.m_Filename - other.m_Filepath];
-		m_FileExt = &this->m_Filepath[other.m_FileExt - other.m_Filepath];
+		m_Filepath = other.m_Filepath;
+		m_Filename = &this->m_Filepath[other.m_Filename - other.m_Filepath.c_str()];
+		m_FileExt = &this->m_Filepath[other.m_FileExt - other.m_Filepath.c_str()];
 	}
 
 	void JPath::Init(const char* path, int pathSize)
 	{
+		if (pathSize == 0)
+		{
+			m_Filepath = "";
+			m_FileExt = "";
+			m_Filename = "";
+			return;
+		}
+
 		char* sanitizedPath = new char[pathSize];
 		int lastPathSeparator = -1;
 		int stringIndex = 0;
@@ -44,7 +48,7 @@ namespace Jade
 		int lastDot = -1;
 
 		const char* iterEnd = path + pathSize;
-		for (const char* iter=path; iter != iterEnd; iter++)
+		for (const char* iter = path; iter != iterEnd; iter++)
 		{
 			char c = *iter;
 			if (c == '.' && stringIndex > 0 && sanitizedPath[stringIndex - 1] != '.')
@@ -80,30 +84,20 @@ namespace Jade
 			stringIndex++;
 		}
 
-		m_Filepath = new char[pathIndex + 1];
-		int success = memcpy_s(m_Filepath, pathIndex + 1, sanitizedPath, pathIndex);
-		Log::Assert(success == 0, "Error copying filepath.");
-		m_Filepath[pathIndex] = '\0';
+		m_Filepath = std::string(sanitizedPath, pathIndex);
 		m_Filename = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
 			? &m_Filepath[lastPathSeparator + 1] : &m_Filepath[pathIndex];
 		m_FileExt = (lastDot == -1 || lastDot < lastPathSeparator || lastPathSeparator == lastDot - 1)
 			? &m_Filepath[pathIndex] : &m_Filepath[lastDot];
-		m_PathLength = pathIndex;
 
 		delete[] sanitizedPath;
 	}
 
 	JPath::JPath(JPath&& other) noexcept
+		: m_Filepath(std::move(other.m_Filepath))
 	{
-		m_Filepath = other.m_Filepath;
 		m_Filename = other.m_Filename;
 		m_FileExt = other.m_FileExt;
-		m_PathLength = other.m_PathLength;
-
-		other.m_Filepath = nullptr;
-		other.m_Filename = nullptr;
-		other.m_FileExt = nullptr;
-		other.m_PathLength = 0;
 	}
 
 	JPath& JPath::operator=(JPath&& other) noexcept
@@ -111,19 +105,27 @@ namespace Jade
 		if (this != &other)
 		{
 			// Free the existing resource
-			delete m_Filepath;
 
 			// Copy the data pointers from other to here
-			m_Filepath = other.m_Filepath;
+			m_Filepath = std::move(other.m_Filepath);
 			m_FileExt = other.m_FileExt;
 			m_Filename = other.m_Filename;
-			m_PathLength = other.m_PathLength;
 
 			// Release the data pointers from source, so destructor does not free multiple times
-			other.m_Filepath = nullptr;
 			other.m_Filename = nullptr;
 			other.m_FileExt = nullptr;
-			other.m_PathLength = 0;
+		}
+
+		return *this;
+	}
+
+	JPath& JPath::operator=(JPath& other)
+	{
+		if (&other != this)
+		{
+			m_Filepath = other.m_Filepath;
+			m_Filename = &m_Filepath[other.m_Filename - other.m_Filepath.c_str()];
+			m_FileExt = &m_Filepath[other.m_FileExt - other.m_Filepath.c_str()];
 		}
 
 		return *this;
@@ -131,39 +133,14 @@ namespace Jade
 
 	JPath::~JPath()
 	{
-		if (m_Filepath != nullptr)
-			delete[] m_Filepath;
-	}
-
-	JPath& JPath::operator=(JPath& other)
-	{
-		if (&other == this)
-			return *this;
-		if (other.m_PathLength != m_PathLength)
-		{
-			delete[] m_Filepath;
-			m_Filepath = new char[other.m_PathLength + 1];
-			m_PathLength = other.m_PathLength;
-		}
-
-		memcpy_s(m_Filepath, m_PathLength, other.m_Filepath, other.m_PathLength);
-		m_Filename = &m_Filepath[other.m_Filename - other.m_Filepath];
-		m_FileExt = &m_Filepath[other.m_FileExt - other.m_Filepath];
-		return *this;
+		m_Filename = nullptr;
+		m_FileExt = nullptr;
 	}
 
 	JPath JPath::operator+(std::string other) const
 	{
-		JPath tmp(other);
 		JPath copy = JPath(*this);
-		copy.Join(tmp);
-		return copy;
-	}
-
-	JPath JPath::operator+(const JPath& other) const
-	{
-		JPath copy = JPath(*this);
-		copy.Join(other);
+		copy.Join(JPath(other));
 		return copy;
 	}
 
@@ -174,6 +151,13 @@ namespace Jade
 		return copy;
 	}
 
+	JPath JPath::operator+(const JPath& other) const
+	{
+		JPath copy = JPath(*this);
+		copy.Join(other);
+		return copy;
+	}
+
 	void JPath::operator+=(const JPath& other)
 	{
 		this->Join(other);
@@ -181,7 +165,14 @@ namespace Jade
 
 	bool JPath::operator==(const JPath& other) const
 	{
-		return strcmp(other.m_Filepath, this->m_Filepath) == 0;
+		if (m_Filepath.size() == 0 || other.m_Filepath.size() == 0)
+		{
+			return false;
+		}
+
+		JPath tmp1 = IFile::GetAbsolutePath(other);
+		JPath tmp2 = IFile::GetAbsolutePath(*this);
+		return strcmp(tmp1.m_Filepath.c_str(), tmp2.m_Filepath.c_str()) == 0;
 	}
 
 	char JPath::operator[](int index) const
@@ -191,56 +182,57 @@ namespace Jade
 
 	void JPath::Join(const JPath& other)
 	{
-		int newLength = other.m_PathLength + m_PathLength;
+		int newLength = other.m_Filepath.size() + m_Filepath.size();
 		bool needSeparator = false;
 		bool takeAwaySeparator = false;
-		if (!IsSeparator(other.m_Filepath[0]) && !IsSeparator(m_Filepath[m_PathLength - 1]))
+		if (!IsSeparator(other.m_Filepath[0]) && !IsSeparator(m_Filepath[m_Filepath.size() - 1]))
 		{
 			needSeparator = true;
 			newLength++;
 		}
-		else if (IsSeparator(other.m_Filepath[0]) && IsSeparator(m_Filepath[m_PathLength - 1]))
+		else if (IsSeparator(other.m_Filepath[0]) && IsSeparator(m_Filepath[m_Filepath.size() - 1]))
 		{
 			takeAwaySeparator = true;
 			newLength--;
 		}
-		char* newBuffer = new char[newLength + 1];
-		char* startSecond = &newBuffer[m_PathLength];
+
+		if (!needSeparator && !takeAwaySeparator)
+		{
+			// If only one of the paths has a separator at the end or beginning, just str combine
+			// and return
+			this->m_Filepath += other.m_Filepath;
+			return;
+		}
+
 		if (needSeparator)
 		{
-			*startSecond = PATH_SEPARATOR;
-			startSecond++;
+			this->m_Filepath += PATH_SEPARATOR;
+			this->m_Filepath += other.m_Filepath;
 		}
 		else if (takeAwaySeparator)
 		{
-			startSecond--;
+			this->m_Filepath += (other.m_Filepath.c_str() + 1);
 		}
 
-		memcpy_s(newBuffer, m_PathLength, m_Filepath, m_PathLength);
-		memcpy_s(startSecond, other.m_PathLength, other.m_Filepath, other.m_PathLength);
-		delete[] m_Filepath;
-		m_Filepath = newBuffer;
-		m_Filename = &newBuffer[m_PathLength + (other.m_Filename - other.m_Filepath)];
-		m_FileExt = &newBuffer[m_PathLength + (other.m_FileExt - other.m_Filepath)];
-		m_Filepath[newLength] = '\0';
-		m_PathLength = newLength;
+		m_Filename = &m_Filepath[m_Filepath.size() - (other.m_Filename - other.m_Filepath.c_str())];
+		m_FileExt = &m_Filepath[m_Filepath.size() - (other.m_FileExt - other.m_Filepath.c_str())];
 	}
 
 	/*
 	 *  Gets the directory at 'level' of the path. For example given the directory:
-	 *  
+	 *
 	 *   0  1   2        3           4   Undefined
 	 *  'C:/dev/Projects/SomeProject/Src/Somefile.txt'
-	 *   -5 -4  -3       -2          -1  Undefined    
-	 *  
+	 *   -5 -4  -3       -2          -1  Undefined
+	 *
 	 *  The levels are listed above and below the path respectively
 	 *  So, to get a directory one path level above the current directory, you would simply say:
 	 *  GetDirectory(-2);
 	 */
 	std::string JPath::GetDirectory(int level)
 	{
-		char* startCopy = m_Filepath;
-		char* endCopy = m_Filepath;
+		const char* startCopy = m_Filepath.c_str();
+		const char* endCopy = m_Filepath.c_str();
 		if (level < 0)
 		{
 			if (IsFile())
@@ -248,7 +240,7 @@ namespace Jade
 				level--;
 			}
 
-			for (int i = m_PathLength - 1; i >= 0; i--)
+			for (int i = m_Filepath.size() - 1; i >= 0; i--)
 			{
 				if (IsSeparator(m_Filepath[i]))
 				{
@@ -263,7 +255,7 @@ namespace Jade
 		}
 		else
 		{
-			for (int i = 0; i < m_PathLength; i++)
+			for (int i = 0; i < m_Filepath.size(); i++)
 			{
 				if (IsSeparator(m_Filepath[i]))
 				{
@@ -273,7 +265,7 @@ namespace Jade
 						endCopy = &m_Filepath[i];
 						if (IsFile() && endCopy == m_Filename)
 						{
-							endCopy = m_Filepath;
+							endCopy = m_Filepath.c_str();
 						}
 						break;
 					}

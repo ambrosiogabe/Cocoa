@@ -194,4 +194,11 @@ namespace ImGui
 			Jade::CommandHistory::SetNoMergeMostRecent();
 		}
 	}
+
+	bool JImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding,
+		const glm::vec4& bgColor, const glm::vec4& tintColor)
+	{
+		return ImGui::ImageButton(ImTextureID(texture.GetId()), { size.x, size.y }, ImVec2(0, 0), ImVec2(1, 1), framePadding,
+			ImGui::From(bgColor), ImGui::From(tintColor));
+	}
 }

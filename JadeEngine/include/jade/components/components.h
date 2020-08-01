@@ -73,7 +73,7 @@ namespace Jade
 				AABB boundingBox = Physics2D::GetBoundingBoxForPixels(tmpSubImage.get(), spriteWidth, spriteHeight, texture->BytesPerPixel());
 
 				Sprite sprite = {
-					texture->GetFilepath(),
+					texture->GetFilepath().Filepath(),
 					spriteWidth,
 					spriteHeight,
 					texture,

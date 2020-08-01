@@ -9,7 +9,7 @@ namespace Jade
 	class Texture : public Asset
 	{
 	public:
-		Texture(const char* resourceName);
+		Texture(const JPath& resourceName);
 		Texture(int width, int height);
 
 		virtual void Load() override;
@@ -21,7 +21,7 @@ namespace Jade
 		int GetId() const { return m_ID; }
 		int GetWidth() const { return m_Width; }
 		int GetHeight() const { return m_Height; }
-		const char* GetFilepath() const { return m_Filepath; }
+		const JPath& GetFilepath() const { return m_Path; }
 		void FreePixels();
 		const uint8* GetPixelBuffer();
 		int BytesPerPixel() const { return m_BytesPerPixel; }
@@ -34,7 +34,6 @@ namespace Jade
 		uint8* m_PixelBuffer = nullptr;
 		bool m_PixelsFreed = false;
 
-		const char* m_Filepath;
 		AABB m_BoundingBox;
 	};
 }
