@@ -71,16 +71,20 @@ namespace Jade
 		m_Registry.clear<SpriteRenderer, Transform, Box2D, AABB, Circle, Rigidbody2D>();
 
 		File* file = IFile::OpenFile(filename);
+		if (file->m_Data.size() <= 0)
+		{
+			return;
+		}
 
 		std::unordered_map<int, int> idKey;
-
 		json j = json::parse(file->m_Data);
+
 		if (!j["Project"].is_null())
 		{
 			Settings::General::s_CurrentProject = JPath(j["Project"]);
 		}
 
-		int size = j["Size"];
+		int size = j["Size"].is_null() ? 0 : j["Size"];
 		for (int i = 0; i < size; i++)
 		{
 			if (!j["Components"][i]["SpriteRenderer"].is_null())

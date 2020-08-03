@@ -29,26 +29,11 @@ namespace Jade {
         class EditorStyle
         {
         public:
-            static glm::vec4 s_DarkBgColor;
-            static glm::vec4 s_LightBgColor;
-            static glm::vec4 s_DarkInset;
-            static glm::vec4 s_TitleBgColor;
-            static glm::vec4 s_MenubarColor;
-            static glm::vec4 s_LightColorHover;
-            static glm::vec4 s_TabColor;
-            static glm::vec4 s_TabActiveColor;
-
-            static glm::vec4 s_InputElementColor;
-            static glm::vec4 s_DarkAccentColor;
-            static glm::vec4 s_LightAccentColor;
-            static glm::vec4 s_TreeItemDark;
-            static glm::vec4 s_TreeItemLight;
-
             // Fonts
             static ImFont* s_DefaultFont;
             static ImFont* s_LargeIconFont;
 
-            // New Style Colors
+            // Style Colors
             static glm::vec4 s_MainBgLight0;
             static glm::vec4 s_MainBg;
             static glm::vec4 s_MainBgDark0;
@@ -56,8 +41,8 @@ namespace Jade {
             static glm::vec4 s_MainBgDark2;
 
             static glm::vec4 s_Accent;
-            static glm::vec4 s_DarkAccent0;
-            static glm::vec4 s_DarkAccent1;
+            static glm::vec4 s_AccentDark0;
+            static glm::vec4 s_AccentDark1;
 
             static glm::vec4 s_Button;
             static glm::vec4 s_ButtonHovered;

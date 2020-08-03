@@ -6,7 +6,7 @@ typedef unsigned int GLuint;
 namespace Jade {
     class Shader {
     public:
-        Shader(const char* resourceName);
+        Shader(const std::string& resourceName);
 
         void Compile(const char* filepath);
         void Bind();

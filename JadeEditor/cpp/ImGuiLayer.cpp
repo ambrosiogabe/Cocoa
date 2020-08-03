@@ -26,7 +26,6 @@
 
 namespace Jade
 {
-	static void CustomStyle(bool bStyleDark_ = true, float alpha_ = 0.8f);
 	static void LoadStyle(const JPath& filepath);
 	void HelpMarker(const char* desc);
 
@@ -249,14 +248,14 @@ namespace Jade
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
 		ImGui::PushStyleColor(ImGuiCol_Border, ImGui::From(Settings::EditorStyle::s_MainBgDark2));
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
-		ImGui::PushStyleColor(ImGuiCol_PopupBg, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::From(Settings::EditorStyle::s_DarkAccent1));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_DarkAccent1));
-		ImGui::PushStyleColor(ImGuiCol_Header, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::From(Settings::EditorStyle::s_DarkAccent0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::From(Settings::EditorStyle::s_AccentDark0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_AccentDark0));
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, ImGui::From(Settings::EditorStyle::s_AccentDark0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::From(Settings::EditorStyle::s_AccentDark1));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_AccentDark1));
+		ImGui::PushStyleColor(ImGuiCol_Header, ImGui::From(Settings::EditorStyle::s_AccentDark0));
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::From(Settings::EditorStyle::s_AccentDark0));
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::From(Settings::EditorStyle::s_AccentDark0));
 		m_MenuBar.ImGui();
 		ImGui::PopStyleVar(4);
 		ImGui::PopStyleColor(9);
@@ -303,43 +302,67 @@ namespace Jade
 		if (false)//styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
-			AssignIfNotNull(j["DarkBgColor"], Settings::EditorStyle::s_DarkBgColor);
-			AssignIfNotNull(j["LighBgColor"], Settings::EditorStyle::s_LightBgColor);
-			AssignIfNotNull(j["InputElementColor"], Settings::EditorStyle::s_InputElementColor);
-			AssignIfNotNull(j["DarkInset"], Settings::EditorStyle::s_DarkInset);
-			AssignIfNotNull(j["DarkAccent"], Settings::EditorStyle::s_DarkAccentColor);
-			AssignIfNotNull(j["LightAccent"], Settings::EditorStyle::s_LightAccentColor);
-			AssignIfNotNull(j["FramePadding"], Settings::EditorStyle::s_FramePadding);
-			AssignIfNotNull(j["ItemSpacing"], Settings::EditorStyle::s_ItemSpacing);
-			AssignIfNotNull(j["ScrollbarSize"], Settings::EditorStyle::s_ScrollbarSize);
-			AssignIfNotNull(j["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
-			AssignIfNotNull(j["FrameRounding"], Settings::EditorStyle::s_FrameRounding);
-			AssignIfNotNull(j["GrabRounding"], Settings::EditorStyle::s_GrabRounding);
-			AssignIfNotNull(j["TabRounding"], Settings::EditorStyle::s_TabRounding);
+			AssignIfNotNull(j["Colors"]["MainBgLight0"],   Settings::EditorStyle::s_MainBgLight0);
+			AssignIfNotNull(j["Colors"]["MainBg"],         Settings::EditorStyle::s_MainBg);
+			AssignIfNotNull(j["Colors"]["MainBgDark0"],    Settings::EditorStyle::s_MainBgDark0);
+			AssignIfNotNull(j["Colors"]["MainBgDark1"],    Settings::EditorStyle::s_MainBgDark1);
+			AssignIfNotNull(j["Colors"]["MainBgDark2"],    Settings::EditorStyle::s_MainBgDark2);
+			AssignIfNotNull(j["Colors"]["Accent"],         Settings::EditorStyle::s_Accent);
+			AssignIfNotNull(j["Colors"]["AccentDark0"],    Settings::EditorStyle::s_AccentDark0);
+			AssignIfNotNull(j["Colors"]["AccentDark1"],    Settings::EditorStyle::s_AccentDark1);
+			AssignIfNotNull(j["Colors"]["Button"],         Settings::EditorStyle::s_Button);
+			AssignIfNotNull(j["Colors"]["ButtonHovered"],  Settings::EditorStyle::s_ButtonHovered);
+			AssignIfNotNull(j["Colors"]["Font"],           Settings::EditorStyle::s_FrameRounding);
+			AssignIfNotNull(j["Colors"]["FontDisabled"],   Settings::EditorStyle::s_GrabRounding);
+
+			AssignIfNotNull(j["Sizing"]["WindowPadding"],     Settings::EditorStyle::s_WindowPadding);
+			AssignIfNotNull(j["Sizing"]["FramePadding"],      Settings::EditorStyle::s_FramePadding);
+			AssignIfNotNull(j["Sizing"]["ItemSpacing"],       Settings::EditorStyle::s_ItemSpacing);
+			AssignIfNotNull(j["Sizing"]["ScrollbarSize"],     Settings::EditorStyle::s_ScrollbarSize);
+			AssignIfNotNull(j["Sizing"]["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
+			AssignIfNotNull(j["Sizing"]["FrameRounding"],     Settings::EditorStyle::s_FrameRounding);
+			AssignIfNotNull(j["Sizing"]["GrabRounding"],      Settings::EditorStyle::s_TabRounding);
+			AssignIfNotNull(j["Sizing"]["TabRounding"],       Settings::EditorStyle::s_GrabRounding);
 		}
 		else
 		{
 			json styles = {
-				JMath::Serialize("DarkBgColor", Settings::EditorStyle::s_DarkBgColor),
-				JMath::Serialize("LightBgColor", Settings::EditorStyle::s_LightBgColor),
-				JMath::Serialize("InputElementColor", Settings::EditorStyle::s_InputElementColor),
-				JMath::Serialize("DarkInset", Settings::EditorStyle::s_DarkInset),
-				JMath::Serialize("DarkAccent", Settings::EditorStyle::s_DarkAccentColor),
-				JMath::Serialize("LightAccent", Settings::EditorStyle::s_LightAccentColor),
-				JMath::Serialize("FramePadding", Settings::EditorStyle::s_FramePadding),
-				JMath::Serialize("ItemSpacing", Settings::EditorStyle::s_ItemSpacing),
-				{"ScrollbarSize", Settings::EditorStyle::s_ScrollbarSize},
-				{"ScrollbarRounding", Settings::EditorStyle::s_ScrollbarRounding},
-				{"FrameRounding", Settings::EditorStyle::s_FrameRounding},
-				{"GrabRounding", Settings::EditorStyle::s_GrabRounding},
-				{"TabRounding", Settings::EditorStyle::s_TabRounding}
+				{"Colors", 
+					{
+						JMath::Serialize("MainBgLight0",    Settings::EditorStyle::s_MainBgLight0),
+						JMath::Serialize("MainBg",          Settings::EditorStyle::s_MainBg),
+						JMath::Serialize("MainBgDark0",     Settings::EditorStyle::s_MainBgDark0),
+						JMath::Serialize("MainBgDark1",     Settings::EditorStyle::s_MainBgDark1),
+						JMath::Serialize("MainBgDark2",     Settings::EditorStyle::s_MainBgDark2),
+						JMath::Serialize("Accent",          Settings::EditorStyle::s_Accent),
+						JMath::Serialize("AccentDark0",     Settings::EditorStyle::s_AccentDark0),
+						JMath::Serialize("AccentDark1",     Settings::EditorStyle::s_AccentDark1),
+						JMath::Serialize("Button",          Settings::EditorStyle::s_Button),
+						JMath::Serialize("ButtonHovered",   Settings::EditorStyle::s_ButtonHovered),
+						JMath::Serialize("Font",            Settings::EditorStyle::s_Font),
+						JMath::Serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
+					}
+				},
+				{"Sizing", 
+					{
+						JMath::Serialize("WindowPadding",  Settings::EditorStyle::s_WindowPadding),
+						JMath::Serialize("FramePadding",   Settings::EditorStyle::s_FramePadding),
+						JMath::Serialize("ItemSpacing",    Settings::EditorStyle::s_ItemSpacing),
+						{"ScrollbarSize",                  Settings::EditorStyle::s_ScrollbarSize},
+						{"ScrollbarRounding",              Settings::EditorStyle::s_ScrollbarRounding},
+						{"FrameRounding",                  Settings::EditorStyle::s_FrameRounding},
+						{"GrabRounding",                   Settings::EditorStyle::s_GrabRounding},
+						{"TabRounding",                    Settings::EditorStyle::s_TabRounding}
+					}
+				}
 			};
-			//IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
+			IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
 		}
 		IFile::CloseFile(styleData);
 
 		ImGuiStyle* style = &ImGui::GetStyle();
-
+		
+		// Apply Sizing
 		style->WindowPadding = From(Settings::EditorStyle::s_WindowPadding);
 		style->WindowBorderSize = 1;
 		style->ChildBorderSize = 1;
@@ -352,6 +375,7 @@ namespace Jade
 		style->TabRounding = Settings::EditorStyle::s_TabRounding;
 		style->FrameBorderSize = 1.0f;
 
+		// Apply Colors
 		ImVec4* colors = style->Colors;
 		colors[ImGuiCol_WindowBg] = From(Settings::EditorStyle::s_MainBg);
 		colors[ImGuiCol_ChildBg] = From(Settings::EditorStyle::s_MainBg);
@@ -400,80 +424,8 @@ namespace Jade
 		colors[ImGuiCol_ResizeGripHovered] = From(Settings::EditorStyle::s_MainBg);
 		colors[ImGuiCol_ResizeGripActive] = From(Settings::EditorStyle::s_MainBg);
 
-		colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_DarkAccent0);
-		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_DarkAccent0);
-		colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_DarkAccent0);
-	}
-
-	void CustomStyle(bool bStyleDark_, float alpha_)
-	{
-		ImGuiStyle* style = &ImGui::GetStyle();
-
-		style->WindowPadding = ImVec2(15, 15);
-		style->WindowRounding = 5.0f;
-		style->FramePadding = ImVec2(5, 5);
-		style->FrameRounding = 4.0f;
-		style->ItemSpacing = ImVec2(12, 8);
-		style->ItemInnerSpacing = ImVec2(8, 6);
-		style->IndentSpacing = 25.0f;
-		style->ScrollbarSize = 15.0f;
-		style->ScrollbarRounding = 9.0f;
-		style->GrabMinSize = 5.0f;
-		style->GrabRounding = 3.0f;
-
-		style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
-		style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-		style->Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-		//style->Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-		style->Colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-		style->Colors[ImGuiCol_Border] = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
-		style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
-		style->Colors[ImGuiCol_FrameBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-		style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
-		style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-		style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-		style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-		//style->Colors[ImGuiCol_ComboBg] = ImVec4(0.19f, 0.18f, 0.21f, 1.00f);
-		style->Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-		style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-		style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-		style->Colors[ImGuiCol_Button] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-		style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-		//style->Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		//style->Colors[ImGuiCol_ColumnHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-		//style->Colors[ImGuiCol_ColumnActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-		style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-		//style->Colors[ImGuiCol_CloseButton] = ImVec4(0.40f, 0.39f, 0.38f, 0.16f);
-		//style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.40f, 0.39f, 0.38f, 0.39f);
-		//style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
-		style->Colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-		style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-		style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-		style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-		style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
-		style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
-
-		//style->ChildRounding = 4.0f;
-		//style->FrameBorderSize = 1.0f;
-		//style->FrameRounding = 2.0f;
-		//style->GrabMinSize = 7.0f;
-		//style->PopupRounding = 2.0f;
-		//style->ScrollbarRounding = 12.0f;
-		//style->ScrollbarSize = 13.0f;
-		//style->TabBorderSize = 1.0f;
-		//style->TabRounding = 0.0f;
-		//style->WindowRounding = 4.0f;
+		colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_AccentDark0);
+		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_AccentDark0);
+		colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_AccentDark0);
 	}
 }
