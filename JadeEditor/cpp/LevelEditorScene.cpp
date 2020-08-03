@@ -78,7 +78,7 @@ namespace Jade {
 
             int itemPressed = 0;
             std::array<const char*, 4> components = { "Sprite Renderer", "Rigidbody", "BoxCollider2D", "CircleCollider2D" };
-            if (ImGui::JButtonDropdown(ICON_FA_PLUS " Add Component", components.data(), components.size(), itemPressed))
+            if (ImGui::JButtonDropdown(ICON_FA_PLUS " Add Component", components.data(), (int)components.size(), itemPressed))
             {
                 switch (itemPressed)
                 {

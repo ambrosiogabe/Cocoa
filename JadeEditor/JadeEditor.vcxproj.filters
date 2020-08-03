@@ -9,7 +9,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AssetWindow.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\AssetWizard.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FontAwesome.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Gizmos.h">
@@ -27,10 +33,11 @@
     <ClInclude Include="include\MenuBar.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\AssetWindow.h" />
-    <ClInclude Include="include\FontAwesome.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cpp\AssetWindow.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\AssetWizard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
@@ -52,6 +59,5 @@
     <ClCompile Include="cpp\app.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\AssetWindow.cpp" />
   </ItemGroup>
 </Project>

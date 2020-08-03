@@ -14,8 +14,8 @@ namespace Jade
 		JPath& operator=(JPath& other);
 		JPath& operator=(JPath&& other) noexcept;
 
-		inline int FilenameSize() const { return m_Filename - m_Filepath.c_str(); }
-		inline int Size() const { return m_Filepath.size(); }
+		inline int FilenameSize() const { return (int)(m_Filename - m_Filepath.c_str()); }
+		inline int Size() const { return (int)m_Filepath.size(); }
 		inline const char* Filename() const { return m_Filename; }
 		inline const char* Filepath() const { return m_Filepath.c_str(); }
 		inline const char* FileExt()  const { return m_FileExt; }

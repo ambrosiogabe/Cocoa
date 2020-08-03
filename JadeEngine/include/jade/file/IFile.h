@@ -6,10 +6,10 @@ namespace Jade
 {
 	struct File
 	{
-		const char* m_Filename;
-		std::string m_Data;
-		uint32 m_Size;
-		bool m_Open;
+		const char* m_Filename = nullptr;
+		std::string m_Data = "";
+		uint32 m_Size = 0;
+		bool m_Open = false;
 	};
 
 	class IFile

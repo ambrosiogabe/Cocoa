@@ -296,6 +296,14 @@ namespace Jade
 		}
 	}
 
+	static void AssignIfNotNull(json& j, float& value)
+	{
+		if (!j.is_null())
+		{
+			value = j;
+		}
+	}
+
 	void LoadStyle(const JPath& filepath)
 	{
 		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData);

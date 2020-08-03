@@ -10,7 +10,7 @@ namespace Jade
 
 	JPath::JPath(std::string path)
 	{
-		Init(path.c_str(), path.size());
+		Init(path.c_str(), (int)path.size());
 	}
 
 	JPath::JPath(const char* path)
@@ -182,7 +182,7 @@ namespace Jade
 
 	void JPath::Join(const JPath& other)
 	{
-		int newLength = other.m_Filepath.size() + m_Filepath.size();
+		int newLength = (int)(other.m_Filepath.size() + m_Filepath.size());
 		bool needSeparator = false;
 		bool takeAwaySeparator = false;
 		if (!IsSeparator(other.m_Filepath[0]) && !IsSeparator(m_Filepath[m_Filepath.size() - 1]))
@@ -240,7 +240,7 @@ namespace Jade
 				level--;
 			}
 
-			for (int i = m_Filepath.size() - 1; i >= 0; i--)
+			for (int i = (int)(m_Filepath.size() - 1); i >= 0; i--)
 			{
 				if (IsSeparator(m_Filepath[i]))
 				{

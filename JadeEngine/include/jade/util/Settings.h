@@ -54,11 +54,11 @@ namespace Jade {
             static glm::vec2 s_WindowPadding;
             static glm::vec2 s_FramePadding;
             static glm::vec2 s_ItemSpacing;
-            static int s_ScrollbarSize;
-            static int s_ScrollbarRounding;
-            static int s_FrameRounding;
-            static int s_GrabRounding;
-            static int s_TabRounding;
+            static float s_ScrollbarSize;
+            static float s_ScrollbarRounding;
+            static float s_FrameRounding;
+            static float s_GrabRounding;
+            static float s_TabRounding;
         };
     }
 }

@@ -1,10 +1,14 @@
 #include "jade/file/IFileDialog.h"
 #include "jade/core/Application.h"
 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#include <commdlg.h>
 #include <shobjidl_core.h>
 #include <shlobj.h>
 #include <knownfolders.h>
+
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
@@ -105,7 +109,7 @@ namespace Jade
 			fileResult.filepath = std::string(dialogStruct.lpstrFile);
 			if (dialogStruct.nFileExtension == 0)
 			{
-				dialogStruct.nFileExtension = fileResult.filepath.size();
+				dialogStruct.nFileExtension = (WORD)fileResult.filepath.size();
 				fileResult.filepath += extToAppend;
 			}
 			fileResult.filename = fileResult.filepath.c_str() + dialogStruct.nFileOffset;
@@ -156,7 +160,7 @@ namespace Jade
 						wcstombs(tmp, g_path, 256);
 						fileResult.filepath = std::string(tmp);
 						Log::Info("Selected folder: %s", fileResult.filepath.c_str());
-						delete tmp;
+						delete[] tmp;
 					}
 					psi->Release();
 				}

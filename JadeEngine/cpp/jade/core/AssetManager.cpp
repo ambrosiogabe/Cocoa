@@ -24,7 +24,7 @@ namespace Jade
 		auto it = manager->m_Assets.find(scene);
 		if (it == manager->m_Assets.end())
 		{
-			return std::unordered_map<uint32, std::shared_ptr<Asset>>();
+			return manager->m_EmptyAssetContainer;
 		}
 		return it->second;
 	}
@@ -79,7 +79,7 @@ namespace Jade
 
 		auto& assets = manager->m_Assets[manager->m_CurrentScene];
 
-		uint32 newId = assets.size();
+		uint32 newId = (uint32)assets.size();
 		newAsset->SetResourceId(newId);
 		assets.insert({newId, newAsset});
 		newAsset->Load();

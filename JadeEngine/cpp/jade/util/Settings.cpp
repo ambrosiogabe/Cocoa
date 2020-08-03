@@ -51,10 +51,10 @@ namespace Jade
         glm::vec2 EditorStyle::s_WindowPadding{ 10, 10 };
         glm::vec2 EditorStyle::s_FramePadding{ 20, 8 };
         glm::vec2 EditorStyle::s_ItemSpacing{ 20, 8 };
-        int EditorStyle::s_ScrollbarSize = 17;
-        int EditorStyle::s_ScrollbarRounding = 12;
-        int EditorStyle::s_FrameRounding = 8;
-        int EditorStyle::s_GrabRounding = 8;
-        int EditorStyle::s_TabRounding = 8;
+        float EditorStyle::s_ScrollbarSize = 17;
+        float EditorStyle::s_ScrollbarRounding = 12;
+        float EditorStyle::s_FrameRounding = 8;
+        float EditorStyle::s_GrabRounding = 8;
+        float EditorStyle::s_TabRounding = 8;
     }
 }

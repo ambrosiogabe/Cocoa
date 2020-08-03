@@ -72,6 +72,12 @@ project "JadeEngine"
         "Box2D",
 	}
 
+    filter { "system:windows", "configurations:Debug" }
+        buildoptions "/MTd"        
+
+    filter { "system:windows", "configurations:Release" }
+        buildoptions "/MT"
+
 	filter "system:windows"
 		systemversion "latest"
 
@@ -135,6 +141,12 @@ project "JadeEditor"
     links {
         "JadeEngine"
     }
+
+    filter { "system:windows", "configurations:Debug" }
+        buildoptions "/MTd"        
+
+    filter { "system:windows", "configurations:Release" }
+        buildoptions "/MT"
 
     filter "system:windows"
         systemversion "latest"

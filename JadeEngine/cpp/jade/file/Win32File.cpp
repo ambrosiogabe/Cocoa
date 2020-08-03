@@ -16,7 +16,7 @@ namespace Jade
 		std::ifstream inputStream(filename.Filepath());
 
 		inputStream.seekg(0, std::ios::end);
-		file->m_Size = inputStream.tellg();
+		file->m_Size = (uint32)inputStream.tellg();
 		file->m_Data.reserve(file->m_Size);
 		inputStream.seekg(0, std::ios::beg);
 
@@ -41,7 +41,8 @@ namespace Jade
 	JPath Win32File::ImplGetCwd()
 	{
 		char buff[FILENAME_MAX];
-		_getcwd(buff, FILENAME_MAX);
+		char* success = _getcwd(buff, FILENAME_MAX);
+		Log::Assert(success != NULL, "Unable to get Current Working Directory.");
 		return {buff};
 	}
 

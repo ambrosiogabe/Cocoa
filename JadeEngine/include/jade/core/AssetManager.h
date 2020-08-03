@@ -97,6 +97,7 @@ namespace Jade
 
 		// Map from scene -> AssetID -> Asset
 		std::unordered_map<uint32, std::unordered_map<uint32, std::shared_ptr<Asset>>> m_Assets;
+		std::unordered_map<uint32, std::shared_ptr<Asset>> m_EmptyAssetContainer{};
 	};
 
 	class NullAsset : public Asset
