@@ -35,9 +35,9 @@ namespace Jade {
         return result;
     }
 
-    Shader::Shader(const std::string& resourceName) {
+    Shader::Shader(const JPath& resourceName) {
         m_BeingUsed = false;
-        Compile(resourceName.c_str());
+        Compile(resourceName.Filepath());
     }
 
     void Shader::Compile(const char* filepath) {

@@ -1,12 +1,13 @@
 #pragma once
 #include "externalLibs.h"
+#include "jade/file/JPath.h"
 
 typedef unsigned int GLuint;
 
 namespace Jade {
     class Shader {
     public:
-        Shader(const std::string& resourceName);
+        Shader(const JPath& resourceName);
 
         void Compile(const char* filepath);
         void Bind();

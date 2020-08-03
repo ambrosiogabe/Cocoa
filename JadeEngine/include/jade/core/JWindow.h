@@ -27,9 +27,12 @@ namespace Jade {
 
         bool IsRunning();
         void SetEventCallback(const EventCallbackFn& callback);
+        glm::vec2 GetWindowPos();
 
         void SetWidth(int newWidth) { m_Size.x = (float)newWidth; }
         void SetHeight(int newHeight) { m_Size.y = (float)newHeight; }
+        void SetSize(const glm::vec2& size);
+        glm::vec2 GetMonitorSize();
         int GetWidth() { return (int)m_Size.x; }
         int GetHeight() { return (int)m_Size.y; }
         const glm::vec2& GetSize() { return m_Size; }

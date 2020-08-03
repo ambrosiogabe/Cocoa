@@ -8,6 +8,7 @@
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
 #include "jade/core/ImGuiExtended.h"
+#include "JadeEditorApplication.h"
 
 #include <examples/imgui_impl_glfw.h>
 #ifndef _JADE_IMPL_IMGUI
@@ -51,6 +52,8 @@ namespace Jade
 		// Setup dear imGui binding
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.Filepath());
+
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -110,10 +113,13 @@ namespace Jade
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		SetupDockspace();
-		RenderGameViewport();
-		AssetWizard::ImGui();
-		m_AssetWindow.ImGui();
+		if (JadeEditor::IsProjectLoaded())
+		{
+			SetupDockspace();
+			RenderGameViewport();
+			AssetWizard::ImGui();
+			m_AssetWindow.ImGui();
+		}
 	}
 
 	void ImGuiLayer::EndFrame()
@@ -147,7 +153,7 @@ namespace Jade
 			{
 				if (!isPlaying)
 				{
-					Application::Get()->GetScene()->Save(JPath("tmp.jade"));
+					Application::Get()->GetScene()->Save(Settings::General::s_EngineAssetsPath + "tmp.jade");
 					Application::Get()->GetScene()->Play();
 					isPlaying = true;
 				}
@@ -158,7 +164,7 @@ namespace Jade
 				if (isPlaying)
 				{
 					Application::Get()->GetScene()->Stop();
-					Application::Get()->GetScene()->Load(JPath("tmp.jade"));
+					Application::Get()->GetScene()->Load(Settings::General::s_EngineAssetsPath + "tmp.jade");
 					isPlaying = false;
 				}
 				ImGui::EndMenu();
@@ -310,32 +316,32 @@ namespace Jade
 		if (false)//styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
-			AssignIfNotNull(j["Colors"]["MainBgLight0"],   Settings::EditorStyle::s_MainBgLight0);
-			AssignIfNotNull(j["Colors"]["MainBg"],         Settings::EditorStyle::s_MainBg);
-			AssignIfNotNull(j["Colors"]["MainBgDark0"],    Settings::EditorStyle::s_MainBgDark0);
-			AssignIfNotNull(j["Colors"]["MainBgDark1"],    Settings::EditorStyle::s_MainBgDark1);
-			AssignIfNotNull(j["Colors"]["MainBgDark2"],    Settings::EditorStyle::s_MainBgDark2);
-			AssignIfNotNull(j["Colors"]["Accent"],         Settings::EditorStyle::s_Accent);
-			AssignIfNotNull(j["Colors"]["AccentDark0"],    Settings::EditorStyle::s_AccentDark0);
-			AssignIfNotNull(j["Colors"]["AccentDark1"],    Settings::EditorStyle::s_AccentDark1);
-			AssignIfNotNull(j["Colors"]["Button"],         Settings::EditorStyle::s_Button);
-			AssignIfNotNull(j["Colors"]["ButtonHovered"],  Settings::EditorStyle::s_ButtonHovered);
-			AssignIfNotNull(j["Colors"]["Font"],           Settings::EditorStyle::s_FrameRounding);
-			AssignIfNotNull(j["Colors"]["FontDisabled"],   Settings::EditorStyle::s_GrabRounding);
+			AssignIfNotNull(j["Colors"]["MainBgLight0"], Settings::EditorStyle::s_MainBgLight0);
+			AssignIfNotNull(j["Colors"]["MainBg"], Settings::EditorStyle::s_MainBg);
+			AssignIfNotNull(j["Colors"]["MainBgDark0"], Settings::EditorStyle::s_MainBgDark0);
+			AssignIfNotNull(j["Colors"]["MainBgDark1"], Settings::EditorStyle::s_MainBgDark1);
+			AssignIfNotNull(j["Colors"]["MainBgDark2"], Settings::EditorStyle::s_MainBgDark2);
+			AssignIfNotNull(j["Colors"]["Accent"], Settings::EditorStyle::s_Accent);
+			AssignIfNotNull(j["Colors"]["AccentDark0"], Settings::EditorStyle::s_AccentDark0);
+			AssignIfNotNull(j["Colors"]["AccentDark1"], Settings::EditorStyle::s_AccentDark1);
+			AssignIfNotNull(j["Colors"]["Button"], Settings::EditorStyle::s_Button);
+			AssignIfNotNull(j["Colors"]["ButtonHovered"], Settings::EditorStyle::s_ButtonHovered);
+			AssignIfNotNull(j["Colors"]["Font"], Settings::EditorStyle::s_FrameRounding);
+			AssignIfNotNull(j["Colors"]["FontDisabled"], Settings::EditorStyle::s_GrabRounding);
 
-			AssignIfNotNull(j["Sizing"]["WindowPadding"],     Settings::EditorStyle::s_WindowPadding);
-			AssignIfNotNull(j["Sizing"]["FramePadding"],      Settings::EditorStyle::s_FramePadding);
-			AssignIfNotNull(j["Sizing"]["ItemSpacing"],       Settings::EditorStyle::s_ItemSpacing);
-			AssignIfNotNull(j["Sizing"]["ScrollbarSize"],     Settings::EditorStyle::s_ScrollbarSize);
+			AssignIfNotNull(j["Sizing"]["WindowPadding"], Settings::EditorStyle::s_WindowPadding);
+			AssignIfNotNull(j["Sizing"]["FramePadding"], Settings::EditorStyle::s_FramePadding);
+			AssignIfNotNull(j["Sizing"]["ItemSpacing"], Settings::EditorStyle::s_ItemSpacing);
+			AssignIfNotNull(j["Sizing"]["ScrollbarSize"], Settings::EditorStyle::s_ScrollbarSize);
 			AssignIfNotNull(j["Sizing"]["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
-			AssignIfNotNull(j["Sizing"]["FrameRounding"],     Settings::EditorStyle::s_FrameRounding);
-			AssignIfNotNull(j["Sizing"]["GrabRounding"],      Settings::EditorStyle::s_TabRounding);
-			AssignIfNotNull(j["Sizing"]["TabRounding"],       Settings::EditorStyle::s_GrabRounding);
+			AssignIfNotNull(j["Sizing"]["FrameRounding"], Settings::EditorStyle::s_FrameRounding);
+			AssignIfNotNull(j["Sizing"]["GrabRounding"], Settings::EditorStyle::s_TabRounding);
+			AssignIfNotNull(j["Sizing"]["TabRounding"], Settings::EditorStyle::s_GrabRounding);
 		}
 		else
 		{
 			json styles = {
-				{"Colors", 
+				{"Colors",
 					{
 						JMath::Serialize("MainBgLight0",    Settings::EditorStyle::s_MainBgLight0),
 						JMath::Serialize("MainBg",          Settings::EditorStyle::s_MainBg),
@@ -351,7 +357,7 @@ namespace Jade
 						JMath::Serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
 					}
 				},
-				{"Sizing", 
+				{"Sizing",
 					{
 						JMath::Serialize("WindowPadding",  Settings::EditorStyle::s_WindowPadding),
 						JMath::Serialize("FramePadding",   Settings::EditorStyle::s_FramePadding),
@@ -369,7 +375,7 @@ namespace Jade
 		IFile::CloseFile(styleData);
 
 		ImGuiStyle* style = &ImGui::GetStyle();
-		
+
 		// Apply Sizing
 		style->WindowPadding = From(Settings::EditorStyle::s_WindowPadding);
 		style->WindowBorderSize = 1;

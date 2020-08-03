@@ -9,6 +9,7 @@
 #include "jade/util/Settings.h"
 #include "jade/file/IFile.h"
 #include "FontAwesome.h"
+#include "JadeEditorApplication.h"
 
 #include <string>
 #include <imgui/imgui.h>
@@ -143,11 +144,7 @@ namespace Jade
 			if (e.GetKeyCode() == JADE_KEY_S)
 			{
 				Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
-				json editorJson{
-					{"WorkingDirectory", Settings::General::s_WorkingDirectory.Filepath()},
-					{"CurrentScene", Settings::General::s_CurrentScene.Filepath()}
-				};
-				IFile::WriteFile(editorJson.dump(4).c_str(), Settings::General::s_EditorSaveData);
+				EditorLayer::SaveProject();
 			}
 		}
 

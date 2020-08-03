@@ -27,8 +27,8 @@ namespace Jade
 	JPath::JPath(const JPath& other)
 	{
 		m_Filepath = other.m_Filepath;
-		m_Filename = &this->m_Filepath[other.m_Filename - other.m_Filepath.c_str()];
-		m_FileExt = &this->m_Filepath[other.m_FileExt - other.m_Filepath.c_str()];
+		m_FilenameOffset = other.m_FilenameOffset;
+		m_FileExtOffset = other.m_FileExtOffset;
 	}
 
 	void JPath::Init(const char* path, int pathSize)
@@ -36,8 +36,8 @@ namespace Jade
 		if (pathSize == 0)
 		{
 			m_Filepath = "";
-			m_FileExt = "";
-			m_Filename = "";
+			m_FileExtOffset = 0;
+			m_FilenameOffset = 0;
 			return;
 		}
 
@@ -85,10 +85,10 @@ namespace Jade
 		}
 
 		m_Filepath = std::string(sanitizedPath, pathIndex);
-		m_Filename = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
-			? &m_Filepath[lastPathSeparator + 1] : &m_Filepath[pathIndex];
-		m_FileExt = (lastDot == -1 || lastDot < lastPathSeparator || lastPathSeparator == lastDot - 1)
-			? &m_Filepath[pathIndex] : &m_Filepath[lastDot];
+		m_FilenameOffset = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
+			? lastPathSeparator + 1 : pathIndex;
+		m_FileExtOffset = (lastDot == -1 || lastDot < lastPathSeparator || lastPathSeparator == lastDot - 1)
+			? pathIndex : lastDot;
 
 		delete[] sanitizedPath;
 	}
@@ -96,8 +96,8 @@ namespace Jade
 	JPath::JPath(JPath&& other) noexcept
 		: m_Filepath(std::move(other.m_Filepath))
 	{
-		m_Filename = other.m_Filename;
-		m_FileExt = other.m_FileExt;
+		m_FilenameOffset = other.m_FilenameOffset;
+		m_FileExtOffset = other.m_FileExtOffset;
 	}
 
 	JPath& JPath::operator=(JPath&& other) noexcept
@@ -108,12 +108,22 @@ namespace Jade
 
 			// Copy the data pointers from other to here
 			m_Filepath = std::move(other.m_Filepath);
-			m_FileExt = other.m_FileExt;
-			m_Filename = other.m_Filename;
+			m_FileExtOffset = other.m_FileExtOffset;
+			m_FilenameOffset = other.m_FilenameOffset;
 
 			// Release the data pointers from source, so destructor does not free multiple times
-			other.m_Filename = nullptr;
-			other.m_FileExt = nullptr;
+		}
+
+		return *this;
+	}
+
+	JPath& JPath::operator=(const JPath& other)
+	{
+		if (&other != this)
+		{
+			m_Filepath = other.m_Filepath;
+			m_FilenameOffset = other.m_FilenameOffset;
+			m_FileExtOffset = other.m_FileExtOffset;
 		}
 
 		return *this;
@@ -124,8 +134,8 @@ namespace Jade
 		if (&other != this)
 		{
 			m_Filepath = other.m_Filepath;
-			m_Filename = &m_Filepath[other.m_Filename - other.m_Filepath.c_str()];
-			m_FileExt = &m_Filepath[other.m_FileExt - other.m_Filepath.c_str()];
+			m_FilenameOffset = other.m_FilenameOffset;
+			m_FileExtOffset = other.m_FileExtOffset;
 		}
 
 		return *this;
@@ -133,8 +143,6 @@ namespace Jade
 
 	JPath::~JPath()
 	{
-		m_Filename = nullptr;
-		m_FileExt = nullptr;
 	}
 
 	JPath JPath::operator+(std::string other) const
@@ -214,8 +222,8 @@ namespace Jade
 			this->m_Filepath += (other.m_Filepath.c_str() + 1);
 		}
 
-		m_Filename = &m_Filepath[m_Filepath.size() - (other.m_Filename - other.m_Filepath.c_str())];
-		m_FileExt = &m_Filepath[m_Filepath.size() - (other.m_FileExt - other.m_Filepath.c_str())];
+		m_FilenameOffset = m_Filepath.size() - (other.m_Filepath.size() - other.m_FilenameOffset);
+		m_FileExtOffset = m_Filepath.size() - (other.m_Filepath.size() - other.m_FileExtOffset);
 	}
 
 	/*
@@ -235,10 +243,6 @@ namespace Jade
 		const char* endCopy = m_Filepath.c_str();
 		if (level < 0)
 		{
-			if (IsFile())
-			{
-				level--;
-			}
 
 			for (int i = (int)(m_Filepath.size() - 1); i >= 0; i--)
 			{
@@ -263,7 +267,7 @@ namespace Jade
 					if (level < 0)
 					{
 						endCopy = &m_Filepath[i];
-						if (IsFile() && endCopy == m_Filename)
+						if (IsFile() && endCopy == &m_Filepath[m_FilenameOffset])
 						{
 							endCopy = m_Filepath.c_str();
 						}

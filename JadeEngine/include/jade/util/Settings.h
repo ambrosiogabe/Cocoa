@@ -11,6 +11,9 @@ namespace Jade {
             static int s_GridSizeX;
             static int s_GridSizeY;
             static bool s_DrawGrid;
+
+            static JPath s_ImGuiConfigPath;
+            static JPath s_EngineAssetsPath;
             static JPath s_WorkingDirectory;
             static JPath s_CurrentProject;
             static JPath s_CurrentScene;

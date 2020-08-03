@@ -8,6 +8,7 @@
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/renderer/RenderBatch.h"
+#include "jade/util/Settings.h"
 
 namespace Jade {
     class RenderSystem : public System {
@@ -15,7 +16,7 @@ namespace Jade {
         RenderSystem(Camera* camera, const char* name)
             : System(name) {
             m_Camera = camera;
-            m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
+            m_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
         }
 
         void AddEntity(const Transform& transform, const SpriteRenderer& spr);

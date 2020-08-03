@@ -81,7 +81,7 @@ namespace Jade
 
 		uint32 newId = (uint32)assets.size();
 		newAsset->SetResourceId(newId);
-		assets.insert({newId, newAsset});
+		assets.insert({ newId, newAsset });
 		newAsset->Load();
 		return newAsset;
 	}
@@ -103,5 +103,56 @@ namespace Jade
 		}
 
 		manager->m_Assets.clear();
+	}
+
+	void AssetManager::LoadFrom(const json& j)
+	{
+		Clear();
+		AssetManager* manager = Get();
+
+		// TODO: SERIALIZE SCENE ID WITH EACH SCENE, AND ASSET ID WITH EACH ASSET
+		// TODO: ALSO CREATE DESERIALIZE METHOD FOR ASSET
+	}
+
+	json AssetManager::Serialize()
+	{
+		json res;
+
+		AssetManager* manager = Get();
+
+		res["SceneID"] = manager->m_CurrentScene;
+		auto assetList = manager->m_Assets[manager->m_CurrentScene];
+		res["AssetCount"] = assetList.size();
+		
+
+		for (auto assetIt = assetList.begin(); assetIt != assetList.end(); assetIt++)
+		{
+			json assetSerialized = assetIt->second->Serialize();
+			if (assetSerialized["Type"] != 0)
+			{
+				res["AssetList"][std::to_string(assetIt->first)] = assetSerialized;
+			}
+		}
+
+		return res;
+	}
+
+	json Asset::Serialize()
+	{
+		Asset::AssetType type = Asset::AssetType::None;
+		if (GetType() == Asset::GetResourceTypeId<Texture>())
+		{
+			type = Asset::AssetType::Texture;
+		}
+		else
+		{
+			return {{"Type", Asset::AssetType::None}};
+		}
+
+		return {
+			{"Type", type},
+			{"Filepath", m_Path.Filepath()},
+			{"ResourceId", m_ResourceId}
+		};
 	}
 }

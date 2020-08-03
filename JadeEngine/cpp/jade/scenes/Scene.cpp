@@ -55,7 +55,8 @@ namespace Jade
 		m_SaveDataJson = {
 			{"Size", 0},
 			{"Components", {}},
-			{"Project", Settings::General::s_CurrentProject.Filepath()}
+			{"Project", Settings::General::s_CurrentProject.Filepath()},
+			{"Assets", AssetManager::Serialize()}
 		};
 
 		OutputArchive output;
@@ -78,11 +79,6 @@ namespace Jade
 
 		std::unordered_map<int, int> idKey;
 		json j = json::parse(file->m_Data);
-
-		if (!j["Project"].is_null())
-		{
-			Settings::General::s_CurrentProject = JPath(j["Project"]);
-		}
 
 		int size = j["Size"].is_null() ? 0 : j["Size"];
 		for (int i = 0; i < size; i++)

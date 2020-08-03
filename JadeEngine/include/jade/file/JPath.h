@@ -13,12 +13,13 @@ namespace Jade
 		~JPath();
 		JPath& operator=(JPath& other);
 		JPath& operator=(JPath&& other) noexcept;
+		JPath& operator=(const JPath& other);
 
-		inline int FilenameSize() const { return (int)(m_Filename - m_Filepath.c_str()); }
+		inline int FilenameSize() const { return (int)(m_Filepath.size() - m_FilenameOffset); }
 		inline int Size() const { return (int)m_Filepath.size(); }
-		inline const char* Filename() const { return m_Filename; }
+		inline const char* Filename() const { return &m_Filepath[m_FilenameOffset]; }
 		inline const char* Filepath() const { return m_Filepath.c_str(); }
-		inline const char* FileExt()  const { return m_FileExt; }
+		inline const char* FileExt()  const { return &m_Filepath[m_FileExtOffset]; }
 		inline bool IsFile();
 		inline bool IsDirectory();
 		std::string GetDirectory(int level);
@@ -49,8 +50,8 @@ namespace Jade
 		static const char UNIX_SEPARATOR = '/';
 
 		std::string m_Filepath;
-		char* m_Filename;
-		char* m_FileExt;
+		int m_FilenameOffset;
+		int m_FileExtOffset;
 	};
 
 #ifdef _WIN32

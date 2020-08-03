@@ -1,3 +1,4 @@
+#pragma once
 #include "externalLibs.h"
 #include "jade/util/Settings.h"
 #include "jade/commands/ICommand.h"
@@ -26,7 +27,7 @@ namespace ImGui {
 	void UndoableDragFloat(const char* label, float& val);
 
 	template <typename T>
-	bool UndoableCombo(T& enumVal, const char* label, const char* const items[], int items_count, int popup_max_items_in_height = -1)
+	bool UndoableCombo(T& enumVal, const char* label, const char* const items[], int items_count)
 	{
 		int current_item = static_cast<int>(enumVal);
 		ImGui::Text(label);

@@ -25,6 +25,7 @@ namespace Jade
 		uint32 GetType() { return m_Type; }
 		void SetResourceId(uint32 id) { m_ResourceId = id; }
 		bool IsNull() { return GetType() == Asset::GetResourceTypeId<NullAsset>(); }
+		json Serialize();
 
 		template<class T>
 		void GenerateTypeId()
@@ -44,6 +45,13 @@ namespace Jade
 		uint32 m_ResourceId = 0;
 		JPath m_Path;
 		bool m_Loaded;
+
+	private:
+		enum class AssetType
+		{
+			None=0,
+			Texture=1,
+		};
 	};
 
 	class AssetManager
@@ -81,6 +89,9 @@ namespace Jade
 
 		static uint32 GetScene() { return Get()->m_CurrentScene; }
 		static void SetScene(uint32 scene) { Get()->m_CurrentScene = scene; }
+
+		static void LoadFrom(const json& j);
+		static json Serialize();
 
 	private:
 		AssetManager(int scene)

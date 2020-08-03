@@ -33,6 +33,8 @@
     <ClInclude Include="include\MenuBar.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\JadeEditorApplication.h" />
+    <ClInclude Include="include\ProjectWizard.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\AssetWindow.cpp">
@@ -56,8 +58,9 @@
     <ClCompile Include="cpp\MenuBar.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\app.cpp">
+    <ClCompile Include="cpp\JadeEditorApplication.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\ProjectWizard.cpp" />
   </ItemGroup>
 </Project>

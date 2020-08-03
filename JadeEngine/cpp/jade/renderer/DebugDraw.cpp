@@ -18,7 +18,7 @@ namespace Jade
 	{
 		if (m_Shader == nullptr)
 		{
-			m_Shader = new Shader("assets/shaders/SpriteRenderer.glsl");
+			m_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
 		}
 
 		RemoveDeadLines();

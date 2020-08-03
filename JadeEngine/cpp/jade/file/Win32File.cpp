@@ -15,12 +15,21 @@ namespace Jade
 
 		std::ifstream inputStream(filename.Filepath());
 
-		inputStream.seekg(0, std::ios::end);
-		file->m_Size = (uint32)inputStream.tellg();
-		file->m_Data.reserve(file->m_Size);
-		inputStream.seekg(0, std::ios::beg);
+		if (inputStream.is_open())
+		{
+			inputStream.seekg(0, std::ios::end);
+			file->m_Size = (uint32)inputStream.tellg();
+			file->m_Data.reserve(file->m_Size);
+			inputStream.seekg(0, std::ios::beg);
 
-		file->m_Data.assign((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+			file->m_Data.assign((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+		}
+		else
+		{
+			file->m_Data = "";
+			file->m_Open = false;
+			file->m_Size = 0;
+		}
 
 		return file;
 	}
@@ -43,7 +52,7 @@ namespace Jade
 		char buff[FILENAME_MAX];
 		char* success = _getcwd(buff, FILENAME_MAX);
 		Log::Assert(success != NULL, "Unable to get Current Working Directory.");
-		return {buff};
+		return { buff };
 	}
 
 	JPath Win32File::ImplGetSpecialAppFolder()
@@ -76,7 +85,7 @@ namespace Jade
 		HANDLE dir;
 		WIN32_FIND_DATAA fileData;
 
-		JPath dirString{directory};
+		JPath dirString{ directory };
 		if ((dir = FindFirstFileA((dirString + JPath("*")).Filepath(), &fileData)) == INVALID_HANDLE_VALUE)
 		{
 			// No file found
@@ -121,7 +130,6 @@ namespace Jade
 		do
 		{
 			const JPath filename = fileData.cFileName;
-			const JPath fullFilename = dirString + filename;
 			const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
 			if (filename[0] == '.')

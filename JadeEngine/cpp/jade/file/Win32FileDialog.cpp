@@ -1,5 +1,6 @@
 #include "jade/file/IFileDialog.h"
 #include "jade/core/Application.h"
+#include "jade/file/IFile.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -40,9 +41,9 @@ namespace Jade
 		dialogStruct.nFilterIndex = 0;
 		// Initially.e only place in two bytes so that we get the size required, then we will rerun the command 
 		// and get t. appropriate files selected by the user See: https://docs.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamea
-		dialogStruct.lpstrFile = new char[256]; // Output filename
+		dialogStruct.lpstrFile = new char[MAX_PATH]; // Output filename
 		dialogStruct.lpstrFile[0] = NULL;
-		dialogStruct.nMaxFile = 256;
+		dialogStruct.nMaxFile = MAX_PATH;
 		dialogStruct.lpstrFileTitle = NULL;// (LPSTR)initialPath.c_str();
 		dialogStruct.nMaxFileTitle = 0; // initialPath.length();
 		dialogStruct.lpstrInitialDir = NULL; // initialPath.c_str();
