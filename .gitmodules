@@ -4,13 +4,13 @@
 	branch = docking
 [submodule "JadeEngine/vendor/GLFW"]
 	path = JadeEngine/vendor/GLFW
-	url = https://github.com/glfw/glfw
+	url = https://github.com/ambrosiogabe/glfw
 [submodule "JadeEngine/vendor/PhysX"]
 	path = JadeEngine/vendor/PhysX
-	url = https://github.com/NVIDIAGameWorks/PhysX
+	url = https://github.com/ambrosiogabe/PhysX
 [submodule "JadeEngine/vendor/box2DVendor"]
 	path = JadeEngine/vendor/box2DVendor
-	url = https://github.com/erincatto/box2d
+	url = https://github.com/ambrosiogabe/box2d
 [submodule "JadeEngine/vendor/nlohmann-json"]
 	path = JadeEngine/vendor/nlohmann-json
-	url = https://github.com/nlohmann/json
+	url = https://github.com/ambrosiogabe/json
