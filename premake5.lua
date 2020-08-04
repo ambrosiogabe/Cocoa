@@ -16,7 +16,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "JadeEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "JadeEngine/vendor/glad/include"
 IncludeDir["ImGui"] = "JadeEngine/vendor/imgui"
-IncludeDir["glm"] = "JadeEngine/vendor/glm"
+IncludeDir["glm"] = "JadeEngine/vendor/glmVendor"
 IncludeDir["stb"] = "JadeEngine/vendor/stb"
 IncludeDir["entt"] = "JadeEngine/vendor/enttVendor/single_include"
 IncludeDir["Box2D"] = "JadeEngine/vendor/box2DVendor/include"
@@ -41,8 +41,8 @@ project "JadeEngine"
         "%{prj.name}/Jade.h",
 		"%{prj.name}/cpp/**.cpp",
 		"%{prj.name}/include/**.h",
-		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/glmVendor/glm/**.hpp",
+		"%{prj.name}/vendor/glmVendor/glm/**.inl",
         "%{prj.name}/vendor/nlohmann-json/single_include/**.hpp"
 	}
 

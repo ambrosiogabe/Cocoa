@@ -17,3 +17,6 @@
 [submodule "JadeEngine/vendor/enttVendor"]
 	path = JadeEngine/vendor/enttVendor
 	url = https://github.com/skypjack/entt
+[submodule "JadeEngine/vendor/glmVendor"]
+	path = JadeEngine/vendor/glmVendor
+	url = https://github.com/g-truc/glm
