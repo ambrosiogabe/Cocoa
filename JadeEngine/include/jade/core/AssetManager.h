@@ -3,7 +3,7 @@
 #include "jade/file/JPath.h"
 #include "jade/util/Log.h"
 
-#include <entt/entt.h>
+#include <entt/entt.hpp>
 
 namespace Jade
 {

@@ -14,7 +14,7 @@
 #include "FontAwesome.h"
 #include "jade/core/Audio.h"
 
-#include <entt/entt.h>
+#include <entt/entt.hpp>
 #include <imgui/imgui.h>
 #include <array>
 

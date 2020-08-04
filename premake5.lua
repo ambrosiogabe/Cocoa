@@ -18,7 +18,7 @@ IncludeDir["Glad"] = "JadeEngine/vendor/glad/include"
 IncludeDir["ImGui"] = "JadeEngine/vendor/imgui"
 IncludeDir["glm"] = "JadeEngine/vendor/glm"
 IncludeDir["stb"] = "JadeEngine/vendor/stb"
-IncludeDir["entt"] = "JadeEngine/vendor/entt"
+IncludeDir["entt"] = "JadeEngine/vendor/enttVendor/single_include"
 IncludeDir["Box2D"] = "JadeEngine/vendor/box2DVendor/include"
 IncludeDir["Json"] = "JadeEngine/vendor/nlohmann-json/single_include"
 
