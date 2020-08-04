@@ -8,7 +8,7 @@
 #include "jade/util/JMath.h"
 #include "jade/core/ImGuiExtended.h"
 
-#include <jsonVendor/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Jade
 {

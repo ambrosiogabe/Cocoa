@@ -6,7 +6,7 @@
 #include "jade/util/Settings.h"
 
 #include <glad/glad.h>
-#include <jsonVendor/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Jade
 {

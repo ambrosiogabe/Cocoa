@@ -2,7 +2,7 @@
 
 #include "jade/util/JMath.h"
 
-#include <jsonVendor/json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Jade
 {

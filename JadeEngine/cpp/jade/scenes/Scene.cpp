@@ -3,7 +3,7 @@
 #include "jade/file/IFile.h"
 #include "jade/util/Settings.h"
 
-#include <jsonVendor/json.hpp>
+#include <nlohmann/json.hpp>
 
 
 namespace Jade
