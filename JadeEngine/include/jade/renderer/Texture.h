@@ -28,6 +28,8 @@ namespace Jade
 		inline int BytesPerPixel() const { return m_BytesPerPixel; }
 		inline bool IsDefault() { return m_IsDefault; }
 
+		static void ImGuiInspector(std::shared_ptr<Texture> tex);
+
 	private:
 		unsigned int m_ID;
 		int m_Width, m_Height;

@@ -173,8 +173,6 @@ namespace Jade
 			ImGui::EndMenuBar();
 		}
 
-		m_BlockEvents = !ImGui::IsWindowFocused() || !ImGui::IsWindowHovered();
-
 		ImVec2 windowSize = ImGui::GetWindowContentRegionMax();
 		// Figure out the largest area that fits this target aspect ratio
 		float aspectWidth = windowSize.x;
@@ -209,6 +207,8 @@ namespace Jade
 
 		ImGui::End();
 		ImGui::PopStyleColor();
+
+		m_BlockEvents = m_GameviewMousePos.x < 0 || m_GameviewMousePos.x > aspectWidth || m_GameviewMousePos.y < 0 || m_GameviewMousePos.y > aspectHeight;
 	}
 
 	void ImGuiLayer::SetupDockspace()

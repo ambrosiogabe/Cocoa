@@ -6,6 +6,7 @@
 #include "jade/file/JPath.h"
 #include "jade/util/Settings.h"
 #include "FontAwesome.h"
+#include "jade/core/Application.h"
 
 #include <imgui.h>
 
@@ -87,7 +88,7 @@ namespace Jade
 			ImGui::PushID(texResourceId);
 			if (ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize))
 			{
-				Log::Info("Clicked Texture %s:", tex->GetFilepath().Filename());
+				Application::Get()->GetScene()->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 			}
 
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))

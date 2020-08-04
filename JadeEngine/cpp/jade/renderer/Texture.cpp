@@ -4,6 +4,7 @@
 #include "jade/util/Log.h"
 #include "jade/physics2d/Physics2D.h"
 #include "jade/physics2d/Physics2DSystem.h"
+#include "jade/core/ImGuiExtended.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -94,6 +95,11 @@ namespace Jade
 	void Texture::Unbind()
 	{
 		glBindTexture(GL_TEXTURE_2D, m_ID);
+	}
+
+	void Texture::ImGuiInspector(std::shared_ptr<Texture> tex)
+	{
+		ImGui::Text(tex->GetFilepath().Filename());
 	}
 
 	void Texture::FreePixels()
