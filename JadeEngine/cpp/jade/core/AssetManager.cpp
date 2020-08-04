@@ -2,6 +2,7 @@
 #include "jade/util/Log.h"
 #include "jade/renderer/Texture.h"
 #include "jade/file/IFile.h"
+#include "jade/util/JsonExtended.h"
 
 namespace Jade
 {
@@ -110,8 +111,47 @@ namespace Jade
 		Clear();
 		AssetManager* manager = Get();
 
-		// TODO: SERIALIZE SCENE ID WITH EACH SCENE, AND ASSET ID WITH EACH ASSET
-		// TODO: ALSO CREATE DESERIALIZE METHOD FOR ASSET
+		uint32 scene = -1;
+		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
+		int assetCount = -1;
+		JsonExtended::AssignIfNotNull(j["AssetCount"], assetCount);
+
+		if (scene >= 0 && assetCount > 0)
+		{
+			for (auto it = j["AssetList"].begin(); it != j["AssetList"].end(); ++it)
+			{
+				const json& assetJson = it.value();
+				uint32 type = 0;
+				JsonExtended::AssignIfNotNull(assetJson["Type"], type);
+				uint32 resourceId = -1;
+				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
+
+				JPath path = "";
+				if (!assetJson["Filepath"].is_null())
+				{
+					path = JPath(assetJson["Filepath"]);
+				}
+
+				if (resourceId >= 0)
+				{
+					switch ((Asset::AssetType)type)
+					{
+					case Asset::AssetType::None:
+						Log::Warning("Tried to deserialize asset of type none: %s", path.Filepath());
+						break;
+					case Asset::AssetType::Texture: 
+						{
+							std::shared_ptr<Asset> tex = LoadTextureFromFile(path);
+							tex->SetResourceId(resourceId);
+						}
+						break;
+					default:
+						Log::Warning("Unkown asset type %d for: %s", type, path.Filepath());
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	json AssetManager::Serialize()
@@ -123,7 +163,7 @@ namespace Jade
 		res["SceneID"] = manager->m_CurrentScene;
 		auto assetList = manager->m_Assets[manager->m_CurrentScene];
 		res["AssetCount"] = assetList.size();
-		
+
 
 		for (auto assetIt = assetList.begin(); assetIt != assetList.end(); assetIt++)
 		{
@@ -146,7 +186,7 @@ namespace Jade
 		}
 		else
 		{
-			return {{"Type", Asset::AssetType::None}};
+			return { {"Type", Asset::AssetType::None} };
 		}
 
 		return {

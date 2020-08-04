@@ -88,6 +88,11 @@ namespace Jade
 		std::unordered_map<int, int> idKey;
 		json j = json::parse(file->m_Data);
 
+		if (!j["Assets"].is_null())
+		{
+			AssetManager::LoadFrom(j["Assets"]);
+		}
+
 		int size = j["Size"].is_null() ? 0 : j["Size"];
 		for (int i = 0; i < size; i++)
 		{

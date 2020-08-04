@@ -8,6 +8,7 @@
 namespace Jade
 {
 	class NullAsset;
+	class AssetManager;
 	class Asset
 	{
 	public:
@@ -47,6 +48,7 @@ namespace Jade
 		bool m_Loaded;
 
 	private:
+		friend class AssetManager;
 		enum class AssetType
 		{
 			None=0,

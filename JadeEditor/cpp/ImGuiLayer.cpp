@@ -9,6 +9,7 @@
 #include "jade/util/JMath.h"
 #include "jade/core/ImGuiExtended.h"
 #include "JadeEditorApplication.h"
+#include "jade/util/JsonExtended.h"
 
 #include <examples/imgui_impl_glfw.h>
 #ifndef _JADE_IMPL_IMGUI
@@ -264,76 +265,34 @@ namespace Jade
 		ImGui::End();
 	}
 
-	static void AssignIfNotNull(json& j, glm::vec4& vector)
-	{
-		if (!j.is_null())
-		{
-			bool success = true;
-			glm::vec4 tmp = JMath::DeserializeVec4(j, success);
-			if (success)
-			{
-				vector = tmp;
-			}
-		}
-	}
-
-	static void AssignIfNotNull(json& j, glm::vec2& vector)
-	{
-		if (!j.is_null())
-		{
-			bool success = true;
-			glm::vec2 tmp = JMath::DeserializeVec2(j, success);
-			if (success)
-			{
-				vector = tmp;
-			}
-		}
-	}
-
-	static void AssignIfNotNull(json& j, int& value)
-	{
-		if (!j.is_null())
-		{
-			value = j;
-		}
-	}
-
-	static void AssignIfNotNull(json& j, float& value)
-	{
-		if (!j.is_null())
-		{
-			value = j;
-		}
-	}
-
 	void LoadStyle(const JPath& filepath)
 	{
 		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData);
 		if (styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
-			AssignIfNotNull(j["Colors"]["MainBgLight0"], Settings::EditorStyle::s_MainBgLight0);
-			AssignIfNotNull(j["Colors"]["MainBg"], Settings::EditorStyle::s_MainBg);
-			AssignIfNotNull(j["Colors"]["MainBgDark0"], Settings::EditorStyle::s_MainBgDark0);
-			AssignIfNotNull(j["Colors"]["MainBgDark1"], Settings::EditorStyle::s_MainBgDark1);
-			AssignIfNotNull(j["Colors"]["MainBgDark2"], Settings::EditorStyle::s_MainBgDark2);
-			AssignIfNotNull(j["Colors"]["Accent"], Settings::EditorStyle::s_Accent);
-			AssignIfNotNull(j["Colors"]["AccentDark0"], Settings::EditorStyle::s_AccentDark0);
-			AssignIfNotNull(j["Colors"]["AccentDark1"], Settings::EditorStyle::s_AccentDark1);
-			AssignIfNotNull(j["Colors"]["Button"], Settings::EditorStyle::s_Button);
-			AssignIfNotNull(j["Colors"]["ButtonHovered"], Settings::EditorStyle::s_ButtonHovered);
-			AssignIfNotNull(j["Colors"]["Font"], Settings::EditorStyle::s_Font);
-			AssignIfNotNull(j["Colors"]["FontDisabled"], Settings::EditorStyle::s_FontDisabled);
-			AssignIfNotNull(j["Colors"]["HighlightColor"], Settings::EditorStyle::s_HighlightColor);
+			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgLight0"], Settings::EditorStyle::s_MainBgLight0);
+			JsonExtended::AssignIfNotNull(j["Colors"]["MainBg"], Settings::EditorStyle::s_MainBg);
+			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgDark0"], Settings::EditorStyle::s_MainBgDark0);
+			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgDark1"], Settings::EditorStyle::s_MainBgDark1);
+			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgDark2"], Settings::EditorStyle::s_MainBgDark2);
+			JsonExtended::AssignIfNotNull(j["Colors"]["Accent"], Settings::EditorStyle::s_Accent);
+			JsonExtended::AssignIfNotNull(j["Colors"]["AccentDark0"], Settings::EditorStyle::s_AccentDark0);
+			JsonExtended::AssignIfNotNull(j["Colors"]["AccentDark1"], Settings::EditorStyle::s_AccentDark1);
+			JsonExtended::AssignIfNotNull(j["Colors"]["Button"], Settings::EditorStyle::s_Button);
+			JsonExtended::AssignIfNotNull(j["Colors"]["ButtonHovered"], Settings::EditorStyle::s_ButtonHovered);
+			JsonExtended::AssignIfNotNull(j["Colors"]["Font"], Settings::EditorStyle::s_Font);
+			JsonExtended::AssignIfNotNull(j["Colors"]["FontDisabled"], Settings::EditorStyle::s_FontDisabled);
+			JsonExtended::AssignIfNotNull(j["Colors"]["HighlightColor"], Settings::EditorStyle::s_HighlightColor);
 
-			AssignIfNotNull(j["Sizing"]["WindowPadding"], Settings::EditorStyle::s_WindowPadding);
-			AssignIfNotNull(j["Sizing"]["FramePadding"], Settings::EditorStyle::s_FramePadding);
-			AssignIfNotNull(j["Sizing"]["ItemSpacing"], Settings::EditorStyle::s_ItemSpacing);
-			AssignIfNotNull(j["Sizing"]["ScrollbarSize"], Settings::EditorStyle::s_ScrollbarSize);
-			AssignIfNotNull(j["Sizing"]["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
-			AssignIfNotNull(j["Sizing"]["FrameRounding"], Settings::EditorStyle::s_FrameRounding);
-			AssignIfNotNull(j["Sizing"]["GrabRounding"], Settings::EditorStyle::s_TabRounding);
-			AssignIfNotNull(j["Sizing"]["TabRounding"], Settings::EditorStyle::s_GrabRounding);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["WindowPadding"], Settings::EditorStyle::s_WindowPadding);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["FramePadding"], Settings::EditorStyle::s_FramePadding);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["ItemSpacing"], Settings::EditorStyle::s_ItemSpacing);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["ScrollbarSize"], Settings::EditorStyle::s_ScrollbarSize);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["FrameRounding"], Settings::EditorStyle::s_FrameRounding);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["GrabRounding"], Settings::EditorStyle::s_TabRounding);
+			JsonExtended::AssignIfNotNull(j["Sizing"]["TabRounding"], Settings::EditorStyle::s_GrabRounding);
 		}
 		else
 		{

@@ -24,13 +24,13 @@ namespace Jade
 
 		// Serialize math components
 		json Serialize(const std::string& name, const glm::vec4& vec);
-		glm::vec4 DeserializeVec4(json& json);
-		glm::vec4 DeserializeVec4(json& json, bool& success);
+		glm::vec4 DeserializeVec4(const json& json);
+		glm::vec4 DeserializeVec4(const json& json, bool& success);
 		json Serialize(const std::string& name, const glm::vec3& vec);
-		glm::vec3 DeserializeVec3(json& json);
-		glm::vec3 DeserializeVec3(json& json, bool& success);
+		glm::vec3 DeserializeVec3(const json& json);
+		glm::vec3 DeserializeVec3(const json& json, bool& success);
 		json Serialize(const std::string& name, const glm::vec2& vec);
-		glm::vec2 DeserializeVec2(json& json);
-		glm::vec2 DeserializeVec2(json& json, bool& success);
+		glm::vec2 DeserializeVec2(const json& json);
+		glm::vec2 DeserializeVec2(const json& json, bool& success);
 	}
 }

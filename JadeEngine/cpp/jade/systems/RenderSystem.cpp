@@ -104,10 +104,17 @@ namespace Jade
 		json& j = Application::Get()->GetScene()->GetSaveDataJson();
 
 		json color = JMath::Serialize("Color", spriteRenderer.m_Color);
+		json assetId = { "AssetId", -1 };
+		if (spriteRenderer.m_Sprite.m_Texture)
+		{
+			assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture->GetResourceId() };
+		}
+
 		int size = j["Size"];
 		j["Components"][size] = {
 			{"SpriteRenderer", {
 				{"Entity", entt::to_integral(entity)},
+				assetId,
 				color
 			}}
 		};
@@ -119,6 +126,13 @@ namespace Jade
 	{
 		SpriteRenderer spriteRenderer;
 		spriteRenderer.m_Color = JMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
+		if (!j["SpriteRenderer"]["AssetId"].is_null())
+		{
+			if (j["SpriteRenderer"]["AssetId"] != -1)
+			{
+				spriteRenderer.m_Sprite.m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset((uint32)j["SpriteRenderer"]["AssetId"]));
+			}
+		}
 		registry.emplace<SpriteRenderer>(entity, spriteRenderer);
 	}
 }
