@@ -17,6 +17,7 @@ namespace Jade {
         void Stop();
         void Save(const JPath& filename);
         void Load(const JPath& filename);
+        void Reset();
 
         void SetActiveEntity(entt::entity entity);
         entt::registry& GetRegistry();

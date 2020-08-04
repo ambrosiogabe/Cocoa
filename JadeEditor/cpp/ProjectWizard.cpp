@@ -9,9 +9,12 @@
 
 namespace Jade
 {
+	char ProjectWizard::s_TmpFilename[256];
+	JPath ProjectWizard::s_NewProjectPath = "";
+
 	ProjectWizard::ProjectWizard()
 	{
-		m_TmpFilename[0] = '\0';
+		s_TmpFilename[0] = '\0';
 		m_IdealSize = Application::Get()->GetWindow()->GetMonitorSize() / 2.0f;
 		m_JadeLogo = new Texture(JPath("assets/jadeLogo.png"));
 		m_JadeLogo->Load();
@@ -77,42 +80,49 @@ namespace Jade
 
 		if (m_CreatingProject)
 		{
-			CreateProjectImGui();
+			if (CreateProjectImGui())
+			{
+				m_CreatingProject = false;
+			}
 		}
 	}
 
 
-	void ProjectWizard::CreateProjectImGui()
+	bool ProjectWizard::CreateProjectImGui()
 	{
+		bool res = false;
+
 		ImGui::Begin("Create New Project");
 
 		ImGui::LabelText("##tmp_projectname", "Project Name:");
-		ImGui::InputText("##tmp_filename", m_TmpFilename, 256);
+		ImGui::InputText("##tmp_filename", s_TmpFilename, 256);
 		ImGui::LabelText("##tmp_projectdir", "Project Directory:");
-		ImGui::LabelText("##tmp_showfile", "%s", m_NewProjectPath.Filepath());
+		ImGui::LabelText("##tmp_showfile", "%s", s_NewProjectPath.Filepath());
 		ImGui::SameLine();
 
 		if (ImGui::JButton("Choose Directory"))
 		{
 			FileDialogResult res;
 			IFileDialog::GetOpenFolderName(".", res);
-			m_NewProjectPath = res.filepath;
+			s_NewProjectPath = res.filepath;
 		}
 
 		if (ImGui::JButton("Cancel"))
 		{
-			m_CreatingProject = false;
+			res = true;
 		}
 		ImGui::SameLine();
 		if (ImGui::JButton("Create"))
 		{
-			if (EditorLayer::CreateProject(m_NewProjectPath, m_TmpFilename))
+			if (EditorLayer::CreateProject(s_NewProjectPath, s_TmpFilename))
 			{
-				m_CreatingProject = false;
 				JadeEditor* e = static_cast<JadeEditor*>(Application::Get());
 				e->SetProjectLoaded();
+				res = true;
 			}
 		}
 		ImGui::End();
+
+		return res;
 	}
 }

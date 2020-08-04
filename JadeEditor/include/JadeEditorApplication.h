@@ -1,6 +1,8 @@
 #include "LevelEditorSystem.h"
-#include "ImGuiLayer.h"
 #include "ProjectWizard.h"
+
+#include "jade/core/Layer.h"
+#include "jade/core/Application.h"
 
 namespace Jade
 {
@@ -32,25 +34,15 @@ namespace Jade
 		bool m_ProjectLoaded = false;
 	};
 
+	class ImGuiLayer;
 	class JadeEditor : public Application
 	{
 	public:
 		~JadeEditor() = default;
-		JadeEditor()
-		{
-			PushOverlay(&m_ImGuiLayer);
-			PushLayer(&m_EditorLayer);
-		}
+		JadeEditor();
 
-		virtual void BeginFrame() override
-		{
-			m_ImGuiLayer.BeginFrame();
-		}
-
-		virtual void EndFrame() override
-		{
-			m_ImGuiLayer.EndFrame();
-		}
+		virtual void BeginFrame() override;
+		virtual void EndFrame() override;
 
 		const EditorLayer& GetEditorLayer() { return m_EditorLayer; }
 
@@ -67,7 +59,7 @@ namespace Jade
 		}
 
 	private:
-		ImGuiLayer m_ImGuiLayer;
 		EditorLayer m_EditorLayer;
+		ImGuiLayer* m_ImGuiLayer;
 	};
 }

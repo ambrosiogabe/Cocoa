@@ -2,6 +2,7 @@
 
 #include "JadeEditorApplication.h"
 #include "LevelEditorScene.h"
+#include "ImGuiLayer.h"
 #include "jade/file/IFile.h"
 #include "jade/util/Settings.h"
 
@@ -10,11 +11,13 @@
 
 namespace Jade
 {
+	// ===================================================================================
+	// Editor Layer
+	// ===================================================================================
 	bool EditorLayer::CreateProject(const JPath& projectPath, const char* filename)
 	{
-		Settings::General::s_CurrentProject = projectPath + (std::string(filename) + ".prj");
+		Settings::General::s_CurrentProject = projectPath + (std::string(filename) + ".jprj");
 		Settings::General::s_CurrentScene = projectPath + "scenes" + "NewScene.jade";
-		Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
 
 		json saveData = {
 			{"ProjectPath", Settings::General::s_CurrentProject.Filepath()},
@@ -26,6 +29,9 @@ namespace Jade
 		IFile::CreateDirIfNotExists(projectPath + "assets");
 		IFile::CreateDirIfNotExists(projectPath + "scripts");
 		IFile::CreateDirIfNotExists(projectPath + "scenes");
+
+		Application::Get()->GetScene()->Reset();
+		Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
 		SaveEditorData();
 
 		return true;
@@ -178,7 +184,29 @@ namespace Jade
 		}
 	}
 
+	// ===================================================================================
+	// Editor Application
+	// ===================================================================================
+	JadeEditor::JadeEditor()
+	{
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
+		PushLayer(&m_EditorLayer);
+	}
+
+	void JadeEditor::BeginFrame()
+	{
+		m_ImGuiLayer->BeginFrame();
+	}
+
+	void JadeEditor::EndFrame()
+	{
+		m_ImGuiLayer->EndFrame();
+	}
+
+	// ===================================================================================
 	// Create application entry point
+	// ===================================================================================
 	Application* CreateApplication()
 	{
 		JadeEditor* editor = new JadeEditor();

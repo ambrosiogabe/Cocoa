@@ -2,7 +2,8 @@
 #include "jade/core/Core.h"
 
 #include "MenuBar.h"
-#include "AssetWizard.h"
+#include "ProjectWizard.h"
+#include "JadeEditorApplication.h"
 #include "jade/file/IFileDialog.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
@@ -35,24 +36,34 @@ namespace Jade
 			ImGui::PopStyleVar();
 		}
 
+		if (m_CreatingProject)
+		{
+			if (ProjectWizard::CreateProjectImGui())
+			{
+				m_CreatingProject = false;
+			}
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBg));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBgHover));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBgActive));
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuButton("New Project"))
 				{
-					AssetWizard::NewProject();
+					m_CreatingProject = true;
 				}
 
-				if (ImGui::MenuButton("Open Scene"))
+				if (ImGui::MenuButton("Open Project"))
 				{
 					FileDialogResult result{};
-					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }))
+					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
 					{
-						Application::Get()->GetScene()->Load(result.filepath);
+						EditorLayer::LoadProject(JPath(result.filepath));
 						Settings::General::s_CurrentScene = result.filepath;
 					}
-					//ImGui::EndMenu();
 				}
 
 				if (ImGui::MenuButton("Save Scene As"))
@@ -63,13 +74,6 @@ namespace Jade
 						Settings::General::s_CurrentScene = result.filepath;
 						Application::Get()->GetScene()->Save(result.filepath);
 					}
-					//ImGui::EndMenu();
-				}
-
-				if (ImGui::MenuButton("Import Asset"))
-				{
-					AssetWizard::BeginImport();
-					//ImGui::EndMenu();
 				}
 
 				ImGui::EndMenu();
@@ -105,5 +109,6 @@ namespace Jade
 			}
 			ImGui::EndMenuBar();
 		}
+		ImGui::PopStyleColor(3);
 	}
 }

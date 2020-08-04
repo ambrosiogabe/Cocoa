@@ -254,17 +254,13 @@ namespace Jade
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
 		ImGui::PushStyleColor(ImGuiCol_Border, ImGui::From(Settings::EditorStyle::s_MainBgDark2));
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::From(Settings::EditorStyle::s_AccentDark0));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_AccentDark0));
 		ImGui::PushStyleColor(ImGuiCol_PopupBg, ImGui::From(Settings::EditorStyle::s_AccentDark0));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::From(Settings::EditorStyle::s_AccentDark1));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::From(Settings::EditorStyle::s_AccentDark1));
 		ImGui::PushStyleColor(ImGuiCol_Header, ImGui::From(Settings::EditorStyle::s_AccentDark0));
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::From(Settings::EditorStyle::s_AccentDark0));
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::From(Settings::EditorStyle::s_AccentDark0));
 		m_MenuBar.ImGui();
 		ImGui::PopStyleVar(4);
-		ImGui::PopStyleColor(9);
+		ImGui::PopStyleColor(5);
 		ImGui::End();
 	}
 
@@ -406,6 +402,9 @@ namespace Jade
 		colors[ImGuiCol_TitleBgCollapsed] = From(Settings::EditorStyle::s_MainBgDark0);
 		colors[ImGuiCol_TitleBgActive] = From(Settings::EditorStyle::s_MainBgDark0);
 		colors[ImGuiCol_MenuBarBg] = From(Settings::EditorStyle::s_MainBgDark0);
+		colors[ImGuiCol_MenuBarButtonBg] = From(Settings::EditorStyle::s_AccentDark0);
+		colors[ImGuiCol_MenuBarButtonBgHover] = From(Settings::EditorStyle::s_AccentDark0);
+		colors[ImGuiCol_MenuBarButtonBgActive] = From(Settings::EditorStyle::s_AccentDark1);
 
 		colors[ImGuiCol_Tab] = From(Settings::EditorStyle::s_MainBgDark0);
 		colors[ImGuiCol_TabUnfocused] = From(Settings::EditorStyle::s_MainBgDark0);

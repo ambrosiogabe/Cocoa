@@ -67,9 +67,17 @@ namespace Jade
 		IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename);
 	}
 
+	void Scene::Reset()
+	{
+		for (auto entity : m_Registry.view<Transform>())
+		{
+			m_Registry.remove_all(entity);
+		}
+	}
+
 	void Scene::Load(const JPath& filename)
 	{
-		m_Registry.clear<SpriteRenderer, Transform, Box2D, AABB, Circle, Rigidbody2D>();
+		Reset();
 
 		File* file = IFile::OpenFile(filename);
 		if (file->m_Data.size() <= 0)

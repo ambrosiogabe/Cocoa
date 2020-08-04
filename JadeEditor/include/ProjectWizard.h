@@ -12,7 +12,8 @@ namespace Jade
 
 		void Update(float dt);
 		void ImGui();
-		void CreateProjectImGui();
+
+		static bool CreateProjectImGui();
 
 	private:
 		Texture* m_JadeLogo = nullptr;
@@ -25,7 +26,7 @@ namespace Jade
 		glm::vec2 m_Padding{ 10.0f, 20.0f };
 
 		bool m_CreatingProject = false;
-		JPath m_NewProjectPath = "";
-		char m_TmpFilename[256];
+		static JPath s_NewProjectPath;
+		static char s_TmpFilename[256];
 	};
 }
