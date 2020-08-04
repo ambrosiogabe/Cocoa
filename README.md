@@ -4,7 +4,7 @@ Welcome to Jade Engine (I'll fill this out more later...)
 ## To Run This
 In order to run this, you'll have to run a few commands. First, open up a powershell window in a directory you would like to contain the engine source code. (The engine currently only supports Windows, so this will not work on Linux *yet*).
 
-Next runt these commands:
+Next run these commands:
 ```
 git clone https://github.com/ambrosiogabe/CDungeonCrawler
 cd CDungeonCrawler
