@@ -17,6 +17,7 @@ namespace Jade
 		virtual void OnRender() override;
 		virtual void OnEvent(Event& e) override;
 
+		static bool CreateProject(const JPath& projectPath, const char* filename);
 		static bool LoadEditorData(const JPath& path);
 		static bool LoadProject(const JPath& path);
 		static void SaveEditorData();

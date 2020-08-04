@@ -26,7 +26,7 @@ namespace Jade {
         m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System"));
         m_Systems.emplace_back(std::unique_ptr<GizmoSystem>(new GizmoSystem()));
 
-        glm::vec3 cameraPos = glm::vec3(1920.0f/2.0f, 1080.0f/2.0f, 0);
+        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
         m_Camera = new Camera(cameraPos);
         m_Systems.emplace_back(std::make_unique<RenderSystem>(m_Camera, "Render System"));
 

@@ -10,6 +10,27 @@
 
 namespace Jade
 {
+	bool EditorLayer::CreateProject(const JPath& projectPath, const char* filename)
+	{
+		Settings::General::s_CurrentProject = projectPath + (std::string(filename) + ".prj");
+		Settings::General::s_CurrentScene = projectPath + "scenes" + "NewScene.jade";
+		Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
+
+		json saveData = {
+			{"ProjectPath", Settings::General::s_CurrentProject.Filepath()},
+			{"CurrentScene", Settings::General::s_CurrentScene.Filepath()},
+			{"WorkingDirectory", Settings::General::s_CurrentProject.GetDirectory(-1) }
+		};
+
+		IFile::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
+		IFile::CreateDirIfNotExists(projectPath + "assets");
+		IFile::CreateDirIfNotExists(projectPath + "scripts");
+		IFile::CreateDirIfNotExists(projectPath + "scenes");
+		SaveEditorData();
+
+		return true;
+	}
+
 	void EditorLayer::SaveEditorData()
 	{
 		ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.Filepath());
