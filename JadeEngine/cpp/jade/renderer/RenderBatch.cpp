@@ -108,7 +108,7 @@ namespace Jade {
         }
 
         int texId = 0;
-        for (int i = 0; i < m_Textures.size(); i++)
+        for (int i = 0; i < m_NumTextures; i++)
         {
             if (m_Textures[i]->GetResourceId() == textureAssetId)
             {

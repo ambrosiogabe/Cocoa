@@ -9,8 +9,8 @@ namespace Jade
 	class Texture : public Asset
 	{
 	public:
-		Texture(const JPath& resourceName);
-		Texture(int width, int height);
+		Texture(const JPath& resourceName, bool isDefault=false);
+		Texture(int width, int height, bool isDefault=false);
 
 		virtual void Load() override;
 		virtual void Unload() override;
@@ -18,13 +18,15 @@ namespace Jade
 		void Bind();
 		void Unbind();
 
-		int GetId() const { return m_ID; }
-		int GetWidth() const { return m_Width; }
-		int GetHeight() const { return m_Height; }
-		const JPath& GetFilepath() const { return m_Path; }
 		void FreePixels();
 		const uint8* GetPixelBuffer();
-		int BytesPerPixel() const { return m_BytesPerPixel; }
+
+		inline int GetId() const { return m_ID; }
+		inline int GetWidth() const { return m_Width; }
+		inline int GetHeight() const { return m_Height; }
+		inline const JPath& GetFilepath() const { return m_Path; }
+		inline int BytesPerPixel() const { return m_BytesPerPixel; }
+		inline bool IsDefault() { return m_IsDefault; }
 
 	private:
 		unsigned int m_ID;

@@ -23,11 +23,11 @@ namespace Jade
 
 		switch (m_CurrentView) 
 		{
-		case AssetView::FileBrowser:
-			ShowFileBrowser();
-			break;
 		case AssetView::TextureBrowser:
 			ShowTextureBrowser();
+			break;
+		default:
+			Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
 			break;
 		}
 
@@ -39,7 +39,7 @@ namespace Jade
 	{
 		ImGui::BeginGroup();
 
-		std::array<const char*, (int)AssetView::Length> assetViews = { "FileBrowser", "TextureBrowser" };
+		std::array<const char*, (int)AssetView::Length> assetViews = { "TextureBrowser", "ScriptBrowser" };
 		ImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 		ImGui::EndGroup();
 		ImGui::Separator();
@@ -73,48 +73,23 @@ namespace Jade
 		return res;
 	}
 
-	void AssetWindow::ShowFileBrowser()
-	{
-		static JPath workingDirectory = IFile::GetAbsolutePath(Settings::General::s_WorkingDirectory);
-
-		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(0, 40));
-		if (IconButton(ICON_FA_ARROW_CIRCLE_UP, "", m_ButtonSize))
-		{
-			workingDirectory = workingDirectory.GetDirectory(-1);
-		}
-		ImGui::SameLine();
-
-		std::vector<JPath> directories = IFile::GetFoldersInDir(workingDirectory);
-		for (auto dir : directories)
-		{
-			if (IconButton(ICON_FA_FOLDER, dir.Filename(), m_ButtonSize))
-			{
-				workingDirectory += dir.Filename();
-				break;
-			}
-			ImGui::SameLine();
-		}
-
-		std::vector<JPath> files = IFile::GetFilesInDir(workingDirectory);
-		for (auto file : files)
-		{
-			if (IconButton(ICON_FA_FILE, file.Filename(), m_ButtonSize))
-			{
-				Log::Info("CLICKED");
-			}
-			ImGui::SameLine();
-		}
-	}
-
 	void AssetWindow::ShowTextureBrowser()
 	{
 		std::vector<std::shared_ptr<Texture>> textures = AssetManager::GetAllAssets<Texture>(AssetManager::GetScene());
 		for (auto tex : textures)
 		{
+			if (tex->IsDefault())
+			{
+				continue;
+			}
+
 			int texResourceId = tex->GetResourceId();
 			ImGui::PushID(texResourceId);
-			ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize);
-			// Our buttons are both drag sources and drag targets here!
+			if (ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize))
+			{
+				Log::Info("Clicked Texture %s:", tex->GetFilepath().Filename());
+			}
+
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
 				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)

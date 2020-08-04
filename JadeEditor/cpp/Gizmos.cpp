@@ -96,7 +96,7 @@ namespace Jade
 	GizmoSystem::GizmoSystem(const char* name)
 		: System(name)
 	{
-		m_Texture = std::static_pointer_cast<Texture>(AssetManager::LoadTextureFromFile("assets/images/gizmos.png"));
+		m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset("assets/images/gizmos.png"));
 		m_Spritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_Texture, 16, 40, 9, 0));
 
 		float hzOffsetX = 15;

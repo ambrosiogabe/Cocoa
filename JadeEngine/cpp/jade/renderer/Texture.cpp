@@ -10,8 +10,9 @@
 
 namespace Jade
 {
-	Texture::Texture(int width, int height)
+	Texture::Texture(int width, int height, bool isDefault)
 	{
+		m_IsDefault = isDefault;
 		m_Path = "";
 		m_Height = height;
 		m_Width = width;
@@ -28,9 +29,10 @@ namespace Jade
 		m_PixelsFreed = true;
 	}
 
-	Texture::Texture(const JPath& resourceName)
+	Texture::Texture(const JPath& resourceName, bool isDefault)
 	{
 		GenerateTypeId<Texture>();
+		m_IsDefault = isDefault;
 		m_Height = 0;
 		m_Width = 0;
 		m_ID = -1;
@@ -44,6 +46,8 @@ namespace Jade
 		int height;
 
 		m_PixelBuffer = stbi_load(m_Path.Filepath(), &width, &height, &channels, 0);
+		Log::Assert((m_PixelBuffer != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", m_Path.Filepath(), stbi_failure_reason());
+
 		m_Width = width;
 		m_Height = height;
 		m_BytesPerPixel = channels;

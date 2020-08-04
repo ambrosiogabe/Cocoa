@@ -46,6 +46,7 @@ namespace Jade
 		uint32 m_ResourceId = 0;
 		JPath m_Path;
 		bool m_Loaded;
+		bool m_IsDefault = false;
 
 	private:
 		friend class AssetManager;
@@ -62,7 +63,7 @@ namespace Jade
 		static std::unordered_map<uint32, std::shared_ptr<Asset>>& GetAllAssets(uint32 scene);
 		static std::shared_ptr<Asset> GetAsset(uint32 resourceID);
 		static std::shared_ptr<Asset> GetAsset(const JPath& path);
-		static std::shared_ptr<Asset> LoadTextureFromFile(const JPath& path);
+		static std::shared_ptr<Asset> LoadTextureFromFile(const JPath& path, uint32 resourceId=-1, bool isDefault=false);
 
 		template<typename T>
 		static std::vector<std::shared_ptr<T>> GetAllAssets(uint32 scene)

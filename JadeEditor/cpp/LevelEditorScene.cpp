@@ -20,6 +20,8 @@
 
 namespace Jade {
     void LevelEditorScene::Init() {
+        LoadDefaultAssets();
+
         Physics2D::Init(m_Registry);
 
         m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System"));

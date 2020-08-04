@@ -64,7 +64,7 @@ namespace Jade
 		return std::shared_ptr<Asset>(new NullAsset());
 	}
 
-	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const JPath& path)
+	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const JPath& path, uint32 resourceId, bool isDefault)
 	{
 		AssetManager* manager = Get();
 
@@ -76,11 +76,16 @@ namespace Jade
 		}
 
 		JPath absPath = IFile::GetAbsolutePath(path);
-		std::shared_ptr<Texture> newAsset = std::make_shared<Texture>(absPath.Filepath());
+		std::shared_ptr<Texture> newAsset = std::make_shared<Texture>(absPath.Filepath(), isDefault);
 
 		auto& assets = manager->m_Assets[manager->m_CurrentScene];
 
-		uint32 newId = (uint32)assets.size();
+		uint32 newId = resourceId;
+		if (resourceId < 0)
+		{
+			newId = (uint32)assets.size();
+		}
+
 		newAsset->SetResourceId(newId);
 		assets.insert({ newId, newAsset });
 		newAsset->Load();
@@ -139,12 +144,11 @@ namespace Jade
 					case Asset::AssetType::None:
 						Log::Warning("Tried to deserialize asset of type none: %s", path.Filepath());
 						break;
-					case Asset::AssetType::Texture: 
-						{
-							std::shared_ptr<Asset> tex = LoadTextureFromFile(path);
-							tex->SetResourceId(resourceId);
-						}
-						break;
+					case Asset::AssetType::Texture:
+					{
+						std::shared_ptr<Asset> tex = LoadTextureFromFile(path, resourceId);
+					}
+					break;
 					default:
 						Log::Warning("Unkown asset type %d for: %s", type, path.Filepath());
 						break;
@@ -167,10 +171,13 @@ namespace Jade
 
 		for (auto assetIt = assetList.begin(); assetIt != assetList.end(); assetIt++)
 		{
-			json assetSerialized = assetIt->second->Serialize();
-			if (assetSerialized["Type"] != 0)
+			if (!assetIt->second->m_IsDefault)
 			{
-				res["AssetList"][std::to_string(assetIt->first)] = assetSerialized;
+				json assetSerialized = assetIt->second->Serialize();
+				if (assetSerialized["Type"] != 0)
+				{
+					res["AssetList"][std::to_string(assetIt->first)] = assetSerialized;
+				}
 			}
 		}
 

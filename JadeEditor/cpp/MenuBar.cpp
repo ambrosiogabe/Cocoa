@@ -64,7 +64,6 @@ namespace Jade
 					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
 					{
 						EditorLayer::LoadProject(JPath(result.filepath));
-						Settings::General::s_CurrentScene = result.filepath;
 					}
 				}
 

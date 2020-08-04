@@ -69,10 +69,16 @@ namespace Jade
 
 	void Scene::Reset()
 	{
+		m_ActiveEntity = entt::null;
 		for (auto entity : m_Registry.view<Transform>())
 		{
 			m_Registry.remove_all(entity);
 		}
+	}
+
+	void Scene::LoadDefaultAssets()
+	{
+		AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", 0, true);
 	}
 
 	void Scene::Load(const JPath& filename)
@@ -91,6 +97,7 @@ namespace Jade
 		if (!j["Assets"].is_null())
 		{
 			AssetManager::LoadFrom(j["Assets"]);
+			LoadDefaultAssets();
 		}
 
 		int size = j["Size"].is_null() ? 0 : j["Size"];

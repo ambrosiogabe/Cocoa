@@ -5,8 +5,8 @@ namespace Jade
 {
 	enum class AssetView
 	{
-		FileBrowser,
 		TextureBrowser,
+		ScriptBrowser,
 		Length
 	};
 
@@ -16,7 +16,6 @@ namespace Jade
 		void ImGui();
 
 	private:
-		void ShowFileBrowser();
 		void ShowMenuBar();
 		void ShowTextureBrowser();
 		bool IconButton(const char* icon, const char* label, const glm::vec2& size=glm::vec2());
@@ -24,6 +23,6 @@ namespace Jade
 
 	private:
 		glm::vec2 m_ButtonSize{ 128, 128 };
-		AssetView m_CurrentView = AssetView::FileBrowser;
+		AssetView m_CurrentView = AssetView::TextureBrowser;
 	};
 }
