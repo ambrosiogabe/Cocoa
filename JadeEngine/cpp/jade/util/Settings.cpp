@@ -49,6 +49,7 @@ namespace Jade
 
         glm::vec4 EditorStyle::s_Font { 0.902f, 0.902f, 0.902f, 1.0f };
         glm::vec4 EditorStyle::s_FontDisabled { 0.839f, 0.839f, 0.839f, 1.0f };
+        glm::vec4 EditorStyle::s_HighlightColor{ 0.145f, 0.553f, 0.384f, 1.0f };
 
         // Sizing
         glm::vec2 EditorStyle::s_WindowPadding{ 10, 10 };

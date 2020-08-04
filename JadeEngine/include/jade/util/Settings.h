@@ -52,6 +52,7 @@ namespace Jade {
 
             static glm::vec4 s_Font;
             static glm::vec4 s_FontDisabled;
+            static glm::vec4 s_HighlightColor;
 
             // Sizing
             static glm::vec2 s_WindowPadding;

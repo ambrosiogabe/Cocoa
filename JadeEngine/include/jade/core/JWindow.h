@@ -32,6 +32,7 @@ namespace Jade {
         void SetWidth(int newWidth) { m_Size.x = (float)newWidth; }
         void SetHeight(int newHeight) { m_Size.y = (float)newHeight; }
         void SetSize(const glm::vec2& size);
+        void SetTitle(const char* newTitle);
         glm::vec2 GetMonitorSize();
         int GetWidth() { return (int)m_Size.x; }
         int GetHeight() { return (int)m_Size.y; }

@@ -39,7 +39,10 @@ namespace Jade
 
 	void EditorLayer::SaveEditorData()
 	{
-		ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.Filepath());
+		if (static_cast<JadeEditor*>(Application::Get())->GetEditorLayer().m_ProjectLoaded)
+		{
+			ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.Filepath());
+		}
 
 		json saveData = {
 			{"ProjectPath", Settings::General::s_CurrentProject.Filepath()},
@@ -56,15 +59,6 @@ namespace Jade
 		if (editorData->m_Data.size() > 0)
 		{
 			json j = json::parse(editorData->m_Data);
-			if (!j["ProjectPath"].is_null())
-			{
-				if (LoadProject(JPath(j["ProjectPath"])))
-				{
-					// Set the project as loaded since we successfully loaded it
-					JadeEditor::SetProjectLoaded();
-				}
-			}
-
 			if (!j["EditorStyle"].is_null())
 			{
 				Settings::General::s_EditorStyleData = JPath(j["EditorStyle"]);
@@ -73,6 +67,11 @@ namespace Jade
 			if (!j["ImGuiConfigPath"].is_null())
 			{
 				Settings::General::s_ImGuiConfigPath = JPath(j["ImGuiConfig"]);
+			}
+
+			if (!j["ProjectPath"].is_null())
+			{
+				LoadProject(JPath(j["ProjectPath"]));
 			}
 		}
 		IFile::CloseFile(editorData);
@@ -104,7 +103,11 @@ namespace Jade
 			{
 				Settings::General::s_CurrentScene = JPath(j["CurrentScene"]);
 				Settings::General::s_WorkingDirectory = JPath(j["WorkingDirectory"]);
-				Application::Get()->GetScene()->Load(JPath(j["CurrentScene"]));
+				Application::Get()->GetScene()->Load(Settings::General::s_CurrentScene);
+				SaveEditorData();
+				std::string winTitle = std::string(Settings::General::s_CurrentProject.Filename()) + " -- " + std::string(Settings::General::s_CurrentScene.Filename());
+				Application::Get()->GetWindow()->SetTitle(winTitle.c_str());
+
 				static_cast<JadeEditor*>(Application::Get())->SetProjectLoaded();
 				return true;
 			}

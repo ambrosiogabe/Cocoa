@@ -38,10 +38,12 @@ namespace Jade
 
 		if (m_CreatingProject)
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
 			if (ProjectWizard::CreateProjectImGui())
 			{
 				m_CreatingProject = false;
 			}
+			ImGui::PopStyleVar();
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBg));

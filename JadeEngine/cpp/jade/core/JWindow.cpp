@@ -186,6 +186,12 @@ namespace Jade
 		glfwSetWindowSize(win, (int)size.x, (int)size.y);
 	}
 
+	void JWindow::SetTitle(const char* newTitle)
+	{
+		GLFWwindow* win = static_cast<GLFWwindow*>(m_WindowHandle);
+		glfwSetWindowTitle(win, newTitle);
+	}
+
 	glm::vec2 JWindow::GetMonitorSize()
 	{
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());

@@ -309,7 +309,7 @@ namespace Jade
 	void LoadStyle(const JPath& filepath)
 	{
 		File* styleData = IFile::OpenFile(Settings::General::s_EditorStyleData);
-		if (false)//styleData->m_Data.size() > 0)
+		if (styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
 			AssignIfNotNull(j["Colors"]["MainBgLight0"], Settings::EditorStyle::s_MainBgLight0);
@@ -322,8 +322,9 @@ namespace Jade
 			AssignIfNotNull(j["Colors"]["AccentDark1"], Settings::EditorStyle::s_AccentDark1);
 			AssignIfNotNull(j["Colors"]["Button"], Settings::EditorStyle::s_Button);
 			AssignIfNotNull(j["Colors"]["ButtonHovered"], Settings::EditorStyle::s_ButtonHovered);
-			AssignIfNotNull(j["Colors"]["Font"], Settings::EditorStyle::s_FrameRounding);
-			AssignIfNotNull(j["Colors"]["FontDisabled"], Settings::EditorStyle::s_GrabRounding);
+			AssignIfNotNull(j["Colors"]["Font"], Settings::EditorStyle::s_Font);
+			AssignIfNotNull(j["Colors"]["FontDisabled"], Settings::EditorStyle::s_FontDisabled);
+			AssignIfNotNull(j["Colors"]["HighlightColor"], Settings::EditorStyle::s_HighlightColor);
 
 			AssignIfNotNull(j["Sizing"]["WindowPadding"], Settings::EditorStyle::s_WindowPadding);
 			AssignIfNotNull(j["Sizing"]["FramePadding"], Settings::EditorStyle::s_FramePadding);
@@ -351,6 +352,7 @@ namespace Jade
 						JMath::Serialize("ButtonHovered",   Settings::EditorStyle::s_ButtonHovered),
 						JMath::Serialize("Font",            Settings::EditorStyle::s_Font),
 						JMath::Serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
+						JMath::Serialize("Highlight",       Settings::EditorStyle::s_HighlightColor)
 					}
 				},
 				{"Sizing",
@@ -438,7 +440,7 @@ namespace Jade
 		colors[ImGuiCol_ResizeGripActive] = From(Settings::EditorStyle::s_MainBg);
 
 		colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_AccentDark0);
-		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_AccentDark0);
+		colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_HighlightColor);
 		colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_AccentDark0);
 	}
 }
