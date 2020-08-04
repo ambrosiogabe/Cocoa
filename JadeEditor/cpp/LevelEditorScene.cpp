@@ -15,7 +15,7 @@
 #include "jade/core/Audio.h"
 
 #include <entt/entt.hpp>
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <array>
 
 namespace Jade {

@@ -20,8 +20,8 @@
 #pragma warning ( disable : 26495 )
 #pragma warning ( disable : 4996 )
 #include <examples/imgui_impl_opengl3.h>
-#include <imgui/examples/imgui_impl_glfw.cpp>
-#include <imgui/examples/imgui_impl_opengl3.cpp>
+#include <examples/imgui_impl_glfw.cpp>
+#include <examples/imgui_impl_opengl3.cpp>
 #pragma warning( pop )
 #endif
 

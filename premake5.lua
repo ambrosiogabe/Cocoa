@@ -15,7 +15,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "JadeEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "JadeEngine/vendor/glad/include"
-IncludeDir["ImGui"] = "JadeEngine/vendor/imgui"
+IncludeDir["ImGui"] = "JadeEngine/vendor/imguiVendor"
 IncludeDir["glm"] = "JadeEngine/vendor/glmVendor"
 IncludeDir["stb"] = "JadeEngine/vendor/stb"
 IncludeDir["entt"] = "JadeEngine/vendor/enttVendor/single_include"
@@ -24,7 +24,7 @@ IncludeDir["Json"] = "JadeEngine/vendor/nlohmann-json/single_include"
 
 include "JadeEngine/vendor/GLFW"
 include "JadeEngine/vendor/glad"
-include "JadeEngine/vendor/imgui"
+include "JadeEngine/vendor/imguiVendor"
 include "JadeEngine/vendor/box2DVendor"
 
 project "JadeEngine"

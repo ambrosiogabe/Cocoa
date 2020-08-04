@@ -58,9 +58,9 @@ using json = nlohmann::json;
 #pragma warning ( disable : 6031 )
 #pragma warning ( disable : 26495 )
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
-#include <imgui/imstb_rectpack.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imstb_rectpack.h>
 #pragma warning( pop )
 
 // STB

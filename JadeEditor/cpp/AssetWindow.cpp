@@ -7,7 +7,7 @@
 #include "jade/util/Settings.h"
 #include "FontAwesome.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 namespace Jade
 {

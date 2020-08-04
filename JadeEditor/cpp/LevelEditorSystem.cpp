@@ -12,7 +12,7 @@
 #include "JadeEditorApplication.h"
 
 #include <string>
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
