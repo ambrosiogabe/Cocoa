@@ -1,7 +1,3 @@
-[submodule "jade/vendor/imgui"]
-	path = JadeEngine/vendor/imguiVendor
-	url = https://github.com/ocornut/imgui
-	branch = docking
 [submodule "JadeEngine/vendor/GLFW"]
 	path = JadeEngine/vendor/GLFW
 	url = https://github.com/ambrosiogabe/glfw
@@ -20,3 +16,7 @@
 [submodule "JadeEngine/vendor/glmVendor"]
 	path = JadeEngine/vendor/glmVendor
 	url = https://github.com/g-truc/glm
+[submodule "JadeEngine/vendor/imguiVendor"]
+	path = JadeEngine/vendor/imguiVendor
+	url = https://github.com/ambrosiogabe/imgui
+	branch = docking
