@@ -12,6 +12,8 @@
 
 namespace Jade
 {
+	std::shared_ptr<Shader> RenderSystem::s_Shader = nullptr;
+
 	void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr)
 	{
 		const Sprite& sprite = spr.m_Sprite;
@@ -47,10 +49,12 @@ namespace Jade
 				this->AddEntity(transform, spr);
 			});
 
-		m_Shader->Bind();
-		m_Shader->UploadMat4("uProjection", m_Camera->GetOrthoProjection());
-		m_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
-		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
+		Log::Assert((s_Shader != nullptr), "Must bind shader before render call");
+
+		s_Shader->Bind();
+		s_Shader->UploadMat4("uProjection", m_Camera->GetOrthoProjection());
+		s_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
+		s_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
 		for (auto& batch : m_Batches)
 		{
@@ -58,7 +62,7 @@ namespace Jade
 			batch->Clear();
 		}
 
-		m_Shader->Unbind();
+		s_Shader->Unbind();
 	}
 
 	void RenderSystem::ImGui(entt::registry& registry)

@@ -14,6 +14,14 @@ namespace Jade
 	// ===================================================================================
 	// Editor Layer
 	// ===================================================================================
+	EditorLayer::EditorLayer()
+	{
+		m_ProjectWizard = ProjectWizard();
+		m_PickingTexture = PickingTexture();
+		m_PickingShader = std::make_shared<Shader>(JPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"));
+		m_DefaultShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
+	}
+
 	bool EditorLayer::CreateProject(const JPath& projectPath, const char* filename)
 	{
 		Settings::General::s_CurrentProject = projectPath + (std::string(filename) + ".jprj");
@@ -124,6 +132,7 @@ namespace Jade
 
 		// Start the scene
 		Application::Get()->ChangeScene(new LevelEditorScene());
+		m_PickingTexture.Init(3840, 2160);
 
 		// Create application store data if it does not exist
 		IFile::CreateDirIfNotExists(IFile::GetSpecialAppFolder() + "JadeEngine");
@@ -163,11 +172,25 @@ namespace Jade
 	{
 		if (JadeEditor::IsProjectLoaded())
 		{
+			glDisable(GL_BLEND);
+			m_PickingTexture.EnableWriting();
+
+			glViewport(0, 0, 3840, 2160);
+			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			RenderSystem::BindShader(m_PickingShader);
+			Application::Get()->GetScene()->Render();
+
+			m_PickingTexture.DisableWriting();
+			glEnable(GL_BLEND);
+
 			glBindFramebuffer(GL_FRAMEBUFFER, Application::Get()->GetFramebuffer()->GetId());
 			glViewport(0, 0, 3840, 2160);
 			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
+			RenderSystem::BindShader(m_DefaultShader);
 			DebugDraw::DrawBottomBatches();
 			Application::Get()->GetScene()->Render();
 			DebugDraw::DrawTopBatches();

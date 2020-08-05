@@ -1,43 +1,40 @@
 #type vertex
-#version 330 core
+#version 330
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in float texID;
-layout (location = 4) in uint entityID;
-
-out vec3 fPos;
-out vec4 fColor;
-out vec2 fTexCoords;
-out float fTexSlot;
+layout (location = 4) in float aEntityID;
 
 uniform mat4 uView;
 uniform mat4 uProjection;
 
+out float fEntityID;
+out vec2 fTexCoords;
+out float fTexSlot;
+
 void main()
 {
-    fPos = aPos;
-    fColor = aColor;
-    fTexCoords = aTexCoords;
+	fEntityID = aEntityID;
+	fTexCoords = aTexCoords;
     fTexSlot = texID;
 
-    gl_Position = uProjection * uView * vec4(aPos, 1.0);
+	gl_Position = uProjection * uView * vec4(aPos, 1.0);
 }
 
 #type fragment
-#version 330 core
-// uniform float uAspect;
+#version 330
 
-out vec4 color;
-
-in vec3 fPos;
-in vec4 fColor;
+in float fEntityID;
 in vec2 fTexCoords;
 in float fTexSlot;
 
 uniform sampler2D uTextures[16];
 
-void main()
+out vec3 FragColor;
+
+void main() 
 {
     vec4 texColor = vec4(1, 1, 1, 1);
 
@@ -90,15 +87,9 @@ void main()
             break;
     }
 
-    // If you're not on a Linux machine, you could replace the giant switch with this...
-    //if (fTexSlot > 0) {
-    //    int texId = int(fTexSlot);
-    //    texColor = texture(uTextures[texId], fTexCoords);
-    //}
-
-    if (fTexSlot > 0) {
-        color = texColor * fColor;
+	if (texColor.a < 0.5) {
+        discard;
     } else {
-        color = fColor;
+	    FragColor = vec3(fEntityID, fEntityID, fEntityID);
     }
 }

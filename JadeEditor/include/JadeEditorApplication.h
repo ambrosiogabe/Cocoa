@@ -1,17 +1,17 @@
 #include "LevelEditorSystem.h"
 #include "ProjectWizard.h"
+#include "PickingTexture.h"
 
 #include "jade/core/Layer.h"
 #include "jade/core/Application.h"
+#include "jade/renderer/Shader.h"
 
 namespace Jade
 {
 	class EditorLayer : public Layer
 	{
 	public:
-		EditorLayer()
-		{
-		}
+		EditorLayer();
 
 		virtual void OnAttach() override;
 		virtual void OnUpdate(float dt) override;
@@ -27,8 +27,14 @@ namespace Jade
 		inline void SetProjectLoaded() { m_ProjectLoaded = true; }
 		inline bool IsProjectLoaded() { return m_ProjectLoaded; }
 
+		inline uint32 GetPickingTextureID() const { return m_PickingTexture.GetPickingTextureID(); }
+		inline const PickingTexture& GetPickingTexture() const { return m_PickingTexture; }
+
 	private:
 		ProjectWizard m_ProjectWizard;
+		PickingTexture m_PickingTexture;
+		std::shared_ptr<Shader> m_PickingShader;
+		std::shared_ptr<Shader> m_DefaultShader;
 
 	private:
 		bool m_ProjectLoaded = false;

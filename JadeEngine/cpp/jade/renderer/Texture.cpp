@@ -28,6 +28,12 @@ namespace Jade
 
 		m_BoundingBox = Physics2DSystem::AABBFrom(glm::vec2{ 0, 0 }, glm::vec2{ width, height });
 		m_PixelsFreed = true;
+
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			Log::Error("Error creating texture (width, height) (GL ERROR): 0x%x", error);
+		}
 	}
 
 	Texture::Texture(const JPath& resourceName, bool isDefault)
@@ -75,6 +81,12 @@ namespace Jade
 		else
 		{
 			Log::Assert(false, "Unknown number of channels '%d'. In File: '%s'", channels, m_Path.Filepath());
+		}
+
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			Log::Error("Error loading texture %s (GL ERROR): 0x%x", m_Path.Filepath(), error);
 		}
 	}
 

@@ -11,6 +11,7 @@ namespace Jade
         glm::vec4 color;
         glm::vec2 texCoords;
         float texId;
+        float entityId;
     };
 
     class RenderBatch
@@ -51,7 +52,7 @@ namespace Jade
         void LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr);
         void LoadVertexProperties(const glm::vec3& position, 
             const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
-            float rotationDegrees, const glm::vec4& color, int texId);
+            float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = entt::to_integral(entt::null));
 
         void LoadEmptyVertexProperties();
 

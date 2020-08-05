@@ -3,6 +3,7 @@
 #include "jade/systems/RenderSystem.h"
 #include "jade/components/components.h"
 #include "jade/renderer/Shader.h"
+#include "jade/core/Application.h"
 
 namespace Jade {
     bool RenderBatch::Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2)
@@ -56,6 +57,9 @@ namespace Jade {
 
         glVertexAttribPointer(3, sizeof(Vertex().texId) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, texId));
         glEnableVertexAttribArray(3);
+
+        glVertexAttribPointer(4, sizeof(Vertex().texId) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, entityId));
+        glEnableVertexAttribArray(4);
     }
 
     void RenderBatch::Add(const Transform& transform, const SpriteRenderer& spr) {
@@ -143,11 +147,12 @@ namespace Jade {
             }
         }
 
-        LoadVertexProperties(transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId);
+        auto res = Application::Get()->GetScene()->GetEntity<Transform>(transform);
+        LoadVertexProperties(transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId, entt::to_integral(res.second));
     }
 
     void RenderBatch::LoadVertexProperties(const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
-        float rotationDegrees, const glm::vec4& color, int texId)
+        float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId)
     {
         bool isRotated = rotationDegrees != 0.0f;
         glm::mat4 matrix = glm::mat4(1.0f);
@@ -187,6 +192,7 @@ namespace Jade {
             m_VertexStackPointer->color = glm::vec4(color);
             m_VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
             m_VertexStackPointer->texId = (float)texId;
+            m_VertexStackPointer->entityId = (float)(entityId + 1);
 
             m_VertexStackPointer++;
         }

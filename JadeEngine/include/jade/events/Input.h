@@ -24,6 +24,7 @@ namespace Jade {
         static float OrthoMouseX();
         static float OrthoMouseY();
         static glm::vec2 ScreenToOrtho(Camera* camera);
+        static glm::vec2 NormalizedMousePos();
 
         static void SetGameViewPos(const glm::vec2& position);
         static void SetGameViewSize(const glm::vec2& size);

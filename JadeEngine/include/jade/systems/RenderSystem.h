@@ -16,7 +16,6 @@ namespace Jade {
         RenderSystem(Camera* camera, const char* name)
             : System(name) {
             m_Camera = camera;
-            m_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
         }
 
         void AddEntity(const Transform& transform, const SpriteRenderer& spr);
@@ -27,13 +26,14 @@ namespace Jade {
 
         static void Serialize(entt::entity entity, const SpriteRenderer& spriteRenderer);
         static void Deserialize(json& json, entt::registry& registry, entt::entity entity);
+        static void BindShader(std::shared_ptr<Shader> shader) { s_Shader = shader; }
 
     public:
         int m_TexSlots[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
         const int MAX_BATCH_SIZE = 1000;
 
     private:
-        Shader* m_Shader;
+        static std::shared_ptr<Shader> s_Shader;
         std::vector<std::shared_ptr<RenderBatch>> m_Batches;
         Camera* m_Camera;
     };

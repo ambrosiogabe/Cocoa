@@ -28,7 +28,7 @@ namespace Jade
 
 	ProjectWizard::~ProjectWizard()
 	{
-		delete m_JadeLogo;
+		// delete m_JadeLogo; // Causes exception for whatever reason
 	}
 
 	void ProjectWizard::Update(float dt)

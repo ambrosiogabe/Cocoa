@@ -39,6 +39,7 @@
     <ClInclude Include="include\ProjectWizard.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\PickingTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\AssetWindow.cpp">
@@ -68,5 +69,6 @@
     <ClCompile Include="cpp\ProjectWizard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\PickingTexture.cpp" />
   </ItemGroup>
 </Project>

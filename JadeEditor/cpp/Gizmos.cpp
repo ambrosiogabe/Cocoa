@@ -1,4 +1,6 @@
 #include "Gizmos.h"
+#include "JadeEditorApplication.h"
+#include "PickingTexture.h"
 
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/renderer/DebugDraw.h"
@@ -231,8 +233,20 @@ namespace Jade
 		{
 			Camera* camera = Application::Get()->GetScene()->GetCamera();
 			glm::vec2 mousePosWorld = camera->ScreenToOrtho();
-			std::pair<entt::registry&, entt::entity> result = Physics2D::OverlapPoint(mousePosWorld);
-			entt::entity selectedEntity = m_HotGizmo == -1 ? result.second : Application::Get()->GetScene()->GetActiveEntity();
+
+			glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
+			JadeEditor* editor = static_cast<JadeEditor*>(Application::Get());
+			const PickingTexture& pickingTexture = editor->GetEditorLayer().GetPickingTexture();
+			PickingTexture::PixelInfo info = pickingTexture.ReadPixel((uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
+
+			const entt::registry& registry = Application::Get()->GetScene()->GetRegistry();
+			entt::entity entity = entt::null;
+			if (info.m_EntityID < 0xffffffff)
+			{
+				entity = entt::entity((uint32)info.m_EntityID);
+			}
+
+			entt::entity selectedEntity = m_HotGizmo == -1 ? entity : Application::Get()->GetScene()->GetActiveEntity();
 
 			m_OriginalDragClickPos = JMath::Vector3From2(mousePosWorld);
 
@@ -240,7 +254,7 @@ namespace Jade
 			if (entt::to_integral(selectedEntity) != entt::to_integral(entt::null))
 			{
 				Application::Get()->GetScene()->SetActiveEntity(selectedEntity);
-				const Transform& transform = result.first.get<Transform>(selectedEntity);
+				const Transform& transform = registry.get<Transform>(selectedEntity);
 				m_ActiveGizmo = m_HotGizmo;
 				m_MouseDragging = true;
 				m_MouseOffset = JMath::Vector3From2(mousePosWorld) - transform.m_Position;
@@ -249,7 +263,7 @@ namespace Jade
 			else
 			{
 				m_ActiveGizmo = -1;
-				Application::Get()->GetScene()->SetActiveEntity(result.second);
+				Application::Get()->GetScene()->SetActiveEntity(entity);
 			}
 		}
 

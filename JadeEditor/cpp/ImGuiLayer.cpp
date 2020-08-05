@@ -203,7 +203,10 @@ namespace Jade
 		m_GameviewMousePos.y = mousePos.y;
 		Input::SetGameViewMousePos(m_GameviewMousePos);
 
-		ImGui::Image(reinterpret_cast<void*>(Application::Get()->GetFramebuffer()->GetId()), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
+		JadeEditor* editor = static_cast<JadeEditor*>(Application::Get());
+		//uint32 texId = editor->GetEditorLayer().GetPickingTextureID();
+		uint32 texId = Application::Get()->GetFramebuffer()->GetTexture()->GetId();
+		ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
 		ImGui::End();
 		ImGui::PopStyleColor();

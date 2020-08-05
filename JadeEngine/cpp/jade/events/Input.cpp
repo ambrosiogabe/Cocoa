@@ -99,6 +99,16 @@ namespace Jade
 		return glm::vec2{ tmp.x, tmp.y };
 	}
 
+	glm::vec2 Input::NormalizedMousePos()
+	{
+		glm::vec4 tmp{ s_GameViewMousePos.x, s_GameViewSize.y - s_GameViewMousePos.y, 0, 1 };
+
+		tmp.x = (tmp.x / s_GameViewSize.x);
+		tmp.y = (tmp.y / s_GameViewSize.y);
+
+		return glm::vec2{ tmp.x, tmp.y };
+	}
+
 	void Input::ScrollCallback(double xpos, double ypos)
 	{
 		s_ScrollX = (float)xpos;
