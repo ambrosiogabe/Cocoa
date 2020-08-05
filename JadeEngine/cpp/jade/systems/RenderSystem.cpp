@@ -16,9 +16,9 @@ namespace Jade
 	{
 		const Sprite& sprite = spr.m_Sprite;
 		bool wasAdded = false;
-		for (RenderBatch* batch : m_Batches)
+		for (auto& batch : m_Batches)
 		{
-			if (batch->HasRoom())
+			if (batch->HasRoom() && spr.m_ZIndex == batch->ZIndex())
 			{
 				std::shared_ptr<Texture> tex = sprite.m_Texture;
 				if (tex == nullptr || (batch->HasTexture(tex->GetResourceId()) || batch->HasTextureRoom()))
@@ -32,10 +32,11 @@ namespace Jade
 
 		if (!wasAdded)
 		{
-			RenderBatch* newBatch = new RenderBatch(MAX_BATCH_SIZE);
+			std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(MAX_BATCH_SIZE, spr.m_ZIndex);
 			newBatch->Start();
 			newBatch->Add(transform, spr);
-			m_Batches.push_back(newBatch);
+			m_Batches.emplace_back(newBatch);
+			std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
 		}
 	}
 
@@ -51,7 +52,7 @@ namespace Jade
 		m_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
 		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
-		for (RenderBatch* batch : m_Batches)
+		for (auto& batch : m_Batches)
 		{
 			batch->Render();
 			batch->Clear();
@@ -72,6 +73,7 @@ namespace Jade
 			{
 				ImGui::BeginCollapsingHeaderGroup();
 				SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
+				ImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
 				ImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
 
 				if (spr.m_Sprite.m_Texture)
@@ -105,6 +107,7 @@ namespace Jade
 
 		json color = JMath::Serialize("Color", spriteRenderer.m_Color);
 		json assetId = { "AssetId", -1 };
+		json zIndex = { "ZIndex", spriteRenderer.m_ZIndex };
 		if (spriteRenderer.m_Sprite.m_Texture)
 		{
 			assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture->GetResourceId() };
@@ -115,6 +118,7 @@ namespace Jade
 			{"SpriteRenderer", {
 				{"Entity", entt::to_integral(entity)},
 				assetId,
+				zIndex,
 				color
 			}}
 		};
@@ -132,6 +136,11 @@ namespace Jade
 			{
 				spriteRenderer.m_Sprite.m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset((uint32)j["SpriteRenderer"]["AssetId"]));
 			}
+		}
+
+		if (!j["SpriteRenderer"]["ZIndex"].is_null())
+		{
+			spriteRenderer.m_ZIndex = j["SpriteRenderer"]["ZIndex"];
 		}
 		registry.emplace<SpriteRenderer>(entity, spriteRenderer);
 	}

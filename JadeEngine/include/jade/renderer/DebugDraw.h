@@ -26,7 +26,7 @@ namespace Jade {
         static void AddLinesToBatches();
 
     private:        
-        static std::vector<RenderBatch*> m_Batches;
+        static std::vector<std::shared_ptr<RenderBatch>> m_Batches;
         static std::vector<Line2D> m_Lines;
         static std::vector<DebugSprite> m_Sprites;
         static int m_TexSlots[16];

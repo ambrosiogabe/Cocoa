@@ -1517,6 +1517,7 @@
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\JsonExtended.h" />
+    <ClInclude Include="include\jade\commands\ChangeIntCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">

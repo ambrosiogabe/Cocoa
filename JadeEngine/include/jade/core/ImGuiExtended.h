@@ -25,6 +25,7 @@ namespace ImGui {
 	void UndoableDragFloat3(const char* label, glm::vec3& vector);
 	void UndoableDragFloat2(const char* label, glm::vec2& vector);
 	void UndoableDragFloat(const char* label, float& val);
+	void UndoableDragInt(const char* label, int& val);
 
 	template <typename T>
 	bool UndoableCombo(T& enumVal, const char* label, const char* const items[], int items_count)

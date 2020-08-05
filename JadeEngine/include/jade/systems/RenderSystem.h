@@ -34,7 +34,7 @@ namespace Jade {
 
     private:
         Shader* m_Shader;
-        std::vector<RenderBatch*> m_Batches;
+        std::vector<std::shared_ptr<RenderBatch>> m_Batches;
         Camera* m_Camera;
     };
 }

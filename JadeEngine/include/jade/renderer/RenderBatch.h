@@ -16,7 +16,7 @@ namespace Jade
     class RenderBatch
     {
     public:
-        RenderBatch(int maxBatchSize, bool batchOnTop=false);
+        RenderBatch(int maxBatchSize, int zIndex, bool batchOnTop=false);
 
         void Clear();
         void Start();
@@ -31,6 +31,9 @@ namespace Jade
         inline int NumSprites() { return m_NumSprites; }
 
         inline bool HasTextureRoom() { return m_NumTextures < m_Textures.size(); }
+        inline int ZIndex() { return m_ZIndex; }
+
+        static bool Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2);
 
         bool const HasTexture(uint32 resourceId)
         {
@@ -62,7 +65,7 @@ namespace Jade
         std::array<std::shared_ptr<Texture>, 16> m_Textures;
 
         uint32 m_VAO, m_VBO, m_EBO;
-        uint16 m_ZIndex = 0;
+        int16 m_ZIndex = 0;
         uint16 m_NumSprites = 0;
         uint16 m_NumTextures = 0;
 

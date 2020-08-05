@@ -29,5 +29,6 @@ namespace Jade {
 #include "jade/commands/ChangeVec2Command.h"
 #include "jade/commands/ChangeVec3Command.h"
 #include "jade/commands/ChangeVec4Command.h"
+#include "jade/commands/ChangeIntCommand.h"
 #include "jade/commands/ChangeUint8Command.h"
 #include "jade/commands/ChangeEnumCommand.h"

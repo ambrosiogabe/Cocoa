@@ -195,6 +195,27 @@ namespace ImGui
 		}
 	}
 
+	void UndoableDragInt(const char* label, int& val)
+	{
+		int tmp = val;
+		ImGui::Text(label);
+
+		if (ImGui::GetItemRectSize().x > textPadding)
+		{
+			textPadding = ImGui::GetItemRectSize().x;
+		}
+
+		ImGui::SameLine(textPadding);
+		if (ImGui::DragInt((std::string("##") + std::string(label)).c_str(), &tmp))
+		{
+			Jade::CommandHistory::AddCommand(new Jade::ChangeIntCommand(val, tmp));
+		}
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			Jade::CommandHistory::SetNoMergeMostRecent();
+		}
+	}
+
 	bool JImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding,
 		const glm::vec4& bgColor, const glm::vec4& tintColor)
 	{

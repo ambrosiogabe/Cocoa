@@ -5,8 +5,14 @@
 #include "jade/renderer/Shader.h"
 
 namespace Jade {
-    RenderBatch::RenderBatch(int maxBatchSize, bool batchOnTop) 
+    bool RenderBatch::Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2)
     {
+        return b1->ZIndex() < b2->ZIndex();
+    }
+
+    RenderBatch::RenderBatch(int maxBatchSize, int zIndex, bool batchOnTop) 
+    {
+        m_ZIndex = zIndex;
         m_MaxBatchSize = maxBatchSize;
         m_VertexBufferBase = new Vertex[m_MaxBatchSize * 4];
         m_VertexStackPointer = &m_VertexBufferBase[0];

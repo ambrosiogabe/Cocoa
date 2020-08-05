@@ -108,6 +108,7 @@ namespace Jade
 	struct SpriteRenderer
 	{
 		glm::vec4 m_Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		int m_ZIndex = 0;
 		Sprite m_Sprite{};
 	};
 }

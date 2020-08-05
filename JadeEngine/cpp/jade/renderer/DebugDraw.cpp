@@ -6,7 +6,7 @@
 
 namespace Jade
 {
-	std::vector<RenderBatch*> DebugDraw::m_Batches = std::vector<RenderBatch*>();
+	std::vector<std::shared_ptr<RenderBatch>> DebugDraw::m_Batches = std::vector<std::shared_ptr<RenderBatch>>();
 	std::vector<Line2D> DebugDraw::m_Lines = std::vector<Line2D>();
 	std::vector<DebugSprite> DebugDraw::m_Sprites = std::vector<DebugSprite>();
 	int DebugDraw::m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
@@ -35,7 +35,7 @@ namespace Jade
 		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
 		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
-		for (RenderBatch* batch : m_Batches)
+		for (auto& batch : m_Batches)
 		{
 			if (!batch->BatchOnTop())
 			{
@@ -54,7 +54,7 @@ namespace Jade
 		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
 		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
 
-		for (RenderBatch* batch : m_Batches)
+		for (auto& batch : m_Batches)
 		{
 			if (batch->BatchOnTop())
 			{
@@ -139,7 +139,7 @@ namespace Jade
 			DebugSprite sprite = m_Sprites[i];
 			bool wasAdded = false;
 			bool spriteOnTop = sprite.m_OnTop;
-			for (RenderBatch* batch : m_Batches)
+			for (auto& batch : m_Batches)
 			{
 				if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
 				{
@@ -151,10 +151,11 @@ namespace Jade
 
 			if (!wasAdded)
 			{
-				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize, spriteOnTop);
+				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(m_MaxBatchSize, 0, spriteOnTop);
 				newBatch->Start();
 				newBatch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-				m_Batches.push_back(newBatch);
+				m_Batches.emplace_back(newBatch);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
 			}
 		}
 	}
@@ -165,7 +166,7 @@ namespace Jade
 		{
 			bool wasAdded = false;
 			bool lineOnTop = line.IsOnTop();
-			for (RenderBatch* batch : m_Batches)
+			for (auto& batch : m_Batches)
 			{
 				if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
 				{
@@ -177,10 +178,11 @@ namespace Jade
 
 			if (!wasAdded)
 			{
-				RenderBatch* newBatch = new RenderBatch(m_MaxBatchSize, lineOnTop);
+				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(m_MaxBatchSize, 0, lineOnTop);
 				newBatch->Start();
 				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
-				m_Batches.push_back(newBatch);
+				m_Batches.emplace_back(newBatch);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
 			}
 		}
 	}
