@@ -58,13 +58,13 @@ namespace Jade
 		ImGui::Text("Version 1.0 Alpha");
 
 		ImGui::SetCursorPos(ImVec2(m_CreateProjButtonPos.x, m_CreateProjButtonPos.y));
-		if (ImGui::JButton(ICON_FA_PLUS " Create Project", m_ButtonSize))
+		if (JImGui::Button(ICON_FA_PLUS " Create Project", m_ButtonSize))
 		{
 			m_CreatingProject = true;
 		}
 
 		ImGui::SetCursorPos(ImVec2(m_OpenProjectButtonPos.x, m_OpenProjectButtonPos.y));
-		if (ImGui::JButton(ICON_FA_FOLDER_OPEN " Open Project", m_ButtonSize) && !m_CreatingProject)
+		if (JImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", m_ButtonSize) && !m_CreatingProject)
 		{
 			FileDialogResult res;
 			if (IFileDialog::GetOpenFileName("", res, { {"Jade Project", "*.jprj"} }))
@@ -100,19 +100,19 @@ namespace Jade
 		ImGui::LabelText("##tmp_showfile", "%s", s_NewProjectPath.Filepath());
 		ImGui::SameLine();
 
-		if (ImGui::JButton("Choose Directory"))
+		if (JImGui::Button("Choose Directory"))
 		{
 			FileDialogResult res;
 			IFileDialog::GetOpenFolderName(".", res);
 			s_NewProjectPath = res.filepath;
 		}
 
-		if (ImGui::JButton("Cancel"))
+		if (JImGui::Button("Cancel"))
 		{
 			res = true;
 		}
 		ImGui::SameLine();
-		if (ImGui::JButton("Create"))
+		if (JImGui::Button("Create"))
 		{
 			if (EditorLayer::CreateProject(s_NewProjectPath, s_TmpFilename))
 			{

@@ -35,26 +35,26 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("Rigidbody 2D"))
 			{
-				ImGui::BeginCollapsingHeaderGroup();
+				JImGui::BeginCollapsingHeaderGroup();
 
 				Rigidbody2D& rb = registry.get<Rigidbody2D>(activeEntity);
 				int currentItem = static_cast<int>(rb.m_BodyType);
 				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
-				ImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
+				JImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
 				//if (ImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size()))
 				//{
 				//	CommandHistory::AddCommand(new ChangeEnumCommand<BodyType2D>(rb.m_BodyType, static_cast<BodyType2D>(currentItem)));
 				//	CommandHistory::SetNoMergeMostRecent();
 				//}
 
-				ImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
-				ImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);
-				ImGui::UndoableDragFloat("Linear Damping: ##2", rb.m_LinearDamping);
-				ImGui::UndoableDragFloat("Angular Damping: ##3", rb.m_AngularDamping);
-				ImGui::UndoableDragFloat("Mass: ##4", rb.m_Mass);
-				ImGui::UndoableDragFloat2("Velocity: ##5", rb.m_Velocity);
+				JImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
+				JImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);
+				JImGui::UndoableDragFloat("Linear Damping: ##2", rb.m_LinearDamping);
+				JImGui::UndoableDragFloat("Angular Damping: ##3", rb.m_AngularDamping);
+				JImGui::UndoableDragFloat("Mass: ##4", rb.m_Mass);
+				JImGui::UndoableDragFloat2("Velocity: ##5", rb.m_Velocity);
 
-				ImGui::EndCollapsingHeaderGroup();
+				JImGui::EndCollapsingHeaderGroup();
 			}
 		}
 
@@ -64,13 +64,13 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("AABB"))
 			{
-				ImGui::BeginCollapsingHeaderGroup();
+				JImGui::BeginCollapsingHeaderGroup();
 
 				AABB& box = registry.get<AABB>(activeEntity);
-				ImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
-				ImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
+				JImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
+				JImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
 
-				ImGui::EndCollapsingHeaderGroup();
+				JImGui::EndCollapsingHeaderGroup();
 			}
 		}
 
@@ -80,13 +80,13 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("Box2D"))
 			{
-				ImGui::BeginCollapsingHeaderGroup();
+				JImGui::BeginCollapsingHeaderGroup();
 
 				Box2D& box = registry.get<Box2D>(activeEntity);
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				ImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
+				JImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
 
-				ImGui::EndCollapsingHeaderGroup();
+				JImGui::EndCollapsingHeaderGroup();
 			}
 		}
 
@@ -96,13 +96,13 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("Circle"))
 			{
-				ImGui::BeginCollapsingHeaderGroup();
+				JImGui::BeginCollapsingHeaderGroup();
 
 				Circle& circle = registry.get<Circle>(activeEntity);
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				ImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
+				JImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
 
-				ImGui::EndCollapsingHeaderGroup();
+				JImGui::EndCollapsingHeaderGroup();
 			}
 		}
 	}

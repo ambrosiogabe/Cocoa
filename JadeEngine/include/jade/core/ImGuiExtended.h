@@ -10,14 +10,15 @@
 #include <glm/vec2.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace ImGui {
-	ImVec4 From(const glm::vec4& vec4);
-
+namespace JImGui {	
 	bool MenuButton(const char* label, const glm::vec2& size = {0, 0});
-	bool JButton(const char* label, const glm::vec2& size = {0, 0});
-	bool JButtonDropdown(const char* label, const char* const items[], int items_size, int& item_pressed);
-	bool JImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding = -1, 
+	bool Button(const char* label, const glm::vec2& size = {0, 0});
+	bool ButtonDropdown(const char* label, const char* const items[], int items_size, int& item_pressed);
+	bool ImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding = -1, 
 		const glm::vec4& bgColor={0, 0, 0, 0}, const glm::vec4& tintColor={1, 1, 1, 1});
+	bool InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, 
+		ImGuiInputTextCallback callback = (ImGuiInputTextCallback)0, void* user_data= (void*)0);
+	bool Checkbox(const char* label, bool* checked);
 
 	void UndoableColorEdit4(const char* label, glm::vec4& color);
 	void UndoableColorEdit3(const char* label, glm::vec3& color);
@@ -34,11 +35,11 @@ namespace ImGui {
 		ImGui::Text(label);
 		ImGui::SameLine();
 
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, GetStyleColorVec4(ImGuiCol_Button));
-		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, GetStyleColorVec4(ImGuiCol_ButtonHovered));
-		ImGui::PushStyleColor(ImGuiCol_FrameBgActive, GetStyleColorVec4(ImGuiCol_ButtonActive));
-		ImGui::PushStyleColor(ImGuiCol_Text, GetStyleColorVec4(ImGuiCol_TextInverted));
-        if (!BeginCombo((std::string("##") + std::string(label)).c_str(), items[current_item], ImGuiComboFlags_None)) {
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetStyleColorVec4(ImGuiCol_Button));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextInverted));
+        if (!ImGui::BeginCombo((std::string("##") + std::string(label)).c_str(), items[current_item], ImGuiComboFlags_None)) {
 			ImGui::PopStyleColor(4);
             return false;
 		}
@@ -48,22 +49,22 @@ namespace ImGui {
         bool value_changed = false;
         for (int i = 0; i < items_count; i++)
         {
-            PushID((void*)(intptr_t)i);
+            ImGui::PushID((void*)(intptr_t)i);
             const bool item_selected = (i == current_item);
             const char* item_text = items[i];
             if (!item_text)
                 item_text = "*Unknown item*";
-            if (Selectable(item_text, item_selected))
+            if (ImGui::Selectable(item_text, item_selected))
             {
                 value_changed = true;
                 current_item = i;
             }
             if (item_selected)
-                SetItemDefaultFocus();
-            PopID();
+                ImGui::SetItemDefaultFocus();
+            ImGui::PopID();
         }
 
-        EndCombo();
+        ImGui::EndCombo();
 
 		if (value_changed)
 		{

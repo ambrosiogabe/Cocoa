@@ -136,6 +136,9 @@
     <ClInclude Include="include\jade\commands\ChangeFloatCommand.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\commands\ChangeIntCommand.h">
+      <Filter>include\jade\commands</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\commands\ChangeUint8Command.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
@@ -269,6 +272,9 @@
       <Filter>include\jade\unitTests</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\JMath.h">
+      <Filter>include\jade\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\util\JsonExtended.h">
       <Filter>include\jade\util</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\util\Log.h">
@@ -1516,8 +1522,6 @@
     <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\util\JsonExtended.h" />
-    <ClInclude Include="include\jade\commands\ChangeIntCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1601,6 +1605,9 @@
     <ClCompile Include="cpp\jade\util\JMath.cpp">
       <Filter>cpp\jade\util</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\util\JsonExtended.cpp">
+      <Filter>cpp\jade\util</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\jade\util\Log.cpp">
       <Filter>cpp\jade\util</Filter>
     </ClCompile>
@@ -1616,6 +1623,5 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\util\JsonExtended.cpp" />
   </ItemGroup>
 </Project>

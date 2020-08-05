@@ -53,12 +53,12 @@ namespace Jade
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuButton("New Project"))
+				if (JImGui::MenuButton("New Project"))
 				{
 					m_CreatingProject = true;
 				}
 
-				if (ImGui::MenuButton("Open Project"))
+				if (JImGui::MenuButton("Open Project"))
 				{
 					FileDialogResult result{};
 					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
@@ -67,7 +67,7 @@ namespace Jade
 					}
 				}
 
-				if (ImGui::MenuButton("Save Scene As"))
+				if (JImGui::MenuButton("Save Scene As"))
 				{
 					FileDialogResult result{};
 					if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
@@ -82,12 +82,12 @@ namespace Jade
 
 			if (ImGui::BeginMenu("Jade"))
 			{
-				if (ImGui::MenuButton("Settings"))
+				if (JImGui::MenuButton("Settings"))
 				{
 					m_SettingsOpen = true;
 				}
 
-				if (ImGui::MenuButton("Show Demo Window"))
+				if (JImGui::MenuButton("Show Demo Window"))
 				{
 					Application::Get()->GetScene()->ShowDemoWindow();
 				}
@@ -97,7 +97,7 @@ namespace Jade
 
 			if (ImGui::BeginMenu("Game Objects"))
 			{
-				if (ImGui::MenuButton("Add Sprite Object"))
+				if (JImGui::MenuButton("Add Sprite Object"))
 				{
 					entt::registry& registry = Application::Get()->GetScene()->GetRegistry();
 					entt::entity entity = registry.create();

@@ -71,19 +71,19 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 			if (ImGui::CollapsingHeader("Sprite Renderer"))
 			{
-				ImGui::BeginCollapsingHeaderGroup();
+				JImGui::BeginCollapsingHeaderGroup();
 				SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
-				ImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
-				ImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
+				JImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
+				JImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
 
 				if (spr.m_Sprite.m_Texture)
 				{
-					ImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture->GetFilepath().Filename(),
+					JImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture->GetFilepath().Filename(),
 						spr.m_Sprite.m_Texture->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
-					ImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
+					JImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
 				}
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -96,7 +96,7 @@ namespace Jade
 					ImGui::EndDragDropTarget();
 				}
 
-				ImGui::EndCollapsingHeaderGroup();
+				JImGui::EndCollapsingHeaderGroup();
 			}
 		}
 	}

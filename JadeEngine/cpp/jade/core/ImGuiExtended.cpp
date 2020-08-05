@@ -2,13 +2,8 @@
 #include "jade/core/ImGuiExtended.h"
 #include "jade/core/Core.h"
 
-namespace ImGui
+namespace JImGui
 {
-	ImVec4 From(const glm::vec4& vec4)
-	{
-		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
-	}
-
 	static float textPadding = 0;
 	void UndoableColorEdit4(const char* label, glm::vec4& color)
 	{
@@ -60,7 +55,7 @@ namespace ImGui
 		return res;
 	}
 
-	bool JButton(const char* label, const glm::vec2& size)
+	bool Button(const char* label, const glm::vec2& size)
 	{
 		ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_TextInverted);
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
@@ -69,13 +64,13 @@ namespace ImGui
 		return res;
 	}
 
-	bool JButtonDropdown(const char* label, const char* const items[], int items_count, int& item_pressed)
+	bool ButtonDropdown(const char* label, const char* const items[], int items_count, int& item_pressed)
 	{
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, GetStyleColorVec4(ImGuiCol_Button));
-		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, GetStyleColorVec4(ImGuiCol_ButtonHovered));
-		ImGui::PushStyleColor(ImGuiCol_FrameBgActive, GetStyleColorVec4(ImGuiCol_ButtonActive));
-		ImGui::PushStyleColor(ImGuiCol_Text, GetStyleColorVec4(ImGuiCol_TextInverted));
-		if (!BeginCombo((std::string("##") + std::string(label)).c_str(), label, ImGuiComboFlags_NoArrowButton))
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetStyleColorVec4(ImGuiCol_Button));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
+		ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextInverted));
+		if (!ImGui::BeginCombo((std::string("##") + std::string(label)).c_str(), label, ImGuiComboFlags_NoArrowButton))
 		{
 			ImGui::PopStyleColor(4);
 			return false;
@@ -86,19 +81,19 @@ namespace ImGui
 		bool value_changed = false;
 		for (int i = 0; i < items_count; i++)
 		{
-			PushID((void*)(intptr_t)i);
+			ImGui::PushID((void*)(intptr_t)i);
 			const char* item_text = items[i];
 			if (!item_text)
 				item_text = "*Unknown item*";
-			if (Selectable(item_text, false))
+			if (ImGui::Selectable(item_text, false))
 			{
 				value_changed = true;
 				item_pressed = i;
 			}
-			PopID();
+			ImGui::PopID();
 		}
 
-		EndCombo();
+		ImGui::EndCombo();
 
 		return value_changed;
 	}
@@ -216,10 +211,19 @@ namespace ImGui
 		}
 	}
 
-	bool JImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding,
+	bool ImageButton(const Jade::Texture& texture, const glm::vec2& size, int framePadding,
 		const glm::vec4& bgColor, const glm::vec4& tintColor)
 	{
-		return ImGui::ImageButton((ImTextureID)texture.GetId(), { size.x, size.y }, ImVec2(0, 0), ImVec2(1, 1), framePadding,
-			ImGui::From(bgColor), ImGui::From(tintColor));
+		return ImGui::ImageButton((ImTextureID)texture.GetId(), { size.x, size.y }, ImVec2(0, 0), ImVec2(1, 1), framePadding, bgColor, tintColor);
+	}
+
+	bool InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+	{
+		return ImGui::InputText(label, buf, buf_size, flags, callback, user_data);
+	}
+
+	bool Checkbox(const char* label, bool* checked)
+	{
+		return ImGui::Checkbox(label, checked);
 	}
 }

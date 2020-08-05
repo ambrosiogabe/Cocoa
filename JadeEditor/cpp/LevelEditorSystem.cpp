@@ -103,11 +103,11 @@ namespace Jade
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
 			{
-				ImGui::BeginCollapsingHeaderGroup();
-				ImGui::UndoableDragFloat3("Position: ", transform.m_Position);
-				ImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
-				ImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
-				ImGui::EndCollapsingHeaderGroup();
+				JImGui::BeginCollapsingHeaderGroup();
+				JImGui::UndoableDragFloat3("Position: ", transform.m_Position);
+				JImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
+				JImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
+				JImGui::EndCollapsingHeaderGroup();
 			}
 		}
 	}

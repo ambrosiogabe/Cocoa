@@ -236,10 +236,10 @@ namespace Jade
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
-		ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::From(Settings::EditorStyle::s_Accent));
-		ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImGui::From(Settings::EditorStyle::s_Accent));
-		ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImGui::From(Settings::EditorStyle::s_Accent));
-		ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImGui::From(Settings::EditorStyle::s_Accent));
+		ImGui::PushStyleColor(ImGuiCol_TitleBg, Settings::EditorStyle::s_Accent);
+		ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, Settings::EditorStyle::s_Accent);
+		ImGui::PushStyleColor(ImGuiCol_TitleBgActive, Settings::EditorStyle::s_Accent);
+		ImGui::PushStyleColor(ImGuiCol_MenuBarBg, Settings::EditorStyle::s_Accent);
 		ImGui::Begin("DockSpace Demo", &p_open, window_flags);
 
 		ImGui::PopStyleVar(5);
@@ -254,11 +254,11 @@ namespace Jade
 		ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-		ImGui::PushStyleColor(ImGuiCol_Border, ImGui::From(Settings::EditorStyle::s_MainBgDark2));
-		ImGui::PushStyleColor(ImGuiCol_PopupBg, ImGui::From(Settings::EditorStyle::s_AccentDark0));
-		ImGui::PushStyleColor(ImGuiCol_Header, ImGui::From(Settings::EditorStyle::s_AccentDark0));
-		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::From(Settings::EditorStyle::s_AccentDark0));
-		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::From(Settings::EditorStyle::s_AccentDark0));
+		ImGui::PushStyleColor(ImGuiCol_Border, Settings::EditorStyle::s_MainBgDark2);
+		ImGui::PushStyleColor(ImGuiCol_PopupBg, Settings::EditorStyle::s_AccentDark0);
+		ImGui::PushStyleColor(ImGuiCol_Header, Settings::EditorStyle::s_AccentDark0);
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, Settings::EditorStyle::s_AccentDark0);
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, Settings::EditorStyle::s_AccentDark0);
 		m_MenuBar.ImGui();
 		ImGui::PopStyleVar(4);
 		ImGui::PopStyleColor(5);

@@ -41,7 +41,7 @@ namespace Jade
 		ImGui::BeginGroup();
 
 		std::array<const char*, (int)AssetView::Length> assetViews = { "TextureBrowser", "ScriptBrowser" };
-		ImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
+		JImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 		ImGui::EndGroup();
 		ImGui::Separator();
 	}
@@ -64,7 +64,7 @@ namespace Jade
 	{
 		ImGui::BeginGroup();
 		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-		bool res = ImGui::JImageButton(*texture, size);
+		bool res = JImGui::ImageButton(*texture, size);
 		ImGui::PopFont();
 
 		ImVec2 textSize = ImGui::CalcTextSize(label);
