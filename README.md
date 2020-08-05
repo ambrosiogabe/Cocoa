@@ -6,11 +6,8 @@ In order to run this, you'll have to run a few commands. First, open up a powers
 
 Next run these commands:
 ```
-git clone https://github.com/ambrosiogabe/CDungeonCrawler
-cd CDungeonCrawler
-git submodule update --init --recursive
-git pull --recurse-submodule
-./build.bat
+git clone --recursive https://github.com/ambrosiogabe/CDungeonCrawler
+build.bat
 ```
 
 These commands will clone the repository into your directory, update the submodules (this step takes awhile because of PhysX), then make sure to contain the latest copies of the submodules (just in case).
