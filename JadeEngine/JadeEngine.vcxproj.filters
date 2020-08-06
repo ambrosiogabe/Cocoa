@@ -1522,6 +1522,7 @@
     <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\core\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1623,5 +1624,6 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\core\Entity.cpp" />
   </ItemGroup>
 </Project>

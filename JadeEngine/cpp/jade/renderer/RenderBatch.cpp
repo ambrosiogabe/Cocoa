@@ -113,7 +113,7 @@ namespace Jade {
 
         if (!HasTexture(textureAssetId))
         {
-            m_Textures[m_NumTextures] = std::dynamic_pointer_cast<Texture>(AssetManager::GetAsset(textureAssetId));
+            m_Textures[m_NumTextures] = std::static_pointer_cast<Texture>(AssetManager::GetAsset(textureAssetId));
             m_NumTextures++;
         }
 
@@ -147,8 +147,8 @@ namespace Jade {
             }
         }
 
-        auto res = Application::Get()->GetScene()->GetEntity<Transform>(transform);
-        LoadVertexProperties(transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId, entt::to_integral(res.second));
+        Entity res = Entity::FromComponent<Transform>(transform);
+        LoadVertexProperties(transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId, res.GetID());
     }
 
     void RenderBatch::LoadVertexProperties(const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 

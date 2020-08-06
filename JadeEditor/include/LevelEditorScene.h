@@ -6,6 +6,7 @@
 #include "jade/renderer/Shader.h"
 #include "jade/renderer/Texture.h"
 #include "jade/components/components.h"
+#include "jade/core/Entity.h"
 
 namespace Jade
 {
@@ -23,8 +24,7 @@ namespace Jade
         void ImGuiSceneHeirarchy();
 
     private:
-        Shader* shader = nullptr;
-        Spritesheet* sprites = nullptr;
-        std::shared_ptr<Texture> texture = nullptr;
+        Entity m_ActiveEntity = Entity::Null;
+        std::shared_ptr<Asset> m_ActiveAsset = nullptr;
     };
 }

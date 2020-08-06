@@ -15,6 +15,9 @@ namespace Jade
 		Application();
 		virtual ~Application();
 
+		virtual void Init() {}
+		virtual void Shutdown() {}
+
 		void Run();
 		void Stop();
 
@@ -28,7 +31,6 @@ namespace Jade
 
 		Framebuffer* GetFramebuffer() const;
 		void ChangeScene(Scene* scene);
-		Scene* GetScene() const;
 		JWindow* GetWindow() const;
 
 		static Application* Get();

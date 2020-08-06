@@ -3,6 +3,7 @@
 #include "jade/core/Core.h"
 
 #include "jade/systems/System.h"
+#include "jade/core/Entity.h"
 
 namespace Jade
 {
@@ -41,7 +42,7 @@ namespace Jade
         glm::vec2 m_Origin = glm::vec2();
         glm::vec2 m_Direction = glm::vec2();
         float m_MaxDistance = 0.0f;
-        entt::entity m_Ignore = entt::null;
+        Entity m_Ignore = Entity::Null;
     };
 
     struct Rigidbody2D
@@ -61,11 +62,11 @@ namespace Jade
     class Physics2DSystem : public System
     {
     public:
-        Physics2DSystem(const char* name)
-            : System(name) { }
+        Physics2DSystem(const char* name, Scene* scene)
+            : System(name, scene) { }
          
-        virtual void Render(entt::registry& registry) override;
-        virtual void ImGui(entt::registry& registry) override;
+        virtual void Render() override;
+        virtual void ImGui() override;
         //virtual void Update(entt::registry& registry, float dt) override;
 
         // ----------------------------------------------------------------------------
@@ -102,11 +103,11 @@ namespace Jade
         // ----------------------------------------------------------------------------
         // Serialization
         // ----------------------------------------------------------------------------
-        static void Serialize(entt::entity& entity, const AABB& box);
-        static void DeserializeAABB(json& j, entt::registry& registry, entt::entity entity);
-        static void Serialize(entt::entity& entity, const Box2D& box);
-        static void DeserializeBox2D(json& j, entt::registry& registry, entt::entity entity);
-        static void Serialize(entt::entity& entity, const Rigidbody2D& rigidbody);
-        static void DeserializeRigidbody2D(json& j, entt::registry& registry, entt::entity entity);
+        static void Serialize(json& j, Entity entity, const AABB& box);
+        static void DeserializeAABB(json& j, Entity entity);
+        static void Serialize(json& j, Entity entity, const Box2D& box);
+        static void DeserializeBox2D(json& j, Entity entity);
+        static void Serialize(json& j, Entity entity, const Rigidbody2D& rigidbody);
+        static void DeserializeRigidbody2D(json& j, Entity entity);
     };
 }

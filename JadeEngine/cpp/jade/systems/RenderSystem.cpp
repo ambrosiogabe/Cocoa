@@ -42,12 +42,12 @@ namespace Jade
 		}
 	}
 
-	void RenderSystem::Render(entt::registry& registry)
+	void RenderSystem::Render()
 	{
-		registry.group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, auto& spr, auto& transform)
-			{
-				this->AddEntity(transform, spr);
-			});
+		m_Scene->GetRegistry().group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, auto& spr, auto& transform)
+		{
+			this->AddEntity(transform, spr);
+		});
 
 		Log::Assert((s_Shader != nullptr), "Must bind shader before render call");
 
@@ -55,7 +55,7 @@ namespace Jade
 		s_Shader->UploadMat4("uProjection", m_Camera->GetOrthoProjection());
 		s_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
 		s_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
-		s_Shader->UploadFloat("uActiveEntityID", (float)(entt::to_integral(Application::Get()->GetScene()->GetActiveEntity()) + 1));
+		//s_Shader->UploadFloat("uActiveEntityID", (float)(m_Scene->GetActiveEntity().GetID() + 1));
 
 		for (auto& batch : m_Batches)
 		{
@@ -66,18 +66,18 @@ namespace Jade
 		s_Shader->Unbind();
 	}
 
-	void RenderSystem::ImGui(entt::registry& registry)
+	void RenderSystem::ImGui()
 	{
-		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
+		Entity activeEntity = Entity::Null;// m_Scene->GetActiveEntity();
 
-		if (registry.has<SpriteRenderer>(activeEntity))
+		if (activeEntity.HasComponent<SpriteRenderer>())
 		{
 			static bool collapsingHeaderOpen = true;
 			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 			if (ImGui::CollapsingHeader("Sprite Renderer"))
 			{
 				JImGui::BeginCollapsingHeaderGroup();
-				SpriteRenderer& spr = registry.get<SpriteRenderer>(activeEntity);
+				SpriteRenderer& spr = activeEntity.GetComponent<SpriteRenderer>();
 				JImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
 				JImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
 
@@ -106,10 +106,8 @@ namespace Jade
 		}
 	}
 
-	void RenderSystem::Serialize(entt::entity entity, const SpriteRenderer& spriteRenderer)
+	void RenderSystem::Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)
 	{
-		json& j = Application::Get()->GetScene()->GetSaveDataJson();
-
 		json color = JMath::Serialize("Color", spriteRenderer.m_Color);
 		json assetId = { "AssetId", -1 };
 		json zIndex = { "ZIndex", spriteRenderer.m_ZIndex };
@@ -121,7 +119,7 @@ namespace Jade
 		int size = j["Size"];
 		j["Components"][size] = {
 			{"SpriteRenderer", {
-				{"Entity", entt::to_integral(entity)},
+				{"Entity", entity.GetID()},
 				assetId,
 				zIndex,
 				color
@@ -131,7 +129,7 @@ namespace Jade
 		j["Size"] = size + 1;
 	}
 
-	void RenderSystem::Deserialize(json& j, entt::registry& registry, entt::entity entity)
+	void RenderSystem::Deserialize(json& j, Entity entity)
 	{
 		SpriteRenderer spriteRenderer;
 		spriteRenderer.m_Color = JMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
@@ -147,6 +145,6 @@ namespace Jade
 		{
 			spriteRenderer.m_ZIndex = j["SpriteRenderer"]["ZIndex"];
 		}
-		registry.emplace<SpriteRenderer>(entity, spriteRenderer);
+		entity.AddComponent<SpriteRenderer>(spriteRenderer);
 	}
 }

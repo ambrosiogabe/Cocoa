@@ -16,11 +16,13 @@ namespace Jade
 	glm::vec2 Input::s_GameViewPos{ 0, 0 };
 	glm::vec2 Input::s_GameViewSize{ 0, 0 };
 	glm::vec2 Input::s_GameViewMousePos{ 0, 0 };
+	Scene* Input::s_Scene = nullptr;
 
-	void Input::Init()
+	void Input::Init(Scene* scene)
 	{
 		Log::Assert(!s_Initialized, "Input already initialized.");
 		s_Initialized = true;
+		s_Scene = scene;
 		const glm::vec2& windowSize = Application::Get()->GetWindow()->GetSize();
 	}
 
@@ -73,7 +75,7 @@ namespace Jade
 		float currentX = MouseX() - s_GameViewPos.x;
 		currentX = (currentX / s_GameViewSize.x) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
-		tmp = Application::Get()->GetScene()->GetCamera()->GetOrthoInverseView() * Application::Get()->GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
+		tmp = s_Scene->GetCamera()->GetOrthoInverseView() * s_Scene->GetCamera()->GetOrthoInverseProjection() * tmp;
 
 		return tmp.x;
 	}
@@ -83,7 +85,7 @@ namespace Jade
 		float currentY = s_GameViewPos.y - MouseY();
 		currentY = (currentY / s_GameViewSize.y) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
-		tmp = Application::Get()->GetScene()->GetCamera()->GetOrthoInverseView() * Application::Get()->GetScene()->GetCamera()->GetOrthoInverseProjection() * tmp;
+		tmp = s_Scene->GetCamera()->GetOrthoInverseView() * s_Scene->GetCamera()->GetOrthoInverseProjection() * tmp;
 
 		return tmp.y;
 	}

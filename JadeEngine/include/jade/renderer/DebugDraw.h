@@ -19,6 +19,8 @@ namespace Jade {
             glm::vec3 tint={1.0f, 1.0f, 1.0f}, glm::vec2 texCoordMin={0.0f, 1.0f}, glm::vec2 texCoordMax={1.0f, 0.0f}, float rotation=0.0f, 
             int lifetime=1, bool onTop=true);
 
+        static void Init(Scene* scene);
+
     private:
         static void RemoveDeadSprites();
         static void RemoveDeadLines();
@@ -26,11 +28,12 @@ namespace Jade {
         static void AddLinesToBatches();
 
     private:        
-        static std::vector<std::shared_ptr<RenderBatch>> m_Batches;
-        static std::vector<Line2D> m_Lines;
-        static std::vector<DebugSprite> m_Sprites;
-        static int m_TexSlots[16];
-        static Shader* m_Shader;
-        static int m_MaxBatchSize;
+        static std::vector<std::shared_ptr<RenderBatch>> s_Batches;
+        static std::vector<Line2D> s_Lines;
+        static std::vector<DebugSprite> s_Sprites;
+        static int s_TexSlots[16];
+        static Shader* s_Shader;
+        static int s_MaxBatchSize;
+        static Scene* s_Scene;
     };
 }

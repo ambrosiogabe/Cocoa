@@ -3,9 +3,12 @@
 #include "jade/renderer/Camera.h"
 
 namespace Jade {
+
+    class Scene;
+
     class Input {
     public:
-        static void Init();
+        static void Init(Scene* scene);
 
         static void KeyCallback(int key, int scancode, int action, int mods);
         static void CursorCallback(double xpos, double ypos);
@@ -44,5 +47,7 @@ namespace Jade {
         static glm::vec2 s_GameViewPos;
         static glm::vec2 s_GameViewSize;
         static glm::vec2 s_GameViewMousePos;
+
+        static Scene* s_Scene;
     };
 }

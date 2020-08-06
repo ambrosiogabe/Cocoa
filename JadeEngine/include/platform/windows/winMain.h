@@ -21,16 +21,12 @@ int main() {
 
     Jade::Application* application = Jade::CreateApplication();
 
-    Jade::AssetManager::Init(0);
-    Jade::IFileDialog::Init();
-    Jade::IFile::Init();
-    Jade::Input::Init();
+    application->Init();
 
     application->Run();
-    delete application;
-    
-    Jade::IFileDialog::Destroy();
-    Jade::IFile::Destroy();
 
+    application->Shutdown();
+    
+    delete application;
     return 0;
 }

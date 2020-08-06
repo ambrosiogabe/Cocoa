@@ -88,7 +88,7 @@ namespace Jade
 			ImGui::PushID(texResourceId);
 			if (ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize))
 			{
-				Application::Get()->GetScene()->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
+				//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 			}
 
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))

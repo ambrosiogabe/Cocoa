@@ -2,10 +2,15 @@
 #include "externalLibs.h"
 
 #include "jade/file/JPath.h"
-#include "jade/systems/RenderSystem.h"
+#include "jade/systems/System.h"
+#include "jade/core/AssetManager.h"
+
+#include <entt/entt.hpp>
 
 namespace Jade
 {
+	class Entity;
+
 	class Scene
 	{
 	public:
@@ -21,37 +26,16 @@ namespace Jade
 		void Load(const JPath& filename);
 		void Reset();
 
-		inline void SetActiveAsset(std::shared_ptr<Asset> asset)
-		{
-			m_ActiveAsset = asset;
-			m_ActiveEntity = entt::null;
-		}
+		Entity CreateEntity();
+		Entity GetEntity(uint32 id);
 
-		inline void SetActiveEntity(entt::entity entity)
-		{
-			m_ActiveEntity = entity;
-			m_ActiveAsset = nullptr;
-		}
-
-		inline entt::entity GetActiveEntity() { return m_ActiveEntity; }
-		inline std::shared_ptr<Asset> GetActiveAsset() { return m_ActiveAsset; }
 		inline Camera* GetCamera() { return m_Camera; }
-		inline entt::registry& GetRegistry() { return m_Registry; }
 		inline const std::vector<std::unique_ptr<System>>& GetSystems() { return m_Systems; }
-
+		inline entt::registry& GetRegistry() { return m_Registry; }
 
 		// TODO: TEMPORARY GET BETTER SYSTEM THAN THESE!!!
 		inline json& GetSaveDataJson() { return m_SaveDataJson; }
 		inline void ShowDemoWindow() { m_ShowDemoWindow = true; }
-
-	public:
-		template<typename T>
-		std::pair<entt::registry&, entt::entity> GetEntity(const T& component)
-		{
-			size_t offset = &component - m_Registry.raw<T>();
-			Log::Assert(offset < m_Registry.size(), "Tried to get nonexistent entity.");
-			return { m_Registry, *(m_Registry.data<T>() + offset) };
-		}
 
 	protected:
 		void LoadDefaultAssets();
@@ -65,7 +49,7 @@ namespace Jade
 		json m_SaveDataJson;
 
 		Camera* m_Camera;
-		entt::entity m_ActiveEntity = entt::null;
-		std::shared_ptr<Asset> m_ActiveAsset = nullptr;
+
+		friend class Entity;
 	};
 }

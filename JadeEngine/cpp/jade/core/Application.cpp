@@ -3,6 +3,7 @@
 
 #include "jade/core/Application.h"
 #include "jade/renderer/DebugDraw.h"
+#include "jade/core/Entity.h"
 
 namespace Jade
 {
@@ -122,11 +123,9 @@ namespace Jade
 		this->m_CurrentScene = newScene;
 		this->m_CurrentScene->Init();
 		this->m_CurrentScene->Start();
-	}
-
-	Scene* Application::GetScene() const
-	{
-		return m_CurrentScene;
+		
+		Entity::SetScene(this->m_CurrentScene);
+		DebugDraw::Init(newScene);
 	}
 
 	void Application::Stop()

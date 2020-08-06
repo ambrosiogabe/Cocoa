@@ -3,27 +3,29 @@
 
 #include "jade/events/Event.h"
 
-
 namespace Jade {
+
+    class Scene;
+
     class System {
     public:
-        System(const char* name) 
-            : m_Name(name) {}
+        System(const char* name, Scene* scene) 
+            : m_Name(name), m_Scene(scene) {}
 
 
-        virtual void Start(entt::registry& registry) {
-
-        }
-
-        virtual void Update(entt::registry& registry, float dt) {
+        virtual void Start() {
 
         }
 
-        virtual void Render(entt::registry& registry) {
+        virtual void Update(float dt) {
 
         }
 
-        virtual void ImGui(entt::registry& registry) {
+        virtual void Render() {
+
+        }
+
+        virtual void ImGui() {
             
         }
 
@@ -37,5 +39,8 @@ namespace Jade {
 
     private:
         const char* m_Name = "";
+
+    protected:
+        Scene* m_Scene = nullptr;
     };
 }

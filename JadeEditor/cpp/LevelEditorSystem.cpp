@@ -1,8 +1,7 @@
 #include "LevelEditorSystem.h"
 #include "jade/core/Application.h"
 #include "jade/events/Input.h"
-#include "jade/commands/CommandHistory.h"
-#include "jade/commands/ChangeVec3Command.h"
+#include "jade/commands/ICommand.h"
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/ImGuiExtended.h"
 #include "jade/util/JMath.h"
@@ -19,34 +18,34 @@
 
 namespace Jade
 {
-	void LevelEditorSystem::Start(entt::registry& registry)
+	void LevelEditorSystem::Start()
 	{
-		auto view = registry.view<Transform>();
-		for (auto entity : view)
+		auto view = m_Scene->GetRegistry().view<Transform>();
+		for (Entity entity : view)
 		{
-			Transform& transform = view.get<Transform>(entity);
-			if (entt::to_integral(transform.m_Previous) != entt::to_integral(entt::null))
-			{
-				Transform& prevTransform = view.get<Transform>(transform.m_Previous);
-				prevTransform.m_Next = entity;
+			//Transform& transform = entity.GetComponent<Transform>();
+			//if (!transform.m_Previous.IsNull())
+			//{
+			//	Transform& prevTransform = transform.m_Previous.GetComponent<Transform>();
+			//	prevTransform.m_Next = entity;
 
-				if (entt::to_integral(transform.m_Parent) != entt::to_integral(entt::null))
-				{
-					Transform& parentTransform = view.get<Transform>(transform.m_Parent);
-					if (entt::to_integral(transform.m_First) == entt::to_integral(entt::null))
-					{
-						parentTransform.m_First = entity;
-					}
-				}
-			}
+			//	if (!transform.m_Parent.IsNull())
+			//	{
+			//		Transform& parentTransform = transform.m_Parent.GetComponent<Transform>();
+			//		if (!transform.m_First.IsNull())
+			//		{
+			//			parentTransform.m_First = entity;
+			//		}
+			//	}
+			//}
 		}
 	}
 
-	void LevelEditorSystem::Update(entt::registry& registry, float dt)
+	void LevelEditorSystem::Update(float dt)
 	{
 		if (m_IsDragging)
 		{
-			Camera* camera = Application::Get()->GetScene()->GetCamera();
+			Camera* camera = m_Scene->GetCamera();
 			glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
 			glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 			delta *= 0.8f;
@@ -56,8 +55,8 @@ namespace Jade
 		// Draw grid lines
 		if (Settings::General::s_DrawGrid)
 		{
-			Transform& cameraTransform = Application::Get()->GetScene()->GetCamera()->GetTransform();
-			float cameraZoom = Application::Get()->GetScene()->GetCamera()->GetZoom();
+			Transform& cameraTransform = m_Scene->GetCamera()->GetTransform();
+			float cameraZoom = m_Scene->GetCamera()->GetZoom();
 			int gridWidth = Settings::General::s_GridSizeX;// *cameraZoom;
 			int gridHeight = Settings::General::s_GridSizeY;// *cameraZoom;
 
@@ -92,24 +91,24 @@ namespace Jade
 		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
 	}
 
-	void LevelEditorSystem::ImGui(entt::registry& registry)
+	void LevelEditorSystem::ImGui()
 	{
-		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
-		if (registry.has<Transform>(activeEntity))
-		{
-			Transform& transform = registry.get<Transform>(activeEntity);
+		//Entity activeEntity = m_Scene->GetActiveEntity();
+		//if (activeEntity.HasComponent<Transform>())
+		//{
+		//	Transform& transform = activeEntity.GetComponent<Transform>();
 
-			static bool collapsingHeaderOpen = true;
-			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
-			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
-			{
-				JImGui::BeginCollapsingHeaderGroup();
-				JImGui::UndoableDragFloat3("Position: ", transform.m_Position);
-				JImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
-				JImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
-				JImGui::EndCollapsingHeaderGroup();
-			}
-		}
+		//	static bool collapsingHeaderOpen = true;
+		//	ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
+		//	if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
+		//	{
+		//		JImGui::BeginCollapsingHeaderGroup();
+		//		JImGui::UndoableDragFloat3("Position: ", transform.m_Position);
+		//		JImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
+		//		JImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
+		//		JImGui::EndCollapsingHeaderGroup();
+		//	}
+		//}
 	}
 
 	void LevelEditorSystem::OnEvent(Event& e)
@@ -143,7 +142,7 @@ namespace Jade
 
 			if (e.GetKeyCode() == JADE_KEY_S)
 			{
-				Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
+				m_Scene->Save(Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
 			}
 		}
@@ -166,7 +165,7 @@ namespace Jade
 		float yOffset = -e.GetYOffset();
 		if (yOffset != 0)
 		{
-			Camera* camera = Application::Get()->GetScene()->GetCamera();
+			Camera* camera = m_Scene->GetCamera();
 			//float speed = 500.0f * camera->GetZoom();
 			camera->SetZoom(camera->GetZoom() + (yOffset * 0.05f));
 		}
@@ -180,7 +179,7 @@ namespace Jade
 		if (!m_IsDragging && e.GetMouseButton() == JADE_MOUSE_BUTTON_MIDDLE)
 		{
 			m_IsDragging = true;
-			Camera* camera = Application::Get()->GetScene()->GetCamera();
+			Camera* camera = m_Scene->GetCamera();
 			m_OriginalCameraPos = camera->GetTransform().m_Position;
 			m_OriginalDragClickPos = JMath::Vector3From2(camera->ScreenToOrtho());
 			//m_DragClickOffset = JMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;

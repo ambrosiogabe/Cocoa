@@ -13,19 +13,19 @@
 namespace Jade {
     class RenderSystem : public System {
     public:
-        RenderSystem(Camera* camera, const char* name)
-            : System(name) {
+        RenderSystem(Camera* camera, const char* name, Scene* scene)
+            : System(name, scene) {
             m_Camera = camera;
         }
 
         void AddEntity(const Transform& transform, const SpriteRenderer& spr);
-        virtual void Render(entt::registry& registry) override;
-        virtual void ImGui(entt::registry& registry) override;
+        virtual void Render() override;
+        virtual void ImGui() override;
 
         Camera& GetCamera() const { return *m_Camera; }
 
-        static void Serialize(entt::entity entity, const SpriteRenderer& spriteRenderer);
-        static void Deserialize(json& json, entt::registry& registry, entt::entity entity);
+        static void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer);
+        static void Deserialize(json& json, Entity entity);
         static void BindShader(std::shared_ptr<Shader> shader) { s_Shader = shader; }
 
     public:

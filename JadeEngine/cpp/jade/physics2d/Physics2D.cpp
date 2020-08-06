@@ -55,21 +55,21 @@ namespace Jade
 		return result;
 	}
 
-	std::pair<entt::registry&, entt::entity> Physics2D::OverlapPoint(const glm::vec2& point)
+	Entity Physics2D::OverlapPoint(const glm::vec2& point)
 	{
 		Physics2D* physics = Get();
-		auto group = physics->m_Registry.group<AABB>(entt::get<Transform>);
-		for (auto entity : group)
+		auto group = physics->m_Scene->GetRegistry().group<AABB>(entt::get<Transform>);
+		for (Entity entity : group)
 		{
-			auto& aabb = group.get<AABB>(entity);
-			auto& transform = group.get<Transform>(entity);
+			auto& aabb = entity.GetComponent<AABB>();
+			auto& transform = entity.GetComponent<Transform>();
 			if (CollisionDetector2D::PointInAABB(point, aabb))
 			{
-				return { physics->m_Registry, entity };
+				return entity;
 			}
 		};
 
-		return { physics->m_Registry, entt::null };
+		return Entity::Null;
 	}
 
 	bool Physics2D::PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
@@ -81,12 +81,12 @@ namespace Jade
 		return shape.TestPoint(transform, b2Vec2(point.x, point.y));
 	}
 
-	void Physics2D::AddEntity(entt::entity entity)
+	void Physics2D::AddEntity(Entity entity)
 	{
-		if (m_Registry.has<Transform, Rigidbody2D>(entity))
+		if (entity.HasComponent<Transform, Rigidbody2D>())
 		{
-			Transform& transform = m_Registry.get<Transform>(entity);
-			Rigidbody2D& rb = m_Registry.get<Rigidbody2D>(entity);
+			Transform& transform = entity.GetComponent<Transform>();
+			Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
 
 			b2BodyDef bodyDef;
 			bodyDef.position.Set(transform.m_Position.x, transform.m_Position.y);
@@ -113,17 +113,17 @@ namespace Jade
 			rb.m_RawRigidbody = body;
 
 			b2PolygonShape shape;
-			if (m_Registry.has<Box2D>(entity))
+			if (entity.HasComponent<Box2D>())
 			{
-				Box2D& box = m_Registry.get<Box2D>(entity);
+				Box2D& box = entity.GetComponent<Box2D>();
 				shape.SetAsBox(box.m_HalfSize.x * transform.m_Scale.x, box.m_HalfSize.y * transform.m_Scale.y);
 				b2Vec2 pos = bodyDef.position;
 				bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.m_Scale.x, pos.y - box.m_HalfSize.y * transform.m_Scale.y);
 			}
-			else if (m_Registry.has<Circle>(entity))
+			else if (entity.HasComponent<Circle>())
 			{
 				// TODO: IMPLEMENT ME
-				Circle& circle = m_Registry.get<Circle>(entity);
+				Circle& circle = entity.GetComponent<Circle>();
 			}
 
 			body->CreateFixture(&shape, rb.m_Mass);
@@ -139,11 +139,11 @@ namespace Jade
 			m_PhysicsTime -= Settings::Physics2D::s_Timestep;
 		}
 
-		auto view = m_Registry.view<Transform, Rigidbody2D>();
-		for (auto entity : view)
+		auto view = m_Scene->GetRegistry().view<Transform, Rigidbody2D>();
+		for (Entity entity : view)
 		{
-			Transform& transform = m_Registry.get<Transform>(entity);
-			Rigidbody2D& rb = m_Registry.get<Rigidbody2D>(entity);
+			Transform& transform = entity.GetComponent<Transform>();
+			Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
 			b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
 			b2Vec2 position = body->GetPosition();
 			transform.m_Position.x = position.x;
@@ -154,10 +154,10 @@ namespace Jade
 
 	void Physics2D::Destroy()
 	{
-		auto view = m_Registry.view<Rigidbody2D>();
-		for (auto entity : view)
+		auto view =  m_Scene->GetRegistry().view<Rigidbody2D>();// m_Registry.view<Rigidbody2D>();
+		for (Entity entity : view)
 		{
-			Rigidbody2D& rb = m_Registry.get<Rigidbody2D>(entity);
+			Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
 
 			// Manually destroy all bodies, in case the physics system would like
 			// to use this world again
@@ -170,11 +170,11 @@ namespace Jade
 	// Should be called once at beginning of engine initialization
 	// -------------------------------------------------------------------------
 	std::unique_ptr<Physics2D> Physics2D::s_Instance = nullptr;
-	void Physics2D::Init(entt::registry& registry)
+	void Physics2D::Init(Scene* scene)
 	{
 		if (s_Instance == nullptr)
 		{
-			s_Instance = std::unique_ptr<Physics2D>(new Physics2D(registry));
+			s_Instance = std::unique_ptr<Physics2D>(new Physics2D(scene));
 		}
 		else
 		{
@@ -188,4 +188,7 @@ namespace Jade
 
 		return s_Instance.get();
 	}
+
+	Physics2D::Physics2D(Scene* scene) 
+		: m_Scene(scene) {}
 }

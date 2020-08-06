@@ -154,8 +154,8 @@ namespace Jade
 			{
 				if (!isPlaying)
 				{
-					Application::Get()->GetScene()->Save(Settings::General::s_EngineAssetsPath + "tmp.jade");
-					Application::Get()->GetScene()->Play();
+					m_Scene->Save(Settings::General::s_EngineAssetsPath + "tmp.jade");
+					m_Scene->Play();
 					isPlaying = true;
 				}
 				ImGui::EndMenu();
@@ -164,8 +164,8 @@ namespace Jade
 			{
 				if (isPlaying)
 				{
-					Application::Get()->GetScene()->Stop();
-					Application::Get()->GetScene()->Load(Settings::General::s_EngineAssetsPath + "tmp.jade");
+					m_Scene->Stop();
+					m_Scene->Load(Settings::General::s_EngineAssetsPath + "tmp.jade");
 					isPlaying = false;
 				}
 				ImGui::EndMenu();

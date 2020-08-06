@@ -10,7 +10,8 @@ namespace Jade
     class ImGuiLayer : public Layer
     {
     public:
-        ImGuiLayer()
+        ImGuiLayer(Scene* scene)
+            : Layer(scene)
         {
             m_Window = nullptr;
         }

@@ -5,6 +5,7 @@
 #include "ImGuiLayer.h"
 #include "jade/file/IFile.h"
 #include "jade/util/Settings.h"
+#include "jade/systems/RenderSystem.h"
 
 #include <glad/glad.h>
 #include <nlohmann/json.hpp>
@@ -14,7 +15,8 @@ namespace Jade
 	// ===================================================================================
 	// Editor Layer
 	// ===================================================================================
-	EditorLayer::EditorLayer()
+	EditorLayer::EditorLayer(Scene* scene)
+		: Layer(scene)
 	{
 		m_ProjectWizard = ProjectWizard();
 		m_PickingTexture = PickingTexture();
@@ -39,8 +41,9 @@ namespace Jade
 		IFile::CreateDirIfNotExists(projectPath + "scripts");
 		IFile::CreateDirIfNotExists(projectPath + "scenes");
 
-		Application::Get()->GetScene()->Reset();
-		Application::Get()->GetScene()->Save(Settings::General::s_CurrentScene);
+		JadeEditor* application = (JadeEditor*)Application::Get();
+		application->GetEditorLayer()->m_Scene->Reset();
+		application->GetEditorLayer()->m_Scene->Save(Settings::General::s_CurrentScene);
 		SaveEditorData();
 
 		return true;
@@ -48,7 +51,7 @@ namespace Jade
 
 	void EditorLayer::SaveEditorData()
 	{
-		if (static_cast<JadeEditor*>(Application::Get())->GetEditorLayer().m_ProjectLoaded)
+		if (static_cast<JadeEditor*>(Application::Get())->GetEditorLayer()->m_ProjectLoaded)
 		{
 			ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.Filepath());
 		}
@@ -112,7 +115,10 @@ namespace Jade
 			{
 				Settings::General::s_CurrentScene = JPath(j["CurrentScene"]);
 				Settings::General::s_WorkingDirectory = JPath(j["WorkingDirectory"]);
-				Application::Get()->GetScene()->Load(Settings::General::s_CurrentScene);
+
+				JadeEditor* application = (JadeEditor*)Application::Get();
+				application->GetEditorLayer()->m_Scene->Load(Settings::General::s_CurrentScene);
+
 				SaveEditorData();
 				std::string winTitle = std::string(Settings::General::s_CurrentProject.Filename()) + " -- " + std::string(Settings::General::s_CurrentScene.Filename());
 				Application::Get()->GetWindow()->SetTitle(winTitle.c_str());
@@ -132,7 +138,6 @@ namespace Jade
 		Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath + Settings::General::s_ImGuiConfigPath;
 
 		// Start the scene
-		Application::Get()->ChangeScene(new LevelEditorScene());
 		m_PickingTexture.Init(3840, 2160);
 
 		// Create application store data if it does not exist
@@ -149,7 +154,7 @@ namespace Jade
 		if (JadeEditor::IsProjectLoaded())
 		{
 			DebugDraw::BeginFrame();
-			Application::Get()->GetScene()->Update(dt);
+			m_Scene->Update(dt);
 		}
 		else
 		{
@@ -161,7 +166,7 @@ namespace Jade
 	{
 		if (JadeEditor::IsProjectLoaded())
 		{
-			Application::Get()->GetScene()->ImGui();
+			m_Scene->ImGui();
 		}
 		else
 		{
@@ -181,7 +186,7 @@ namespace Jade
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			RenderSystem::BindShader(m_PickingShader);
-			Application::Get()->GetScene()->Render();
+			m_Scene->Render();
 
 			m_PickingTexture.DisableWriting();
 			glEnable(GL_BLEND);
@@ -193,7 +198,7 @@ namespace Jade
 			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			RenderSystem::BindShader(m_DefaultShader);
 			DebugDraw::DrawBottomBatches();
-			Application::Get()->GetScene()->Render();
+			m_Scene->Render();
 			DebugDraw::DrawTopBatches();
 		}
 	}
@@ -202,7 +207,7 @@ namespace Jade
 	{
 		if (JadeEditor::IsProjectLoaded())
 		{
-			const auto& systems = Application::Get()->GetScene()->GetSystems();
+			const auto& systems = m_Scene->GetSystems();
 
 			for (const auto& system : systems)
 			{
@@ -216,9 +221,28 @@ namespace Jade
 	// ===================================================================================
 	JadeEditor::JadeEditor()
 	{
-		m_ImGuiLayer = new ImGuiLayer();
+	}
+
+	void JadeEditor::Init()
+	{
+		// Engine initialization
+		Jade::AssetManager::Init(0);
+		Jade::IFileDialog::Init();
+		Jade::IFile::Init();
+		ChangeScene(new LevelEditorScene());
+		Jade::Input::Init(m_CurrentScene);
+
+		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
+		m_EditorLayer = new EditorLayer(m_CurrentScene);
 		PushOverlay(m_ImGuiLayer);
-		PushLayer(&m_EditorLayer);
+		PushLayer(m_EditorLayer);
+	}
+
+	void JadeEditor::Shutdown()
+	{
+		// Engine shutdown sequence
+		Jade::IFileDialog::Destroy();
+		Jade::IFile::Destroy();
 	}
 
 	void JadeEditor::BeginFrame()

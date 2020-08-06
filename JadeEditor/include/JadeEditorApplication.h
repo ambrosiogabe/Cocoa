@@ -11,7 +11,7 @@ namespace Jade
 	class EditorLayer : public Layer
 	{
 	public:
-		EditorLayer();
+		EditorLayer(Scene* scene);
 
 		virtual void OnAttach() override;
 		virtual void OnUpdate(float dt) override;
@@ -42,6 +42,7 @@ namespace Jade
 	};
 
 	class ImGuiLayer;
+
 	class JadeEditor : public Application
 	{
 	public:
@@ -50,23 +51,25 @@ namespace Jade
 
 		virtual void BeginFrame() override;
 		virtual void EndFrame() override;
+		virtual void Init() override;
+		virtual void Shutdown() override;
 
-		const EditorLayer& GetEditorLayer() { return m_EditorLayer; }
+		const EditorLayer* GetEditorLayer() { return m_EditorLayer; }
 
 		static bool IsProjectLoaded()
 		{
 			JadeEditor* app = static_cast<JadeEditor*>(Application::Get());
-			return app->m_EditorLayer.IsProjectLoaded();
+			return app->m_EditorLayer->IsProjectLoaded();
 		}
 
 		static void SetProjectLoaded()
 		{
 			JadeEditor* app = static_cast<JadeEditor*>(Application::Get());
-			app->m_EditorLayer.SetProjectLoaded();
+			app->m_EditorLayer->SetProjectLoaded();
 		}
 
 	private:
-		EditorLayer m_EditorLayer;
+		EditorLayer* m_EditorLayer;
 		ImGuiLayer* m_ImGuiLayer;
 	};
 }

@@ -3,22 +3,29 @@
 #include "jade/renderer/DebugDraw.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
+#include "jade/util/Settings.h"
 
 namespace Jade
 {
-	std::vector<std::shared_ptr<RenderBatch>> DebugDraw::m_Batches = std::vector<std::shared_ptr<RenderBatch>>();
-	std::vector<Line2D> DebugDraw::m_Lines = std::vector<Line2D>();
-	std::vector<DebugSprite> DebugDraw::m_Sprites = std::vector<DebugSprite>();
-	int DebugDraw::m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-	Shader* DebugDraw::m_Shader = nullptr;
-	int DebugDraw::m_MaxBatchSize = 500;
+	std::vector<std::shared_ptr<RenderBatch>> DebugDraw::s_Batches = std::vector<std::shared_ptr<RenderBatch>>();
+	std::vector<Line2D> DebugDraw::s_Lines = std::vector<Line2D>();
+	std::vector<DebugSprite> DebugDraw::s_Sprites = std::vector<DebugSprite>();
+	int DebugDraw::s_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	Shader* DebugDraw::s_Shader = nullptr;
+	int DebugDraw::s_MaxBatchSize = 500;
+	Scene* DebugDraw::s_Scene = nullptr;
 
+	void DebugDraw::Init(Scene* scene)
+	{
+		s_Scene = scene;
+	}
 
 	void DebugDraw::BeginFrame()
 	{
-		if (m_Shader == nullptr)
+		if (s_Shader == nullptr)
 		{
-			m_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
+			Log::Assert((s_Scene != nullptr), "DebugDraw's scene is nullptr. Did you forget to initialize DebugDraw when you changed scenes?");
+			s_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
 		}
 
 		RemoveDeadLines();
@@ -30,12 +37,12 @@ namespace Jade
 		AddLinesToBatches();
 		AddSpritesToBatches();
 
-		m_Shader->Bind();
-		m_Shader->UploadMat4("uProjection", Application::Get()->GetScene()->GetCamera()->GetOrthoProjection());
-		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
-		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
+		s_Shader->Bind();
+		s_Shader->UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
+		s_Shader->UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
+		s_Shader->UploadIntArray("uTextures", 16, s_TexSlots);
 
-		for (auto& batch : m_Batches)
+		for (auto& batch : s_Batches)
 		{
 			if (!batch->BatchOnTop())
 			{
@@ -44,17 +51,17 @@ namespace Jade
 			}
 		}
 
-		m_Shader->Unbind();
+		s_Shader->Unbind();
 	}
 
 	void DebugDraw::DrawTopBatches()
 	{
-		m_Shader->Bind();
-		m_Shader->UploadMat4("uProjection", Application::Get()->GetScene()->GetCamera()->GetOrthoProjection());
-		m_Shader->UploadMat4("uView", Application::Get()->GetScene()->GetCamera()->GetOrthoView());
-		m_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
+		s_Shader->Bind();
+		s_Shader->UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
+		s_Shader->UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
+		s_Shader->UploadIntArray("uTextures", 16, s_TexSlots);
 
-		for (auto& batch : m_Batches)
+		for (auto& batch : s_Batches)
 		{
 			if (batch->BatchOnTop())
 			{
@@ -63,7 +70,7 @@ namespace Jade
 			}
 		}
 
-		m_Shader->Unbind();
+		s_Shader->Unbind();
 	}
 
 	// ===================================================================================================================
@@ -71,7 +78,7 @@ namespace Jade
 	// ===================================================================================================================
 	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
 	{
-		m_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime, onTop));
+		s_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime, onTop));
 	}
 
 	void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
@@ -101,7 +108,7 @@ namespace Jade
 	void DebugDraw::AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position, glm::vec3 tint,
 		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime, bool onTop)
 	{
-		m_Sprites.push_back({ textureAssetId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
+		s_Sprites.push_back({ textureAssetId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 	}
 
 
@@ -110,11 +117,11 @@ namespace Jade
 	// ===================================================================================================================
 	void DebugDraw::RemoveDeadSprites()
 	{
-		for (int i = 0; i < m_Sprites.size(); i++)
+		for (int i = 0; i < s_Sprites.size(); i++)
 		{
-			if (m_Sprites[i].BeginFrame() <= 0)
+			if (s_Sprites[i].BeginFrame() <= 0)
 			{
-				m_Sprites.erase(m_Sprites.begin() + i);
+				s_Sprites.erase(s_Sprites.begin() + i);
 				i--;
 			}
 		}
@@ -122,11 +129,11 @@ namespace Jade
 
 	void DebugDraw::RemoveDeadLines()
 	{
-		for (int i = 0; i < m_Lines.size(); i++)
+		for (int i = 0; i < s_Lines.size(); i++)
 		{
-			if (m_Lines[i].BeginFrame() <= 0)
+			if (s_Lines[i].BeginFrame() <= 0)
 			{
-				m_Lines.erase(m_Lines.begin() + i);
+				s_Lines.erase(s_Lines.begin() + i);
 				i--;
 			}
 		}
@@ -134,12 +141,12 @@ namespace Jade
 
 	void DebugDraw::AddSpritesToBatches()
 	{
-		for (int i = (int)m_Sprites.size() - 1; i >= 0; i--)
+		for (int i = (int)s_Sprites.size() - 1; i >= 0; i--)
 		{
-			DebugSprite sprite = m_Sprites[i];
+			DebugSprite sprite = s_Sprites[i];
 			bool wasAdded = false;
 			bool spriteOnTop = sprite.m_OnTop;
-			for (auto& batch : m_Batches)
+			for (auto& batch : s_Batches)
 			{
 				if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
 				{
@@ -151,22 +158,22 @@ namespace Jade
 
 			if (!wasAdded)
 			{
-				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(m_MaxBatchSize, 0, spriteOnTop);
+				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(s_MaxBatchSize, 0, spriteOnTop);
 				newBatch->Start();
 				newBatch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-				m_Batches.emplace_back(newBatch);
-				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
+				s_Batches.emplace_back(newBatch);
+				std::sort(s_Batches.begin(), s_Batches.end(), RenderBatch::Compare);
 			}
 		}
 	}
 
 	void DebugDraw::AddLinesToBatches()
 	{
-		for (Line2D line : m_Lines)
+		for (Line2D line : s_Lines)
 		{
 			bool wasAdded = false;
 			bool lineOnTop = line.IsOnTop();
-			for (auto& batch : m_Batches)
+			for (auto& batch : s_Batches)
 			{
 				if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
 				{
@@ -178,11 +185,11 @@ namespace Jade
 
 			if (!wasAdded)
 			{
-				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(m_MaxBatchSize, 0, lineOnTop);
+				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(s_MaxBatchSize, 0, lineOnTop);
 				newBatch->Start();
 				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
-				m_Batches.emplace_back(newBatch);
-				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
+				s_Batches.emplace_back(newBatch);
+				std::sort(s_Batches.begin(), s_Batches.end(), RenderBatch::Compare);
 			}
 		}
 	}

@@ -2,12 +2,32 @@
 #include "jade/file/OutputArchive.h"
 #include "jade/file/IFile.h"
 #include "jade/util/Settings.h"
+#include "jade/core/Entity.h"
+#include "jade/components/Transform.h"
 
 #include <nlohmann/json.hpp>
 
 
 namespace Jade
 {
+	Entity Scene::CreateEntity()
+	{
+		entt::entity e = m_Registry.create();
+		Entity entity = Entity(e, this);
+		entity.AddComponent<Transform>();
+		return entity;
+	}
+
+	Entity Scene::GetEntity(uint32 id)
+	{
+		entt::entity entity = entt::null;
+		if (id < 0xffffffff)
+		{
+			entity = entt::entity((uint32)id);
+		}
+		return Entity(entity, this);
+	}
+
 	void Scene::Play()
 	{
 		auto view = m_Registry.view<Transform>();
@@ -34,7 +54,7 @@ namespace Jade
 			{"Assets", AssetManager::Serialize()}
 		};
 
-		OutputArchive output;
+		OutputArchive output(m_SaveDataJson);
 		entt::snapshot{ m_Registry }
 			.entities(output)
 			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
@@ -44,7 +64,6 @@ namespace Jade
 
 	void Scene::Reset()
 	{
-		m_ActiveEntity = entt::null;
 		for (auto entity : m_Registry.view<Transform>())
 		{
 			m_Registry.remove_all(entity);
@@ -54,6 +73,22 @@ namespace Jade
 	void Scene::LoadDefaultAssets()
 	{
 		AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", 0, true);
+	}
+
+	static Entity FindOrCreateEntity(std::unordered_map<int, int>& idKey, int id, Scene* scene, entt::registry& registry)
+	{
+		Entity entity;
+		if (idKey.find(id) != idKey.end())
+		{
+			entity = Entity(entt::entity(idKey[id]), scene);
+		}
+		else
+		{
+			entity = Entity(registry.create(), scene);
+			idKey[id] = entity.GetID();
+		}
+
+		return entity;
 	}
 
 	void Scene::Load(const JPath& filename)
@@ -80,73 +115,28 @@ namespace Jade
 		{
 			if (!j["Components"][i]["SpriteRenderer"].is_null())
 			{
-				entt::entity entity;
-				if (idKey.find(j["Components"][i]["SpriteRenderer"]["Entity"]) != idKey.end())
-				{
-					entity = entt::entity(idKey[j["Components"][i]["SpriteRenderer"]["Entity"]]);
-				}
-				else
-				{
-					entity = m_Registry.create();
-					idKey[j["Components"][i]["SpriteRenderer"]["Entity"]] = entt::to_integral(entity);
-				}
-				RenderSystem::Deserialize(j["Components"][i], m_Registry, entity);
+				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["SpriteRenderer"]["Entity"], this, m_Registry);
+				RenderSystem::Deserialize(j["Components"][i], entity);
 			}
 			else if (!j["Components"][i]["Transform"].is_null())
 			{
-				entt::entity entity;
-				if (idKey.find(j["Components"][i]["Transform"]["Entity"]) != idKey.end())
-				{
-					entity = entt::entity(idKey[j["Components"][i]["Transform"]["Entity"]]);
-				}
-				else
-				{
-					entity = m_Registry.create();
-					idKey[j["Components"][i]["Transform"]["Entity"]] = entt::to_integral(entity);
-				}
-				Transform::Deserialize(j["Components"][i], m_Registry, entity);
+				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["Transform"]["Entity"], this, m_Registry);
+				Transform::Deserialize(j["Components"][i], entity);
 			}
 			else if (!j["Components"][i]["Rigidbody2D"].is_null())
 			{
-				entt::entity entity;
-				if (idKey.find(j["Components"][i]["Rigidbody2D"]["Entity"]) != idKey.end())
-				{
-					entity = entt::entity(idKey[j["Components"][i]["Rigidbody2D"]["Entity"]]);
-				}
-				else
-				{
-					entity = m_Registry.create();
-					idKey[j["Components"][i]["Rigidbody2D"]["Entity"]] = entt::to_integral(entity);
-				}
-				Physics2DSystem::DeserializeRigidbody2D(j["Components"][i], m_Registry, entity);
+				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["Rigidbody2D"]["Entity"], this, m_Registry);
+				Physics2DSystem::DeserializeRigidbody2D(j["Components"][i], entity);
 			}
 			else if (!j["Components"][i]["Box2D"].is_null())
 			{
-				entt::entity entity;
-				if (idKey.find(j["Components"][i]["Box2D"]["Entity"]) != idKey.end())
-				{
-					entity = entt::entity(idKey[j["Components"][i]["Box2D"]["Entity"]]);
-				}
-				else
-				{
-					entity = m_Registry.create();
-					idKey[j["Components"][i]["Box2D"]["Entity"]] = entt::to_integral(entity);
-				}
-				Physics2DSystem::DeserializeBox2D(j["Components"][i], m_Registry, entity);
+				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["Box2D"]["Entity"], this, m_Registry);
+				Physics2DSystem::DeserializeBox2D(j["Components"][i], entity);
 			}
 			else if (!j["Components"][i]["AABB"].is_null())
 			{
-				entt::entity entity;
-				if (idKey.find(j["Components"][i]["AABB"]["Entity"]) != idKey.end())
-				{
-					entity = entt::entity(idKey[j["Components"][i]["AABB"]["Entity"]]);
-				}
-				else
-				{
-					entity = m_Registry.create();
-					idKey[j["Components"][i]["AABB"]["Entity"]] = entt::to_integral(entity);
-				}
-				Physics2DSystem::DeserializeAABB(j["Components"][i], m_Registry, entity);
+				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["AABB"]["Entity"], this, m_Registry);
+				Physics2DSystem::DeserializeAABB(j["Components"][i], entity);
 			}
 		}
 

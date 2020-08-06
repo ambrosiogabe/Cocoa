@@ -10,26 +10,26 @@
 
 namespace Jade
 {
-	void Physics2DSystem::Render(entt::registry& registry)
+	void Physics2DSystem::Render()
 	{
-		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
+		Entity activeEntity = Entity::Null;// m_Scene->GetActiveEntity();
 
-		if (entt::to_integral(activeEntity) != entt::to_integral(entt::null))
+		if (!activeEntity.IsNull())
 		{
-			if (registry.has<Box2D, Transform>(activeEntity))
+			if (activeEntity.HasComponent<Box2D, Transform>())
 			{
-				const Box2D& box = registry.get<Box2D>(activeEntity);
-				const Transform& transform = registry.get<Transform>(activeEntity);
+				const Box2D& box = activeEntity.GetComponent<Box2D>();
+				const Transform& transform = activeEntity.GetComponent<Transform>();
 				DebugDraw::AddBox2D(JMath::Vector2From3(transform.m_Position), box.m_HalfSize * 2.0f * JMath::Vector2From3(transform.m_Scale), transform.m_EulerRotation.z);
 			}
 		}
 	}
 
-	void Physics2DSystem::ImGui(entt::registry& registry)
+	void Physics2DSystem::ImGui()
 	{
-		entt::entity activeEntity = Application::Get()->GetScene()->GetActiveEntity();
+		Entity activeEntity = Entity::Null; // m_Scene->GetActiveEntity();
 
-		if (registry.has<Rigidbody2D>(activeEntity))
+		if (activeEntity.HasComponent<Rigidbody2D>())
 		{
 			static bool treeNodeOpen = true;
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
@@ -37,7 +37,7 @@ namespace Jade
 			{
 				JImGui::BeginCollapsingHeaderGroup();
 
-				Rigidbody2D& rb = registry.get<Rigidbody2D>(activeEntity);
+				Rigidbody2D& rb = activeEntity.GetComponent<Rigidbody2D>();
 				int currentItem = static_cast<int>(rb.m_BodyType);
 				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
 				JImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
@@ -58,7 +58,7 @@ namespace Jade
 			}
 		}
 
-		if (registry.has<AABB>(activeEntity))
+		if (activeEntity.HasComponent<AABB>())
 		{
 			static bool treeNodeOpen = true;
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
@@ -66,7 +66,7 @@ namespace Jade
 			{
 				JImGui::BeginCollapsingHeaderGroup();
 
-				AABB& box = registry.get<AABB>(activeEntity);
+				AABB& box = activeEntity.GetComponent<AABB>();
 				JImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
 				JImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
 
@@ -74,7 +74,7 @@ namespace Jade
 			}
 		}
 
-		if (registry.has<Box2D>(activeEntity))
+		if (activeEntity.HasComponent<Box2D>())
 		{
 			static bool treeNodeOpen = true;
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
@@ -82,7 +82,7 @@ namespace Jade
 			{
 				JImGui::BeginCollapsingHeaderGroup();
 
-				Box2D& box = registry.get<Box2D>(activeEntity);
+				Box2D& box = activeEntity.GetComponent<Box2D>();
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
 				JImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
 
@@ -90,7 +90,7 @@ namespace Jade
 			}
 		}
 
-		if (registry.has<Circle>(activeEntity))
+		if (activeEntity.HasComponent<Circle>())
 		{
 			static bool treeNodeOpen = true;
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
@@ -98,7 +98,7 @@ namespace Jade
 			{
 				JImGui::BeginCollapsingHeaderGroup();
 
-				Circle& circle = registry.get<Circle>(activeEntity);
+				Circle& circle = activeEntity.GetComponent<Circle>();
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
 				JImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
 
@@ -128,8 +128,8 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetMin(const Box2D& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		Transform& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 
 		glm::vec2 boxScale = transform.m_Scale;
 		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position);// +(box.m_Offset * boxScale);
@@ -140,8 +140,8 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetMax(const Box2D& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		Transform& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 
 		glm::vec2 boxScale = transform.m_Scale;
 		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position);// +(box.m_Offset * boxScale);
@@ -175,15 +175,15 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetCenter(const Box2D& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		auto& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 		return JMath::Vector2From3(transform.m_Position);
 	}
 
 	float Physics2DSystem::GetRotation(const Box2D& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		auto& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 		return transform.m_EulerRotation.z;
 	}
 
@@ -209,8 +209,8 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetMax(const AABB& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		Transform& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 
 		glm::vec2 boxScale = transform.m_Scale;
 		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
@@ -221,8 +221,8 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetMin(const AABB& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		Transform& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 
 		glm::vec2 boxScale = transform.m_Scale;
 		glm::vec2 boxCenter = JMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
@@ -233,8 +233,8 @@ namespace Jade
 
 	glm::vec2 Physics2DSystem::GetCenter(const AABB& box)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(box);
-		auto& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(box);
+		Transform& transform = entity.GetComponent<Transform>();
 		return JMath::Vector2From3(transform.m_Position);
 	}
 
@@ -243,8 +243,8 @@ namespace Jade
 	// ----------------------------------------------------------------------------
 	glm::vec2 Physics2DSystem::GetCenter(const Circle& circle)
 	{
-		auto result = Application::Get()->GetScene()->GetEntity(circle);
-		auto& transform = result.first.get<Transform>(result.second);
+		Entity entity = Entity::FromComponent(circle);
+		Transform& transform = entity.GetComponent<Transform>();
 		return JMath::Vector2From3(transform.m_Position);
 	}
 
@@ -257,7 +257,7 @@ namespace Jade
 		ray.m_Origin = origin;
 		ray.m_Direction = direction;
 		ray.m_MaxDistance = std::numeric_limits<float>::max();
-		ray.m_Ignore = entt::null;
+		ray.m_Ignore = Entity::Null;
 		return ray;
 	}
 
@@ -271,16 +271,14 @@ namespace Jade
 		return ray;
 	}
 
-	void Physics2DSystem::Serialize(entt::entity& entity, const AABB& box)
+	void Physics2DSystem::Serialize(json& j, Entity entity, const AABB& box)
 	{
-		json& j = Application::Get()->GetScene()->GetSaveDataJson();
-
 		json halfSize = JMath::Serialize("HalfSize", box.m_HalfSize);
 		json offset = JMath::Serialize("Offset", box.m_Offset);
 		int size = j["Size"];
 		j["Components"][size] = {
 			{"AABB", {
-				{"Entity", entt::to_integral(entity)},
+				{"Entity", entity.GetID()},
 				halfSize,
 				offset
 			}}
@@ -289,24 +287,22 @@ namespace Jade
 		j["Size"] = size + 1;
 	}
 
-	void Physics2DSystem::DeserializeAABB(json& j, entt::registry& registry, entt::entity entity)
+	void Physics2DSystem::DeserializeAABB(json& j, Entity entity)
 	{
 		AABB box;
 		box.m_HalfSize = JMath::DeserializeVec2(j["AABB"]["HalfSize"]);
 		box.m_Size = box.m_HalfSize * 2.0f;
 		box.m_Offset = JMath::DeserializeVec2(j["AABB"]["Offset"]);
-		registry.emplace<AABB>(entity, box);
+		entity.AddComponent<AABB>(box);
 	}
 
-	void Physics2DSystem::Serialize(entt::entity& entity, const Box2D& box)
+	void Physics2DSystem::Serialize(json& j, Entity entity, const Box2D& box)
 	{
-		json& j = Application::Get()->GetScene()->GetSaveDataJson();
-
 		json halfSize = JMath::Serialize("HalfSize", box.m_HalfSize);
 		int size = j["Size"];
 		j["Components"][size] = {
 			{"Box2D", {
-				{"Entity", entt::to_integral(entity)},
+				{"Entity", entity.GetID()},
 				halfSize,
 			}}
 		};
@@ -314,18 +310,16 @@ namespace Jade
 		j["Size"] = size + 1;
 	}
 
-	void Physics2DSystem::DeserializeBox2D(json& j, entt::registry& registry, entt::entity entity)
+	void Physics2DSystem::DeserializeBox2D(json& j, Entity entity)
 	{
 		Box2D box;
 		box.m_HalfSize = JMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
 		box.m_Size = box.m_HalfSize * 2.0f;
-		registry.emplace<Box2D>(entity, box);
+		entity.AddComponent<Box2D>(box);
 	}
 
-	void Physics2DSystem::Serialize(entt::entity& entity, const Rigidbody2D& rb)
+	void Physics2DSystem::Serialize(json& j, Entity entity, const Rigidbody2D& rb)
 	{
-		json& j = Application::Get()->GetScene()->GetSaveDataJson();
-
 		json angularDamping = { "AngularDamping", rb.m_AngularDamping };
 		json linearDamping = { "LinearDamping", rb.m_LinearDamping };
 		json mass = { "Mass", rb.m_Mass };
@@ -335,7 +329,7 @@ namespace Jade
 		int size = j["Size"];
 		j["Components"][size] = {
 			{"Rigidbody2D", {
-				{"Entity", entt::to_integral(entity)},
+				{"Entity", entity.GetID()},
 				angularDamping,
 				linearDamping,
 				mass,
@@ -348,7 +342,7 @@ namespace Jade
 		j["Size"] = size + 1;
 	}
 
-	void Physics2DSystem::DeserializeRigidbody2D(json& j, entt::registry& registry, entt::entity entity)
+	void Physics2DSystem::DeserializeRigidbody2D(json& j, Entity entity)
 	{
 		Rigidbody2D rb;
 		rb.m_AngularDamping = j["Rigidbody2D"]["AngularDamping"];
@@ -357,6 +351,6 @@ namespace Jade
 		rb.m_Velocity = JMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
 		rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
 		rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
-		registry.emplace<Rigidbody2D>(entity, rb);
+		entity.AddComponent<Rigidbody2D>(rb);
 	}
 }

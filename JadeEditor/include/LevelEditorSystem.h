@@ -1,10 +1,6 @@
 #pragma once
 
-//#include "Jade.h"
-
 #include "jade/systems/System.h"
-#include "jade/components/components.h"
-#include "jade/components/Transform.h"
 #include "jade/events/KeyEvent.h"
 #include "jade/events/MouseEvent.h"
 
@@ -13,14 +9,14 @@ namespace Jade
 	class LevelEditorSystem : public System
 	{
 	public:
-		LevelEditorSystem(const char* name)
-			: System(name)
+		LevelEditorSystem(const char* name, Scene* scene)
+			: System(name, scene)
 		{
 		}
 
-		virtual void Update(entt::registry& registry, float dt) override;
-		virtual void Start(entt::registry& registry) override;
-		virtual void ImGui(entt::registry& registry) override;
+		virtual void Update(float dt) override;
+		virtual void Start() override;
+		virtual void ImGui() override;
 		virtual void OnEvent(Event& e) override;
 
 	private:
@@ -39,7 +35,5 @@ namespace Jade
 
 		glm::vec3 m_OriginalDragClickPos = glm::vec3();
 		glm::vec3 m_OriginalCameraPos = glm::vec3();
-
-		//GizmoController m_GizmoController;
 	};
 }

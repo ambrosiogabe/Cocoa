@@ -4,10 +4,13 @@
 #include "jade/events/Event.h"
 
 namespace Jade {
+    
+    class Scene;
+
     class Layer {
     public:
-        Layer(const std::string& name = "Layer")
-            : m_DebugName(name) {}
+        Layer(Scene* scene, const std::string& name = "Layer")
+            : m_Scene(scene), m_DebugName(name) {}
         virtual ~Layer() {}
 
         virtual void OnAttach() {}
@@ -20,5 +23,6 @@ namespace Jade {
 
     protected:
         std::string m_DebugName;
+        Scene* m_Scene = nullptr;
     };
 }

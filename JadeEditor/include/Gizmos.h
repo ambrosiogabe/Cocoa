@@ -26,7 +26,7 @@ namespace Jade
     class Gizmo
     {
     public:
-        Gizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.4f, 0.4f, 0.4f});
+        Gizmo(Camera* camera, const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.4f, 0.4f, 0.4f});
 
         inline bool GizmoIsActive() { return m_Active; }
         void Render();
@@ -47,17 +47,18 @@ namespace Jade
         uint32 m_TextureAssetId;
         float m_SpriteRotation;
         bool m_Active;
+        Camera* m_Camera;
     };
 
     class GizmoSystem : public System
     {
     public:
         ~GizmoSystem() {}
-        GizmoSystem(const char* name="Gizmo System");
+        GizmoSystem(const char* name="Gizmo System", Scene* scene=nullptr);
 
-        virtual void Update(entt::registry& registry, float dt) override;
+        virtual void Update(float dt) override;
         virtual void OnEvent(Event& e) override;
-        virtual void ImGui(entt::registry& registry) override;
+        virtual void ImGui() override;
 
     private:
         bool HandleKeyPress(KeyPressedEvent& e);

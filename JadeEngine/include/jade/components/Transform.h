@@ -1,9 +1,10 @@
 #pragma once
-
 #include "externalLibs.h"
 
 namespace Jade
 {
+    class Entity;
+
     struct Transform
     {
         Transform()
@@ -11,10 +12,9 @@ namespace Jade
             Init(glm::vec3(0), glm::vec3(1), glm::vec3(0));
         }
 
-        Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name = "New GameObject",
-            entt::entity parent = entt::null, entt::entity previous = entt::null)
+        Transform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name = "New GameObject")
         {
-            Init(position, scale, eulerRotation, name, parent, previous);
+            Init(position, scale, eulerRotation, name);
         }
 
         void UpdateMatrices()
@@ -24,13 +24,8 @@ namespace Jade
             m_ModelMatrix = glm::scale(m_ModelMatrix, m_Scale);
         }
 
-        static void Serialize(entt::entity entity, const Transform& transform);
-        static void Deserialize(json& j, entt::registry& registry, entt::entity entity);
-
-        entt::entity m_Parent;
-        entt::entity m_Previous;
-        entt::entity m_Next;
-        entt::entity m_First;
+        static void Serialize(json& j, Entity entity, const Transform& transform);
+        static void Deserialize(json& j, Entity entity);
 
         glm::vec3 m_Position;
         glm::vec3 m_Scale;
@@ -46,8 +41,7 @@ namespace Jade
         const char* m_Name;
 
     private:
-        void Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name = "New GameObject",
-            entt::entity parent = entt::null, entt::entity previous = entt::null)
+        void Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, const char* name = "New GameObject")
         {
             m_Position = position;
             m_Scale = scale;
@@ -58,10 +52,6 @@ namespace Jade
             m_Up = glm::vec3(0, 1, 0) * m_Orientation;
             m_Right = glm::vec3(1, 0, 0) * m_Orientation;
             m_Name = name;
-            m_Parent = parent;
-            m_Previous = previous;
-            m_First = entt::null;
-            m_Next = entt::null;
 
             this->UpdateMatrices();
         }
