@@ -55,6 +55,7 @@ namespace Jade
 		s_Shader->UploadMat4("uProjection", m_Camera->GetOrthoProjection());
 		s_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
 		s_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
+		s_Shader->UploadFloat("uActiveEntityID", (float)(entt::to_integral(Application::Get()->GetScene()->GetActiveEntity()) + 1));
 
 		for (auto& batch : m_Batches)
 		{

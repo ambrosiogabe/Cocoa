@@ -20,6 +20,7 @@ namespace Jade
 		m_PickingTexture = PickingTexture();
 		m_PickingShader = std::make_shared<Shader>(JPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"));
 		m_DefaultShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
+		m_OutlineShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SingleColor.glsl");
 	}
 
 	bool EditorLayer::CreateProject(const JPath& projectPath, const char* filename)
@@ -186,10 +187,10 @@ namespace Jade
 			glEnable(GL_BLEND);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, Application::Get()->GetFramebuffer()->GetId());
+
 			glViewport(0, 0, 3840, 2160);
 			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-
+			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			RenderSystem::BindShader(m_DefaultShader);
 			DebugDraw::DrawBottomBatches();
 			Application::Get()->GetScene()->Render();

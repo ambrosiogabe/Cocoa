@@ -35,6 +35,7 @@ namespace Jade
 		PickingTexture m_PickingTexture;
 		std::shared_ptr<Shader> m_PickingShader;
 		std::shared_ptr<Shader> m_DefaultShader;
+		std::shared_ptr<Shader> m_OutlineShader;
 
 	private:
 		bool m_ProjectLoaded = false;
