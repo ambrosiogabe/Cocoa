@@ -1,9 +1,10 @@
 #include "LevelEditorSystem.h"
+#include "Gui/ImGuiExtended.h"
+
 #include "jade/core/Application.h"
 #include "jade/events/Input.h"
 #include "jade/commands/ICommand.h"
 #include "jade/renderer/DebugDraw.h"
-#include "jade/core/ImGuiExtended.h"
 #include "jade/util/JMath.h"
 #include "jade/util/Settings.h"
 #include "jade/file/IFile.h"
@@ -89,26 +90,6 @@ namespace Jade
 	static ImVec4 From(const glm::vec4& vec4)
 	{
 		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
-	}
-
-	void LevelEditorSystem::ImGui()
-	{
-		//Entity activeEntity = m_Scene->GetActiveEntity();
-		//if (activeEntity.HasComponent<Transform>())
-		//{
-		//	Transform& transform = activeEntity.GetComponent<Transform>();
-
-		//	static bool collapsingHeaderOpen = true;
-		//	ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
-		//	if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
-		//	{
-		//		JImGui::BeginCollapsingHeaderGroup();
-		//		JImGui::UndoableDragFloat3("Position: ", transform.m_Position);
-		//		JImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
-		//		JImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
-		//		JImGui::EndCollapsingHeaderGroup();
-		//	}
-		//}
 	}
 
 	void LevelEditorSystem::OnEvent(Event& e)

@@ -56,7 +56,6 @@ project "JadeEngine"
         "%{prj.name}/vendor",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}",
         "%{IncludeDir.Box2D}",
 		"%{IncludeDir.glm}",
         "%{IncludeDir.stb}",
@@ -68,7 +67,6 @@ project "JadeEngine"
 		"GLFW",
         "opengl32.lib",
         "Glad",
-		"ImGui",
         "Box2D",
 	}
 
@@ -139,7 +137,8 @@ project "JadeEditor"
     }
 
     links {
-        "JadeEngine"
+        "JadeEngine",
+        "ImGui"
     }
 
     filter { "system:windows", "configurations:Debug" }

@@ -28,7 +28,7 @@ namespace Jade
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, windowWidth, windowHeight, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, windowWidth, windowHeight, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, NULL);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_PickingTexture, 0);
 
 		// Create the texture object for the depth buffer
@@ -60,8 +60,8 @@ namespace Jade
 			return false;
 		}
 
-		GLenum error = glGetError();
-		if (error != GL_NO_ERROR)
+		GLenum error;
+		while ((error = glGetError()) != GL_NO_ERROR)
 		{
 			Log::Error("Error creating framebuffer (GL ERROR): 0x%x", error);
 			return false;
@@ -90,11 +90,10 @@ namespace Jade
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 
 		PixelInfo pixel;
-		glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &pixel);
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
 		if (pixel.m_EntityID < 1)
 		{
-			pixel.m_EntityID = 0xffffffff;
-			pixel.m_DrawID = 0xffffffff;
+			pixel.m_EntityID = std::numeric_limits<uint32>::max();
 		}
 		else
 		{

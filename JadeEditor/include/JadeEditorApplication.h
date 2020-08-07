@@ -15,7 +15,6 @@ namespace Jade
 
 		virtual void OnAttach() override;
 		virtual void OnUpdate(float dt) override;
-		virtual void OnImGuiRender() override;
 		virtual void OnRender() override;
 		virtual void OnEvent(Event& e) override;
 
@@ -31,7 +30,6 @@ namespace Jade
 		inline const PickingTexture& GetPickingTexture() const { return m_PickingTexture; }
 
 	private:
-		ProjectWizard m_ProjectWizard;
 		PickingTexture m_PickingTexture;
 		std::shared_ptr<Shader> m_PickingShader;
 		std::shared_ptr<Shader> m_DefaultShader;

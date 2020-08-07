@@ -175,10 +175,10 @@
     <ClInclude Include="include\jade\core\Core.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\core\EntryPoint.h">
+    <ClInclude Include="include\jade\core\Entity.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\core\ImGuiExtended.h">
+    <ClInclude Include="include\jade\core\EntryPoint.h">
       <Filter>include\jade\core</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\core\JWindow.h">
@@ -1522,7 +1522,6 @@
     <ClInclude Include="vendor\nlohmann-json\single_include\nlohmann\json.hpp">
       <Filter>vendor\nlohmann-json\single_include\nlohmann</Filter>
     </ClInclude>
-    <ClInclude Include="include\jade\core\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\jade\commands\CommandHistory.cpp">
@@ -1537,7 +1536,7 @@
     <ClCompile Include="cpp\jade\core\AssetManager.cpp">
       <Filter>cpp\jade\core</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\core\ImGuiExtended.cpp">
+    <ClCompile Include="cpp\jade\core\Entity.cpp">
       <Filter>cpp\jade\core</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\core\JWindow.cpp">
@@ -1624,6 +1623,5 @@
     <ClCompile Include="cpp\platform\windows\Win32Window.cpp">
       <Filter>cpp\platform\windows</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\jade\core\Entity.cpp" />
   </ItemGroup>
 </Project>

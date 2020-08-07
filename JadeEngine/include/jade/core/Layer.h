@@ -16,7 +16,6 @@ namespace Jade {
         virtual void OnAttach() {}
         virtual void OnDetach() {}
         virtual void OnUpdate(float dt) {}
-        virtual void OnImGuiRender() {}
         virtual void OnRender() {}
 
         virtual void OnEvent(Event& e) {}

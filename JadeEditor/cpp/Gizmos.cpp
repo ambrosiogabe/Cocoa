@@ -1,6 +1,7 @@
 #include "Gizmos.h"
 #include "JadeEditorApplication.h"
 #include "PickingTexture.h"
+#include "EditorWindows/InspectorWindow.h"
 
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/renderer/DebugDraw.h"
@@ -16,7 +17,7 @@ namespace Jade
 	// =================================================================================================
 	// Gizmo
 	// =================================================================================================
-	Gizmo::Gizmo(Camera* camera, const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 darkTint)
+	Gizmo::Gizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 darkTint)
 	{
 		m_Active = false;
 		m_Position = glm::vec3();
@@ -32,9 +33,9 @@ namespace Jade
 		m_Type = type;
 	}
 
-	void Gizmo::Render()
+	void Gizmo::Render(Camera* camera)
 	{
-		float cameraZoom = m_Camera->GetZoom() * 2;
+		float cameraZoom = camera->GetZoom() * 2;
 		if (m_Active)
 		{
 			DebugDraw::AddSprite(m_TextureAssetId, m_HalfSize * 2.0f * cameraZoom, JMath::Vector2From3(m_Position), m_Tint, m_TexCoordMin, m_TexCoordMax, m_SpriteRotation);
@@ -45,9 +46,9 @@ namespace Jade
 		}
 	}
 
-	void Gizmo::GizmoManipulateTranslate(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset)
+	void Gizmo::GizmoManipulateTranslate(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, Camera* camera)
 	{
-		glm::vec3 mousePosWorld = JMath::Vector3From2(m_Camera->ScreenToOrtho());
+		glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
 		glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 		glm::vec3 newPos;
 
@@ -67,14 +68,14 @@ namespace Jade
 		CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
 	}
 
-	void Gizmo::GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset)
+	void Gizmo::GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, Camera* camera)
 	{
 
 	}
 
-	void Gizmo::GizmoManipulateScale(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale)
+	void Gizmo::GizmoManipulateScale(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, Camera* camera)
 	{
-		glm::vec3 mousePosWorld = JMath::Vector3From2(m_Camera->ScreenToOrtho());
+		glm::vec3 mousePosWorld = JMath::Vector3From2(camera->ScreenToOrtho());
 		glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 		float dragSpeed = 0.2f;
 		glm::vec3 delta = glm::vec3(dragSpeed) * startToMouse;
@@ -97,8 +98,12 @@ namespace Jade
 	GizmoSystem::GizmoSystem(const char* name, Scene* scene)
 		: System(name, scene)
 	{
+		Log::Assert(scene != nullptr, "Cannot initialize gizmo system with null scene.");
+
 		m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset("assets/images/gizmos.png"));
 		m_Spritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_Texture, 16, 40, 9, 0));
+
+		m_Camera = m_Scene->GetCamera();
 
 		float hzOffsetX = 15;
 		float hzOffsetY = -10;
@@ -106,52 +111,53 @@ namespace Jade
 		float squareOffsetY = 15;
 		float vtOffsetX = -8;
 		float vtOffsetY = 12;
-		m_HzMove = Gizmo(m_Scene->GetCamera(), m_Spritesheet->GetSprite(1), { hzOffsetX, hzOffsetY, 0.0f}, -90.0f, GizmoType::Horizontal);
-		m_VtMove = Gizmo(m_Scene->GetCamera(), m_Spritesheet->GetSprite(4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-		m_FreeMove = Gizmo(m_Scene->GetCamera(), m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+		m_HzMove = Gizmo(m_Spritesheet->GetSprite(1), { hzOffsetX, hzOffsetY, 0.0f}, -90.0f, GizmoType::Horizontal);
+		m_VtMove = Gizmo(m_Spritesheet->GetSprite(4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+		m_FreeMove = Gizmo(m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 		m_FreeMove.m_Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
 
-		m_HzScale = Gizmo(m_Scene->GetCamera(), m_Spritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-		m_VtScale = Gizmo(m_Scene->GetCamera(), m_Spritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-		m_FreeScale = Gizmo(m_Scene->GetCamera(), m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+		m_HzScale = Gizmo(m_Spritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+		m_VtScale = Gizmo(m_Spritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+		m_FreeScale = Gizmo(m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 	}
 
-	void GizmoSystem::ImGui()
-	{
-		//ImGui::Begin("Gizmo debug");
-		//ImGui::DragFloat2("Free Move Offset:", &m_FreeMove.m_Offset[0]);
-		//ImGui::DragFloat2("Free Move HalfSize: ", &m_FreeMove.m_HalfSize[0]);
-		//ImGui::DragFloat2("Free Move BBHalfSize: ", &m_FreeMove.m_Box2D.m_HalfSize[0]);
+	//void GizmoSystem::ImGui()
+	//{
+	//	ImGui::Begin("Gizmo debug");
+	//	ImGui::DragFloat2("Free Move Offset:", &m_FreeMove.m_Offset[0]);
+	//	ImGui::DragFloat2("Free Move HalfSize: ", &m_FreeMove.m_HalfSize[0]);
+	//	ImGui::DragFloat2("Free Move BBHalfSize: ", &m_FreeMove.m_Box2D.m_HalfSize[0]);
 
-		//ImGui::DragFloat2("HzMove Offset:", &m_HzMove.m_Offset[0]);
-		//ImGui::DragFloat2("HzMove HalfSize: ", &m_HzMove.m_HalfSize[0]);
-		//ImGui::DragFloat2("HzMove BBHalfSize: ", &m_HzMove.m_Box2D.m_HalfSize[0]);
+	//	ImGui::DragFloat2("HzMove Offset:", &m_HzMove.m_Offset[0]);
+	//	ImGui::DragFloat2("HzMove HalfSize: ", &m_HzMove.m_HalfSize[0]);
+	//	ImGui::DragFloat2("HzMove BBHalfSize: ", &m_HzMove.m_Box2D.m_HalfSize[0]);
 
-		//ImGui::DragFloat2("VtMove Offset:", &m_VtMove.m_Offset[0]);
-		//ImGui::DragFloat2("VtMove HalfSize: ", &m_VtMove.m_HalfSize[0]);
-		//ImGui::DragFloat2("VtMove BBHalfSize: ", &m_VtMove.m_Box2D.m_HalfSize[0]);
-		//ImGui::End();
-	}
+	//	ImGui::DragFloat2("VtMove Offset:", &m_VtMove.m_Offset[0]);
+	//	ImGui::DragFloat2("VtMove HalfSize: ", &m_VtMove.m_HalfSize[0]);
+	//	ImGui::DragFloat2("VtMove BBHalfSize: ", &m_VtMove.m_Box2D.m_HalfSize[0]);
+	//	ImGui::End();
+	//}
 
 	void GizmoSystem::Update(float dt)
 	{
-		Entity activeEntity = Entity::Null;// m_Scene->GetActiveEntity();
+		Entity activeEntity = InspectorWindow::GetActiveEntity();
 		if (!activeEntity.IsNull())
 		{
 			Transform& entityTransform = activeEntity.GetComponent<Transform>();
 
-			if (m_MouseDragging)
+			if (m_MouseDragging && m_ActiveGizmo >= 0)
 			{
+				Log::Assert((m_ActiveGizmo >= 0 && m_ActiveGizmo < 6), "Active gizmo out of array bounds.");
 				switch (m_Mode)
 				{
 					case GizmoMode::Translate:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateTranslate(entityTransform, m_OriginalDragClickPos, m_MouseOffset);
+						m_Gizmos[m_ActiveGizmo].GizmoManipulateTranslate(entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
 						break;
 					case GizmoMode::Rotate:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateRotate(entityTransform, m_OriginalDragClickPos, m_MouseOffset);
+						m_Gizmos[m_ActiveGizmo].GizmoManipulateRotate(entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
 						break;
 					case GizmoMode::Scale:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateScale(entityTransform, m_OriginalDragClickPos, m_OriginalScale);
+						m_Gizmos[m_ActiveGizmo].GizmoManipulateScale(entityTransform, m_OriginalDragClickPos, m_OriginalScale, m_Camera);
 						break;
 				}
 			}
@@ -164,13 +170,12 @@ namespace Jade
 				end = 6;
 			}
 
-			Camera* camera = m_Scene->GetCamera();
-			glm::vec2 mousePosWorld = camera->ScreenToOrtho();
+			glm::vec2 mousePosWorld = m_Camera->ScreenToOrtho();
 			bool anyHot = false;
 			for (int i = start; i < end; i++)
 			{
 				Gizmo& gizmo = m_Gizmos[i];
-				float cameraZoom = camera->GetZoom() * 2;
+				float cameraZoom = m_Camera->GetZoom() * 2;
 				gizmo.m_Position = entityTransform.m_Position + gizmo.m_Offset * cameraZoom;
 				glm::vec3 boxPos = gizmo.m_Position + JMath::Vector3From2(gizmo.m_Box2D.m_Offset) * cameraZoom;
 				if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.m_Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.m_SpriteRotation))
@@ -183,7 +188,7 @@ namespace Jade
 				{
 					gizmo.m_Active = false;
 				}
-				gizmo.Render();
+				gizmo.Render(m_Camera);
 			}
 			if (!anyHot)
 			{
@@ -240,14 +245,15 @@ namespace Jade
 
 			Entity entity = m_Scene->GetEntity(info.m_EntityID);
 
-			Entity selectedEntity = m_HotGizmo == -1 ? entity : Entity::Null;// m_Scene->GetActiveEntity();
+			Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();
 
 			m_OriginalDragClickPos = JMath::Vector3From2(mousePosWorld);
-
+			m_ActiveGizmo = -1;
 			
 			if (!selectedEntity.IsNull())
 			{
-				//m_Scene->SetActiveEntity(selectedEntity);
+				InspectorWindow::ClearAllEntities();
+				InspectorWindow::AddEntity(selectedEntity);
 				const Transform& transform = selectedEntity.GetComponent<Transform>();
 				m_ActiveGizmo = m_HotGizmo;
 				m_MouseDragging = true;
@@ -256,8 +262,8 @@ namespace Jade
 			}
 			else
 			{
+				InspectorWindow::ClearAllEntities();
 				m_ActiveGizmo = -1;
-				//m_Scene->SetActiveEntity(entity);
 			}
 		}
 

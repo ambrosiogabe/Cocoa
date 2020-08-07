@@ -11,15 +11,11 @@ namespace Jade
 	public:
 		struct PixelInfo
 		{
-			float m_EntityID; // This is so that we maintain type consistency with opengl (will be cast to uint32 in the end)
-			float m_DrawID;
-			float m_PrimID;
+			uint32 m_EntityID;
 
 			PixelInfo()
 			{
-				m_EntityID = 0.0f;
-				m_DrawID = 0.0f;
-				m_PrimID = 0.0f;
+				m_EntityID = 0;
 			}
 		};
 

@@ -4,8 +4,20 @@
     <Filter Include="cpp">
       <UniqueIdentifier>{E866880B-5470-887C-DDEB-9E7C49F4937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cpp\EditorWindows">
+      <UniqueIdentifier>{497684D1-B58C-8267-FE03-0E896A5953EF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cpp\Gui">
+      <UniqueIdentifier>{3C9ECCD5-A87D-4B71-B195-D6471DF4B1D2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\EditorWindows">
+      <UniqueIdentifier>{AAC47C43-1631-383E-DF24-D09B4B505AA6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Gui">
+      <UniqueIdentifier>{5D4FC031-C904-3927-52F9-32FEBEAD2F2B}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -15,11 +27,20 @@
     <ClInclude Include="include\AssetWizard.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\EditorWindows\InspectorWindow.h">
+      <Filter>include\EditorWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EditorWindows\SceneHeirarchyWindow.h">
+      <Filter>include\EditorWindows</Filter>
+    </ClInclude>
     <ClInclude Include="include\FontAwesome.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Gizmos.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Gui\ImGuiExtended.h">
+      <Filter>include\Gui</Filter>
     </ClInclude>
     <ClInclude Include="include\ImGuiLayer.h">
       <Filter>include</Filter>
@@ -36,10 +57,14 @@
     <ClInclude Include="include\MenuBar.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\PickingTexture.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\ProjectWizard.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\PickingTexture.h" />
+    <ClInclude Include="include\Gui\ImGuiHeader.h" />
+    <ClInclude Include="include\Util\Settings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\AssetWindow.cpp">
@@ -48,8 +73,14 @@
     <ClCompile Include="cpp\AssetWizard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\EditorWindows\InspectorWindow.cpp">
+      <Filter>cpp\EditorWindows</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\Gizmos.cpp">
       <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\Gui\ImGuiExtended.cpp">
+      <Filter>cpp\Gui</Filter>
     </ClCompile>
     <ClCompile Include="cpp\ImGuiLayer.cpp">
       <Filter>cpp</Filter>
@@ -66,9 +97,15 @@
     <ClCompile Include="cpp\MenuBar.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\PickingTexture.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\ProjectWizard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\PickingTexture.cpp" />
+    <ClCompile Include="cpp\Util\Settings.cpp" />
+    <ClCompile Include="cpp\EditorWindows\SceneHeirarchyWindow.cpp">
+      <Filter>cpp\EditorWindows</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

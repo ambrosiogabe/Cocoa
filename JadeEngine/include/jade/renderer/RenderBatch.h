@@ -11,7 +11,7 @@ namespace Jade
         glm::vec4 color;
         glm::vec2 texCoords;
         float texId;
-        float entityId;
+        uint32 entityId;
     };
 
     class RenderBatch

@@ -5,12 +5,12 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in float texID;
-layout (location = 4) in float aEntityID;
+layout (location = 4) in uint aEntityID;
 
 uniform mat4 uView;
 uniform mat4 uProjection;
 
-out float fEntityID;
+flat out uint fEntityID;
 out vec2 fTexCoords;
 out float fTexSlot;
 
@@ -26,13 +26,13 @@ void main()
 #type fragment
 #version 330
 
-in float fEntityID;
+flat in uint fEntityID;
 in vec2 fTexCoords;
 in float fTexSlot;
 
 uniform sampler2D uTextures[16];
 
-out vec3 FragColor;
+out uint FragColor;
 
 void main() 
 {
@@ -89,7 +89,6 @@ void main()
 
 	if (texColor.a < 0.5) {
         discard;
-    } else {
-	    FragColor = vec3(fEntityID, fEntityID, fEntityID);
     }
+    FragColor = fEntityID;
 }

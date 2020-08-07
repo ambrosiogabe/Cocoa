@@ -7,25 +7,25 @@ namespace Jade
 	class ProjectWizard
 	{
 	public:
-		ProjectWizard();
-		~ProjectWizard();
+		ProjectWizard() = delete;
+		~ProjectWizard() = delete;
 
-		void Update(float dt);
-		void ImGui();
+		static void Init();
+		static void ImGui();
 
 		static bool CreateProjectImGui();
 
 	private:
-		Texture* m_JadeLogo = nullptr;
-		glm::vec2 m_IdealSize;
-		glm::vec2 m_TexturePos;
-		glm::vec2 m_VersionPos;
-		glm::vec2 m_CreateProjButtonPos;
-		glm::vec2 m_OpenProjectButtonPos;
-		glm::vec2 m_ButtonSize;
-		glm::vec2 m_Padding{ 10.0f, 20.0f };
+		static Texture* s_JadeLogo;
+		static glm::vec2 s_IdealSize;
+		static glm::vec2 s_TexturePos;
+		static glm::vec2 s_VersionPos;
+		static glm::vec2 s_CreateProjButtonPos;
+		static glm::vec2 s_OpenProjectButtonPos;
+		static glm::vec2 s_ButtonSize;
+		static glm::vec2 s_Padding;
 
-		bool m_CreatingProject = false;
+		static bool s_CreatingProject;
 		static JPath s_NewProjectPath;
 		static char s_TmpFilename[256];
 	};

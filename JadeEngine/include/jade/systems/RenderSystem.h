@@ -13,14 +13,14 @@
 namespace Jade {
     class RenderSystem : public System {
     public:
-        RenderSystem(Camera* camera, const char* name, Scene* scene)
-            : System(name, scene) {
-            m_Camera = camera;
+        RenderSystem(const char* name, Scene* scene)
+            : System(name, scene) 
+        {
+            m_Camera = m_Scene->GetCamera();
         }
 
         void AddEntity(const Transform& transform, const SpriteRenderer& spr);
         virtual void Render() override;
-        virtual void ImGui() override;
 
         Camera& GetCamera() const { return *m_Camera; }
 

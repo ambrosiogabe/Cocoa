@@ -6,7 +6,6 @@
 #include "jade/components/components.h"
 #include "jade/commands/ICommand.h"
 #include "jade/util/JMath.h"
-#include "jade/core/ImGuiExtended.h"
 
 #include <nlohmann/json.hpp>
 
@@ -64,46 +63,6 @@ namespace Jade
 		}
 
 		s_Shader->Unbind();
-	}
-
-	void RenderSystem::ImGui()
-	{
-		Entity activeEntity = Entity::Null;// m_Scene->GetActiveEntity();
-
-		if (activeEntity.HasComponent<SpriteRenderer>())
-		{
-			static bool collapsingHeaderOpen = true;
-			ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
-			if (ImGui::CollapsingHeader("Sprite Renderer"))
-			{
-				JImGui::BeginCollapsingHeaderGroup();
-				SpriteRenderer& spr = activeEntity.GetComponent<SpriteRenderer>();
-				JImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
-				JImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
-
-				if (spr.m_Sprite.m_Texture)
-				{
-					JImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture->GetFilepath().Filename(),
-						spr.m_Sprite.m_Texture->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
-				}
-				else
-				{
-					JImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
-				}
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_HANDLE_ID"))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(int));
-						int textureResourceId = *(const int*)payload->Data;
-						spr.m_Sprite.m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset(textureResourceId));
-					}
-					ImGui::EndDragDropTarget();
-				}
-
-				JImGui::EndCollapsingHeaderGroup();
-			}
-		}
 	}
 
 	void RenderSystem::Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)

@@ -25,10 +25,6 @@ namespace Jade {
 
         }
 
-        virtual void ImGui() {
-            
-        }
-
         virtual void OnEvent(Event& e) {
 
         }

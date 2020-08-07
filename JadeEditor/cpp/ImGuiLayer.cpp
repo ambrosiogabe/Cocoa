@@ -3,11 +3,15 @@
 
 #include "ImGuiLayer.h"
 #include "AssetWizard.h"
+#include "EditorWindows/InspectorWindow.h"
+#include "EditorWindows/SceneHeirarchyWindow.h"
+#include "Gui/ImGuiExtended.h"
+#include "Util/Settings.h"
 #include "FontAwesome.h"
+
 #include "jade/file/IFile.h"
 #include "jade/core/Application.h"
 #include "jade/util/JMath.h"
-#include "jade/core/ImGuiExtended.h"
 #include "JadeEditorApplication.h"
 #include "jade/util/JsonExtended.h"
 
@@ -120,6 +124,12 @@ namespace Jade
 			RenderGameViewport();
 			AssetWizard::ImGui();
 			m_AssetWindow.ImGui();
+			InspectorWindow::ImGui();
+			SceneHeirarchyWindow::ImGui();
+		}
+		else
+		{
+			ProjectWizard::ImGui();
 		}
 	}
 
@@ -204,7 +214,7 @@ namespace Jade
 		Input::SetGameViewMousePos(m_GameviewMousePos);
 
 		JadeEditor* editor = static_cast<JadeEditor*>(Application::Get());
-		//uint32 texId = editor->GetEditorLayer().GetPickingTextureID();
+		//uint32 texId = editor->GetEditorLayer()->GetPickingTextureID();
 		uint32 texId = Application::Get()->GetFramebuffer()->GetTexture()->GetId();
 		ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 

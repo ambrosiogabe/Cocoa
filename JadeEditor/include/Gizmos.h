@@ -26,13 +26,13 @@ namespace Jade
     class Gizmo
     {
     public:
-        Gizmo(Camera* camera, const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.4f, 0.4f, 0.4f});
+        Gizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 tint={0.4f, 0.4f, 0.4f});
 
         inline bool GizmoIsActive() { return m_Active; }
-        void Render();
-        void GizmoManipulateTranslate(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset);
-        void GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset);
-        void GizmoManipulateScale(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale);
+        void Render(Camera* camera);
+        void GizmoManipulateTranslate(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, Camera* camera);
+        void GizmoManipulateRotate(Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, Camera* camera);
+        void GizmoManipulateScale(Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, Camera* camera);
 
     public:
         glm::vec3 m_Position;
@@ -47,7 +47,6 @@ namespace Jade
         uint32 m_TextureAssetId;
         float m_SpriteRotation;
         bool m_Active;
-        Camera* m_Camera;
     };
 
     class GizmoSystem : public System
@@ -58,7 +57,6 @@ namespace Jade
 
         virtual void Update(float dt) override;
         virtual void OnEvent(Event& e) override;
-        virtual void ImGui() override;
 
     private:
         bool HandleKeyPress(KeyPressedEvent& e);
@@ -80,6 +78,7 @@ namespace Jade
         glm::vec3 m_OriginalScale;
 
         glm::vec3 m_OriginalDragClickPos;
+        Camera* m_Camera;
 
         union
         {

@@ -16,7 +16,6 @@ namespace Jade
 
 		virtual void Update(float dt) override;
 		virtual void Start() override;
-		virtual void ImGui() override;
 		virtual void OnEvent(Event& e) override;
 
 	private:

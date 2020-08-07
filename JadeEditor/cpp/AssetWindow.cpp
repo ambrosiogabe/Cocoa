@@ -1,14 +1,14 @@
 #include "AssetWindow.h"
-#include "jade/core/ImGuiExtended.h"
+#include "Gui/ImGuiExtended.h"
+#include "FontAwesome.h"
+#include "Util/Settings.h"
+
 #include "jade/core/AssetManager.h"
 #include "jade/file/IFile.h"
 #include "jade/file/IFileDialog.h"
 #include "jade/file/JPath.h"
 #include "jade/util/Settings.h"
-#include "FontAwesome.h"
 #include "jade/core/Application.h"
-
-#include <imgui.h>
 
 namespace Jade
 {

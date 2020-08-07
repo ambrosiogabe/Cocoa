@@ -58,7 +58,8 @@ namespace Jade {
         glVertexAttribPointer(3, sizeof(Vertex().texId) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, texId));
         glEnableVertexAttribArray(3);
 
-        glVertexAttribPointer(4, sizeof(Vertex().texId) / sizeof(float), GL_FLOAT, false, sizeof(Vertex), (void*)offsetof(Vertex, entityId));
+        // As long as our struct contains 32-bit members only, the second parameter should be correct
+        glVertexAttribIPointer(4, sizeof(Vertex().texId) / sizeof(float), GL_UNSIGNED_INT, sizeof(Vertex), (void*)offsetof(Vertex, entityId));
         glEnableVertexAttribArray(4);
     }
 
@@ -192,7 +193,7 @@ namespace Jade {
             m_VertexStackPointer->color = glm::vec4(color);
             m_VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
             m_VertexStackPointer->texId = (float)texId;
-            m_VertexStackPointer->entityId = (float)(entityId + 1);
+            m_VertexStackPointer->entityId = (entityId + 1);
 
             m_VertexStackPointer++;
         }

@@ -33,4 +33,14 @@ namespace Jade
 	{
 		s_Scene = scene;
 	}
+
+	bool Entity::operator==(const Entity& other) const
+	{
+		return other.m_EntityHandle == this->m_EntityHandle;
+	}
+
+	bool Entity::operator==(Entity& other) const
+	{
+		return other.m_EntityHandle == this->m_EntityHandle;
+	}
 }

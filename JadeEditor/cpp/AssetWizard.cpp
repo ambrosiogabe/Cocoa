@@ -1,3 +1,5 @@
+#include "Gui/ImGuiExtended.h"
+
 #include "AssetWizard.h"
 #include "jade/util/Settings.h"
 #include "jade/file/IFile.h"

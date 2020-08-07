@@ -65,10 +65,6 @@ namespace Jade
         Physics2DSystem(const char* name, Scene* scene)
             : System(name, scene) { }
          
-        virtual void Render() override;
-        virtual void ImGui() override;
-        //virtual void Update(entt::registry& registry, float dt) override;
-
         // ----------------------------------------------------------------------------
         // Box2D Helpers
         // ----------------------------------------------------------------------------

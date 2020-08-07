@@ -21,9 +21,9 @@ namespace Jade
 	Entity Scene::GetEntity(uint32 id)
 	{
 		entt::entity entity = entt::null;
-		if (id < 0xffffffff)
+		if (id < std::numeric_limits<uint32>::max())
 		{
-			entity = entt::entity((uint32)id);
+			entity = entt::entity(id);
 		}
 		return Entity(entity, this);
 	}

@@ -17,7 +17,6 @@ namespace Jade
         virtual void Start() override;
         virtual void Render() override;
         virtual void Update(float dt) override;
-        virtual void ImGui() override;
 
     private:
         void DoTreeNode(int& index, const Transform& transform);

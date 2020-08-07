@@ -1,4 +1,5 @@
 #include "Jade.h"
+#include "Gui/ImGuiHeader.h"
 
 #include "JadeEditorApplication.h"
 #include "LevelEditorScene.h"
@@ -18,7 +19,6 @@ namespace Jade
 	EditorLayer::EditorLayer(Scene* scene)
 		: Layer(scene)
 	{
-		m_ProjectWizard = ProjectWizard();
 		m_PickingTexture = PickingTexture();
 		m_PickingShader = std::make_shared<Shader>(JPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"));
 		m_DefaultShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
@@ -156,23 +156,15 @@ namespace Jade
 			DebugDraw::BeginFrame();
 			m_Scene->Update(dt);
 		}
-		else
-		{
-			m_ProjectWizard.Update(dt);
-		}
 	}
 
-	void EditorLayer::OnImGuiRender()
-	{
-		if (JadeEditor::IsProjectLoaded())
-		{
-			m_Scene->ImGui();
-		}
-		else
-		{
-			m_ProjectWizard.ImGui();
-		}
-	}
+	//void EditorLayer::OnImGuiRender()
+	//{
+	//	if (!JadeEditor::IsProjectLoaded())
+	//	{
+	//		m_ProjectWizard.ImGui();
+	//	}
+	//}
 
 	void EditorLayer::OnRender()
 	{
@@ -182,7 +174,7 @@ namespace Jade
 			m_PickingTexture.EnableWriting();
 
 			glViewport(0, 0, 3840, 2160);
-			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			RenderSystem::BindShader(m_PickingShader);
@@ -229,6 +221,7 @@ namespace Jade
 		Jade::AssetManager::Init(0);
 		Jade::IFileDialog::Init();
 		Jade::IFile::Init();
+		Jade::ProjectWizard::Init();
 		ChangeScene(new LevelEditorScene());
 		Jade::Input::Init(m_CurrentScene);
 

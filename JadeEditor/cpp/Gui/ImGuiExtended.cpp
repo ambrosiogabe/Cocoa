@@ -1,5 +1,5 @@
 #include "externalLibs.h"
-#include "jade/core/ImGuiExtended.h"
+#include "Gui/ImGuiExtended.h"
 #include "jade/core/Core.h"
 
 namespace JImGui
@@ -152,7 +152,7 @@ namespace JImGui
 	{
 		glm::vec2 tmp = glm::vec2(vector);
 		ImGui::Text(label);
-		
+
 		if (ImGui::GetItemRectSize().x > textPadding)
 		{
 			textPadding = ImGui::GetItemRectSize().x;
@@ -173,7 +173,7 @@ namespace JImGui
 	{
 		float tmp = val;
 		ImGui::Text(label);
-		
+
 		if (ImGui::GetItemRectSize().x > textPadding)
 		{
 			textPadding = ImGui::GetItemRectSize().x;

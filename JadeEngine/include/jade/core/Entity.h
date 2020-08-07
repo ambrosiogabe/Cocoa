@@ -70,6 +70,9 @@ namespace Jade
 			return Entity(*(s_Scene->m_Registry.data<T>() + offset), s_Scene); // { m_Registry, * (m_Registry.data<T>() + offset) };
 		}
 
+		bool operator==(const Entity& other) const;
+		bool operator==(Entity& other) const;
+
 		static void SetScene(Scene* currentScene);
 
 	public:

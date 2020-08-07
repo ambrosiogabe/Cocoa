@@ -45,8 +45,6 @@ namespace Jade
 			{
 				layer->OnUpdate(dt);
 				layer->OnRender();
-
-				layer->OnImGuiRender();
 			}
 			EndFrame();
 

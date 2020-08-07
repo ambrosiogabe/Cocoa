@@ -4,12 +4,13 @@
 #include "MenuBar.h"
 #include "ProjectWizard.h"
 #include "JadeEditorApplication.h"
+#include "Gui/ImGuiExtended.h"
+
 #include "jade/file/IFileDialog.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/util/Settings.h"
 #include "jade/core/Application.h"
-#include "jade/core/ImGuiExtended.h"
 
 namespace Jade
 {
