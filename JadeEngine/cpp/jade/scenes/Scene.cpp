@@ -64,15 +64,19 @@ namespace Jade
 
 	void Scene::Reset()
 	{
+		AssetManager::Clear();
 		for (auto entity : m_Registry.view<Transform>())
 		{
 			m_Registry.remove_all(entity);
 		}
+		m_Systems.clear();
+		delete m_Camera;
+		Init();
 	}
 
 	void Scene::LoadDefaultAssets()
 	{
-		AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", 0, true);
+		auto asset = AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", true);
 	}
 
 	static Entity FindOrCreateEntity(std::unordered_map<int, int>& idKey, int id, Scene* scene, entt::registry& registry)
@@ -102,20 +106,21 @@ namespace Jade
 		}
 
 		std::unordered_map<int, int> idKey;
+		std::unordered_map<uint32, uint32> resourceIdMap{};
 		json j = json::parse(file->m_Data);
 
 		if (!j["Assets"].is_null())
 		{
-			AssetManager::LoadFrom(j["Assets"]);
-			LoadDefaultAssets();
+			resourceIdMap = AssetManager::LoadFrom(j["Assets"]);
 		}
 
-		int size = j["Size"].is_null() ? 0 : j["Size"];
+		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
 		for (int i = 0; i < size; i++)
 		{
 			if (!j["Components"][i]["SpriteRenderer"].is_null())
 			{
 				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["SpriteRenderer"]["Entity"], this, m_Registry);
+				j["Components"][i]["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)j["Components"][i]["SpriteRenderer"]["AssetId"]];
 				RenderSystem::Deserialize(j["Components"][i], entity);
 			}
 			else if (!j["Components"][i]["Transform"].is_null())

@@ -272,7 +272,7 @@ namespace Jade
 		ImGui::PushStyleColor(ImGuiCol_Header, Settings::EditorStyle::s_AccentDark0);
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, Settings::EditorStyle::s_AccentDark0);
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, Settings::EditorStyle::s_AccentDark0);
-		m_MenuBar.ImGui();
+		m_MenuBar->ImGui();
 		ImGui::PopStyleVar(4);
 		ImGui::PopStyleColor(5);
 		ImGui::End();

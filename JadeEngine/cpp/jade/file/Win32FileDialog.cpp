@@ -141,7 +141,7 @@ namespace Jade
 			}
 
 			IShellItem* psi;
-			SHGetKnownFolderItem(FOLDERID_RecycleBinFolder, KF_FLAG_DEFAULT, nullptr, IID_PPV_ARGS(&psi));
+			SHGetKnownFolderItem(FOLDERID_Documents, KF_FLAG_DEFAULT, nullptr, IID_PPV_ARGS(&psi));
 			pfd->SetDefaultFolder(psi);
 			psi->Release();
 
@@ -165,8 +165,20 @@ namespace Jade
 					}
 					psi->Release();
 				}
+				else
+				{
+					result = false;
+				}
+			}
+			else
+			{
+				result = false;
 			}
 			pfd->Release();
+		}
+		else
+		{
+			result = false;
 		}
 
 		return result;

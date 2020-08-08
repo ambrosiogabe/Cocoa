@@ -1,18 +1,23 @@
 #pragma once
 
 #include "jade/util/Settings.h"
+#include "jade/scenes/Scene.h"
 
 namespace Jade
 {
     class MenuBar
     {
     public:
+        MenuBar(Scene* scene) 
+            : m_Scene(scene) {}
+
         void ImGui();
 
     private:
         void SettingsWindow();
 
     private:
+        Scene* m_Scene;
         bool m_SettingsOpen = false;
         bool m_CreatingProject = false;
 

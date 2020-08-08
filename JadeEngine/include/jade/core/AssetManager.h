@@ -63,7 +63,7 @@ namespace Jade
 		static std::unordered_map<uint32, std::shared_ptr<Asset>>& GetAllAssets(uint32 scene);
 		static std::shared_ptr<Asset> GetAsset(uint32 resourceID);
 		static std::shared_ptr<Asset> GetAsset(const JPath& path);
-		static std::shared_ptr<Asset> LoadTextureFromFile(const JPath& path, uint32 resourceId=-1, bool isDefault=false);
+		static std::shared_ptr<Asset> LoadTextureFromFile(const JPath& path, bool isDefault=false);
 
 		template<typename T>
 		static std::vector<std::shared_ptr<T>> GetAllAssets(uint32 scene)
@@ -93,7 +93,7 @@ namespace Jade
 		static uint32 GetScene() { return Get()->m_CurrentScene; }
 		static void SetScene(uint32 scene) { Get()->m_CurrentScene = scene; }
 
-		static void LoadFrom(const json& j);
+		static std::unordered_map<uint32, uint32> LoadFrom(const json& j);
 		static json Serialize();
 
 	private:

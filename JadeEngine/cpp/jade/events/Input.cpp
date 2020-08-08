@@ -18,12 +18,16 @@ namespace Jade
 	glm::vec2 Input::s_GameViewMousePos{ 0, 0 };
 	Scene* Input::s_Scene = nullptr;
 
-	void Input::Init(Scene* scene)
+	void Input::Init()
 	{
 		Log::Assert(!s_Initialized, "Input already initialized.");
 		s_Initialized = true;
-		s_Scene = scene;
 		const glm::vec2& windowSize = Application::Get()->GetWindow()->GetSize();
+	}
+
+	void Input::SetScene(Scene* scene)
+	{
+		s_Scene = scene;
 	}
 
 	void Input::KeyCallback(int key, int scancode, int action, int mods)

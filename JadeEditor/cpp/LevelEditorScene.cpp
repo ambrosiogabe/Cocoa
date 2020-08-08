@@ -29,7 +29,8 @@ namespace Jade
 		glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
 		m_Camera = new Camera(cameraPos);
 
-		Physics2D::Init(this);
+		Physics2D::SetScene(this);
+		Input::SetScene(this);
 
 		m_Systems.emplace_back(std::make_unique<RenderSystem>("Render System", this));
 		m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System", this));

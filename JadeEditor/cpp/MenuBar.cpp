@@ -6,6 +6,7 @@
 #include "JadeEditorApplication.h"
 #include "Gui/ImGuiExtended.h"
 
+#include "jade/core/Entity.h"
 #include "jade/file/IFileDialog.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
@@ -74,7 +75,7 @@ namespace Jade
 					if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 					{
 						Settings::General::s_CurrentScene = result.filepath;
-						//m_Scene->Save(result.filepath);
+						m_Scene->Save(result.filepath);
 					}
 				}
 
@@ -90,7 +91,7 @@ namespace Jade
 
 				if (JImGui::MenuButton("Show Demo Window"))
 				{
-					//Application::Get()->GetScene()->ShowDemoWindow();
+					m_Scene->ShowDemoWindow();
 				}
 
 				ImGui::EndMenu();
@@ -100,11 +101,8 @@ namespace Jade
 			{
 				if (JImGui::MenuButton("Add Sprite Object"))
 				{
-					//entt::registry& registry = m_Scene->GetRegistry();
-					//entt::entity entity = registry.create();
-					//registry.emplace<Transform>(entity, glm::vec3(), glm::vec3(1, 1, 1), glm::vec3());
-					//registry.emplace<SpriteRenderer>(entity, glm::vec4(1, 1, 1, 1), 0);
-					//registry.emplace<AABB>(entity, glm::vec2(32, 32), glm::vec2(16, 16), glm::vec2());
+					Entity entity = m_Scene->CreateEntity();
+					entity.AddComponent<SpriteRenderer>();
 				}
 
 				ImGui::EndMenu();

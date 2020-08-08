@@ -170,16 +170,21 @@ namespace Jade
 	// Should be called once at beginning of engine initialization
 	// -------------------------------------------------------------------------
 	std::unique_ptr<Physics2D> Physics2D::s_Instance = nullptr;
-	void Physics2D::Init(Scene* scene)
+	void Physics2D::Init()
 	{
 		if (s_Instance == nullptr)
 		{
-			s_Instance = std::unique_ptr<Physics2D>(new Physics2D(scene));
+			s_Instance = std::make_unique<Physics2D>(nullptr);
 		}
 		else
 		{
 			Log::Error("Tried to reinitialize Physics2D.");
 		}
+	}
+
+	void Physics2D::SetScene(Scene* scene)
+	{
+		s_Instance->m_Scene = scene;
 	}
 
 	Physics2D* Physics2D::Get()

@@ -222,8 +222,9 @@ namespace Jade
 		Jade::IFileDialog::Init();
 		Jade::IFile::Init();
 		Jade::ProjectWizard::Init();
+		Jade::Physics2D::Init();
+		Jade::Input::Init();
 		ChangeScene(new LevelEditorScene());
-		Jade::Input::Init(m_CurrentScene);
 
 		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
 		m_EditorLayer = new EditorLayer(m_CurrentScene);

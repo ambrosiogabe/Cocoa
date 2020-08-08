@@ -64,7 +64,7 @@ namespace Jade
 		return std::shared_ptr<Asset>(new NullAsset());
 	}
 
-	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const JPath& path, uint32 resourceId, bool isDefault)
+	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const JPath& path, bool isDefault)
 	{
 		AssetManager* manager = Get();
 
@@ -80,11 +80,7 @@ namespace Jade
 
 		auto& assets = manager->m_Assets[manager->m_CurrentScene];
 
-		uint32 newId = resourceId;
-		if (resourceId < 0)
-		{
-			newId = (uint32)assets.size();
-		}
+		uint32 newId = (uint32)assets.size();
 
 		newAsset->SetResourceId(newId);
 		assets.insert({ newId, newAsset });
@@ -111,10 +107,11 @@ namespace Jade
 		manager->m_Assets.clear();
 	}
 
-	void AssetManager::LoadFrom(const json& j)
+	std::unordered_map<uint32, uint32> AssetManager::LoadFrom(const json& j)
 	{
-		Clear();
 		AssetManager* manager = Get();
+
+		std::unordered_map<uint32, uint32> resourceIDMap{};
 
 		uint32 scene = -1;
 		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
@@ -146,7 +143,8 @@ namespace Jade
 						break;
 					case Asset::AssetType::Texture:
 					{
-						std::shared_ptr<Asset> tex = LoadTextureFromFile(path, resourceId);
+						std::shared_ptr<Asset> tex = LoadTextureFromFile(path);
+						resourceIDMap.insert({resourceId, tex->GetResourceId()});
 					}
 					break;
 					default:
@@ -156,6 +154,8 @@ namespace Jade
 				}
 			}
 		}
+
+		return resourceIDMap;
 	}
 
 	json AssetManager::Serialize()
@@ -166,9 +166,9 @@ namespace Jade
 
 		res["SceneID"] = manager->m_CurrentScene;
 		auto assetList = manager->m_Assets[manager->m_CurrentScene];
-		res["AssetCount"] = assetList.size();
 
-
+		int assetCount = 0;
+		
 		for (auto assetIt = assetList.begin(); assetIt != assetList.end(); assetIt++)
 		{
 			if (!assetIt->second->m_IsDefault)
@@ -176,10 +176,13 @@ namespace Jade
 				json assetSerialized = assetIt->second->Serialize();
 				if (assetSerialized["Type"] != 0)
 				{
+					assetCount++;
 					res["AssetList"][std::to_string(assetIt->first)] = assetSerialized;
 				}
 			}
 		}
+
+		res["AssetCount"] = assetCount;
 
 		return res;
 	}

@@ -14,6 +14,7 @@ namespace Jade
             : Layer(scene)
         {
             m_Window = nullptr;
+            m_MenuBar = std::make_unique<MenuBar>(scene);
         }
 
         void Setup(void* window);
@@ -34,7 +35,7 @@ namespace Jade
         bool m_BlockEvents = false;
 
         void* m_Window;
-        MenuBar m_MenuBar{};
+        std::unique_ptr<MenuBar> m_MenuBar;
         AssetWindow m_AssetWindow;
     };
 }

@@ -8,7 +8,8 @@ namespace Jade {
 
     class Input {
     public:
-        static void Init(Scene* scene);
+        static void Init();
+        static void SetScene(Scene* scene);
 
         static void KeyCallback(int key, int scancode, int action, int mods);
         static void CursorCallback(double xpos, double ypos);

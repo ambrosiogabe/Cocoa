@@ -11,12 +11,12 @@
 namespace Jade
 {
 	Texture* ProjectWizard::s_JadeLogo = nullptr;
-	glm::vec2 ProjectWizard::s_IdealSize{0, 0};
-	glm::vec2 ProjectWizard::s_TexturePos{0, 0};
-	glm::vec2 ProjectWizard::s_VersionPos{0, 0};
-	glm::vec2 ProjectWizard::s_CreateProjButtonPos{0, 0};
-	glm::vec2 ProjectWizard::s_OpenProjectButtonPos{0, 0};
-	glm::vec2 ProjectWizard::s_ButtonSize{0, 0};
+	glm::vec2 ProjectWizard::s_IdealSize{ 0, 0 };
+	glm::vec2 ProjectWizard::s_TexturePos{ 0, 0 };
+	glm::vec2 ProjectWizard::s_VersionPos{ 0, 0 };
+	glm::vec2 ProjectWizard::s_CreateProjButtonPos{ 0, 0 };
+	glm::vec2 ProjectWizard::s_OpenProjectButtonPos{ 0, 0 };
+	glm::vec2 ProjectWizard::s_ButtonSize{ 0, 0 };
 	glm::vec2 ProjectWizard::s_Padding{ 10.0f, 20.0f };
 
 	bool ProjectWizard::s_CreatingProject = false;
@@ -104,8 +104,10 @@ namespace Jade
 		if (JImGui::Button("Choose Directory"))
 		{
 			FileDialogResult res;
-			IFileDialog::GetOpenFolderName(".", res);
-			s_NewProjectPath = res.filepath;
+			if (IFileDialog::GetOpenFolderName(".", res))
+			{
+				s_NewProjectPath = res.filepath;
+			}
 		}
 
 		if (JImGui::Button("Cancel"))
