@@ -27,6 +27,7 @@ namespace Jade {
         static void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer);
         static void Deserialize(json& json, Entity entity);
         static void BindShader(std::shared_ptr<Shader> shader) { s_Shader = shader; }
+        static void UploadUniform1ui(const char* name, uint32 val) { s_Shader->UploadUInt(name, val); }
 
     public:
         int m_TexSlots[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};

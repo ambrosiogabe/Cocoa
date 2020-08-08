@@ -1,5 +1,6 @@
 #include "Jade.h"
 #include "Gui/ImGuiHeader.h"
+#include "EditorWindows/InspectorWindow.h"
 
 #include "JadeEditorApplication.h"
 #include "LevelEditorScene.h"
@@ -189,6 +190,7 @@ namespace Jade
 			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			RenderSystem::BindShader(m_DefaultShader);
+			RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
 			DebugDraw::DrawBottomBatches();
 			m_Scene->Render();
 			DebugDraw::DrawTopBatches();

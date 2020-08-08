@@ -20,6 +20,7 @@ namespace Jade {
         void UploadFloat(const char* varName, float value);
         void UploadInt(const char* varName, int value);
         void UploadIntArray(const char* varName, int size, int* array);
+        void UploadUInt(const char* varName, uint32 value);
 
         void UploadMat4(const char* varName, const glm::mat4& mat4);
         void UploadMat3(const char* varName, const glm::mat3& mat3);

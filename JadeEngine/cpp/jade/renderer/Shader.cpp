@@ -189,6 +189,13 @@ namespace Jade {
         glUniform1i(varLocation, value);
     }
 
+    void Shader::UploadUInt(const char* varName, uint32 value)
+    {
+        int varLocation = GetVariableLocation(varName);
+        if (!m_BeingUsed) this->Bind();
+        glUniform1ui(varLocation, value);
+    }
+
     void Shader::UploadMat4(const char* varName, const glm::mat4& mat4) {
         int varLocation = GetVariableLocation(varName);
         if (!m_BeingUsed) this->Bind();

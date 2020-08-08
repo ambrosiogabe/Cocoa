@@ -75,19 +75,19 @@ void main()
         case 2:
             texColor = texture(uTextures[2], fTexCoords);
             for (int i=0; i < 9; i++) {
-                sampleTex[i] = texture(uTextures[1], fTexCoords + offsets[i]).a;
+                sampleTex[i] = texture(uTextures[2], fTexCoords + offsets[i]).a;
             }
             break;
         case 3:
             texColor = texture(uTextures[3], fTexCoords);
             for (int i=0; i < 9; i++) {
-                sampleTex[i] = texture(uTextures[1], fTexCoords + offsets[i]).a;
+                sampleTex[i] = texture(uTextures[3], fTexCoords + offsets[i]).a;
             }
             break;
         case 4:
             texColor = texture(uTextures[4], fTexCoords);
             for (int i=0; i < 9; i++) {
-                sampleTex[i] = texture(uTextures[1], fTexCoords + offsets[i]).a;
+                sampleTex[i] = texture(uTextures[4], fTexCoords + offsets[i]).a;
             }
             break;
         case 5:
