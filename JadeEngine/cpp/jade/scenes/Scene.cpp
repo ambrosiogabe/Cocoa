@@ -99,6 +99,7 @@ namespace Jade
 	{
 		Reset();
 
+		Settings::General::s_CurrentScene = filename;
 		File* file = IFile::OpenFile(filename);
 		if (file->m_Data.size() <= 0)
 		{
@@ -120,7 +121,9 @@ namespace Jade
 			if (!j["Components"][i]["SpriteRenderer"].is_null())
 			{
 				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["SpriteRenderer"]["Entity"], this, m_Registry);
-				j["Components"][i]["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)j["Components"][i]["SpriteRenderer"]["AssetId"]];
+				const json& originalId = j["Components"][i]["SpriteRenderer"]["AssetId"];
+				if (!originalId.is_null() && (uint32)originalId != std::numeric_limits<uint32>::max())
+					j["Components"][i]["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)originalId];
 				RenderSystem::Deserialize(j["Components"][i], entity);
 			}
 			else if (!j["Components"][i]["Transform"].is_null())

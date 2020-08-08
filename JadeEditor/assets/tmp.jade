@@ -1,20 +1,15 @@
 {
     "Assets": {
-        "AssetCount": 4,
+        "AssetCount": 2,
         "AssetList": {
+            "1": {
+                "Filepath": "C:\\Users\\Gabe\\Documents\\Graphics\\GameAssets\\Free stuff\\santasprites\\png\\Idle (12).png",
+                "ResourceId": 1,
+                "Type": 1
+            },
             "2": {
-                "Filepath": "C:\\Users\\Gabe\\Documents\\Graphics\\GameAssets\\Free stuff\\adventure_girl\\png\\Dead (1).png",
+                "Filepath": "C:\\Users\\Gabe\\Documents\\Graphics\\GameAssets\\Free stuff\\graveyardtilesetnew\\png\\Objects\\Crate.png",
                 "ResourceId": 2,
-                "Type": 1
-            },
-            "3": {
-                "Filepath": "C:\\Users\\Gabe\\Documents\\Graphics\\GameAssets\\Free stuff\\BraveKnightPlatformerCharacter\\Assets\\bronze_knight\\attack_1.png",
-                "ResourceId": 3,
-                "Type": 1
-            },
-            "4294967295": {
-                "Filepath": "C:\\Users\\Gabe\\Documents\\Graphics\\GameAssets\\Free stuff\\catndog\\png\\dog\\Run (1).png",
-                "ResourceId": 4294967295,
                 "Type": 1
             }
         },
@@ -23,10 +18,10 @@
     "Components": [
         {
             "Transform": {
-                "Entity": 0,
+                "Entity": 8,
                 "Position": {
-                    "X": 28.919952392578125,
-                    "Y": 22.696823120117188,
+                    "X": -32.57911682128906,
+                    "Y": -363.7397766113281,
                     "Z": 0.0
                 },
                 "Rotation": {
@@ -35,18 +30,18 @@
                     "Z": 0.0
                 },
                 "Scale": {
-                    "X": 10.14979362487793,
-                    "Y": 10.028341293334961,
+                    "X": 9.270990371704102,
+                    "Y": 9.357144355773926,
                     "Z": 1.0
                 }
             }
         },
         {
             "Transform": {
-                "Entity": 1,
+                "Entity": 9,
                 "Position": {
-                    "X": -147.03900146484375,
-                    "Y": 3.9852867126464844,
+                    "X": 182.13450622558594,
+                    "Y": 11.934356689453125,
                     "Z": 0.0
                 },
                 "Rotation": {
@@ -55,43 +50,56 @@
                     "Z": 0.0
                 },
                 "Scale": {
-                    "X": 9.185787200927734,
-                    "Y": 9.091748237609863,
+                    "X": 5.429708003997803,
+                    "Y": 5.701658248901367,
                     "Z": 1.0
                 }
             }
         },
         {
-            "Transform": {
-                "Entity": 2,
-                "Position": {
-                    "X": -432.51287841796875,
-                    "Y": 17.142574310302734,
-                    "Z": 0.0
-                },
-                "Rotation": {
+            "Rigidbody2D": {
+                "AngularDamping": 0.0,
+                "ContinousCollision": false,
+                "Entity": 8,
+                "FixedRotation": false,
+                "LinearDamping": 0.5,
+                "Mass": 0.0,
+                "Velocity": {
                     "X": 0.0,
-                    "Y": 0.0,
-                    "Z": 0.0
-                },
-                "Scale": {
-                    "X": 8.842681884765625,
-                    "Y": 7.241827011108398,
-                    "Z": 1.0
+                    "Y": 0.0
                 }
             }
         },
         {
-            "SpriteRenderer": {
-                "AssetId": 3,
-                "Color": {
-                    "W": 1.0,
-                    "X": 1.0,
-                    "Y": 0.9999899864196777,
-                    "Z": 0.9999899864196777
-                },
-                "Entity": 0,
-                "ZIndex": -1
+            "Rigidbody2D": {
+                "AngularDamping": 0.0,
+                "ContinousCollision": false,
+                "Entity": 9,
+                "FixedRotation": false,
+                "LinearDamping": 0.5,
+                "Mass": 809.0,
+                "Velocity": {
+                    "X": 0.0,
+                    "Y": 0.0
+                }
+            }
+        },
+        {
+            "Box2D": {
+                "Entity": 8,
+                "HalfSize": {
+                    "X": 16.0,
+                    "Y": 16.0
+                }
+            }
+        },
+        {
+            "Box2D": {
+                "Entity": 9,
+                "HalfSize": {
+                    "X": 16.0,
+                    "Y": 15.699999809265137
+                }
             }
         },
         {
@@ -103,63 +111,24 @@
                     "Y": 1.0,
                     "Z": 1.0
                 },
-                "Entity": 1,
+                "Entity": 8,
                 "ZIndex": 0
             }
         },
         {
             "SpriteRenderer": {
-                "AssetId": 4294967295,
+                "AssetId": 2,
                 "Color": {
                     "W": 1.0,
                     "X": 1.0,
                     "Y": 1.0,
                     "Z": 1.0
                 },
-                "Entity": 2,
-                "ZIndex": 1
-            }
-        },
-        {
-            "AABB": {
-                "Entity": 0,
-                "HalfSize": {
-                    "X": 16.0,
-                    "Y": 16.0
-                },
-                "Offset": {
-                    "X": 0.0,
-                    "Y": 0.0
-                }
-            }
-        },
-        {
-            "AABB": {
-                "Entity": 1,
-                "HalfSize": {
-                    "X": 16.0,
-                    "Y": 16.0
-                },
-                "Offset": {
-                    "X": 0.0,
-                    "Y": 0.0
-                }
-            }
-        },
-        {
-            "AABB": {
-                "Entity": 2,
-                "HalfSize": {
-                    "X": 16.0,
-                    "Y": 16.0
-                },
-                "Offset": {
-                    "X": 0.0,
-                    "Y": 0.0
-                }
+                "Entity": 9,
+                "ZIndex": 0
             }
         }
     ],
-    "Project": "C:\\Users\\Gabe\\Documents\\JadeProjects\\TestProject1\\TestProject1.jprj",
-    "Size": 9
+    "Project": "C:\\Users\\Gabe\\Documents\\JadeProjects\\TestProject1\\NewProject.jprj",
+    "Size": 8
 }

@@ -88,7 +88,7 @@ namespace Jade
 
 		std::array<glm::vec2, 4> vertices = {
 			glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
-			glm::vec2(max.x, max.y), glm::vec2(max.x, min.y)
+			glm::vec2(max.x, min.y), glm::vec2(max.x, max.y)
 		};
 
 		if (!JMath::Compare(rotation, 0.0f))
@@ -100,9 +100,9 @@ namespace Jade
 		}
 
 		AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime, onTop);
-		AddLine2D(vertices[0], vertices[3], strokeWidth, color, lifetime, onTop);
-		AddLine2D(vertices[1], vertices[2], strokeWidth, color, lifetime, onTop);
-		AddLine2D(vertices[2], vertices[3], strokeWidth, color, lifetime, onTop);
+		AddLine2D(vertices[1], vertices[3], strokeWidth, color, lifetime, onTop);
+		AddLine2D(vertices[3], vertices[2], strokeWidth, color, lifetime, onTop);
+		AddLine2D(vertices[2], vertices[0], strokeWidth, color, lifetime, onTop);
 	}
 
 	void DebugDraw::AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position, glm::vec3 tint,
@@ -177,7 +177,7 @@ namespace Jade
 			{
 				if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
 				{
-					batch->Add(line.GetMin(), line.GetMax(), line.GetColor());
+					batch->Add(line.GetVerts(), line.GetColor());
 					wasAdded = true;
 					break;
 				}

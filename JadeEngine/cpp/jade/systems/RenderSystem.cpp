@@ -68,7 +68,7 @@ namespace Jade
 	void RenderSystem::Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)
 	{
 		json color = JMath::Serialize("Color", spriteRenderer.m_Color);
-		json assetId = { "AssetId", -1 };
+		json assetId = { "AssetId", (uint32)std::numeric_limits<uint32>::max() };
 		json zIndex = { "ZIndex", spriteRenderer.m_ZIndex };
 		if (spriteRenderer.m_Sprite.m_Texture)
 		{
@@ -94,7 +94,7 @@ namespace Jade
 		spriteRenderer.m_Color = JMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
 		if (!j["SpriteRenderer"]["AssetId"].is_null())
 		{
-			if (j["SpriteRenderer"]["AssetId"] != -1)
+			if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 			{
 				spriteRenderer.m_Sprite.m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset((uint32)j["SpriteRenderer"]["AssetId"]));
 			}

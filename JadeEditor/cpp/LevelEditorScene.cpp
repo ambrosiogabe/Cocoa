@@ -4,6 +4,7 @@
 #include "LevelEditorSystem.h"
 #include "Gizmos.h"
 #include "Gui/ImGuiExtended.h"
+#include "EditorWindows/InspectorWindow.h"
 
 #include "jade/systems/System.h"
 #include "jade/renderer/DebugDraw.h"
@@ -31,6 +32,8 @@ namespace Jade
 
 		Physics2D::SetScene(this);
 		Input::SetScene(this);
+
+		InspectorWindow::ClearAllEntities();
 
 		m_Systems.emplace_back(std::make_unique<RenderSystem>("Render System", this));
 		m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System", this));

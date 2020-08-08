@@ -1,7 +1,8 @@
-#include "AssetWindow.h"
+#include "EditorWindows/AssetWindow.h"
 #include "Gui/ImGuiExtended.h"
 #include "FontAwesome.h"
 #include "Util/Settings.h"
+#include "JadeEditorApplication.h"
 
 #include "jade/core/AssetManager.h"
 #include "jade/file/IFile.h"
@@ -9,9 +10,13 @@
 #include "jade/file/JPath.h"
 #include "jade/util/Settings.h"
 #include "jade/core/Application.h"
+#include "jade/scenes/Scene.h"
 
 namespace Jade
 {
+	AssetWindow::AssetWindow(Scene* scene) 
+		: m_Scene(scene) {}
+
 	void AssetWindow::ImGui()
 	{
 		ImGui::Begin("Assets");
@@ -27,6 +32,9 @@ namespace Jade
 		case AssetView::TextureBrowser:
 			ShowTextureBrowser();
 			break;
+		case AssetView::SceneBrowser:
+			ShowSceneBrowser();
+			break;
 		default:
 			Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
 			break;
@@ -40,7 +48,7 @@ namespace Jade
 	{
 		ImGui::BeginGroup();
 
-		std::array<const char*, (int)AssetView::Length> assetViews = { "TextureBrowser", "ScriptBrowser" };
+		std::array<const char*, (int)AssetView::Length> assetViews = { "TextureBrowser", "SceneBrowser", "ScriptBrowser" };
 		JImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 		ImGui::EndGroup();
 		ImGui::Separator();
@@ -110,6 +118,35 @@ namespace Jade
 			{
 				AssetManager::LoadTextureFromFile(JPath(result.filepath));
 			}
+		}
+	}
+
+	void AssetWindow::ShowSceneBrowser()
+	{
+		auto sceneFiles = IFile::GetFilesInDir(Settings::General::s_WorkingDirectory + "scenes");
+		int sceneCount = 0;
+		for (auto scene : sceneFiles)
+		{
+			ImGui::PushID(sceneCount++);
+			if (IconButton(ICON_FA_FILE, scene.Filename(), m_ButtonSize))
+			{
+				m_Scene->Save(Settings::General::s_CurrentScene);
+				m_Scene->Load(scene);
+			}
+			ImGui::SameLine();
+			ImGui::PopID();
+		}
+
+		if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
+		{
+			m_Scene->Save(Settings::General::s_CurrentScene);
+			m_Scene->Reset();
+			char newSceneTitle[32] = "New Scene (";
+			snprintf(&newSceneTitle[11], 32 - 11, "%d).jade", sceneCount);
+			Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory + "scenes" + std::string(newSceneTitle);
+			m_Scene->Save(Settings::General::s_CurrentScene);
+			JadeEditor* editor = static_cast<JadeEditor*>(Application::Get());
+			editor->GetEditorLayer()->SaveProject();
 		}
 	}
 }

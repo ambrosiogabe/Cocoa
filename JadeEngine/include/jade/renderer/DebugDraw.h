@@ -13,8 +13,8 @@ namespace Jade {
         static void DrawBottomBatches();
         static void DrawTopBatches();
 
-        static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth=1.0f, glm::vec3 color={0.0f, 1.0f, 0.0f}, int lifetime=1, bool onTop=true);
-        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation=0.0f, float strokeWidth=1.0f, glm::vec3 color={0.0f, 1.0f, 0.0f}, int lifetime=1, bool onTop=true);
+        static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth=1.2f, glm::vec3 color={0.0f, 1.0f, 0.0f}, int lifetime=1, bool onTop=true);
+        static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation=0.0f, float strokeWidth=1.2f, glm::vec3 color={0.0f, 1.0f, 0.0f}, int lifetime=1, bool onTop=true);
         static void AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position,
             glm::vec3 tint={1.0f, 1.0f, 1.0f}, glm::vec2 texCoordMin={0.0f, 1.0f}, glm::vec2 texCoordMax={1.0f, 0.0f}, float rotation=0.0f, 
             int lifetime=1, bool onTop=true);

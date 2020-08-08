@@ -4,6 +4,7 @@
 #include "jade/file/JPath.h"
 #include "jade/systems/System.h"
 #include "jade/core/AssetManager.h"
+#include "jade/core/AssetManager.h"
 
 #include <entt/entt.hpp>
 

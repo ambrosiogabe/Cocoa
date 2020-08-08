@@ -2,7 +2,7 @@
 #include "externalLibs.h"
 
 #include "MenuBar.h"
-#include "AssetWindow.h"
+#include "EditorWindows/AssetWindow.h"
 #include "jade/core/Layer.h"
 
 namespace Jade
@@ -11,7 +11,7 @@ namespace Jade
     {
     public:
         ImGuiLayer(Scene* scene)
-            : Layer(scene)
+            : Layer(scene), m_AssetWindow(scene)
         {
             m_Window = nullptr;
             m_MenuBar = std::make_unique<MenuBar>(scene);

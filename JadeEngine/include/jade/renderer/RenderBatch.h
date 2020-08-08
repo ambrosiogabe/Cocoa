@@ -23,6 +23,7 @@ namespace Jade
         void Start();
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
+        void Add(const glm::vec2* vertices, const glm::vec3& color);
         void Add(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, 
             const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
         void Render();
@@ -53,6 +54,8 @@ namespace Jade
         void LoadVertexProperties(const glm::vec3& position, 
             const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
             float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = entt::to_integral(entt::null));
+        void LoadVertexProperties(const glm::vec2* vertices, const glm::vec2* texCoords, const glm::vec4& color, int texId, 
+            uint32 entityId = entt::to_integral(entt::null));
 
         void LoadEmptyVertexProperties();
 

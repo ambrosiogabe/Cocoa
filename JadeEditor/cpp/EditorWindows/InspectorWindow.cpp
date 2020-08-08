@@ -181,11 +181,6 @@ namespace Jade
 			int currentItem = static_cast<int>(rb.m_BodyType);
 			std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
 			JImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
-			if (JImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size()))
-			{
-				CommandHistory::AddCommand(new ChangeEnumCommand<BodyType2D>(rb.m_BodyType, static_cast<BodyType2D>(currentItem)));
-				CommandHistory::SetNoMergeMostRecent();
-			}
 
 			JImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
 			JImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);

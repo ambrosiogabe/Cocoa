@@ -97,6 +97,21 @@ namespace Jade {
         LoadVertexProperties(position, scale, quadSize, &texCoords[0], rotation, vec4Color, texId);
     }
 
+    void RenderBatch::Add(const glm::vec2* vertices, const glm::vec3& color)
+    {
+        m_NumSprites++;
+        std::array<glm::vec2, 4> texCoords{
+            glm::vec2 {1, 1},
+            glm::vec2 {1, 0},
+            glm::vec2 {0, 0},
+            glm::vec2 {0, 1}
+        };
+        glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
+        int texId = 0;
+
+        LoadVertexProperties(vertices, &texCoords[0], vec4Color, texId);
+    }
+
     void RenderBatch::Add(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, 
         const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
     {
@@ -190,6 +205,21 @@ namespace Jade {
 
             // Load Attributes
             m_VertexStackPointer->position = glm::vec3(currentPos);
+            m_VertexStackPointer->color = glm::vec4(color);
+            m_VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
+            m_VertexStackPointer->texId = (float)texId;
+            m_VertexStackPointer->entityId = (entityId + 1);
+
+            m_VertexStackPointer++;
+        }
+    }
+
+    void RenderBatch::LoadVertexProperties(const glm::vec2* vertices, const glm::vec2* texCoords, const glm::vec4& color, int texId, uint32 entityId)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            // Load Attributes
+            m_VertexStackPointer->position = glm::vec3(vertices[i].x, vertices[i].y, 0.0f);
             m_VertexStackPointer->color = glm::vec4(color);
             m_VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
             m_VertexStackPointer->texId = (float)texId;

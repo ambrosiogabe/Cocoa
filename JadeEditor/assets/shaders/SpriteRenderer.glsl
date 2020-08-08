@@ -142,8 +142,11 @@ void main()
         for (int i=0; i < 9; i++) {
             alphaAverage += sampleTex[i] * kernel[i];
         }
-        if (alphaAverage < 0.5) {
+
+        if (alphaAverage < 0.5 && fTexSlot > 0) {
             color = vec4(1, 1, 0, texColor.a);
+        } else if (fTexSlot == 0) {
+            color = fColor;
         }
     }
 }
