@@ -21,11 +21,13 @@ IncludeDir["stb"] = "JadeEngine/vendor/stb"
 IncludeDir["entt"] = "JadeEngine/vendor/enttVendor/single_include"
 IncludeDir["Box2D"] = "JadeEngine/vendor/box2DVendor/include"
 IncludeDir["Json"] = "JadeEngine/vendor/nlohmann-json/single_include"
+IncludeDir["Mono"] = "JadeEngine/vendor/MonoVendor/include/mono-2.0"
 
 include "JadeEngine/vendor/GLFW"
 include "JadeEngine/vendor/glad"
 include "JadeEngine/vendor/imguiVendor"
 include "JadeEngine/vendor/box2DVendor"
+include "JadeEngine/vendor/MonoVendor"
 
 project "JadeEngine"
     location "JadeEngine"
@@ -60,7 +62,8 @@ project "JadeEngine"
 		"%{IncludeDir.glm}",
         "%{IncludeDir.stb}",
         "%{IncludeDir.entt}",
-        "%{IncludeDir.Json}"
+        "%{IncludeDir.Json}",
+        "%{IncludeDir.Mono}"
 	}
 
 	links {
@@ -68,6 +71,9 @@ project "JadeEngine"
         "opengl32.lib",
         "Glad",
         "Box2D",
+        "JadeEngine/vendor/MonoVendor/lib/libmono-static-sgen.lib",
+        "JadeEngine/vendor/MonoVendor/lib/mono-2.0-sgen.lib",
+        --"JadeEngine/vendor/MonoVendor/lib/MonoPosixHelper.lib",  
 	}
 
     filter { "system:windows", "configurations:Debug" }
