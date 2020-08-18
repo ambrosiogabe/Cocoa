@@ -20,6 +20,3 @@
 	path = JadeEngine/vendor/imguiVendor
 	url = https://github.com/ambrosiogabe/imgui
 	branch = docking
-[submodule "JadeEngine/vendor/monoVendor"]
-	path = JadeEngine/vendor/monoVendor
-	url = https://github.com/ambrosiogabe/mono
