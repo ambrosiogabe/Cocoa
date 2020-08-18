@@ -98,6 +98,8 @@ namespace Jade
 
 	void Scene::Load(const JPath& filename)
 	{
+		//mono_set_dirs()
+
 		MonoDomain* domain = mono_jit_init_version("JadeEngineScriptRuntime", "v4.0.30319");
 		JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
 		MonoAssembly* assembly = mono_domain_assembly_open(domain, testFile.Filepath());
