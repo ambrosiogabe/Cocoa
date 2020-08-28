@@ -7,7 +7,7 @@ namespace Jade {
     
     class Scene;
 
-    class Layer {
+    class JADE Layer {
     public:
         Layer(Scene* scene, const std::string& name = "Layer")
             : m_Scene(scene), m_DebugName(name) {}

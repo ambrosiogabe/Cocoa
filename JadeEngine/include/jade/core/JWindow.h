@@ -7,7 +7,7 @@
 #include "jade/events/Event.h"
 
 namespace Jade {
-    class JWindow {
+    class JADE JWindow {
     public:
         using EventCallbackFn = std::function<void(Event&)>;
 

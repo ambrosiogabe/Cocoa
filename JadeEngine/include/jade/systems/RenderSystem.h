@@ -11,7 +11,7 @@
 #include "jade/util/Settings.h"
 
 namespace Jade {
-    class RenderSystem : public System {
+    class JADE RenderSystem : public System {
     public:
         RenderSystem(const char* name, Scene* scene)
             : System(name, scene) 

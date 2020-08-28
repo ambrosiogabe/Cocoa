@@ -7,7 +7,7 @@
 #include "jade/renderer/DebugSprite.h"
 
 namespace Jade {
-    class DebugDraw {
+    class JADE DebugDraw {
     public:
         static void BeginFrame();
         static void DrawBottomBatches();

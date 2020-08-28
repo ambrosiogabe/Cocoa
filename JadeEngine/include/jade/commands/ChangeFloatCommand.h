@@ -5,7 +5,7 @@
 
 namespace Jade
 {
-    class ChangeFloatCommand : public ICommand
+    class JADE ChangeFloatCommand : public ICommand
     {
     public:
         ChangeFloatCommand(float& originalFloat, float newFloat)

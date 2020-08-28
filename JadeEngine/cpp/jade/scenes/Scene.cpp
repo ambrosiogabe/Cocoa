@@ -6,8 +6,8 @@
 #include "jade/components/Transform.h"
 
 #include <nlohmann/json.hpp>
-#include <mono/jit/jit.h>
-#include <mono/metadata/assembly.h>
+//#include <mono/jit/jit.h>
+//#include <mono/metadata/assembly.h>
 
 namespace Jade
 {
@@ -100,14 +100,14 @@ namespace Jade
 	{
 		//mono_set_dirs()
 
-		MonoDomain* domain = mono_jit_init_version("JadeEngineScriptRuntime", "v4.0.30319");
-		JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
-		MonoAssembly* assembly = mono_domain_assembly_open(domain, testFile.Filepath());
-		if (!assembly)
-		{
-			Log::Error("Failed to load mono file: %s", testFile.Filepath());
-		}
-		int retval = mono_jit_exec(domain, assembly, 0, nullptr);
+		//MonoDomain* domain = mono_jit_init_version("JadeEngineScriptRuntime", "v4.0.30319");
+		//JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
+		//MonoAssembly* assembly = mono_domain_assembly_open(domain, testFile.Filepath());
+		//if (!assembly)
+		//{
+		//	Log::Error("Failed to load mono file: %s", testFile.Filepath());
+		//}
+		//int retval = mono_jit_exec(domain, assembly, 0, nullptr);
 
 
 		Reset();

@@ -6,7 +6,7 @@ namespace Jade {
     // ===============================================================
     // MouseMovedEvent
     // ===============================================================
-    class MouseMovedEvent : public Event {
+    class JADE MouseMovedEvent : public Event {
     public:
         MouseMovedEvent(float x, float y);
 
@@ -26,7 +26,7 @@ namespace Jade {
     // ===============================================================
     // MouseScrolledEvent
     // ===============================================================
-    class MouseScrolledEvent : public Event {
+    class JADE MouseScrolledEvent : public Event {
     public:
         MouseScrolledEvent(float xoffset, float yoffset);
 
@@ -47,7 +47,7 @@ namespace Jade {
     // ===============================================================
     // Base
     // ===============================================================
-    class MouseButtonEvent : public Event {
+    class JADE MouseButtonEvent : public Event {
     public:
         // TODO: Make this inline somehow
         int GetMouseButton() const;
@@ -63,7 +63,7 @@ namespace Jade {
     // ===============================================================
     // MouseButtonPressedEvent
     // ===============================================================
-    class MouseButtonPressedEvent : public MouseButtonEvent {
+    class JADE MouseButtonPressedEvent : public MouseButtonEvent {
     public:
         MouseButtonPressedEvent(int button);
 
@@ -75,7 +75,7 @@ namespace Jade {
     // ===============================================================
     // MouseButtonReleasedEvent
     // ===============================================================
-    class MouseButtonReleasedEvent : public MouseButtonEvent {
+    class JADE MouseButtonReleasedEvent : public MouseButtonEvent {
     public:
         MouseButtonReleasedEvent(int button);
 

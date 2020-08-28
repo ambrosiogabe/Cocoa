@@ -5,7 +5,7 @@
 #include "jade/util/Log.h"
 
 namespace Jade {
-    class Camera {
+    class JADE Camera {
     public:
         Camera(glm::vec3& position);
 

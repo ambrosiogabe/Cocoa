@@ -6,7 +6,7 @@
 
 namespace Jade
 {
-    class DebugSprite
+    class JADE DebugSprite
     {
     public:
         DebugSprite(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, const glm::vec3& tint, 

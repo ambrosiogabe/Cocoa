@@ -5,7 +5,7 @@
 namespace Jade {
     namespace Settings
     {
-        class General
+        class JADE General
         {
         public:
             static int s_GridSizeX;
@@ -21,7 +21,7 @@ namespace Jade {
             static JPath s_EditorStyleData;
         };
   
-        class Physics2D
+        class JADE Physics2D
         {
         public:
             static int s_VelocityIterations;

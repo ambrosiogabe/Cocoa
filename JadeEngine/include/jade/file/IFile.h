@@ -12,7 +12,7 @@ namespace Jade
 		bool m_Open = false;
 	};
 
-	class IFile
+	class JADE IFile
 	{
 	public:
 		static void Init();
@@ -51,7 +51,7 @@ namespace Jade
 	};
 
 #ifdef _WIN32
-	class Win32File : public IFile
+	class JADE Win32File : public IFile
 	{
 	public:
 		static IFile* Create()

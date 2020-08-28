@@ -14,7 +14,7 @@ namespace Jade
         uint32 entityId;
     };
 
-    class RenderBatch
+    class JADE RenderBatch
     {
     public:
         RenderBatch(int maxBatchSize, int zIndex, bool batchOnTop=false);

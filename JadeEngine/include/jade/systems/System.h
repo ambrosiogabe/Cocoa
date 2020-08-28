@@ -7,7 +7,7 @@ namespace Jade {
 
     class Scene;
 
-    class System {
+    class JADE System {
     public:
         System(const char* name, Scene* scene) 
             : m_Name(name), m_Scene(scene) {}

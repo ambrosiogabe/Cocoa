@@ -9,7 +9,7 @@ namespace Jade
 {
 	class NullAsset;
 	class AssetManager;
-	class Asset
+	class JADE Asset
 	{
 	public:
 		Asset() 
@@ -57,7 +57,7 @@ namespace Jade
 		};
 	};
 
-	class AssetManager
+	class JADE AssetManager
 	{
 	public:
 		static std::unordered_map<uint32, std::shared_ptr<Asset>>& GetAllAssets(uint32 scene);
@@ -114,7 +114,7 @@ namespace Jade
 		std::unordered_map<uint32, std::shared_ptr<Asset>> m_EmptyAssetContainer{};
 	};
 
-	class NullAsset : public Asset
+	class JADE NullAsset : public Asset
 	{
 	public:
 		NullAsset()

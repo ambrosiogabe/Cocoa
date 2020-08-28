@@ -3,7 +3,7 @@
 
 namespace Jade
 {
-	class JPath
+	class JADE JPath
 	{
 	public:
 		JPath(std::string path);
@@ -55,7 +55,7 @@ namespace Jade
 	};
 
 #ifdef _WIN32
-	class Win32JPath
+	class JADE Win32JPath
 	{
 	public:
 		static const char GetPathSeparator()

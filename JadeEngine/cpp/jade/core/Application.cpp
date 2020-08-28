@@ -14,6 +14,7 @@ namespace Jade
 		m_Layers = std::vector<Layer*>();
 
 		std::string title = std::string("Test Window");
+		Log::Info("Initializing GLAD functions in DLL.");
 		m_Window = JWindow::Create(1920, 1080, title);
 		s_Instance = this;
 

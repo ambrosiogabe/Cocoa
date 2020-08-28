@@ -25,7 +25,7 @@ namespace Jade
 
 		glfwMakeContextCurrent(window);
 
-		Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLEW.");
+		Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLAD.");
 		glfwSetWindowUserPointer(window, this);
 
 		// Set up event callbacks

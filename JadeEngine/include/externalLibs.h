@@ -52,3 +52,7 @@ using json = nlohmann::json;
 // ===================================================================
 #include <glad/glad.h>
 #include <GLFW/include/GLFW/glfw3.h>
+
+
+// Some core defines and stuff
+#include "jade/core/Core.h"

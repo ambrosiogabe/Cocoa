@@ -5,7 +5,7 @@
 
 namespace Jade
 {
-    class ChangeUint8Command : public ICommand
+    class JADE ChangeUint8Command : public ICommand
     {
     public:
         ChangeUint8Command(uint8& originalUint8, uint8 newUint8)

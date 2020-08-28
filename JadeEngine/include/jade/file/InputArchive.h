@@ -8,7 +8,7 @@
 
 namespace Jade
 {
-	class InputArchive
+	class JADE InputArchive
 	{
 	public:
 		void Load(const std::string& filename)

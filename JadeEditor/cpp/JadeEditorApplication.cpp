@@ -18,9 +18,8 @@ namespace Jade
 	// Editor Layer
 	// ===================================================================================
 	EditorLayer::EditorLayer(Scene* scene)
-		: Layer(scene)
+		: Layer(scene), m_PickingTexture(3840, 2160)
 	{
-		m_PickingTexture = PickingTexture();
 		m_PickingShader = std::make_shared<Shader>(JPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"));
 		m_DefaultShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
 		m_OutlineShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SingleColor.glsl");
@@ -138,9 +137,6 @@ namespace Jade
 		Settings::General::s_EngineAssetsPath = IFile::GetCwd() + Settings::General::s_EngineAssetsPath;
 		Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath + Settings::General::s_ImGuiConfigPath;
 
-		// Start the scene
-		m_PickingTexture.Init(3840, 2160);
-
 		// Create application store data if it does not exist
 		IFile::CreateDirIfNotExists(IFile::GetSpecialAppFolder() + "JadeEngine");
 
@@ -158,14 +154,6 @@ namespace Jade
 			m_Scene->Update(dt);
 		}
 	}
-
-	//void EditorLayer::OnImGuiRender()
-	//{
-	//	if (!JadeEditor::IsProjectLoaded())
-	//	{
-	//		m_ProjectWizard.ImGui();
-	//	}
-	//}
 
 	void EditorLayer::OnRender()
 	{
@@ -214,11 +202,20 @@ namespace Jade
 	// Editor Application
 	// ===================================================================================
 	JadeEditor::JadeEditor()
+		: Application()
 	{
 	}
 
 	void JadeEditor::Init()
 	{
+		// Initialize GLAD here, so that it works in DLL and exe
+		//if (!gladLoadGL())
+		//{
+		//	Log::Error("Error loading GLAD in exe.");
+		//}
+		Log::Info("Initializing GLAD functions in exe.");
+		Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLAD.");
+
 		// Engine initialization
 		Jade::AssetManager::Init(0);
 		Jade::IFileDialog::Init();

@@ -30,10 +30,10 @@ include "JadeEngine/vendor/box2DVendor"
 
 project "JadeEngine"
     location "JadeEngine"
-    kind "StaticLib"
+    kind "SharedLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
+    staticruntime "off"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -47,9 +47,15 @@ project "JadeEngine"
         "%{prj.name}/vendor/nlohmann-json/single_include/**.hpp"
 	}
 
+    disablewarnings { 
+        "4251" 
+    }
+
 	defines {
         "_CRT_SECURE_NO_WARNINGS",
         "NOMINMAX",
+        "_JADE_DLL",
+        "GLFW_DLL"
 	}
 
 	includedirs {
@@ -62,7 +68,7 @@ project "JadeEngine"
         "%{IncludeDir.stb}",
         "%{IncludeDir.entt}",
         "%{IncludeDir.Json}",
-        "%{IncludeDir.Mono}"
+        --"%{IncludeDir.Mono}"
 	}
 
 	links {
@@ -70,13 +76,14 @@ project "JadeEngine"
         "opengl32.lib",
         "Glad",
         "Box2D",
+        --"JadeEngine/vendor/monoVendor/lib/mono-2.0-sgen.lib"
 	}
 
     filter { "system:windows", "configurations:Debug" }
-        buildoptions "/MTd"        
+        buildoptions "/MDd"        
 
     filter { "system:windows", "configurations:Release" }
-        buildoptions "/MT"
+        buildoptions "/MD"
 
 	filter "system:windows"
 		systemversion "latest"
@@ -85,6 +92,10 @@ project "JadeEngine"
 			"GLFW_INCLUDE_NONE",
             "JSON_MultipleHeaders"
 		}
+
+    postbuildcommands {
+        "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\\JadeEngine.dll\""
+    }
 
 	filter "configurations:Debug"
 		defines {
@@ -113,7 +124,7 @@ project "JadeEditor"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"	
-    staticruntime "on"
+    staticruntime "off"
 
     fullOutputDir = "bin/" .. outputdir .. "/%{prj.name}"
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -122,6 +133,10 @@ project "JadeEditor"
     files {
         "%{prj.name}/include/**.h",
         "%{prj.name}/cpp/**.cpp"
+    }
+
+    disablewarnings { 
+        "4251" 
     }
 
     includedirs {
@@ -135,27 +150,35 @@ project "JadeEditor"
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.Box2D}",
         "%{IncludeDir.Json}",
-        "%{IncludeDir.GLFW}"
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Mono}",
     }
 
     links {
         "JadeEngine",
-        "ImGui"
+        "ImGui",
+		"GLFW",
+        "opengl32.lib",
+        "Glad",
+        "Box2D",
     }
 
     filter { "system:windows", "configurations:Debug" }
-        buildoptions "/MTd"        
+        buildoptions "/MDd"        
 
     filter { "system:windows", "configurations:Release" }
-        buildoptions "/MT"
+        buildoptions "/MD"
 
     filter "system:windows"
-        systemversion "latest"
+        systemversion "latest"		
+
         postbuildcommands {
-            "xcopy /s /e /q /y /i \"$(SolutionDir)\\%{prj.name}\\assets\" \"$(SolutionDir)\\%{fullOutputDir}\\assets\" > nul"
+            "xcopy /s /e /q /y /i \"$(SolutionDir)\\%{prj.name}\\assets\" \"$(SolutionDir)\\%{fullOutputDir}\\assets\" > nul",
         }
 
         defines {
+
+
             "_JADE_PLATFORM_WINDOWS"
         }
 

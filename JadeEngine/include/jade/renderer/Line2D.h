@@ -5,7 +5,7 @@
 #include "jade/util/Log.h"
 
 namespace Jade {
-    class Line2D {
+    class JADE Line2D {
     public:
         Line2D(glm::vec2& from, glm::vec2& to)
             : m_From(from), m_To(to) { }

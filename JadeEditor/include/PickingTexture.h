@@ -20,10 +20,8 @@ namespace Jade
 		};
 
 	public:
-		PickingTexture();
+		PickingTexture(uint32 windowWidth, uint32 windowHeight);
 		~PickingTexture();
-
-		bool Init(uint32 windowWidth, uint32 windowHeight);
 
 		void EnableWriting();
 		void DisableWriting();
@@ -31,6 +29,9 @@ namespace Jade
 		inline uint32 GetPickingTextureID() const { return m_PickingTexture; }
 
 		PixelInfo ReadPixel(uint32 x, uint32 y) const;
+
+	private:
+		bool Init(uint32 windowWidth, uint32 windowHeight);
 
 	private:
 		// TODO: Figure out some way to make a factory for framebuffers, then just use the factory to create framebuffer instead of custom like this

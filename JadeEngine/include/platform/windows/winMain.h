@@ -8,6 +8,8 @@
 #include "jade/events/Input.h"
 #include "jade/core/AssetManager.h"
 
+#include <Windows.h>
+
 extern Jade::Application* Jade::CreateApplication();
 
 int main() {

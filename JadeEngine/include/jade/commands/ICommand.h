@@ -4,7 +4,7 @@
 #include "jade/core/Core.h"
 
 namespace Jade {
-    class ICommand {
+    class JADE ICommand {
     public:
         virtual ~ICommand() {}
         virtual void execute() = 0;

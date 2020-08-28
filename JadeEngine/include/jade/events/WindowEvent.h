@@ -4,7 +4,7 @@
 #include "jade/events/Event.h"
 
 namespace Jade {
-    class WindowResizeEvent : public Event {
+    class JADE WindowResizeEvent : public Event {
     public:
         WindowResizeEvent(uint32 width, uint32 height);
 
@@ -22,7 +22,7 @@ namespace Jade {
         uint32 m_Height;
     };
 
-    class WindowCloseEvent : public Event {
+    class JADE WindowCloseEvent : public Event {
     public:
         WindowCloseEvent();
 

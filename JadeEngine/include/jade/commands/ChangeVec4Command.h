@@ -6,7 +6,7 @@
 
 namespace Jade
 {
-    class ChangeVec4Command : public ICommand
+    class JADE ChangeVec4Command : public ICommand
     {
     public:
         ChangeVec4Command(glm::vec4& originalVector, glm::vec4& newVector)

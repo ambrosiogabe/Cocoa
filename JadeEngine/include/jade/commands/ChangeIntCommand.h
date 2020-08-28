@@ -5,7 +5,7 @@
 
 namespace Jade
 {
-    class ChangeIntCommand : public ICommand
+    class JADE ChangeIntCommand : public ICommand
     {
     public:
         ChangeIntCommand(int& originalInt, int newInt)

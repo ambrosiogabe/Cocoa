@@ -2,13 +2,14 @@
 
 #include <cstdint>
 
-#ifdef _JADE_PLATFORM_WINDOWS
+#ifdef _WIN32
     #ifdef _JADE_DLL
         #define JADE __declspec(dllexport)
     #else 
-        //#define JADE __declspec(dllimport)
-        #define JADE
+        #define JADE __declspec(dllimport)
     #endif
+#else 
+    #define JADE
 #endif
 
 /* Button actions */

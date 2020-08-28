@@ -3,7 +3,7 @@
 #include "jade/util/Log.h"
 
 namespace Jade {
-    class CommandHistory {
+    class JADE CommandHistory {
     public:
         static void AddCommand(ICommand* cmd);
         static void SetNoMergeMostRecent();

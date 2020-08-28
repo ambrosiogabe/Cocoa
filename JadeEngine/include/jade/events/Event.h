@@ -45,7 +45,7 @@ namespace Jade {
     // ================================================================
     // Event Base Class
     // ================================================================
-    class Event {
+    class JADE Event {
         friend class EventDispatcher;
 
     public:
@@ -63,7 +63,7 @@ namespace Jade {
     // ================================================================
     // Event dispatcher
     // ================================================================
-    class EventDispatcher {
+    class JADE EventDispatcher {
         template<typename T>
         using EventFn = std::function<bool(T&)>;
 

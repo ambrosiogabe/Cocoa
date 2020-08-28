@@ -6,7 +6,7 @@
 #define Assert(condition, format, ...) _Assert(__FILE__, __LINE__, condition, format, __VA_ARGS__)
 
 namespace Jade {
-    class Log {
+    class JADE Log {
     public:
         static void _Info(const char* filename, int line, const char* format, ...);
         static void _Warning(const char* filename, int line, const char* format, ...);

@@ -59,7 +59,7 @@ namespace Jade
         void* m_RawRigidbody = nullptr;
     };
 
-    class Physics2DSystem : public System
+    class JADE Physics2DSystem : public System
     {
     public:
         Physics2DSystem(const char* name, Scene* scene)

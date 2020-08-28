@@ -6,7 +6,7 @@
 
 namespace Jade
 {
-	class Texture : public Asset
+	class JADE Texture : public Asset
 	{
 	public:
 		Texture(const JPath& resourceName, bool isDefault=false);

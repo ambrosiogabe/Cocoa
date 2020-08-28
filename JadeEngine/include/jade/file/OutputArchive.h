@@ -9,7 +9,7 @@
 
 namespace Jade
 {
-	class OutputArchive
+	class JADE OutputArchive
 	{
 	public:
 		OutputArchive(json& j) 

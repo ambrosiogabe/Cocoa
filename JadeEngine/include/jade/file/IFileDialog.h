@@ -11,7 +11,7 @@ namespace Jade
 		const char* extension;
 	};
 
-	class IFileDialog
+	class JADE IFileDialog
 	{
 	public:
 		static void Init();
@@ -72,7 +72,7 @@ namespace Jade
 	// Windows Platform class
 	// --------------------------------------------------------------------------- 
 #ifdef _WIN32
-	class Win32FileDialog : public IFileDialog
+	class JADE Win32FileDialog : public IFileDialog
 	{
 	public:
 		static Win32FileDialog* Create()

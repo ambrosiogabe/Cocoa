@@ -8,7 +8,7 @@
 namespace Jade
 {
 	class Scene;
-	class Physics2D
+	class JADE Physics2D
 	{
 	public:
 		Physics2D(Scene* scene);

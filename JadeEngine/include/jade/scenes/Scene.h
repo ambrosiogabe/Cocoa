@@ -12,7 +12,7 @@ namespace Jade
 {
 	class Entity;
 
-	class Scene
+	class JADE Scene
 	{
 	public:
 		virtual void Init() = 0;

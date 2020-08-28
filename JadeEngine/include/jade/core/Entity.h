@@ -8,7 +8,7 @@
 namespace Jade
 {
 	class Scene;
-	class Entity
+	class JADE Entity
 	{
 	public:
 		Entity();

@@ -3,7 +3,7 @@
 
 namespace Jade
 {
-	class Audio : public Asset
+	class JADE Audio : public Asset
 	{
 	public:
 		Audio()

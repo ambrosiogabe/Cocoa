@@ -5,7 +5,7 @@
 typedef unsigned int GLuint;
 
 namespace Jade {
-    class Shader {
+    class JADE Shader {
     public:
         Shader(const JPath& resourceName);
 

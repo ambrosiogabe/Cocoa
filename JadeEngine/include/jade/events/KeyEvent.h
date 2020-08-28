@@ -6,7 +6,7 @@ namespace Jade {
     // ============================================================
     // Base
     // ============================================================
-    class KeyEvent : public Event {
+    class JADE KeyEvent : public Event {
     public:
         // TODO: Make this inline somehow
         int GetKeyCode() const;
@@ -23,7 +23,7 @@ namespace Jade {
     // ============================================================
     // KeyPressed
     // ============================================================
-    class KeyPressedEvent : public KeyEvent {
+    class JADE KeyPressedEvent : public KeyEvent {
     public:
         KeyPressedEvent(int keycode, int repeatCount);
 
@@ -40,7 +40,7 @@ namespace Jade {
     // ============================================================
     // KeyReleased
     // ============================================================
-    class KeyReleasedEvent : public KeyEvent {
+    class JADE KeyReleasedEvent : public KeyEvent {
     public:
         KeyReleasedEvent(int keycode);
 
@@ -52,7 +52,7 @@ namespace Jade {
     // ============================================================
     // KeyTyped
     // ============================================================
-    class KeyTypedEvent : public KeyEvent {
+    class JADE KeyTypedEvent : public KeyEvent {
         KeyTypedEvent(int keycode);
 
         virtual std::string ToString() const override;

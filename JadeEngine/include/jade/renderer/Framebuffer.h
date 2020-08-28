@@ -3,7 +3,7 @@
 #include "jade/renderer/Texture.h"
 
 namespace Jade {
-    class Framebuffer {
+    class JADE Framebuffer {
     public:
         Framebuffer(int width, int height)
             : m_Width(width), m_Height(height) {

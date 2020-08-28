@@ -3,9 +3,13 @@
 
 namespace Jade
 {
-	PickingTexture::PickingTexture()
+	PickingTexture::PickingTexture(uint32 windowWidth, uint32 windowHeight)
 	{
-
+		if (!Init(windowWidth, windowHeight))
+		{
+			Log::Error("Error initializing picking texture.");
+			Log::Assert(false, "");
+		}
 	}
 
 	PickingTexture::~PickingTexture()
@@ -18,6 +22,7 @@ namespace Jade
 	bool PickingTexture::Init(uint32 windowWidth, uint32 windowHeight)
 	{
 		// Create the FBO
+		m_FBO = 0;
 		glGenFramebuffers(1, &m_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 

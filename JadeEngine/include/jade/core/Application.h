@@ -9,7 +9,7 @@
 
 namespace Jade
 {
-	class Application
+	class JADE Application
 	{
 	public:
 		Application();
