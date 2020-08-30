@@ -19,6 +19,33 @@ namespace Jade
 		return entity;
 	}
 
+	Entity Scene::DuplicateEntity(Entity entity)
+	{
+		entt::entity newEntEntity = m_Registry.create();
+		Entity newEntity = Entity(newEntEntity, this);
+		if (entity.HasComponent<Transform>())
+		{
+			newEntity.AddComponent<Transform>(entity.GetComponent<Transform>());
+		}
+
+		if (entity.HasComponent<SpriteRenderer>())
+		{
+			newEntity.AddComponent<SpriteRenderer>(entity.GetComponent<SpriteRenderer>());
+		}
+
+		if (entity.HasComponent<Rigidbody2D>())
+		{
+			newEntity.AddComponent<Rigidbody2D>(entity.GetComponent<Rigidbody2D>());
+		}
+
+		if (entity.HasComponent<Box2D>())
+		{
+			newEntity.AddComponent<Box2D>(entity.GetComponent<Box2D>());
+		}
+
+		return newEntity;
+	}
+
 	Entity Scene::GetEntity(uint32 id)
 	{
 		entt::entity entity = entt::null;
@@ -99,21 +126,21 @@ namespace Jade
 	void Scene::Load(const JPath& filename)
 	{
 
-		mono_set_dirs("C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\lib", "C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\etc");
+		//mono_set_dirs("C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\lib", "C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\etc");
 
-		MonoDomain* domain = mono_jit_init("JadeEngineScriptRuntime");
-		JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
-		MonoImageOpenStatus status;
-		MonoAssembly* assembly = mono_assembly_open("C:\\dev\\C++\\MonoTEST\\MonoTest\\Art.exe", &status);
-		if (!assembly)
-		{
-			Log::Error("Failed to load mono file: %s", testFile.Filepath());
-		}
+		//MonoDomain* domain = mono_jit_init("JadeEngineScriptRuntime");
+		//JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
+		//MonoImageOpenStatus status;
+		//MonoAssembly* assembly = mono_assembly_open("C:\\dev\\C++\\MonoTEST\\MonoTest\\Art.exe", &status);
+		//if (!assembly)
+		//{
+		//	Log::Error("Failed to load mono file: %s", testFile.Filepath());
+		//}
 
-		int argc = 1;
-		char* argv[1] = { (char*)"MyDomain" };
-		int returnVal = mono_jit_exec(domain, assembly, argc, argv);
-		Log::Info("Execution of the script yielded: %d", returnVal);
+		//int argc = 1;
+		//char* argv[1] = { (char*)"MyDomain" };
+		//int returnVal = mono_jit_exec(domain, assembly, argc, argv);
+		//Log::Info("Execution of the script yielded: %d", returnVal);
 
 		Reset();
 

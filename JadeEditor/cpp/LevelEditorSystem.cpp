@@ -10,6 +10,7 @@
 #include "jade/file/IFile.h"
 #include "FontAwesome.h"
 #include "JadeEditorApplication.h"
+#include "EditorWindows/InspectorWindow.h"
 
 #include <string>
 #include <imgui.h>
@@ -125,6 +126,17 @@ namespace Jade
 			{
 				m_Scene->Save(Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
+			}
+
+			if (e.GetKeyCode() == JADE_KEY_D)
+			{
+				Entity activeEntity = InspectorWindow::GetActiveEntity();
+				if (!activeEntity.IsNull())
+				{
+					Entity duplicated = m_Scene->DuplicateEntity(activeEntity);
+					InspectorWindow::ClearAllEntities();
+					InspectorWindow::AddEntity(duplicated);
+				}
 			}
 		}
 

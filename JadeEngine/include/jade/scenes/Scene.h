@@ -27,6 +27,7 @@ namespace Jade
 		void Reset();
 
 		Entity CreateEntity();
+		Entity DuplicateEntity(Entity entity);
 		Entity GetEntity(uint32 id);
 
 		inline Camera* GetCamera() { return m_Camera; }
