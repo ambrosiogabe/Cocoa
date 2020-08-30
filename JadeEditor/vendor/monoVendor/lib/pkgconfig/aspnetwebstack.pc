@@ -1,4 +1,0 @@
-Name: AspNetWebStack
-Description: References Microsoft ASP.NET Web Stack
-Version: 6.10.0
-Libs: -r:/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib/mono/gac/System.Web.Razor/2.0.0.0__31bf3856ad364e35/System.Web.Razor.dll -r:/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib/mono/gac/System.Web.Http/4.0.0.0__31bf3856ad364e35/System.Web.Http.dll -r:/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib/mono/gac/System.Web.WebPages/2.0.0.0__31bf3856ad364e35/System.Web.WebPages.dll -r:/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib/mono/gac/System.Web.WebPages.Razor/2.0.0.0__31bf3856ad364e35/System.Web.WebPages.Razor.dll -r:/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib/mono/gac/System.Web.WebPages.Deployment/2.0.0.0__31bf3856ad364e35/System.Web.WebPages.Deployment.dll

@@ -1,9 +1,0 @@
-prefix=/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono
-exec_prefix=${prefix}
-libdir=/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib
-sourcesdir=${libdir}/monodoc/sources
-
-Name: Monodoc
-Description: Monodoc - Mono Documentation Tools
-Version: 6.10.0
-Libs: /r:${prefix}/lib/mono/monodoc/monodoc.dll 
