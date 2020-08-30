@@ -6,8 +6,8 @@
 #include "jade/components/Transform.h"
 
 #include <nlohmann/json.hpp>
-//#include <mono/jit/jit.h>
-//#include <mono/metadata/assembly.h>
+#include <mono/jit/jit.h>
+#include <mono/metadata/assembly.h>
 
 namespace Jade
 {
@@ -98,17 +98,22 @@ namespace Jade
 
 	void Scene::Load(const JPath& filename)
 	{
-		//mono_set_dirs()
 
-		//MonoDomain* domain = mono_jit_init_version("JadeEngineScriptRuntime", "v4.0.30319");
-		//JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
-		//MonoAssembly* assembly = mono_domain_assembly_open(domain, testFile.Filepath());
-		//if (!assembly)
-		//{
-		//	Log::Error("Failed to load mono file: %s", testFile.Filepath());
-		//}
-		//int retval = mono_jit_exec(domain, assembly, 0, nullptr);
+		mono_set_dirs("C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\lib", "C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\etc");
 
+		MonoDomain* domain = mono_jit_init("JadeEngineScriptRuntime");
+		JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
+		MonoImageOpenStatus status;
+		MonoAssembly* assembly = mono_assembly_open("C:\\dev\\C++\\MonoTEST\\MonoTest\\Art.exe", &status);
+		if (!assembly)
+		{
+			Log::Error("Failed to load mono file: %s", testFile.Filepath());
+		}
+
+		int argc = 1;
+		char* argv[1] = { (char*)"MyDomain" };
+		int returnVal = mono_jit_exec(domain, assembly, argc, argv);
+		Log::Info("Execution of the script yielded: %d", returnVal);
 
 		Reset();
 

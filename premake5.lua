@@ -68,7 +68,7 @@ project "JadeEngine"
         "%{IncludeDir.stb}",
         "%{IncludeDir.entt}",
         "%{IncludeDir.Json}",
-        --"%{IncludeDir.Mono}"
+        "%{IncludeDir.Mono}"
 	}
 
 	links {
@@ -76,7 +76,7 @@ project "JadeEngine"
         "opengl32.lib",
         "Glad",
         "Box2D",
-        --"JadeEngine/vendor/monoVendor/lib/mono-2.0-sgen.lib"
+        "JadeEngine/vendor/monoVendor/lib/mono-2.0-sgen.lib"
 	}
 
     filter { "system:windows", "configurations:Debug" }
@@ -94,7 +94,8 @@ project "JadeEngine"
 		}
 
     postbuildcommands {
-        "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\\JadeEngine.dll\""
+        "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\\JadeEngine.dll\"",
+        "copy /y \"$(SolutionDir)JadeEngine\\vendor\\monoVendor\\bin\\mono-2.0-sgen.dll\" \"$(OutDir)..\\JadeEditor\\mono-2.0-sgen.dll\""
     }
 
 	filter "configurations:Debug"
@@ -177,8 +178,6 @@ project "JadeEditor"
         }
 
         defines {
-
-
             "_JADE_PLATFORM_WINDOWS"
         }
 
