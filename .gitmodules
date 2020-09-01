@@ -20,6 +20,3 @@
 	path = JadeEngine/vendor/imguiVendor
 	url = https://github.com/ambrosiogabe/imgui
 	branch = docking
-[submodule "JadeEditor/vendor/roslynVendor"]
-	path = JadeEditor/vendor/roslynVendor
-	url = https://github.com/dotnet/roslyn
