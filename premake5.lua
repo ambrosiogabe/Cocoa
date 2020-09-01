@@ -98,6 +98,10 @@ project "JadeEngine"
         --"copy /y \"$(SolutionDir)JadeEngine\\vendor\\monoVendor\\bin\\mono-2.0-sgen.dll\" \"$(OutDir)..\\JadeEditor\\mono-2.0-sgen.dll\""
     }
 
+    prebuildcommands {
+        "copy /y \"$(SolutionDir)JadeEngine\\vendor\\GLFW\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\GLFW.dll\" \"$(OutDir)..\\JadeEditor\\GLFW.dll\""
+    }
+
 	filter "configurations:Debug"
 		defines {
 			"_JADE_DEBUG",
