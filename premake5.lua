@@ -95,7 +95,7 @@ project "JadeEngine"
 
     postbuildcommands {
         "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\\JadeEngine.dll\"",
-        "copy /y \"$(SolutionDir)JadeEngine\\vendor\\monoVendor\\bin\\mono-2.0-sgen.dll\" \"$(OutDir)..\\JadeEditor\\mono-2.0-sgen.dll\""
+        --"copy /y \"$(SolutionDir)JadeEngine\\vendor\\monoVendor\\bin\\mono-2.0-sgen.dll\" \"$(OutDir)..\\JadeEditor\\mono-2.0-sgen.dll\""
     }
 
 	filter "configurations:Debug"

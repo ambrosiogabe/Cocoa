@@ -6,8 +6,8 @@
 #include "jade/components/Transform.h"
 
 #include <nlohmann/json.hpp>
-#include <mono/jit/jit.h>
-#include <mono/metadata/assembly.h>
+//#include <mono/jit/jit.h>
+//#include <mono/metadata/assembly.h>
 
 namespace Jade
 {

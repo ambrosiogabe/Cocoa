@@ -7,6 +7,7 @@ bin-int/*
 **/.vs/*
 **/bin/*
 **/bin-int/*
+**/obj/*
 *.sln
 *.vcxproj
 *.vcxproj.filters
