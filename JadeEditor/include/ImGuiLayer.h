@@ -28,6 +28,9 @@ namespace Jade
         void SetupDockspace();
         void RenderGameViewport();
 
+    public:
+        static void LoadStyle(const JPath& filepath);
+
     private:
         glm::vec2 m_GameviewPos = glm::vec2();
         glm::vec2 m_GameviewSize = glm::vec2();

@@ -7,10 +7,11 @@ namespace Jade
         // =======================================================================
         // Editor Style Settings
         // =======================================================================
+
         // Fonts
         ImFont* EditorStyle::s_DefaultFont = nullptr;
         ImFont* EditorStyle::s_LargeIconFont = nullptr;
-
+        
         // Style Colors
         glm::vec4 EditorStyle::s_MainBgLight0{ 0.404f, 0.404f ,0.404f, 1.0f };
         glm::vec4 EditorStyle::s_MainBg{ 0.212f, 0.212f, 0.212f, 1.0f };

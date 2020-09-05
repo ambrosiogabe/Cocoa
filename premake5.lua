@@ -94,7 +94,7 @@ project "JadeEngine"
 		}
 
     postbuildcommands {
-        "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\\JadeEngine.dll\"",
+        "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\"",
         --"copy /y \"$(SolutionDir)JadeEngine\\vendor\\monoVendor\\bin\\mono-2.0-sgen.dll\" \"$(OutDir)..\\JadeEditor\\mono-2.0-sgen.dll\"",
         "copy /y \"$(SolutionDir)JadeEngine\\vendor\\GLFW\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\GLFW\\GLFW.dll\" \"$(OutDir)..\\JadeEditor\\GLFW.dll\""
     }
