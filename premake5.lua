@@ -94,9 +94,9 @@ project "JadeEngine"
 		}
 
     postbuildcommands {
-        "copy /y \"$(OutDir)JadeEngine.dll\" \"$(OutDir)..\\JadeEditor\"",
-        --"copy /y \"$(SolutionDir)JadeEngine\\vendor\\monoVendor\\bin\\mono-2.0-sgen.dll\" \"$(OutDir)..\\JadeEditor\\mono-2.0-sgen.dll\"",
-        "copy /y \"$(SolutionDir)JadeEngine\\vendor\\GLFW\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\GLFW\\GLFW.dll\" \"$(OutDir)..\\JadeEditor\\GLFW.dll\""
+        "if not exist \"$(SolutionDir)%{fullOutputDir}\\..\\JadeEditor\" mkdir \"$(SolutionDir)%{fullOutputDir}\\..\\JadeEditor\"",
+        "copy /y \"$(SolutionDir)%{fullOutputDir}\\JadeEngine.dll\" \"$(SolutionDir)%{fullOutputDir}\\..\\JadeEditor\\JadeEngine.dll\"",
+        "copy /y \"$(SolutionDir)JadeEngine\\vendor\\GLFW\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\GLFW\\GLFW.dll\" \"$(SolutionDir)%{fullOutputDir}\\..\\JadeEditor\\GLFW.dll\""
     }
     
 	filter "configurations:Debug"
