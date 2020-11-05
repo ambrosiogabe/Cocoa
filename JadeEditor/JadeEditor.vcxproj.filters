@@ -4,52 +4,37 @@
     <Filter Include="cpp">
       <UniqueIdentifier>{E866880B-5470-887C-DDEB-9E7C49F4937C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="cpp\EditorWindows">
-      <UniqueIdentifier>{497684D1-B58C-8267-FE03-0E896A5953EF}</UniqueIdentifier>
+    <Filter Include="cpp\editorWindows">
+      <UniqueIdentifier>{69A665BD-D5BC-6353-1E34-EF748A8934DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="cpp\Gui">
-      <UniqueIdentifier>{3C9ECCD5-A87D-4B71-B195-D6471DF4B1D2}</UniqueIdentifier>
+    <Filter Include="cpp\gui">
+      <UniqueIdentifier>{5C26CDD5-C805-4C71-D11D-D7473D7CB2D2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="cpp\Util">
-      <UniqueIdentifier>{350F688F-21DC-C29A-4AF5-B0423621F828}</UniqueIdentifier>
+    <Filter Include="cpp\util">
+      <UniqueIdentifier>{559B798F-4168-D49A-6A81-C24256AD0929}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\EditorWindows">
-      <UniqueIdentifier>{AAC47C43-1631-383E-DF24-D09B4B505AA6}</UniqueIdentifier>
+    <Filter Include="include\editorWindows">
+      <UniqueIdentifier>{CAF45D2F-3661-192A-FF54-B1876B803B92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\Gui">
-      <UniqueIdentifier>{5D4FC031-C904-3927-52F9-32FEBEAD2F2B}</UniqueIdentifier>
+    <Filter Include="include\gui">
+      <UniqueIdentifier>{7DD7C031-E98C-3927-7281-33FEDE35302B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\Util">
-      <UniqueIdentifier>{76E4D169-6247-610E-0BCD-99C4F70E2D91}</UniqueIdentifier>
+    <Filter Include="include\util">
+      <UniqueIdentifier>{9670E369-82D3-720E-2B59-ABC4179B3E91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AssetWizard.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\EditorWindows\AssetWindow.h">
-      <Filter>include\EditorWindows</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EditorWindows\InspectorWindow.h">
-      <Filter>include\EditorWindows</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EditorWindows\SceneHeirarchyWindow.h">
-      <Filter>include\EditorWindows</Filter>
-    </ClInclude>
     <ClInclude Include="include\FontAwesome.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Gizmos.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Gui\ImGuiExtended.h">
-      <Filter>include\Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Gui\ImGuiHeader.h">
-      <Filter>include\Gui</Filter>
     </ClInclude>
     <ClInclude Include="include\ImGuiLayer.h">
       <Filter>include</Filter>
@@ -72,28 +57,31 @@
     <ClInclude Include="include\ProjectWizard.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Util\Settings.h">
-      <Filter>include\Util</Filter>
+    <ClInclude Include="include\editorWindows\AssetWindow.h">
+      <Filter>include\editorWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\editorWindows\InspectorWindow.h">
+      <Filter>include\editorWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\editorWindows\SceneHeirarchyWindow.h">
+      <Filter>include\editorWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\ImGuiExtended.h">
+      <Filter>include\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\ImGuiHeader.h">
+      <Filter>include\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\util\Settings.h">
+      <Filter>include\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\AssetWizard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\EditorWindows\AssetWindow.cpp">
-      <Filter>cpp\EditorWindows</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\EditorWindows\InspectorWindow.cpp">
-      <Filter>cpp\EditorWindows</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\EditorWindows\SceneHeirarchyWindow.cpp">
-      <Filter>cpp\EditorWindows</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\Gizmos.cpp">
       <Filter>cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\Gui\ImGuiExtended.cpp">
-      <Filter>cpp\Gui</Filter>
     </ClCompile>
     <ClCompile Include="cpp\ImGuiLayer.cpp">
       <Filter>cpp</Filter>
@@ -116,8 +104,20 @@
     <ClCompile Include="cpp\ProjectWizard.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\Util\Settings.cpp">
-      <Filter>cpp\Util</Filter>
+    <ClCompile Include="cpp\editorWindows\AssetWindow.cpp">
+      <Filter>cpp\editorWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\editorWindows\InspectorWindow.cpp">
+      <Filter>cpp\editorWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\editorWindows\SceneHeirarchyWindow.cpp">
+      <Filter>cpp\editorWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\gui\ImGuiExtended.cpp">
+      <Filter>cpp\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\util\Settings.cpp">
+      <Filter>cpp\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
