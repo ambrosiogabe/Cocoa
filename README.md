@@ -6,7 +6,8 @@ In order to run this, you'll have to run a few commands. First, open up a powers
 
 Next run these commands:
 ```
-git clone --recursive https://github.com/ambrosiogabe/CDungeonCrawler
+git clone --recursive https://github.com/ambrosiogabe/Jade
+cd Jade
 build.bat
 ```
 

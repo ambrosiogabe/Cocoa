@@ -16,9 +16,11 @@ namespace Jade {
             static JPath s_EngineAssetsPath;
             static JPath s_WorkingDirectory;
             static JPath s_CurrentProject;
+            static JPath s_StylesDirectory;
             static JPath s_CurrentScene;
             static JPath s_EditorSaveData;
             static JPath s_EditorStyleData;
+            static JPath s_EditorStyle;
         };
   
         class JADE Physics2D

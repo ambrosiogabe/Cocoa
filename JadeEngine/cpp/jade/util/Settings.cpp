@@ -15,6 +15,7 @@ namespace Jade
         JPath General::s_EngineAssetsPath = "assets";
         JPath General::s_CurrentScene = "New Scene.jade";
         JPath General::s_CurrentProject = "New Project.prj";
+        JPath General::s_StylesDirectory = "assets\\styles";
         JPath General::s_WorkingDirectory = "";
         JPath General::s_EditorSaveData = "EditorSaveData.json";
         JPath General::s_EditorStyleData = "EditorStyle.json";

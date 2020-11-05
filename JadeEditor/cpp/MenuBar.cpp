@@ -1,6 +1,7 @@
 #include "externalLibs.h"
 #include "jade/core/Core.h"
 
+#include "ImGuiLayer.h"
 #include "MenuBar.h"
 #include "ProjectWizard.h"
 #include "JadeEditorApplication.h"
@@ -12,6 +13,7 @@
 #include "jade/components/Transform.h"
 #include "jade/util/Settings.h"
 #include "jade/core/Application.h"
+#include "jade/file/IFile.h"
 
 namespace Jade
 {
@@ -28,6 +30,24 @@ namespace Jade
 		ImGui::End();
 	}
 
+	void MenuBar::StylesWindow()
+	{
+		ImGui::Begin("Styles");
+		std::vector<JPath> styles = IFile::GetFilesInDir(Settings::General::s_StylesDirectory);
+		if (ImGui::ListBox("Styles", &m_SelectedStyle, JPathVectorGetter, (void*)&styles, (int)styles.size()))
+		{
+			ImGuiLayer::LoadStyle(styles[m_SelectedStyle]);
+		}
+		ImGui::End();
+	}
+
+	bool MenuBar::JPathVectorGetter(void* data, int n, const char** out_text)
+	{
+		const std::vector<JPath>* v = (std::vector<JPath>*)data;
+		*out_text = v->at(n).Filename();
+		return true;
+	}
+
 
 	void MenuBar::ImGui()
 	{
@@ -35,6 +55,13 @@ namespace Jade
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
 			SettingsWindow();
+			ImGui::PopStyleVar();
+		}
+
+		if (m_StyleSelectOpen)
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+			StylesWindow();
 			ImGui::PopStyleVar();
 		}
 
@@ -87,6 +114,12 @@ namespace Jade
 				if (JImGui::MenuButton("Settings"))
 				{
 					m_SettingsOpen = true;
+				}
+
+				if (JImGui::MenuButton("Styles"))
+				{
+					// Maybe move this inside settings??
+					m_StyleSelectOpen = true;
 				}
 
 				if (JImGui::MenuButton("Show Demo Window"))
