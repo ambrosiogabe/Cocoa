@@ -1,10 +1,6 @@
 #include "jade/file/FileSystemWatcher.h"
 #include "jade/util/Log.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 namespace Jade
 {
 	FileSystemWatcher::FileSystemWatcher()
@@ -83,18 +79,22 @@ namespace Jade
 		FILE_NOTIFY_INFORMATION* pNotify;
 		int offset = 0;
 		OVERLAPPED pollingOverlap;
-
+		pollingOverlap.OffsetHigh = 0;
+		pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
+		if (pollingOverlap.hEvent == NULL)
 		{
-			pollingOverlap.OffsetHigh = 0;
-			pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
+			Log::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Filepath());
+			return;
 		}
 
 		bool result = true;
+		HANDLE hEvents[2];
+		hEvents[0] = pollingOverlap.hEvent;
+		hEvents[1] = CreateEventA(NULL, TRUE, FALSE, NULL);
+		hStopEvent = hEvents[1];
 
 		while (result && m_EnableRaisingEvents)
 		{
-			Log::Info("Waiting for notification");
-
 			result = ReadDirectoryChangesW(
 				dirHandle,                   // handle to the directory to be watched
 				&buffer,                     // pointer to the buffer to receive the read results
@@ -106,11 +106,16 @@ namespace Jade
 				NULL
 			);
 
-			WaitForSingleObject(pollingOverlap.hEvent, INFINITE);
+			DWORD event = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
 			offset = 0;
 			int rename = 0;
 			char oldName[MAX_PATH];
 			char newName[MAX_PATH];
+
+			if (event == WAIT_OBJECT_0 + 1)
+			{
+				break;
+			}
 
 			do
 			{
@@ -121,38 +126,34 @@ namespace Jade
 				switch (pNotify->Action)
 				{
 				case FILE_ACTION_ADDED:
-					Log::Info("The file is added to the directory: [%s]", filename);
 					if (m_OnCreated != nullptr)
 					{
 						m_OnCreated(JPath(filename));
 					}
 					break;
 				case FILE_ACTION_REMOVED:
-					Log::Info("The file is removed from the directory: [%s]", filename);
 					if (m_OnDeleted != nullptr)
 					{
 						m_OnDeleted(JPath(filename));
 					}
 					break;
 				case FILE_ACTION_MODIFIED:
-					Log::Info("The file is modified. This can be a change in the time stamp or attributes: [%s]", filename);
 					if (m_OnChanged != nullptr)
 					{
 						m_OnChanged(JPath(filename));
 					}
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
-					Log::Info("The file was renamed and this is the old name: [%s]", filename);
+					// Log::Info("The file was renamed and this is the old name: [%s]", filename);
 					break;
 				case FILE_ACTION_RENAMED_NEW_NAME:
-					Log::Info("The file was renamed and this is the new name: [%s]", filename);
 					if (m_OnRenamed != nullptr)
 					{
 						m_OnRenamed(JPath(filename));
 					}
 					break;
 				default:
-					Log::Error("Default error.");
+					Log::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Filepath());
 					break;
 				}
 
@@ -164,11 +165,12 @@ namespace Jade
 
 		CloseHandle(dirHandle);
 	}
-#endif
 
 	void FileSystemWatcher::Stop()
 	{
 		m_EnableRaisingEvents = false;
+		SetEvent(hStopEvent);
 		m_Thread.join();
 	}
+#endif
 }

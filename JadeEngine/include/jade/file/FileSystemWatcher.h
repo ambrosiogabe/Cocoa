@@ -5,6 +5,9 @@
 #include "JPath.h"
 
 #include <thread>
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 namespace Jade
 {
@@ -48,6 +51,11 @@ namespace Jade
 		bool m_EnableRaisingEvents = true;
 		std::thread m_Thread;
 
+#ifdef _WIN32
+		HANDLE hStopEvent;
+#endif
+
+	private:
 		void StartThread();
 	};
 }
