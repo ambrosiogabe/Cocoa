@@ -122,6 +122,10 @@ namespace Jade
 				SaveEditorData();
 				std::string winTitle = std::string(Settings::General::s_CurrentProject.Filename()) + " -- " + std::string(Settings::General::s_CurrentScene.Filename());
 				Application::Get()->GetWindow()->SetTitle(winTitle.c_str());
+				
+				JPath pathToPreprocessor = Settings::General::s_EngineExeDirectory + "JadeNativeScriptProcessor.exe";
+				JPath pathToPremake = Settings::General::s_EngineExeDirectory + "premake5.exe";
+				IFile::RunProgram(pathToPreprocessor, "Program.exe " + std::string(Settings::General::s_WorkingDirectory.Filepath()) + " " + std::string(pathToPremake.Filepath()));
 
 				static_cast<JadeEditor*>(Application::Get())->SetProjectLoaded();
 				return true;
@@ -135,6 +139,8 @@ namespace Jade
 	{
 		// Set the assets path as CWD (which should be where the exe is currently located)
 		Settings::General::s_EngineAssetsPath = IFile::GetCwd() + Settings::General::s_EngineAssetsPath;
+		Settings::General::s_EngineExeDirectory = IFile::GetExecutableDirectory().GetDirectory(-1);
+		Log::Info("%s", Settings::General::s_EngineExeDirectory.Filepath());
 		Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath + Settings::General::s_ImGuiConfigPath;
 
 		// Create application store data if it does not exist
@@ -209,12 +215,11 @@ namespace Jade
 	void JadeEditor::Init()
 	{
 		// Initialize GLAD here, so that it works in DLL and exe
-		//if (!gladLoadGL())
-		//{
-		//	Log::Error("Error loading GLAD in exe.");
-		//}
 		Log::Info("Initializing GLAD functions in exe.");
-		Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLAD.");
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			Log::Error("Unable to initialize GLAD.");
+		}
 
 		// Engine initialization
 		Jade::AssetManager::Init(0);

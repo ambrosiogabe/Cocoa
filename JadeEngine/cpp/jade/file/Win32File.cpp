@@ -212,7 +212,7 @@ namespace Jade
 			NULL,                  // Process Attributes
 			NULL,                  // Thread Attributes
 			FALSE,                 // Inherit Handles
-			DETACHED_PROCESS,      // Creation Flags
+			NULL,      // Creation Flags
 			NULL,                  // Environment
 			NULL,                  // Current Directory
 			&startupInfo,          // Startup Info

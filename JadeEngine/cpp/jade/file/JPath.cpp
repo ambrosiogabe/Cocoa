@@ -16,9 +16,12 @@ namespace Jade
 	JPath::JPath(const char* path)
 	{
 		int pathSize = 0;
-		for (const char* iter = path; *iter != '\0'; iter++)
+		if (path != nullptr)
 		{
-			pathSize++;
+			for (const char* iter = path; *iter != '\0'; iter++)
+			{
+				pathSize++;
+			}
 		}
 
 		Init(path, pathSize);
