@@ -191,6 +191,11 @@ namespace Jade
 		return m_Filepath[index];
 	}
 
+	bool JPath::Contains(const char* pathSegment) const
+	{
+		return m_Filepath.find(pathSegment) != std::string::npos;
+	}
+
 	void JPath::Join(const JPath& other)
 	{
 		int newLength = (int)(other.m_Filepath.size() + m_Filepath.size());

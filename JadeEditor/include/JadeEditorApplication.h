@@ -8,6 +8,8 @@
 
 namespace Jade
 {
+	class SourceFileWatcher;
+
 	class EditorLayer : public Layer
 	{
 	public:
@@ -34,6 +36,7 @@ namespace Jade
 		std::shared_ptr<Shader> m_PickingShader;
 		std::shared_ptr<Shader> m_DefaultShader;
 		std::shared_ptr<Shader> m_OutlineShader;
+		std::shared_ptr<SourceFileWatcher> m_SourceFileWatcher;
 
 	private:
 		bool m_ProjectLoaded = false;

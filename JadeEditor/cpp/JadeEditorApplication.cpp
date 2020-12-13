@@ -1,6 +1,7 @@
 #include "Jade.h"
 #include "Gui/ImGuiHeader.h"
 #include "EditorWindows/InspectorWindow.h"
+#include "nativeScripting/SourceFileWatcher.h"
 
 #include "JadeEditorApplication.h"
 #include "LevelEditorScene.h"
@@ -125,7 +126,7 @@ namespace Jade
 				
 				JPath pathToPreprocessor = Settings::General::s_EngineExeDirectory + "JadeNativeScriptProcessor.exe";
 				JPath pathToPremake = Settings::General::s_EngineExeDirectory + "premake5.exe";
-				IFile::RunProgram(pathToPreprocessor, "Program.exe " + std::string(Settings::General::s_WorkingDirectory.Filepath()) + " " + std::string(pathToPremake.Filepath()));
+				//IFile::RunProgram(pathToPreprocessor, "Program.exe " + std::string(Settings::General::s_WorkingDirectory.Filepath()) + " " + std::string(pathToPremake.Filepath()));
 
 				static_cast<JadeEditor*>(Application::Get())->SetProjectLoaded();
 				return true;
@@ -150,6 +151,8 @@ namespace Jade
 		Settings::General::s_EditorStyleData = IFile::GetSpecialAppFolder() + "JadeEngine" + Settings::General::s_EditorStyleData;
 
 		LoadEditorData(Settings::General::s_EditorSaveData);
+
+		m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(Settings::General::s_WorkingDirectory + "scripts");
 	}
 
 	void EditorLayer::OnUpdate(float dt)

@@ -27,7 +27,7 @@ namespace Jade
 	{
 	public:
 		FileSystemWatcher();
-		~FileSystemWatcher() {}
+		~FileSystemWatcher() { Stop(); }
 		void Start();
 		void Stop();
 

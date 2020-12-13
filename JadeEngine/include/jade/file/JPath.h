@@ -25,6 +25,7 @@ namespace Jade
 		std::string GetDirectory(int level);
 
 		void Join(const JPath& other);
+		bool Contains(const char* pathSegment) const;
 
 		JPath operator+(std::string other) const;
 		JPath operator+(const JPath& other) const;

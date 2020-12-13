@@ -22,9 +22,9 @@ namespace Jade
 		}
 
 		HANDLE dirHandle = CreateFileA(m_Path.Filepath(), GENERIC_READ | FILE_LIST_DIRECTORY,
-										FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-										NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
-										NULL);
+			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+			NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+			NULL);
 		if (dirHandle == INVALID_HANDLE_VALUE)
 		{
 			Log::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Filepath());
@@ -160,7 +160,7 @@ namespace Jade
 				offset += pNotify->NextEntryOffset;
 			} while (pNotify->NextEntryOffset);
 
-			
+
 		}
 
 		CloseHandle(dirHandle);
@@ -168,9 +168,12 @@ namespace Jade
 
 	void FileSystemWatcher::Stop()
 	{
-		m_EnableRaisingEvents = false;
-		SetEvent(hStopEvent);
-		m_Thread.join();
+		if (m_EnableRaisingEvents)
+		{
+			m_EnableRaisingEvents = false;
+			SetEvent(hStopEvent);
+			m_Thread.join();
+		}
 	}
 #endif
 }

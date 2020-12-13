@@ -75,6 +75,9 @@
     <ClInclude Include="include\util\Settings.h">
       <Filter>include\util</Filter>
     </ClInclude>
+    <ClInclude Include="include\nativeScripting\ScriptParser.h" />
+    <ClInclude Include="include\nativeScripting\ScriptScanner.h" />
+    <ClInclude Include="include\nativeScripting\SourceFileWatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\AssetWizard.cpp">
@@ -119,5 +122,8 @@
     <ClCompile Include="cpp\util\Settings.cpp">
       <Filter>cpp\util</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\nativeScripting\ScriptScanner.cpp" />
+    <ClCompile Include="cpp\nativeScripting\ScriptParser.cpp" />
+    <ClCompile Include="cpp\nativeScripting\SourceFileWatcher.cpp" />
   </ItemGroup>
 </Project>
