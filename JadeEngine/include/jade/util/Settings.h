@@ -14,6 +14,7 @@ namespace Jade {
 
             static JPath s_ImGuiConfigPath;
             static JPath s_EngineAssetsPath;
+            static JPath s_EngineExeDirectory;
             static JPath s_WorkingDirectory;
             static JPath s_CurrentProject;
             static JPath s_StylesDirectory;

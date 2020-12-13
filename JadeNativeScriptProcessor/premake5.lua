@@ -1,10 +1,10 @@
 project "JadeNativeScriptProcessor"
-    kind "SharedLib"
+    kind "ConsoleApp"
     language "C#"
-    clr "Unsafe"
+    dotnetframework "4.6.1"
 
-    editorOutputDir = "../bin/" .. outputdir .. "/JadeEditor"
-    fullOutputDir = "../bin/" .. outputdir .. "/%{prj.name}"
+    editorOutputDir = "/bin/" .. outputdir .. "/JadeEditor"
+    fullOutputDir = "/bin/" .. outputdir .. "/%{prj.name}"
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
 
@@ -13,10 +13,10 @@ project "JadeNativeScriptProcessor"
     }
 
     filter "system:windows"
- --       postbuildcommands {
- --           "copy /y \"$(SolutionDir)%{fullOutputDir}\\JadeScriptCompiler.exe\" \"$(SolutionDir)%{editorOutputDir}\\JadeScriptCompiler.exe\"",
- --           "xcopy /s /e /q /y /i \"$(SolutionDir)%{fullOutputDir}\\*.dll\" \"$(SolutionDir)%{editorOutputDir}\\\" > nul",
- --       }
+        postbuildcommands {
+            "copy /y \"$(SolutionDir)%{fullOutputDir}\\JadeNativeScriptProcessor.exe\" \"$(SolutionDir)%{editorOutputDir}\\JadeNativeScriptProcessor.exe\"",
+            "xcopy /s /e /q /y /i \"$(SolutionDir)%{fullOutputDir}\\*.dll\" \"$(SolutionDir)%{editorOutputDir}\\\" > nul",
+        }
 
     filter "configurations:Debug"
         runtime "Debug"

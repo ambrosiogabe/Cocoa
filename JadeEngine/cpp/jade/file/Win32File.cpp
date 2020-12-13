@@ -47,6 +47,25 @@ namespace Jade
 		return true;
 	}
 
+	bool Win32File::ImplCreateFile(const JPath& filename, const char* extToAppend)
+	{
+		JPath fileToWrite = filename;
+		if (filename.FileExt() == nullptr || filename.FileExt()[0] == '\0')
+		{
+			fileToWrite = JPath(filename.Filepath() + std::string(extToAppend));
+		}
+		HANDLE fileHandle = CreateFileA(fileToWrite.Filepath(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		bool res = fileHandle != INVALID_HANDLE_VALUE;
+		CloseHandle(fileHandle);
+		return res;
+	}
+
+	bool Win32File::ImplCopyFile(const JPath& fileToCopy, const JPath& newFileLocation, const char* newFilename)
+	{
+		JPath newFilepath = newFileLocation + (std::string(newFilename) + fileToCopy.FileExt());
+		return CopyFileExA(fileToCopy.Filepath(), newFilepath.Filepath(), NULL, NULL, false, NULL);
+	}
+
 	JPath Win32File::ImplGetCwd()
 	{
 		char buff[FILENAME_MAX];
@@ -69,6 +88,15 @@ namespace Jade
 
 		Log::Assert(false, "Could not retrieve AppRoamingData folder.");
 		return JPath("");
+	}
+
+	JPath Win32File::ImplGetExecutableDirectory()
+	{
+		char filepath[MAX_PATH];
+		DWORD res = GetModuleFileNameA(NULL, filepath, MAX_PATH);
+		Log::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
+
+		return JPath(filepath);
 	}
 
 	void Win32File::ImplCreateDirIfNotExists(const JPath& directory)
@@ -166,5 +194,42 @@ namespace Jade
 	bool Win32File::ImplIsDirectory(const JPath& filepath)
 	{
 		return (GetFileAttributesA(filepath.Filepath()) & FILE_ATTRIBUTE_DIRECTORY);
+	}
+
+	bool Win32File::ImplRunProgram(const JPath& pathToExe, const char* cmdArguments)
+	{
+		STARTUPINFOA startupInfo;
+		PROCESS_INFORMATION processInfo;
+
+		ZeroMemory(&startupInfo, sizeof(startupInfo));
+		startupInfo.cb = sizeof(startupInfo);
+		ZeroMemory(&processInfo, sizeof(processInfo));
+
+		// Start the program
+		bool res = CreateProcessA(
+			pathToExe.Filepath(),  // Application Name
+			(LPSTR)cmdArguments,   // Command Line Args
+			NULL,                  // Process Attributes
+			NULL,                  // Thread Attributes
+			FALSE,                 // Inherit Handles
+			DETACHED_PROCESS,      // Creation Flags
+			NULL,                  // Environment
+			NULL,                  // Current Directory
+			&startupInfo,          // Startup Info
+			&processInfo           // Process Info
+		);
+
+		if (res)
+		{
+			// Close process and thread handles
+			CloseHandle(processInfo.hProcess);
+			CloseHandle(processInfo.hThread);
+		}
+		else
+		{
+			Log::Warning("Unsuccessfully started process '%s'", pathToExe.Filepath());
+		}
+
+		return res;
 	}
 }

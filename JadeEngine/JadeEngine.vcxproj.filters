@@ -157,6 +157,9 @@
     <ClInclude Include="include\jade\commands\ICommand.h">
       <Filter>include\jade\commands</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\components\Script.h">
+      <Filter>include\jade\components</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\components\Transform.h">
       <Filter>include\jade\components</Filter>
     </ClInclude>
@@ -201,6 +204,9 @@
     </ClInclude>
     <ClInclude Include="include\jade\events\WindowEvent.h">
       <Filter>include\jade\events</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\file\FileSystemWatcher.h">
+      <Filter>include\jade\file</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\file\IFile.h">
       <Filter>include\jade\file</Filter>
@@ -257,6 +263,9 @@
       <Filter>include\jade\scenes</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\systems\RenderSystem.h">
+      <Filter>include\jade\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\systems\ScriptSystem.h">
       <Filter>include\jade\systems</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\systems\System.h">
@@ -1554,6 +1563,9 @@
     <ClCompile Include="cpp\jade\events\WindowEvent.cpp">
       <Filter>cpp\jade\events</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\jade\file\FileSystemWatcher.cpp">
+      <Filter>cpp\jade\file</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\jade\file\IFile.cpp">
       <Filter>cpp\jade\file</Filter>
     </ClCompile>
@@ -1600,6 +1612,9 @@
       <Filter>cpp\jade\scenes</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\systems\RenderSystem.cpp">
+      <Filter>cpp\jade\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\systems\ScriptSystem.cpp">
       <Filter>cpp\jade\systems</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\util\JMath.cpp">

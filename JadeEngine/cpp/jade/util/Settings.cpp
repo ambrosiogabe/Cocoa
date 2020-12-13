@@ -13,6 +13,7 @@ namespace Jade
 
         JPath General::s_ImGuiConfigPath = "default.ini";
         JPath General::s_EngineAssetsPath = "assets";
+        JPath General::s_EngineExeDirectory = "";
         JPath General::s_CurrentScene = "New Scene.jade";
         JPath General::s_CurrentProject = "New Project.prj";
         JPath General::s_StylesDirectory = "assets\\styles";

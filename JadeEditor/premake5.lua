@@ -52,6 +52,7 @@ project "JadeEditor"
 
         postbuildcommands {
             "xcopy /s /e /q /y /i \"$(SolutionDir)\\%{prj.name}\\assets\" \"$(SolutionDir)\\%{fullOutputDir}\\assets\" > nul",
+            "copy \"$(SolutionDir)\\vendor\\premake\\premake5.exe\" \"$(SolutionDir)\\%{fullOutputDir}\\premake5.exe\""
         }
 
         defines {

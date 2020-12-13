@@ -24,7 +24,6 @@ IncludeDir["Json"] = "JadeEngine/vendor/nlohmann-json/single_include"
 
 include "JadeEngine"
 include "JadeEditor"
-include "JadeNativeScriptProcessor"
 
 include "JadeEngine/vendor/GLFW"
 include "JadeEngine/vendor/glad"

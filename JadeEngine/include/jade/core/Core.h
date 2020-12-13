@@ -12,6 +12,16 @@
     #define JADE
 #endif
 
+#ifdef _WIN32
+    #ifdef _JADE_SCRIPT_DLL
+        #define JADE_SCRIPT __declspec(dllexport)
+    #else 
+        #define JADE_SCRIPT __declspec(dllimport)
+    #endif
+#else 
+    #define JADE
+#endif
+
 /* Button actions */
 #define JADE_RELEASE      0
 #define JADE_PRESS        1

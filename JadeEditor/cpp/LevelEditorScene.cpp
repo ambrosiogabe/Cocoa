@@ -16,6 +16,9 @@
 #include "FontAwesome.h"
 #include "jade/core/Audio.h"
 #include "jade/systems/RenderSystem.h"
+#include "jade/systems/ScriptSystem.h"
+
+#include "jade/file/IFile.h"
 
 #include <entt/entt.hpp>
 #include <imgui.h>
@@ -39,6 +42,7 @@ namespace Jade
 		m_Systems.emplace_back(std::make_unique<LevelEditorSystem>("LevelEditor System", this));
 		m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System", this));
 		m_Systems.emplace_back(std::make_unique<GizmoSystem>("Gizmo System", this));
+		m_Systems.emplace_back(std::make_unique<ScriptSystem>("Script System", this));
 	}
 
 	void LevelEditorScene::Start()
