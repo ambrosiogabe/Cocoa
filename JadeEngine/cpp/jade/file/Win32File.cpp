@@ -205,10 +205,12 @@ namespace Jade
 		startupInfo.cb = sizeof(startupInfo);
 		ZeroMemory(&processInfo, sizeof(processInfo));
 
+		std::string cmdArgs = pathToExe.Filepath() + std::string(" ") + cmdArguments;
+
 		// Start the program
 		bool res = CreateProcessA(
-			pathToExe.Filepath(),  // Application Name
-			(LPSTR)cmdArguments,   // Command Line Args
+			NULL,  // Application Name
+			(LPSTR)cmdArgs.c_str(),   // Command Line Args
 			NULL,                  // Process Attributes
 			NULL,                  // Thread Attributes
 			FALSE,                 // Inherit Handles

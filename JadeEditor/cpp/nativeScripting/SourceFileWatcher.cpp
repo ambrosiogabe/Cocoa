@@ -2,13 +2,20 @@
 
 #include "jade/util/Log.h"
 #include "jade/file/IFile.h"
+#include "jade/util/Settings.h"
 
+#include "util/Settings.h"
 #include "nativeScripting/ScriptScanner.h"
 #include "nativeScripting/ScriptParser.h"
+#include "nativeScripting/CodeGenerators.h"
 
 namespace Jade
 {
+	static void RunPremake();
+
 	static JPath rootDir = "";
+	static JPath projectPremakeLua = "";
+	static auto classes = std::list<UClass>();
 
 	SourceFileWatcher::SourceFileWatcher(JPath rootDirectory)
 		: m_RootDirectory(rootDirectory)
@@ -26,25 +33,49 @@ namespace Jade
 		return strcmp(file.Filename(), "Reflection") == 0;
 	}
 
-	static void ProcessFile(JPath& file)
+	static void AddClassIfNotExist(UClass clazz)
+	{
+		for (auto c : classes)
+		{
+			if (c.m_ClassName == clazz.m_ClassName)
+			{
+				c.m_Variables = clazz.m_Variables;
+				return;
+			}
+		}
+
+		classes.push_back(clazz);
+	}
+
+	static void ProcessFile(JPath& file, JPath generatedDirPath)
 	{
 		if (!IFile::IsFile(file))
 		{
 			return;
 		}
 
-		Log::Info("Processing file '%s'", file.Filepath());
 		ScriptScanner fileScanner = ScriptScanner(file);
 		std::list<Token> fileTokens = fileScanner.ScanTokens();
 		ScriptParser fileParser = ScriptParser(fileTokens, file);
 		fileParser.Parse();
 		fileParser.DebugPrint();
-		//Classes.AddRange(fileParser.GetClasses());
 
-		//if (fileParser.CanGenerateHeaderFile())
-		//{
-		//	File.WriteAllText(Path.Combine(generatedDirPath, Path.GetFileNameWithoutExtension(file) + "-generated.h"), fileParser.GenerateHeaderFile());
-		//}
+		if (fileParser.CanGenerateHeaderFile())
+		{
+			JPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");
+			IFile::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
+			Log::Info("Generating file at %s", path.Filepath());
+
+			auto newClasses = fileParser.GetClasses();
+			for (auto clazz : newClasses)
+			{
+				AddClassIfNotExist(clazz);
+			}
+			CodeGenerators::GenerateInitFile(classes, rootDir + "generated" + "init.h");
+			IFile::WriteFile("#include \"init.h\"\n", rootDir + "generated" + "init.cpp");
+			Log::Info("Generating init file at %s", (rootDir + "generated" + "init-tmp.h").Filepath());
+			RunPremake();
+		}
 	}
 
 	static void Preprocess(const JPath& directoryPath)
@@ -62,7 +93,7 @@ namespace Jade
 			{
 				IFile::CreateDirIfNotExists(generatedDirPath);
 
-				ProcessFile(file);// , generatedDirPath);
+				ProcessFile(file, generatedDirPath);
 			}
 		}
 
@@ -75,17 +106,23 @@ namespace Jade
 		}
 	}
 
+	static void RunPremake()
+	{
+		JPath pathToPremake = Settings::General::s_EngineExeDirectory + "premake5.exe";
+		std::string cmdArgs = "vs2019 --file=\"" + std::string(projectPremakeLua.Filepath()) + "\"";
+		IFile::RunProgram(pathToPremake, cmdArgs);
+	}
+
 	static void FileChanged(const JPath& file)
 	{
-		Log::Info("File changed '%s'", file.Filepath());
 		if (!file.Contains("generated"))
 		{
 			//Classes.Clear();
 			//Preprocess(Path.GetDirectoryName(e.FullPath));
-			ProcessFile(rootDir + JPath(file));
+			JPath generatedDirPath = file.GetDirectory(-1) + "generated";
+			ProcessFile(rootDir + JPath(file), rootDir + generatedDirPath);
 			//InitFileGenerator.GenerateInitFile(WatchDirectory, Classes);
 			//PremakeGenerator.GeneratePremakeFile(ProjectPremakeLua);
-			//RunPremake();
 			//Compile();
 		}
 	}
@@ -98,8 +135,12 @@ namespace Jade
 			return;
 		}
 		rootDir = m_RootDirectory;
-
 		Log::Info("Monitoring directory '%s'", m_RootDirectory.Filepath());
+
+		projectPremakeLua = JPath(m_RootDirectory.GetDirectory(-1)) + "/premake5.lua";
+		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
+		Log::Info("Generating premake file %s", projectPremakeLua.Filepath());
+		RunPremake();
 
 		m_FileWatcher.m_Path = m_RootDirectory;
 		m_FileWatcher.m_NotifyFilters = NotifyFilters::LastAccess

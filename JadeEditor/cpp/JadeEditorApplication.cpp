@@ -24,6 +24,8 @@ namespace Jade
 		m_PickingShader = std::make_shared<Shader>(JPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"));
 		m_DefaultShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
 		m_OutlineShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SingleColor.glsl");
+		Settings::General::s_EngineExeDirectory = IFile::GetExecutableDirectory().GetDirectory(-1);
+		Log::Info("%s", Settings::General::s_EngineExeDirectory.Filepath());
 	}
 
 	bool EditorLayer::CreateProject(const JPath& projectPath, const char* filename)
@@ -140,8 +142,6 @@ namespace Jade
 	{
 		// Set the assets path as CWD (which should be where the exe is currently located)
 		Settings::General::s_EngineAssetsPath = IFile::GetCwd() + Settings::General::s_EngineAssetsPath;
-		Settings::General::s_EngineExeDirectory = IFile::GetExecutableDirectory().GetDirectory(-1);
-		Log::Info("%s", Settings::General::s_EngineExeDirectory.Filepath());
 		Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath + Settings::General::s_ImGuiConfigPath;
 
 		// Create application store data if it does not exist
@@ -231,12 +231,16 @@ namespace Jade
 		Jade::ProjectWizard::Init();
 		Jade::Physics2D::Init();
 		Jade::Input::Init();
-		ChangeScene(new LevelEditorScene());
+
+		m_EditorLayer = new EditorLayer(m_CurrentScene);
+
+		Scene* scene = new LevelEditorScene();
+		ChangeScene(scene);
+		m_EditorLayer->SetScene(scene);
 
 		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
-		m_EditorLayer = new EditorLayer(m_CurrentScene);
 		PushOverlay(m_ImGuiLayer);
-		PushLayer(m_EditorLayer);
+		PushOverlay(m_EditorLayer);
 	}
 
 	void JadeEditor::Shutdown()

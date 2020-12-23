@@ -6,8 +6,6 @@
 #include "jade/components/Transform.h"
 
 #include <nlohmann/json.hpp>
-//#include <mono/jit/jit.h>
-//#include <mono/metadata/assembly.h>
 
 namespace Jade
 {
@@ -149,6 +147,11 @@ namespace Jade
 		if (file->m_Data.size() <= 0)
 		{
 			return;
+		}
+
+		for (auto& system : m_Systems)
+		{
+			system->Start();
 		}
 
 		std::unordered_map<int, int> idKey;

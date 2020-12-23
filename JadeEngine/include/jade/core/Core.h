@@ -22,6 +22,10 @@
     #define JADE
 #endif
 
+#define UPROPERTY(...)
+#define UCLASS(...)
+#define USTRUCT(...)
+
 /* Button actions */
 #define JADE_RELEASE      0
 #define JADE_PRESS        1

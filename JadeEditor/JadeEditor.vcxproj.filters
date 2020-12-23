@@ -78,6 +78,7 @@
     <ClInclude Include="include\nativeScripting\ScriptParser.h" />
     <ClInclude Include="include\nativeScripting\ScriptScanner.h" />
     <ClInclude Include="include\nativeScripting\SourceFileWatcher.h" />
+    <ClInclude Include="include\nativeScripting\CodeGenerators.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpp\AssetWizard.cpp">

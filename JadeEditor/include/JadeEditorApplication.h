@@ -15,6 +15,7 @@ namespace Jade
 	public:
 		EditorLayer(Scene* scene);
 
+		inline void SetScene(Scene* scene) { this->m_Scene = scene; }
 		virtual void OnAttach() override;
 		virtual void OnUpdate(float dt) override;
 		virtual void OnRender() override;

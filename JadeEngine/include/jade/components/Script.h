@@ -1,13 +1,12 @@
 #pragma once
 #include "jade/core/Core.h"
-#include "externalLibs.h"
-#include "jade/core/Entity.h"
 
 namespace Jade
 {
-	class JADE Script
+	class Script
 	{
 	public:
+		virtual void EditorUpdate(float dt) {}
 		virtual void Update(float dt) {}
 		virtual void ImGui() {}
 

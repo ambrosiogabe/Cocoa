@@ -32,7 +32,7 @@ namespace Jade
 	class ScriptParser
 	{
 	public:
-		ScriptParser(const std::list<Token>& tokens, JPath& fullFilepath)
+		ScriptParser(std::list<Token>& tokens, JPath& fullFilepath)
 			: m_Tokens(tokens), m_FullFilepath(fullFilepath) {}
 
 		std::string GenerateHeaderFile();
@@ -53,10 +53,11 @@ namespace Jade
 		inline Token GenerateErrorToken() { return Token{ -1, -1, TokenType::ERROR_TYPE, "" }; }
 
 	private:
-		std::list<Token>::iterator m_CurrentToken;
+		int m_CurrentToken;
+		std::list<Token>::iterator m_CurrentIter;
 		const JPath& m_FullFilepath;
 
-		const std::list<Token>& m_Tokens;
+		std::list<Token>& m_Tokens;
 		std::list<UClass> m_Classes;
 		std::list<UStruct> m_Structs;
 	};

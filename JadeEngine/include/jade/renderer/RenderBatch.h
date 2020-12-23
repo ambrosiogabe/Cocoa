@@ -53,9 +53,9 @@ namespace Jade
         void LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr);
         void LoadVertexProperties(const glm::vec3& position, 
             const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
-            float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = entt::to_integral(entt::null));
+            float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = -1);
         void LoadVertexProperties(const glm::vec2* vertices, const glm::vec2* texCoords, const glm::vec4& color, int texId, 
-            uint32 entityId = entt::to_integral(entt::null));
+            uint32 entityId = -1);
 
         void LoadEmptyVertexProperties();
 

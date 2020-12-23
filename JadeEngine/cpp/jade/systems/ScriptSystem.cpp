@@ -4,24 +4,52 @@
 
 namespace Jade
 {
+	void ScriptSystem::Start()
+	{
+		Reload();
+	}
+
 	void ScriptSystem::Update(float dt)
 	{
-		JPath scriptDllPath = Settings::General::s_EngineExeDirectory + "ScriptModule.dll";
-		typedef void(*SaveScriptFn)();
-		typedef void(*DeleteScriptFn)();
-		typedef void(*LoadScriptFn)();
+		if (m_UpdateScripts)
+		{
+			m_UpdateScripts(dt, this->m_Scene);
+		}
+	}
+
+	void ScriptSystem::Reload()
+	{
+		if (m_IsLoaded)
+		{
+			m_DeleteScripts();
+			FreeLibrary(m_Module);
+		}
+
+		JPath scriptDllPath = Settings::General::s_EngineExeDirectory + JPath("ScriptModule.dll");
 		if (IFile::IsFile(scriptDllPath))
 		{
 			HMODULE module = LoadLibraryA(scriptDllPath.Filepath());
-			SaveScriptFn saveScriptFn = (SaveScriptFn)GetProcAddress(module, "SaveScripts");
-			LoadScriptFn loadScriptFn = (LoadScriptFn)GetProcAddress(module, "LoadScripts");
-			DeleteScriptFn deleteScriptFn = (DeleteScriptFn)GetProcAddress(module, "DeleteScripts");
 
-			//saveScriptFn();
-			//loadScriptFn();
-			//deleteScriptFn();
+			if (module != nullptr)
+			{
+				m_SaveScripts = (SaveScriptFn)GetProcAddress(module, "SaveScript");
+				m_LoadScripts = (LoadScriptFn)GetProcAddress(module, "LoadScripts");
+				m_DeleteScripts = (DeleteScriptFn)GetProcAddress(module, "DeleteScripts");
+				m_UpdateScripts = (UpdateScriptFn)GetProcAddress(module, "UpdateScripts");
+				m_EditorUpdateScripts = (UpdateScriptFn)GetProcAddress(module, "EditorUpdateScripts");
+				m_IsLoaded = true;
 
-			FreeLibrary(module);
+				m_LoadScripts();
+				Log::Info("LOADED");
+			}
+		}
+	}
+
+	void ScriptSystem::SaveScriptState()
+	{
+		if (m_IsLoaded)
+		{
+			m_SaveScripts();
 		}
 	}
 }

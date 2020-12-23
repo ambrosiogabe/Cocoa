@@ -16,13 +16,15 @@ namespace Jade
 		JPath& operator=(const JPath& other);
 
 		inline int FilenameSize() const { return (int)(m_Filepath.size() - m_FilenameOffset); }
+		inline int FileExtSize() const { return (int)(m_Filepath.size() - m_FileExtOffset); }
 		inline int Size() const { return (int)m_Filepath.size(); }
 		inline const char* Filename() const { return &m_Filepath[m_FilenameOffset]; }
 		inline const char* Filepath() const { return m_Filepath.c_str(); }
 		inline const char* FileExt()  const { return &m_Filepath[m_FileExtOffset]; }
-		inline bool IsFile();
+		inline bool IsFile() const;
 		inline bool IsDirectory();
-		std::string GetDirectory(int level);
+		std::string GetDirectory(int level) const;
+		std::string GetFilenameWithoutExt() const;
 
 		void Join(const JPath& other);
 		bool Contains(const char* pathSegment) const;
@@ -39,7 +41,7 @@ namespace Jade
 		static char PATH_SEPARATOR;
 
 	private:
-		inline bool IsSeparator(char c)
+		inline bool IsSeparator(char c) const
 		{
 			return (c == WIN_SEPARTOR || c == UNIX_SEPARATOR);
 		}

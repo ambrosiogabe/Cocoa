@@ -245,7 +245,7 @@ namespace Jade
 	 *  So, to get a directory one path level above the current directory, you would simply say:
 	 *  GetDirectory(-2);
 	 */
-	std::string JPath::GetDirectory(int level)
+	std::string JPath::GetDirectory(int level) const
 	{
 		const char* startCopy = m_Filepath.c_str();
 		const char* endCopy = m_Filepath.c_str();
@@ -288,7 +288,7 @@ namespace Jade
 		return std::string(startCopy, endCopy);
 	}
 
-	bool JPath::IsFile()
+	bool JPath::IsFile() const
 	{
 		return IFile::IsFile(*this);
 	}
@@ -296,5 +296,10 @@ namespace Jade
 	bool JPath::IsDirectory()
 	{
 		return IFile::IsDirectory(*this);
+	}
+
+	std::string JPath::GetFilenameWithoutExt() const
+	{
+		return m_Filepath.substr(m_FilenameOffset, FilenameSize() - FileExtSize());
 	}
 }
