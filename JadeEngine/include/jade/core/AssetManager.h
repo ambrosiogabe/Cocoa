@@ -60,6 +60,9 @@ namespace Jade
 	class JADE AssetManager
 	{
 	public:
+		// TODO: Switch these to unique pointers, there should only ever be one pointer to an asset
+		// TODO: and handles to those pointers (E.g TextureHandle is just the asset id that gets the 
+		// TODO: pointer to Texture)
 		static std::unordered_map<uint32, std::shared_ptr<Asset>>& GetAllAssets(uint32 scene);
 		static std::shared_ptr<Asset> GetAsset(uint32 resourceID);
 		static std::shared_ptr<Asset> GetAsset(const JPath& path);

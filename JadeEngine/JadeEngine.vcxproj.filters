@@ -259,7 +259,13 @@
     <ClInclude Include="include\jade\renderer\Texture.h">
       <Filter>include\jade\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="include\jade\renderer\TextureHandle.h">
+      <Filter>include\jade\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="include\jade\scenes\Scene.h">
+      <Filter>include\jade\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jade\scenes\SceneInitializer.h">
       <Filter>include\jade\scenes</Filter>
     </ClInclude>
     <ClInclude Include="include\jade\systems\RenderSystem.h">
@@ -1606,6 +1612,9 @@
       <Filter>cpp\jade\renderer</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\renderer\Texture.cpp">
+      <Filter>cpp\jade\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\jade\renderer\TextureHandle.cpp">
       <Filter>cpp\jade\renderer</Filter>
     </ClCompile>
     <ClCompile Include="cpp\jade\scenes\Scene.cpp">

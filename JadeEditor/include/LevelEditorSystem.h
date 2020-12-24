@@ -14,7 +14,7 @@ namespace Jade
 		{
 		}
 
-		virtual void Update(float dt) override;
+		virtual void EditorUpdate(float dt) override;
 		virtual void Start() override;
 		virtual void OnEvent(Event& e) override;
 

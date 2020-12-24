@@ -4,7 +4,7 @@
 #include "nativeScripting/SourceFileWatcher.h"
 
 #include "JadeEditorApplication.h"
-#include "LevelEditorScene.h"
+#include "LevelEditorSceneInitializer.h"
 #include "ImGuiLayer.h"
 #include "jade/file/IFile.h"
 #include "jade/util/Settings.h"
@@ -157,10 +157,15 @@ namespace Jade
 
 	void EditorLayer::OnUpdate(float dt)
 	{
-		if (JadeEditor::IsProjectLoaded())
+		if (JadeEditor::IsProjectLoaded() && !m_EditorUpdate)
 		{
 			DebugDraw::BeginFrame();
 			m_Scene->Update(dt);
+		}
+		else if (JadeEditor::IsProjectLoaded())
+		{
+			DebugDraw::BeginFrame();
+			m_Scene->EditorUpdate(dt);
 		}
 	}
 
@@ -232,15 +237,13 @@ namespace Jade
 		Jade::Physics2D::Init();
 		Jade::Input::Init();
 
-		m_EditorLayer = new EditorLayer(m_CurrentScene);
-
-		Scene* scene = new LevelEditorScene();
-		ChangeScene(scene);
-		m_EditorLayer->SetScene(scene);
+		m_EditorLayer = new EditorLayer(nullptr);
+		ChangeScene(new LevelEditorSceneInitializer());
+		m_EditorLayer->SetScene(m_CurrentScene);
 
 		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
-		PushOverlay(m_ImGuiLayer);
 		PushOverlay(m_EditorLayer);
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	void JadeEditor::Shutdown()

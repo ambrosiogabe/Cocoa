@@ -24,7 +24,8 @@ project "JadeEngine"
         "_CRT_SECURE_NO_WARNINGS",
         "NOMINMAX",
         "_JADE_DLL",
-        "GLFW_DLL"
+        "GLFW_DLL",
+		"ENTT_API_EXPORT"
 	}
 
 	includedirs {

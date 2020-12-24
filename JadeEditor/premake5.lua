@@ -56,7 +56,8 @@ project "JadeEditor"
         }
 
         defines {
-            "_JADE_PLATFORM_WINDOWS"
+            "_JADE_PLATFORM_WINDOWS",
+            "ENTT_API_IMPORT"
         }
 
     filter "configurations:Debug"

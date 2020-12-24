@@ -5,20 +5,24 @@
 #include "jade/systems/System.h"
 #include "jade/core/AssetManager.h"
 #include "jade/core/AssetManager.h"
+#include "jade/scenes/SceneInitializer.h"
 
 #include <entt/entt.hpp>
 
 namespace Jade
 {
+	class SceneInitializer;
 	class Entity;
-
 	class JADE Scene
 	{
 	public:
-		virtual void Init() = 0;
-		virtual void Render() = 0;
-		virtual void Update(float dt) = 0;
-		virtual void Start() = 0;
+		Scene(SceneInitializer* sceneInitializer);
+
+		void Init();
+		void Start();
+		void Update(float dt);
+		void EditorUpdate(float dt);
+		void Render();
 
 		void Play();
 		void Stop();
@@ -42,14 +46,14 @@ namespace Jade
 		void LoadDefaultAssets();
 
 	protected:
-		bool m_ShowDemoWindow = false;
-		bool m_IsRunning = false;
+		bool m_ShowDemoWindow;
 		std::vector<std::unique_ptr<System>> m_Systems;
 
-		entt::registry m_Registry = entt::registry();
+		entt::registry m_Registry;
 		json m_SaveDataJson;
 
 		Camera* m_Camera;
+		SceneInitializer* m_SceneInitializer;
 
 		friend class Entity;
 	};

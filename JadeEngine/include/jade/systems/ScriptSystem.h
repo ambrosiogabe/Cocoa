@@ -22,6 +22,7 @@ namespace Jade
         ScriptSystem(const char* name, Scene* scene)
             : System(name, scene)
         {
+            m_Module = NULL;
         }
 
         virtual void Start() override;

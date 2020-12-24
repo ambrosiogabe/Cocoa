@@ -9,6 +9,7 @@
 
 namespace Jade
 {
+	class SceneInitializer;
 	class JADE Application
 	{
 	public:
@@ -30,7 +31,7 @@ namespace Jade
 		virtual void OnEvent(Event& e);
 
 		Framebuffer* GetFramebuffer() const;
-		void ChangeScene(Scene* scene);
+		void ChangeScene(SceneInitializer* scene);
 		JWindow* GetWindow() const;
 
 		static Application* Get();

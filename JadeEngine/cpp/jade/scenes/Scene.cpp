@@ -1,20 +1,84 @@
 #include "jade/scenes/Scene.h"
+
 #include "jade/file/OutputArchive.h"
 #include "jade/file/IFile.h"
 #include "jade/util/Settings.h"
 #include "jade/core/Entity.h"
 #include "jade/components/Transform.h"
+#include "jade/systems/ScriptSystem.h"
+#include "jade/scenes/SceneInitializer.h"
 
 #include <nlohmann/json.hpp>
 
 namespace Jade
 {
+	Scene::Scene(SceneInitializer* sceneInitializer)
+	{
+		m_SceneInitializer = sceneInitializer;
+
+		m_ShowDemoWindow = false;
+		m_Camera = nullptr;
+
+		m_Registry = entt::registry();
+		m_Systems = std::vector<std::unique_ptr<System>>();
+	}
+
 	Entity Scene::CreateEntity()
 	{
 		entt::entity e = m_Registry.create();
 		Entity entity = Entity(e, this);
 		entity.AddComponent<Transform>();
 		return entity;
+	}
+
+	void Scene::Init()
+	{
+		LoadDefaultAssets();
+
+		glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
+		m_Camera = new Camera(cameraPos);
+
+		Physics2D::SetScene(this);
+		Input::SetScene(this);
+		Entity::SetScene(this);
+
+		m_Systems.emplace_back(std::make_unique<RenderSystem>("Render System", this));
+		m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System", this));
+		m_Systems.emplace_back(std::make_unique<ScriptSystem>("Script System", this));
+		m_SceneInitializer->Init(this, m_Systems);
+	}
+
+	void Scene::Start()
+	{
+		for (const auto& system : m_Systems)
+		{
+			system->Start();
+		}
+	}
+
+	void Scene::Update(float dt)
+	{
+		Physics2D::Get()->Update(dt);
+		for (const auto& system : m_Systems)
+		{
+			system->Update(dt);
+		}
+	}
+
+	void Scene::EditorUpdate(float dt)
+	{
+		for (const auto& system : m_Systems)
+		{
+			system->EditorUpdate(dt);
+		}
+	}
+
+	void Scene::Render()
+	{
+		for (const auto& system : m_Systems)
+		{
+			system->Render();
+		}
 	}
 
 	Entity Scene::DuplicateEntity(Entity entity)
@@ -61,14 +125,11 @@ namespace Jade
 		{
 			Physics2D::Get()->AddEntity(entity);
 		}
-
-		m_IsRunning = true;
 	}
 
 	void Scene::Stop()
 	{
 		Physics2D::Get()->Destroy();
-		m_IsRunning = false;
 	}
 
 	void Scene::Save(const JPath& filename)
@@ -91,10 +152,8 @@ namespace Jade
 	void Scene::Reset()
 	{
 		AssetManager::Clear();
-		for (auto entity : m_Registry.view<Transform>())
-		{
-			m_Registry.remove_all(entity);
-		}
+		auto view = m_Registry.view<Transform>();
+		m_Registry.destroy(view.begin(), view.end());
 		m_Systems.clear();
 		delete m_Camera;
 		Init();

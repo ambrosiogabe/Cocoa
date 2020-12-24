@@ -3,6 +3,7 @@
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/systems/System.h"
+#include "jade/renderer/TextureHandle.h"
 
 namespace Jade
 {
@@ -55,7 +56,8 @@ namespace Jade
         ~GizmoSystem() {}
         GizmoSystem(const char* name="Gizmo System", Scene* scene=nullptr);
 
-        virtual void Update(float dt) override;
+        virtual void EditorUpdate(float dt) override;
+        virtual void ImGui();
         virtual void OnEvent(Event& e) override;
 
     private:
@@ -66,7 +68,7 @@ namespace Jade
         bool HandleMouseScroll(MouseScrolledEvent& e);
 
     private:
-        std::shared_ptr<Texture> m_Texture = nullptr;
+        TextureHandle m_Texture = TextureHandle::null;
         std::unique_ptr<Spritesheet> m_Spritesheet = nullptr;
 
         bool m_MouseDragging = false;

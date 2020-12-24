@@ -43,7 +43,7 @@ namespace Jade
 		}
 	}
 
-	void LevelEditorSystem::Update(float dt)
+	void LevelEditorSystem::EditorUpdate(float dt)
 	{
 		if (m_IsDragging)
 		{

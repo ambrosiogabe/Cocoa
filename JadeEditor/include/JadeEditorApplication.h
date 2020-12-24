@@ -41,6 +41,7 @@ namespace Jade
 
 	private:
 		bool m_ProjectLoaded = false;
+		bool m_EditorUpdate = true;
 	};
 
 	class ImGuiLayer;

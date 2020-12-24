@@ -117,14 +117,19 @@ namespace Jade
 		return m_Framebuffer;
 	}
 
-	void Application::ChangeScene(Scene* newScene)
+	void Application::ChangeScene(SceneInitializer* sceneInitializer)
 	{
-		this->m_CurrentScene = newScene;
+		if (m_CurrentScene != nullptr)
+		{
+			delete m_CurrentScene;
+		}
+
+		this->m_CurrentScene = new Scene(sceneInitializer);
 		this->m_CurrentScene->Init();
 		this->m_CurrentScene->Start();
 		
 		Entity::SetScene(this->m_CurrentScene);
-		DebugDraw::Init(newScene);
+		DebugDraw::Init(this->m_CurrentScene);
 	}
 
 	void Application::Stop()

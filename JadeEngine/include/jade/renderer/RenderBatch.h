@@ -2,6 +2,7 @@
 #include "externalLibs.h"
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
+#include "jade/renderer/TextureHandle.h"
 
 namespace Jade
 {
@@ -24,7 +25,7 @@ namespace Jade
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
         void Add(const glm::vec2* vertices, const glm::vec3& color);
-        void Add(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, 
+        void Add(TextureHandle textureHandle, const glm::vec2& size, const glm::vec2& position, 
             const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
         void Render();
 
@@ -37,11 +38,11 @@ namespace Jade
 
         static bool Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2);
 
-        bool const HasTexture(uint32 resourceId)
+        bool const HasTexture(TextureHandle resourceId)
         {
             for (int i = 0; i < m_NumTextures; i++)
             {
-                if (m_Textures[i]->GetResourceId() == resourceId)
+                if (m_Textures[i] == resourceId)
                 {
                     return true;
                 }
@@ -66,7 +67,7 @@ namespace Jade
         Vertex* m_VertexBufferBase;
         Vertex* m_VertexStackPointer;
         uint32* m_Indices;
-        std::array<std::shared_ptr<Texture>, 16> m_Textures;
+        std::array<TextureHandle, 16> m_Textures;
 
         uint32 m_VAO, m_VBO, m_EBO;
         int16 m_ZIndex = 0;

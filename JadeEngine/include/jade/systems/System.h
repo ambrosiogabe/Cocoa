@@ -3,40 +3,54 @@
 
 #include "jade/events/Event.h"
 
-namespace Jade {
+namespace Jade
+{
 
-    class Scene;
+	class Scene;
 
-    class JADE System {
-    public:
-        System(const char* name, Scene* scene) 
-            : m_Name(name), m_Scene(scene) {}
+	class JADE System
+	{
+	public:
+		System(const char* name, Scene* scene)
+			: m_Name(name), m_Scene(scene)
+		{
+		}
 
 
-        virtual void Start() {
+		virtual void Start()
+		{
 
-        }
+		}
 
-        virtual void Update(float dt) {
+		virtual void Update(float dt)
+		{
 
-        }
+		}
 
-        virtual void Render() {
+		virtual void EditorUpdate(float dt)
+		{
 
-        }
+		}
 
-        virtual void OnEvent(Event& e) {
+		virtual void Render()
+		{
 
-        }
+		}
 
-        const char* GetName() {
-            return m_Name;
-        }
+		virtual void OnEvent(Event& e)
+		{
 
-    private:
-        const char* m_Name = "";
+		}
 
-    protected:
-        Scene* m_Scene = nullptr;
-    };
+		const char* GetName()
+		{
+			return m_Name;
+		}
+
+	private:
+		const char* m_Name = "";
+
+	protected:
+		Scene* m_Scene = nullptr;
+	};
 }

@@ -144,8 +144,8 @@ namespace Jade
 
 			if (spr.m_Sprite.m_Texture)
 			{
-				JImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture->GetFilepath().Filename(),
-					spr.m_Sprite.m_Texture->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+				JImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture.Get()->GetFilepath().Filename(),
+					spr.m_Sprite.m_Texture.Get()->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 			}
 			else
 			{
@@ -157,7 +157,7 @@ namespace Jade
 				{
 					IM_ASSERT(payload->DataSize == sizeof(int));
 					int textureResourceId = *(const int*)payload->Data;
-					spr.m_Sprite.m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset(textureResourceId));
+					spr.m_Sprite.m_Texture = textureResourceId;
 				}
 				ImGui::EndDragDropTarget();
 			}

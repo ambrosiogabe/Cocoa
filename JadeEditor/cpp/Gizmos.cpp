@@ -28,7 +28,7 @@ namespace Jade
 		m_SpriteRotation = spriteRotation;
 		m_TexCoordMin = sprite.m_TexCoords[0];
 		m_TexCoordMax = sprite.m_TexCoords[2];
-		m_TextureAssetId = sprite.m_Texture->GetResourceId();
+		m_TextureAssetId = sprite.m_Texture.Get()->GetResourceId();
 		m_Tint = darkTint;
 		m_Type = type;
 	}
@@ -93,14 +93,15 @@ namespace Jade
 	}
 
 	// =================================================================================================
-	// Gizmo Controller
+	// Gizmo System
 	// =================================================================================================
 	GizmoSystem::GizmoSystem(const char* name, Scene* scene)
 		: System(name, scene)
 	{
 		Log::Assert(scene != nullptr, "Cannot initialize gizmo system with null scene.");
 
-		m_Texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset(Settings::General::s_EngineAssetsPath + "images/gizmos.png"));
+		std::shared_ptr<Texture> texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset(Settings::General::s_EngineAssetsPath + "images/gizmos.png"));
+		m_Texture = TextureHandle(texture->GetResourceId());
 		m_Spritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_Texture, 16, 40, 9, 0));
 
 		m_Camera = m_Scene->GetCamera();
@@ -121,28 +122,29 @@ namespace Jade
 		m_FreeScale = Gizmo(m_Spritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 	}
 
-	//void GizmoSystem::ImGui()
-	//{
-	//	ImGui::Begin("Gizmo debug");
-	//	ImGui::DragFloat2("Free Move Offset:", &m_FreeMove.m_Offset[0]);
-	//	ImGui::DragFloat2("Free Move HalfSize: ", &m_FreeMove.m_HalfSize[0]);
-	//	ImGui::DragFloat2("Free Move BBHalfSize: ", &m_FreeMove.m_Box2D.m_HalfSize[0]);
+	void GizmoSystem::ImGui()
+	{
+		ImGui::Begin("Gizmo debug");
+		ImGui::DragFloat2("Free Move Offset:", &m_FreeMove.m_Offset[0]);
+		ImGui::DragFloat2("Free Move HalfSize: ", &m_FreeMove.m_HalfSize[0]);
+		ImGui::DragFloat2("Free Move BBHalfSize: ", &m_FreeMove.m_Box2D.m_HalfSize[0]);
 
-	//	ImGui::DragFloat2("HzMove Offset:", &m_HzMove.m_Offset[0]);
-	//	ImGui::DragFloat2("HzMove HalfSize: ", &m_HzMove.m_HalfSize[0]);
-	//	ImGui::DragFloat2("HzMove BBHalfSize: ", &m_HzMove.m_Box2D.m_HalfSize[0]);
+		ImGui::DragFloat2("HzMove Offset:", &m_HzMove.m_Offset[0]);
+		ImGui::DragFloat2("HzMove HalfSize: ", &m_HzMove.m_HalfSize[0]);
+		ImGui::DragFloat2("HzMove BBHalfSize: ", &m_HzMove.m_Box2D.m_HalfSize[0]);
 
-	//	ImGui::DragFloat2("VtMove Offset:", &m_VtMove.m_Offset[0]);
-	//	ImGui::DragFloat2("VtMove HalfSize: ", &m_VtMove.m_HalfSize[0]);
-	//	ImGui::DragFloat2("VtMove BBHalfSize: ", &m_VtMove.m_Box2D.m_HalfSize[0]);
-	//	ImGui::End();
-	//}
+		ImGui::DragFloat2("VtMove Offset:", &m_VtMove.m_Offset[0]);
+		ImGui::DragFloat2("VtMove HalfSize: ", &m_VtMove.m_HalfSize[0]);
+		ImGui::DragFloat2("VtMove BBHalfSize: ", &m_VtMove.m_Box2D.m_HalfSize[0]);
+		ImGui::End();
+	}
 
-	void GizmoSystem::Update(float dt)
+	void GizmoSystem::EditorUpdate(float dt)
 	{
 		Entity activeEntity = InspectorWindow::GetActiveEntity();
 		if (!activeEntity.IsNull())
 		{
+			ImGui();
 			Transform& entityTransform = activeEntity.GetComponent<Transform>();
 
 			if (m_MouseDragging && m_ActiveGizmo >= 0)
@@ -150,15 +152,15 @@ namespace Jade
 				Log::Assert((m_ActiveGizmo >= 0 && m_ActiveGizmo < 6), "Active gizmo out of array bounds.");
 				switch (m_Mode)
 				{
-					case GizmoMode::Translate:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateTranslate(entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
-						break;
-					case GizmoMode::Rotate:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateRotate(entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
-						break;
-					case GizmoMode::Scale:
-						m_Gizmos[m_ActiveGizmo].GizmoManipulateScale(entityTransform, m_OriginalDragClickPos, m_OriginalScale, m_Camera);
-						break;
+				case GizmoMode::Translate:
+					m_Gizmos[m_ActiveGizmo].GizmoManipulateTranslate(entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
+					break;
+				case GizmoMode::Rotate:
+					m_Gizmos[m_ActiveGizmo].GizmoManipulateRotate(entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
+					break;
+				case GizmoMode::Scale:
+					m_Gizmos[m_ActiveGizmo].GizmoManipulateScale(entityTransform, m_OriginalDragClickPos, m_OriginalScale, m_Camera);
+					break;
 				}
 			}
 

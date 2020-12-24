@@ -21,7 +21,7 @@ namespace Jade {
 
         for (int i = 0; i < m_Textures.size(); i++)
         {
-            m_Textures[i] = nullptr;
+            m_Textures[i] = TextureHandle::null;
         }
 
         m_VAO = -1;
@@ -67,9 +67,9 @@ namespace Jade {
         m_NumSprites++;
 
         const Sprite& sprite = spr.m_Sprite;
-        std::shared_ptr<Texture> tex = sprite.m_Texture;
-        if (tex != nullptr) {
-            if (!HasTexture(tex->GetResourceId())) {
+        TextureHandle tex = sprite.m_Texture;
+        if (tex != TextureHandle::null) {
+            if (!HasTexture(tex)) {
                 m_Textures[m_NumTextures] = tex;
                 m_NumTextures++;
             }
@@ -112,7 +112,7 @@ namespace Jade {
         LoadVertexProperties(vertices, &texCoords[0], vec4Color, texId);
     }
 
-    void RenderBatch::Add(uint32 textureAssetId, const glm::vec2& size, const glm::vec2& position, 
+    void RenderBatch::Add(TextureHandle textureHandle, const glm::vec2& size, const glm::vec2& position, 
         const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
     {
         m_NumSprites++;
@@ -127,16 +127,16 @@ namespace Jade {
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
 
-        if (!HasTexture(textureAssetId))
+        if (!HasTexture(textureHandle))
         {
-            m_Textures[m_NumTextures] = std::static_pointer_cast<Texture>(AssetManager::GetAsset(textureAssetId));
+            m_Textures[m_NumTextures] = textureHandle;
             m_NumTextures++;
         }
 
         int texId = 0;
         for (int i = 0; i < m_NumTextures; i++)
         {
-            if (m_Textures[i]->GetResourceId() == textureAssetId)
+            if (m_Textures[i] == textureHandle)
             {
                 texId = i + 1;
                 break;
@@ -149,12 +149,12 @@ namespace Jade {
     void RenderBatch::LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr) {    
         glm::vec4 color = spr.m_Color;
         const Sprite& sprite = spr.m_Sprite;
-        const glm::vec2* texCoords = &sprite.m_TexCoords[0];
+        const glm::vec2* texCoords = spr.m_Sprite.m_TexCoords;
         glm::vec2 quadSize{ sprite.m_Width, sprite.m_Height };
         float rotation = transform.m_EulerRotation.z;
 
         int texId = 0;
-        if (sprite.m_Texture) {
+        if (sprite.m_Texture != TextureHandle::null) {
             for (int i=0; i < m_Textures.size(); i++) {
                 if (m_Textures[i] == sprite.m_Texture) {
                     texId = i + 1;
@@ -242,7 +242,7 @@ namespace Jade {
 
         for (int i=0; i < this->m_NumTextures; i++) {
             glActiveTexture(GL_TEXTURE0 + i + 1);
-            m_Textures[i]->Bind();
+            m_Textures[i].Get()->Bind();
         }
 
         glBindVertexArray(m_VAO);
@@ -256,7 +256,7 @@ namespace Jade {
         glBindVertexArray(0);
 
         for (int i=0; i < this->m_NumTextures; i++) {
-            m_Textures[i]->Unbind();
+            m_Textures[i].Get()->Unbind();
         }
     }
 
@@ -287,7 +287,7 @@ namespace Jade {
         this->m_NumTextures = 0;
         for (int i = 0; i < m_NumTextures; i++)
         {
-            m_Textures[i] = nullptr;
+            m_Textures[i] = TextureHandle::null;
         }
     }
 }
