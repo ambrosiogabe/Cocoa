@@ -60,6 +60,11 @@ namespace Jade
 		return res;
 	}
 
+	bool Win32File::ImplDeleteFile(const JPath& filename)
+	{
+		return DeleteFileA(filename.Filepath());
+	}
+
 	bool Win32File::ImplCopyFile(const JPath& fileToCopy, const JPath& newFileLocation, const char* newFilename)
 	{
 		JPath newFilepath = newFileLocation + (std::string(newFilename) + fileToCopy.FileExt());

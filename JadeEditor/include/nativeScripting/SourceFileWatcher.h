@@ -2,6 +2,8 @@
 #include "externalLibs.h"
 #include "jade/core/Core.h"
 
+#include "nativeScripting/ScriptParser.h"
+
 #include "jade/file/FileSystemWatcher.h"
 
 namespace Jade
@@ -13,6 +15,8 @@ namespace Jade
 			: m_RootDirectory("") {}
 		SourceFileWatcher(JPath path);
 		~SourceFileWatcher() { m_FileWatcher.Stop(); }
+
+		static const std::vector<UClass>& GetClasses();
 
 	private:
 		void StartFileWatcher();

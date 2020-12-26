@@ -11,6 +11,7 @@
 #include "FontAwesome.h"
 #include "JadeEditorApplication.h"
 #include "EditorWindows/InspectorWindow.h"
+#include "jade/systems/ScriptSystem.h"
 
 #include <string>
 #include <imgui.h>
@@ -18,10 +19,18 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
+#undef CopyFile;
+#undef DeleteFile;
+
 namespace Jade
 {
+	static JPath tmpScriptDll;
+	static JPath scriptDll;
+
 	void LevelEditorSystem::Start()
 	{
+		tmpScriptDll = Settings::General::s_EngineExeDirectory + JPath("ScriptModuleTmp.dll");
+		scriptDll = Settings::General::s_EngineExeDirectory + JPath("ScriptModule.dll");
 		auto view = m_Scene->GetRegistry().view<Transform>();
 		for (Entity entity : view)
 		{
@@ -45,6 +54,14 @@ namespace Jade
 
 	void LevelEditorSystem::EditorUpdate(float dt)
 	{
+		if (IFile::IsFile(tmpScriptDll))
+		{
+			m_ScriptSystem->FreeScriptLibrary();
+			IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule.dll");
+			m_ScriptSystem->Reload();
+			IFile::DeleteFile(tmpScriptDll);
+		}
+
 		if (m_IsDragging)
 		{
 			Camera* camera = m_Scene->GetCamera();

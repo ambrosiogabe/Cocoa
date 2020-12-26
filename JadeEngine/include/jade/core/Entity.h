@@ -70,6 +70,16 @@ namespace Jade
 			return Entity(*(s_Scene->m_Registry.data<T>() + offset), s_Scene); // { m_Registry, * (m_Registry.data<T>() + offset) };
 		}
 
+		entt::entity GetRawEntity()
+		{
+			return m_EntityHandle;
+		}
+
+		entt::registry& GetRegistry()
+		{
+			return s_Scene->GetRegistry();
+		}
+
 		bool operator==(const Entity& other) const;
 		bool operator==(Entity& other) const;
 

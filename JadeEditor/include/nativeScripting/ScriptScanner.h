@@ -40,7 +40,7 @@ namespace Jade
 	public:
 		ScriptScanner(const JPath& filepath);
 
-		std::list<Token> ScanTokens();
+		std::vector<Token> ScanTokens();
 
 	private:
 		Token ScanToken();

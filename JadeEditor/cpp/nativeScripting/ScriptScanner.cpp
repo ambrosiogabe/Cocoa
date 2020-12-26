@@ -13,10 +13,10 @@ namespace Jade
 		IFile::CloseFile(fileHandle);
 	}
 
-	std::list<Token> ScriptScanner::ScanTokens()
+	std::vector<Token> ScriptScanner::ScanTokens()
 	{
 		Log::Info("Scanning file '%s'", m_Filepath.Filepath());
-		auto tokens = std::list<Token>();
+		auto tokens = std::vector<Token>();
 
 		m_Cursor = 0;
 		while (!AtEnd())

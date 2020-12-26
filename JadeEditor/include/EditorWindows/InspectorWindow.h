@@ -8,6 +8,7 @@
 
 namespace Jade
 {
+	class ScriptSystem;
 	class InspectorWindow
 	{
 	public:
@@ -37,6 +38,9 @@ namespace Jade
 
 	private:
 		static void ImGuiAddComponentButton();
+
+	public:
+		static ScriptSystem* s_ScriptSystem;
 
 	private:
 		static std::vector<Entity> s_ActiveEntities;

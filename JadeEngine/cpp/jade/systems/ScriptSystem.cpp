@@ -4,6 +4,17 @@
 
 namespace Jade
 {
+	static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
+	{
+		auto func = GetProcAddress(module, functionName);
+		if (func == NULL)
+		{
+			Log::Warning("Could not load dll function '%s'", functionName);
+		}
+
+		return func;
+	}
+
 	void ScriptSystem::Start()
 	{
 		Reload();
@@ -19,11 +30,7 @@ namespace Jade
 
 	void ScriptSystem::Reload()
 	{
-		if (m_IsLoaded)
-		{
-			m_DeleteScripts();
-			FreeLibrary(m_Module);
-		}
+		FreeScriptLibrary();
 
 		JPath scriptDllPath = Settings::General::s_EngineExeDirectory + JPath("ScriptModule.dll");
 		if (IFile::IsFile(scriptDllPath))
@@ -32,16 +39,27 @@ namespace Jade
 
 			if (module != nullptr)
 			{
-				m_SaveScripts = (SaveScriptFn)GetProcAddress(module, "SaveScript");
-				m_LoadScripts = (LoadScriptFn)GetProcAddress(module, "LoadScripts");
-				m_DeleteScripts = (DeleteScriptFn)GetProcAddress(module, "DeleteScripts");
-				m_UpdateScripts = (UpdateScriptFn)GetProcAddress(module, "UpdateScripts");
-				m_EditorUpdateScripts = (UpdateScriptFn)GetProcAddress(module, "EditorUpdateScripts");
+				m_SaveScripts = (SaveScriptFn)TryLoadFunction(module, "SaveScript");
+				m_LoadScripts = (LoadScriptFn)TryLoadFunction(module, "LoadScripts");
+				m_DeleteScripts = (DeleteScriptFn)TryLoadFunction(module, "DeleteScripts");
+				m_UpdateScripts = (UpdateScriptFn)TryLoadFunction(module, "UpdateScripts");
+				m_EditorUpdateScripts = (UpdateScriptFn)TryLoadFunction(module, "EditorUpdateScripts");
+				m_AddComponentFromString = (AddComponentFromStringFn)TryLoadFunction(module, "AddComponent");
 				m_IsLoaded = true;
 
 				m_LoadScripts();
-				Log::Info("LOADED");
+				Log::Info("Scripts loaded.");
 			}
+		}
+	}
+
+	void ScriptSystem::FreeScriptLibrary()
+	{
+		if (m_IsLoaded)
+		{
+			m_DeleteScripts();
+			FreeLibrary(m_Module);
+			m_IsLoaded = false;
 		}
 	}
 
@@ -50,6 +68,14 @@ namespace Jade
 		if (m_IsLoaded)
 		{
 			m_SaveScripts();
+		}
+	}
+
+	void ScriptSystem::AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry)
+	{
+		if (m_AddComponentFromString)
+		{
+			m_AddComponentFromString(className, entity, registry);
 		}
 	}
 }

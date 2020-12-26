@@ -18,7 +18,7 @@ namespace Jade
 	struct UClass
 	{
 		std::string m_ClassName;
-		const JPath& m_FullFilepath;
+		JPath m_FullFilepath;
 		std::list<UVariable> m_Variables;
 	};
 
@@ -32,7 +32,7 @@ namespace Jade
 	class ScriptParser
 	{
 	public:
-		ScriptParser(std::list<Token>& tokens, JPath& fullFilepath)
+		ScriptParser(std::vector<Token>& tokens, JPath& fullFilepath)
 			: m_Tokens(tokens), m_FullFilepath(fullFilepath) {}
 
 		std::string GenerateHeaderFile();
@@ -40,7 +40,7 @@ namespace Jade
 		void Parse();
 
 		bool CanGenerateHeaderFile() const { return m_Structs.size() != 0 || m_Classes.size() != 0; }
-		const std::list<UClass>& GetClasses() { return m_Classes; }
+		const std::vector<UClass>& GetClasses() { return m_Classes; }
 
 	private:
 		void ParseClass();
@@ -54,11 +54,11 @@ namespace Jade
 
 	private:
 		int m_CurrentToken;
-		std::list<Token>::iterator m_CurrentIter;
+		std::vector<Token>::iterator m_CurrentIter;
 		const JPath& m_FullFilepath;
 
-		std::list<Token>& m_Tokens;
-		std::list<UClass> m_Classes;
-		std::list<UStruct> m_Structs;
+		std::vector<Token>& m_Tokens;
+		std::vector<UClass> m_Classes;
+		std::vector<UStruct> m_Structs;
 	};
 }

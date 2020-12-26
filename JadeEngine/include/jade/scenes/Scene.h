@@ -41,12 +41,14 @@ namespace Jade
 		// TODO: TEMPORARY GET BETTER SYSTEM THAN THESE!!!
 		inline json& GetSaveDataJson() { return m_SaveDataJson; }
 		inline void ShowDemoWindow() { m_ShowDemoWindow = true; }
+		inline bool IsPlaying() { return m_IsPlaying; }
 
 	protected:
 		void LoadDefaultAssets();
 
 	protected:
 		bool m_ShowDemoWindow;
+		bool m_IsPlaying;
 		std::vector<std::unique_ptr<System>> m_Systems;
 
 		entt::registry m_Registry;

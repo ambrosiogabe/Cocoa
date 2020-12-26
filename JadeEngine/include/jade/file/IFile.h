@@ -22,6 +22,7 @@ namespace Jade
 		static void CloseFile(File* file) { Get()->ImplCloseFile(file); }
 		static bool WriteFile(const char* data, const JPath& filename) { return Get()->ImplWriteFile(data, filename); }
 		static bool CreateFile(const JPath& filename, const char* extToAppend = "") { return Get()->ImplCreateFile(filename, extToAppend); }
+		static bool DeleteFile(const JPath& filename) { return Get()->ImplDeleteFile(filename); }
 		static bool CopyFile(const JPath& fileToCopy, const JPath& newFileLocation, const char* newFilename = "") { return Get()->ImplCopyFile(fileToCopy, newFileLocation, newFilename); }
 		static JPath GetCwd() { return Get()->ImplGetCwd(); }
 		static JPath GetSpecialAppFolder() { return Get()->ImplGetSpecialAppFolder(); }
@@ -41,6 +42,7 @@ namespace Jade
 		virtual void ImplCloseFile(File* file) = 0;
 		virtual bool ImplWriteFile(const char* data, const JPath& filename) = 0;
 		virtual bool ImplCreateFile(const JPath& filename, const char* extToAppend) = 0;
+		virtual bool ImplDeleteFile(const JPath& filename) = 0;
 		virtual bool ImplCopyFile(const JPath& fileToCopy, const JPath& newFileLocation, const char* newFilename) = 0;
 		virtual JPath ImplGetCwd() = 0;
 		virtual JPath ImplGetSpecialAppFolder() = 0;
@@ -74,6 +76,7 @@ namespace Jade
 		virtual void ImplCloseFile(File* file) override;
 		virtual bool ImplWriteFile(const char* data, const JPath& filename) override;
 		virtual bool ImplCreateFile(const JPath& filename, const char* extToAppend) override;
+		virtual bool ImplDeleteFile(const JPath& filename) override;
 		virtual bool ImplCopyFile(const JPath& fileToCopy, const JPath& newFileLocation, const char* newFilename) override;
 		virtual JPath ImplGetCwd() override;
 		virtual JPath ImplGetSpecialAppFolder() override;

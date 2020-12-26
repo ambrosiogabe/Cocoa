@@ -15,6 +15,7 @@ namespace Jade
     typedef void(*LoadScriptFn)();
     typedef void (*UpdateScriptFn)(float, Scene*);
     typedef void (*EditorUpdateScriptFn)(float, Scene*);
+    typedef void (*AddComponentFromStringFn)(std::string, entt::entity, entt::registry&);
 
     class JADE ScriptSystem : public System
     {
@@ -30,12 +31,16 @@ namespace Jade
         void Reload();
         void SaveScriptState();
 
+        void FreeScriptLibrary();
+        void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry);
+
     private:
         SaveScriptFn m_SaveScripts = nullptr;
         LoadScriptFn m_LoadScripts = nullptr;
         DeleteScriptFn m_DeleteScripts = nullptr;
         UpdateScriptFn m_UpdateScripts = nullptr;
         EditorUpdateScriptFn m_EditorUpdateScripts = nullptr;
+        AddComponentFromStringFn m_AddComponentFromString = nullptr;
 
         bool m_IsLoaded = false;
         HMODULE m_Module;

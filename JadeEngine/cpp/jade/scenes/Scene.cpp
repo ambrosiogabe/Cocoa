@@ -18,6 +18,7 @@ namespace Jade
 
 		m_ShowDemoWindow = false;
 		m_Camera = nullptr;
+		m_IsPlaying = false;
 
 		m_Registry = entt::registry();
 		m_Systems = std::vector<std::unique_ptr<System>>();
@@ -120,6 +121,7 @@ namespace Jade
 
 	void Scene::Play()
 	{
+		m_IsPlaying = true;
 		auto view = m_Registry.view<Transform>();
 		for (auto entity : view)
 		{
@@ -129,6 +131,7 @@ namespace Jade
 
 	void Scene::Stop()
 	{
+		m_IsPlaying = false;
 		Physics2D::Get()->Destroy();
 	}
 

@@ -1,19 +1,24 @@
 #pragma once
 #include "externalLibs.h"
+#include "jade/util/JMath.h"
 
 #include "EditorWindows/InspectorWindow.h"
 #include "Gui/ImGuiExtended.h"
 #include "FontAwesome.h"
+#include "nativeScripting/SourceFileWatcher.h"
 
 #include "jade/components/components.h"
 #include "jade/components/Transform.h"
 #include "jade/physics2d/Physics2DSystem.h"
 #include "jade/renderer/DebugDraw.h"
-#include "jade/util/JMath.h"
+#include "jade/systems/ScriptSystem.h"
 
 namespace Jade
 {
 	std::vector<Entity> InspectorWindow::s_ActiveEntities = std::vector<Entity>();
+	ScriptSystem* InspectorWindow::s_ScriptSystem = nullptr;
+
+	static const char* stringBuffer[100];
 
 	void InspectorWindow::ImGui()
 	{
@@ -88,10 +93,23 @@ namespace Jade
 	// =====================================================================
 	void InspectorWindow::ImGuiAddComponentButton()
 	{
+		const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
+		int size = classes.size() + 4;
+		auto classIter = classes.begin();
+		for (int i = 4; i < classes.size() + 4; i++)
+		{
+			stringBuffer[i] = classIter->m_ClassName.c_str();
+			classIter++;
+		}
+
+		stringBuffer[0] = "Sprite Renderer";
+		stringBuffer[1] = "Rigidbody2D";
+		stringBuffer[2] = "Box Collider2D";
+		stringBuffer[3] = "Circle Collider2D";
+
 		Entity activeEntity = s_ActiveEntities[0];
 		int itemPressed = 0;
-		std::array<const char*, 4> components = { "Sprite Renderer", "Rigidbody2D", "BoxCollider2D", "CircleCollider2D" };
-		if (JImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", components.data(), (int)components.size(), itemPressed))
+		if (JImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", stringBuffer, size, itemPressed))
 		{
 			switch (itemPressed)
 			{
@@ -106,6 +124,17 @@ namespace Jade
 				break;
 			case 3:
 				activeEntity.AddComponent<Circle>();
+				break;
+			default:
+				if (s_ScriptSystem != nullptr)
+				{
+					Log::Info("Adding component %s from inspector", stringBuffer[itemPressed]);
+					s_ScriptSystem->AddComponentFromString(stringBuffer[itemPressed], activeEntity.GetRawEntity(), activeEntity.GetRegistry());
+				}
+				else
+				{
+					Log::Error("Trying to add script as component, but script system not set in inspector.");
+				}
 				break;
 			}
 		}

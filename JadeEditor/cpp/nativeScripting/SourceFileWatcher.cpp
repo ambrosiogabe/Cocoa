@@ -15,12 +15,18 @@ namespace Jade
 
 	static JPath rootDir = "";
 	static JPath projectPremakeLua = "";
-	static auto classes = std::list<UClass>();
+	static auto classes = std::vector<UClass>();
+	static bool fileModified = false;
 
 	SourceFileWatcher::SourceFileWatcher(JPath rootDirectory)
 		: m_RootDirectory(rootDirectory)
 	{
 		StartFileWatcher();
+	}
+
+	const std::vector<UClass>& SourceFileWatcher::GetClasses()
+	{
+		return classes;
 	}
 
 	static bool IsHeaderFile(const JPath& file)
@@ -35,11 +41,14 @@ namespace Jade
 
 	static void AddClassIfNotExist(UClass clazz)
 	{
-		for (auto c : classes)
+		for (int i = 0; i < classes.size(); i++)
 		{
+			UClass& c = classes.at(i);
 			if (c.m_ClassName == clazz.m_ClassName)
 			{
-				c.m_Variables = clazz.m_Variables;
+				classes[i].m_ClassName = clazz.m_ClassName;
+				classes[i].m_FullFilepath = clazz.m_FullFilepath;
+				classes[i].m_Variables = clazz.m_Variables;
 				return;
 			}
 		}
@@ -47,34 +56,38 @@ namespace Jade
 		classes.push_back(clazz);
 	}
 
-	static void ProcessFile(JPath& file, JPath generatedDirPath)
+	static void ProcessFile(JPath& file, JPath generatedDirPath, bool generateHeaders = true)
 	{
-		if (!IFile::IsFile(file))
+		if (!IFile::IsFile(file) || strcmp(file.FileExt(), ".TMP") == 0)
 		{
 			return;
 		}
 
 		ScriptScanner fileScanner = ScriptScanner(file);
-		std::list<Token> fileTokens = fileScanner.ScanTokens();
+		std::vector<Token> fileTokens = fileScanner.ScanTokens();
 		ScriptParser fileParser = ScriptParser(fileTokens, file);
 		fileParser.Parse();
-		fileParser.DebugPrint();
+		// fileParser.DebugPrint();
 
 		if (fileParser.CanGenerateHeaderFile())
 		{
-			JPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");
-			IFile::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
-			Log::Info("Generating file at %s", path.Filepath());
-
 			auto newClasses = fileParser.GetClasses();
 			for (auto clazz : newClasses)
 			{
 				AddClassIfNotExist(clazz);
 			}
-			CodeGenerators::GenerateInitFile(classes, rootDir + "generated" + "init.h");
-			IFile::WriteFile("#include \"init.h\"\n", rootDir + "generated" + "init.cpp");
-			Log::Info("Generating init file at %s", (rootDir + "generated" + "init-tmp.h").Filepath());
-			RunPremake();
+
+			if (generateHeaders)
+			{
+				JPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");
+				IFile::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
+				Log::Info("Generating file at %s", path.Filepath());
+
+				CodeGenerators::GenerateInitFile(classes, rootDir + "generated" + "init.h");
+				IFile::WriteFile("#include \"init.h\"\n", rootDir + "generated" + "init.cpp");
+				Log::Info("Generating init file at %s", (rootDir + "generated" + "init-tmp.h").Filepath());
+				RunPremake();
+			}
 		}
 	}
 
@@ -117,13 +130,23 @@ namespace Jade
 	{
 		if (!file.Contains("generated"))
 		{
-			//Classes.Clear();
-			//Preprocess(Path.GetDirectoryName(e.FullPath));
 			JPath generatedDirPath = file.GetDirectory(-1) + "generated";
 			ProcessFile(rootDir + JPath(file), rootDir + generatedDirPath);
-			//InitFileGenerator.GenerateInitFile(WatchDirectory, Classes);
-			//PremakeGenerator.GeneratePremakeFile(ProjectPremakeLua);
-			//Compile();
+		}
+	}
+
+	static void GenerateInitialClassInformation(const JPath& directory)
+	{
+		auto subDirs = IFile::GetFoldersInDir(directory);
+		for (auto dir : subDirs)
+		{
+			GenerateInitialClassInformation(dir);
+		}
+
+		auto files = IFile::GetFilesInDir(directory);
+		for (auto file : files)
+		{
+			ProcessFile(file, directory, false);
 		}
 	}
 
@@ -141,6 +164,8 @@ namespace Jade
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
 		Log::Info("Generating premake file %s", projectPremakeLua.Filepath());
 		RunPremake();
+		Log::Info("Generating initial class information");
+		GenerateInitialClassInformation(m_RootDirectory);
 
 		m_FileWatcher.m_Path = m_RootDirectory;
 		m_FileWatcher.m_NotifyFilters = NotifyFilters::LastAccess

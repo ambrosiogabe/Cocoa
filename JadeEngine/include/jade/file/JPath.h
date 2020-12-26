@@ -6,6 +6,13 @@ namespace Jade
 	class JADE JPath
 	{
 	public:
+		JPath()
+		{
+			m_Filepath = "";
+			m_FilenameOffset = 0;
+			m_FileExtOffset = 0;
+		}
+
 		JPath(std::string path);
 		JPath(const char* path);
 		JPath(const JPath& other);

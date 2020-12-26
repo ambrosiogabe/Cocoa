@@ -6,12 +6,14 @@
 
 namespace Jade
 {
+	class ScriptSystem;
 	class LevelEditorSystem : public System
 	{
 	public:
-		LevelEditorSystem(const char* name, Scene* scene)
+		LevelEditorSystem(const char* name, Scene* scene, ScriptSystem* scriptSystem)
 			: System(name, scene)
 		{
+			m_ScriptSystem = scriptSystem;
 		}
 
 		virtual void EditorUpdate(float dt) override;
@@ -26,6 +28,8 @@ namespace Jade
 		bool HandleMouseScroll(MouseScrolledEvent& e);
 
 	private:
+		ScriptSystem* m_ScriptSystem;
+
 		float m_KeyDebounceTime = 0.1f;
 		float m_KeyDebounceLeft = 0.0f;
 

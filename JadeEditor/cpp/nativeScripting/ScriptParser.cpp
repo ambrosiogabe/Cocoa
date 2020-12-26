@@ -15,6 +15,8 @@ namespace Jade
 		file << "namespace Jade{\n";
 		file << "\tnamespace Reflect" << m_FullFilepath.GetFilenameWithoutExt() << " \n\t{\n";
 
+		file << "\t\tbool initialized = false;\n\n";
+
 		// Append ids as entt hash strings
 		file << "\t\tstd::vector<entt::id_type> ids = \n\t\t{\n";
 
@@ -24,10 +26,27 @@ namespace Jade
 			int j = 0;
 			for (auto uvar : ustruct.m_Variables)
 			{
-				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1)
+				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1 && m_Classes.size() == 0)
 					file << "\t\t\t\"" << ustruct.m_StructName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs\n";
 				else
 					file << "\t\t\t\"" << ustruct.m_StructName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs,\n";
+
+				j++;
+			}
+
+			i++;
+		}
+
+		i = 0;
+		for (auto uclass : m_Classes)
+		{
+			int j = 0;
+			for (auto uvar : uclass.m_Variables)
+			{
+				if (i == m_Classes.size() - 1 && j == uclass.m_Variables.size() - 1)
+					file << "\t\t\t\"" << uclass.m_ClassName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs\n";
+				else
+					file << "\t\t\t\"" << uclass.m_ClassName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs,\n";
 
 				j++;
 			}
@@ -45,14 +64,32 @@ namespace Jade
 		for (auto ustruct : m_Structs)
 		{
 			int j = 0;
-			file << "\t\t\t{ entt::type_info<" << ustruct.m_StructName.c_str() << ">().id(), \"{ustruct.StructName}\"},\n";
+			file << "\t\t\t{ entt::type_info<" << ustruct.m_StructName.c_str() << ">().id(), \"" << ustruct.m_StructName.c_str() << "\"},\n";
 			for (auto uvar : ustruct.m_Variables)
 			{
-				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1)
+				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1 && m_Classes.size() == 0)
+					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"}\n";
+				else 
+					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"},\n";
+				id++;
+				j++;
+			}
+
+			i++;
+		}
+
+		i = 0;
+		for (auto uclass : m_Classes)
+		{
+			int j = 0;
+			file << "\t\t\t{ entt::type_info<" << uclass.m_ClassName.c_str() << ">().id(), \"" << uclass.m_ClassName.c_str() << "\"},\n";
+			for (auto uvar : uclass.m_Variables)
+			{
+				if (i == m_Classes.size() - 1 && j == uclass.m_Variables.size() - 1)
 					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"}\n";
 				else
 					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"},\n";
-				
+
 				id++;
 				j++;
 			}
@@ -62,9 +99,40 @@ namespace Jade
 
 		file << "\t\t};\n\n";
 
+		// Append stringToTypeMap
+		file << "\t\tstd::map<std::string, entt::id_type> stringToMap = \n\t\t{\n";
+
+		i = 0;
+		for (auto ustruct : m_Structs)
+		{
+			int j = 0;
+			if (i == m_Structs.size() - 1 && m_Classes.size() == 0)
+				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_info<" << ustruct.m_StructName.c_str() << ">().id() }\n";
+			else 
+				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_info<" << ustruct.m_StructName.c_str() << ">().id() },\n";
+			// TODO: Create variable string to type id mapper...
+			i++;
+		}
+
+		i = 0;
+		for (auto uclass : m_Classes)
+		{
+			if (i == m_Classes.size() - 1)
+				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_info<" << uclass.m_ClassName.c_str() << ">().id() }\n";
+			else
+				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_info<" << uclass.m_ClassName.c_str() << ">().id() },\n";
+
+			i++;
+		}
+
+		file << "\t\t};\n\n";
+
 		// Create Init function
 		file << "\t\tvoid Init()\n";
 		file << "\t\t{\n";
+		file << "\t\tif (initialized) return;\n";
+		file << "\t\tinitialized = true;\n\n";
+
 		id = 0;
 		for(auto ustruct : m_Structs)
 		{
@@ -92,6 +160,25 @@ namespace Jade
 				id++;
 			}
 			file << "\t\t\t\t.type();\n\n";
+		}
+		file << "\t\t}\n";
+
+		// Create AddComponent function
+		file << "\t\tvoid AddComponent(std::string className, entt::entity entity, entt::registry& registry)\n";
+		file << "\t\t{\n";
+
+		i = 0;
+		for (auto uclass : m_Classes)
+		{
+			if (i == 0)
+				file << "\t\t\tif";
+			else
+				file << "\t\t\telse if";
+			file << "(className == \"" << uclass.m_ClassName.c_str() << "\")\n";
+			file << "\t\t\t{\n";
+			file << "\t\t\t\tregistry.emplace<" << uclass.m_ClassName.c_str() << ">(entity);\n";
+			file << "\t\t\t}\n";
+			i++;
 		}
 		file << "\t\t}\n";
 
@@ -298,8 +385,8 @@ namespace Jade
 
 	UVariable ScriptParser::ParseVariable()
 	{
-		std::list<Token> allTokensBeforeSemiColon = std::list<Token>();
-		std::list<Token>::iterator current;
+		std::vector<Token> allTokensBeforeSemiColon = std::vector<Token>();
+		std::vector<Token>::iterator current;
 		int afterIdentifierIndex = -1;
 
 		do

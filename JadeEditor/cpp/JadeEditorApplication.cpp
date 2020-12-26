@@ -157,6 +157,15 @@ namespace Jade
 
 	void EditorLayer::OnUpdate(float dt)
 	{
+		if (m_Scene->IsPlaying())
+		{
+			m_EditorUpdate = false;
+		}
+		else
+		{
+			m_EditorUpdate = true;
+		}
+
 		if (JadeEditor::IsProjectLoaded() && !m_EditorUpdate)
 		{
 			DebugDraw::BeginFrame();
