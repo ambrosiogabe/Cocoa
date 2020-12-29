@@ -68,7 +68,13 @@ namespace Jade
 	bool Win32File::ImplCopyFile(const JPath& fileToCopy, const JPath& newFileLocation, const char* newFilename)
 	{
 		JPath newFilepath = newFileLocation + (std::string(newFilename) + fileToCopy.FileExt());
-		return CopyFileExA(fileToCopy.Filepath(), newFilepath.Filepath(), NULL, NULL, false, NULL);
+		if (!CopyFileExA(fileToCopy.Filepath(), newFilepath.Filepath(), NULL, NULL, false, NULL))
+		{
+			Log::Warning("Could not copy file error code: %d", GetLastError());
+			return false;
+		}
+
+		return true;
 	}
 
 	JPath Win32File::ImplGetCwd()

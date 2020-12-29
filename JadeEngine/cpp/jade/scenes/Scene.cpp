@@ -149,6 +149,16 @@ namespace Jade
 			.entities(output)
 			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
 
+		for (const auto& system : m_Systems)
+		{
+			if (strcmp(system.get()->GetName(), "Script System") == 0)
+			{
+				ScriptSystem* scriptSystem = (ScriptSystem*)system.get();
+				scriptSystem->SaveScripts(m_SaveDataJson);
+				break;
+			}
+		}
+
 		IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename);
 	}
 
@@ -157,6 +167,17 @@ namespace Jade
 		AssetManager::Clear();
 		auto view = m_Registry.view<Transform>();
 		m_Registry.destroy(view.begin(), view.end());
+
+		for (auto& system : m_Systems)
+		{
+			if (strcmp(system->GetName(), "Script System") == 0)
+			{
+				ScriptSystem* scriptSystem = (ScriptSystem*)system.get();
+				scriptSystem->FreeScriptLibrary();
+				break;
+			}
+		}
+
 		m_Systems.clear();
 		delete m_Camera;
 		Init();
@@ -167,17 +188,16 @@ namespace Jade
 		auto asset = AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", true);
 	}
 
-	static Entity FindOrCreateEntity(std::unordered_map<int, int>& idKey, int id, Scene* scene, entt::registry& registry)
+	static Entity FindOrCreateEntity(int id, Scene* scene, entt::registry& registry)
 	{
 		Entity entity;
-		if (idKey.find(id) != idKey.end())
+		if (registry.valid(entt::entity(id)))
 		{
-			entity = Entity(entt::entity(idKey[id]), scene);
+			entity = Entity(entt::entity(id), scene);
 		}
 		else
 		{
-			entity = Entity(registry.create(), scene);
-			idKey[id] = entity.GetID();
+			entity = Entity(registry.create(entt::entity(id)), scene);
 		}
 
 		return entity;
@@ -185,23 +205,6 @@ namespace Jade
 
 	void Scene::Load(const JPath& filename)
 	{
-
-		//mono_set_dirs("C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\lib", "C:\\dev\\C++\\MonoTEST\\MonoTest\\monoVendor\\etc");
-
-		//MonoDomain* domain = mono_jit_init("JadeEngineScriptRuntime");
-		//JPath testFile = "C:/dev/C#/Pacman/bin/Windows/x86/Debug/Pacman.exe";
-		//MonoImageOpenStatus status;
-		//MonoAssembly* assembly = mono_assembly_open("C:\\dev\\C++\\MonoTEST\\MonoTest\\Art.exe", &status);
-		//if (!assembly)
-		//{
-		//	Log::Error("Failed to load mono file: %s", testFile.Filepath());
-		//}
-
-		//int argc = 1;
-		//char* argv[1] = { (char*)"MyDomain" };
-		//int returnVal = mono_jit_exec(domain, assembly, argc, argv);
-		//Log::Info("Execution of the script yielded: %d", returnVal);
-
 		Reset();
 
 		Settings::General::s_CurrentScene = filename;
@@ -211,12 +214,16 @@ namespace Jade
 			return;
 		}
 
+		ScriptSystem* scriptSystem = nullptr;
 		for (auto& system : m_Systems)
 		{
 			system->Start();
+			if (strcmp(system->GetName(), "Script System") == 0)
+			{
+				scriptSystem = (ScriptSystem*)system.get();
+			}
 		}
 
-		std::unordered_map<int, int> idKey;
 		std::unordered_map<uint32, uint32> resourceIdMap{};
 		json j = json::parse(file->m_Data);
 
@@ -226,35 +233,77 @@ namespace Jade
 		}
 
 		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
+		for (int i=0; i < size; i++)
+		{
+			json::iterator it = j["Components"][i].begin();
+			json component = j["Components"][i];
+			if (it.key() == "SpriteRenderer")
+			{
+				Entity entity = FindOrCreateEntity(component["SpriteRenderer"]["Entity"], this, m_Registry);
+				const json& originalId = component["SpriteRenderer"]["AssetId"];
+				if (!originalId.is_null() && (uint32)originalId != std::numeric_limits<uint32>::max())
+					component["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)originalId];
+				RenderSystem::Deserialize(component, entity);
+			}
+			else if (it.key() == "Transform")
+			{
+				Entity entity = FindOrCreateEntity(component["Transform"]["Entity"], this, m_Registry);
+				Transform::Deserialize(component, entity);
+			}
+			else if (it.key() == "Rigidbody2D")
+			{
+				Entity entity = FindOrCreateEntity(component["Rigidbody2D"]["Entity"], this, m_Registry);
+				Physics2DSystem::DeserializeRigidbody2D(component, entity);
+			}
+			else if (it.key() == "Box2D")
+			{
+				Entity entity = FindOrCreateEntity(component["Box2D"]["Entity"], this, m_Registry);
+				Physics2DSystem::DeserializeBox2D(component, entity);
+			}
+			else if (it.key() == "AABB")
+			{
+				Entity entity = FindOrCreateEntity(component["AABB"]["Entity"], this, m_Registry);
+				Physics2DSystem::DeserializeAABB(component, entity);
+			}
+			else
+			{
+				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
+				Log::Info("Deserializing entity %s id %d", it.key().c_str(), entity.GetID());
+				scriptSystem->Deserialize(component, entity);
+			}
+		}
+
+		IFile::CloseFile(file);
+	}
+
+	void Scene::LoadScriptsOnly(const JPath& filename)
+	{
+		File* file = IFile::OpenFile(filename);
+		if (file->m_Data.size() <= 0)
+		{
+			return;
+		}
+
+		ScriptSystem* scriptSystem = nullptr;
+		for (auto& system : m_Systems)
+		{
+			if (strcmp(system->GetName(), "Script System") == 0)
+			{
+				scriptSystem = (ScriptSystem*)system.get();
+			}
+		}
+
+		json j = json::parse(file->m_Data);
+		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
 		for (int i = 0; i < size; i++)
 		{
-			if (!j["Components"][i]["SpriteRenderer"].is_null())
+			json::iterator it = j["Components"][i].begin();
+			json component = j["Components"][i];
+			if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB")
 			{
-				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["SpriteRenderer"]["Entity"], this, m_Registry);
-				const json& originalId = j["Components"][i]["SpriteRenderer"]["AssetId"];
-				if (!originalId.is_null() && (uint32)originalId != std::numeric_limits<uint32>::max())
-					j["Components"][i]["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)originalId];
-				RenderSystem::Deserialize(j["Components"][i], entity);
-			}
-			else if (!j["Components"][i]["Transform"].is_null())
-			{
-				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["Transform"]["Entity"], this, m_Registry);
-				Transform::Deserialize(j["Components"][i], entity);
-			}
-			else if (!j["Components"][i]["Rigidbody2D"].is_null())
-			{
-				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["Rigidbody2D"]["Entity"], this, m_Registry);
-				Physics2DSystem::DeserializeRigidbody2D(j["Components"][i], entity);
-			}
-			else if (!j["Components"][i]["Box2D"].is_null())
-			{
-				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["Box2D"]["Entity"], this, m_Registry);
-				Physics2DSystem::DeserializeBox2D(j["Components"][i], entity);
-			}
-			else if (!j["Components"][i]["AABB"].is_null())
-			{
-				Entity entity = FindOrCreateEntity(idKey, j["Components"][i]["AABB"]["Entity"], this, m_Registry);
-				Physics2DSystem::DeserializeAABB(j["Components"][i], entity);
+				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
+				Log::Info("Deserializing entity %s id %d", it.key().c_str(), entity.GetID());
+				scriptSystem->Deserialize(component, entity);
 			}
 		}
 

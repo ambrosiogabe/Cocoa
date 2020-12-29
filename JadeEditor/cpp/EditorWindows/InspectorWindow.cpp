@@ -58,6 +58,8 @@ namespace Jade
 			ImGuiAABB(s_ActiveEntities[0].GetComponent<AABB>());
 		if (doCircle)
 			ImGuiCircle(s_ActiveEntities[0].GetComponent<Circle>());
+		if (s_ScriptSystem)
+			s_ScriptSystem->ImGui(s_ActiveEntities[0]);
 
 		ImGuiAddComponentButton();
 		ImGui::End();
@@ -128,7 +130,7 @@ namespace Jade
 			default:
 				if (s_ScriptSystem != nullptr)
 				{
-					Log::Info("Adding component %s from inspector", stringBuffer[itemPressed]);
+					Log::Info("Adding component %s from inspector tp %d", stringBuffer[itemPressed], entt::to_integral(activeEntity.GetRawEntity()));
 					s_ScriptSystem->AddComponentFromString(stringBuffer[itemPressed], activeEntity.GetRawEntity(), activeEntity.GetRegistry());
 				}
 				else

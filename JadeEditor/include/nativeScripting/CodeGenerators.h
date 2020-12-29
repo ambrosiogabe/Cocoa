@@ -55,7 +55,8 @@ namespace Jade
 
 			source << "\n";
 			source << "#define ENTT_STANDARD_CPP\n";
-			source << "#include <entt/entt.hpp>\n\n";
+			source << "#include <entt/entt.hpp>\n";
+			source << "#include <nlohmann/json.hpp>\n\n";
 
 			source << "extern \"C\" namespace Jade\n";
 			source << "{\n";
@@ -121,7 +122,7 @@ namespace Jade
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
 				source << "\t\t\t\t\tauto comp = registry.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
-				source << "\t\t\t\t\tcomp.Update(dt);\n";
+				source << "\t\t\t\t\tcomp.EditorUpdate(dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
 			}
@@ -129,16 +130,46 @@ namespace Jade
 
 			// Generate SaveScript function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void SaveScript(const Script& script, Entity entity)\n";
+			source << "\t\textern \"C\" JADE_SCRIPT void SaveScripts(json& j)\n";
 			source << "\t\t{\n";
-			source << "\t\t\tLog::Info(\"Saving script: \");\n";
+			source << "\t\t\tLog::Info(\"Saving scripts\");\n";
+			numVisited = 0;
+			for (auto clazz : classes)
+			{
+				if (!visitedSourceFile(clazz))
+				{
+					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registry);\n";
+
+					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					numVisited++;
+				}
+			}
 			source << "\t\t}\n";
 
 			// Generate Load Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void LoadScripts()\n";
+			source << "\t\textern \"C\" JADE_SCRIPT void LoadScript(json& j, Entity entity)\n";
 			source << "\t\t{\n";
-			source << "\t\t\tLog::Info(\"Loading Scripts\");\n";
+			numVisited = 0;
+			for (auto clazz : classes)
+			{
+				if (!visitedSourceFile(clazz))
+				{
+					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					source << "\t\t\t" << namespaceName.c_str() << "::TryLoad(j, entity, registry);\n";
+
+					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					numVisited++;
+				}
+			}
+			source << "\t\t}\n";
+
+			// Generate Init Scripts function
+			source << "\n";
+			source << "\t\textern \"C\" JADE_SCRIPT void InitScripts()\n";
+			source << "\t\t{\n";
+			source << "\t\t\tLog::Info(\"Initializing scripts\");\n";
 
 			numVisited = 0;
 			for (auto clazz : classes)
@@ -154,11 +185,51 @@ namespace Jade
 			}
 			source << "\t\t}\n";
 
+			// Generate Init ImGui function
+			source << "\n";
+			source << "\t\textern \"C\" JADE_SCRIPT void InitImGui(ImGuiContext* ctx)\n";
+			source << "\t\t{\n";
+			source << "\t\t\tLog::Info(\"Initializing ImGui\");\n";
+			source << "\t\t\tImGui::SetCurrentContext(ctx);\n";
+			source << "\t\t}\n";
+
+			// Generate ImGui function
+			source << "\n";
+			source << "\t\textern \"C\" JADE_SCRIPT void ImGui(Entity entity)\n";
+			source << "\t\t{\n";
+
+			numVisited = 0;
+			for (auto clazz : classes)
+			{
+				if (!visitedSourceFile(clazz))
+				{
+					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registry);\n";
+
+					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					numVisited++;
+				}
+			}
+			source << "\t\t}\n";
+
 			// Generate Delete Scripts function
 			source << "\n";
 			source << "\t\textern \"C\" JADE_SCRIPT void DeleteScripts()\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Deleting Scripts\");\n";
+
+			numVisited = 0;
+			for (auto clazz : classes)
+			{
+				if (!visitedSourceFile(clazz))
+				{
+					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts(registry);\n";
+
+					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					numVisited++;
+				}
+			}
 			source << "\t\t}\n";
 
 			source << "\t}\n";
@@ -193,7 +264,16 @@ namespace Jade
 				"   files {\n"
 				"       \"**.h\",\n"
 				"       \"**.cpp\",\n"
-				"       \"**.hpp\"\n"
+				"       \"**.hpp\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imconfig.h\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imgui.h\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imgui.cpp\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imgui_draw.cpp\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imgui_internal.h\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imgui_widgets.cpp\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imstb_rectpack.h\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imstb_textedit.h\",\n"
+				"		\"C:/dev/C++/JadeEngine/JadeEngine/vendor/imguiVendor/imstb_truetype.h\"\n"
 				"   }\n"
 				"   \n"
 				"   disablewarnings {\n"
@@ -212,7 +292,9 @@ namespace Jade
 				"       \"C:/dev/C++/JadeEngine/JadeEngine/vendor/nlohmann-json/single_include\",\n"
 				"       \"C:/dev/C++/JadeEngine/JadeEngine/vendor/GLFW/include\",\n"
 				"   }\n"
-				"   \n"
+				"\n"
+				"	symbolspath '$(OutDir)$(TargetName)-$([System.DateTime]::Now.ToString(\"HH_mm_ss_fff\")).pdb'\n"
+				"\n"
 				"   links {\n"
 				"       \"C:/dev/C++/JadeEngine/bin/Debug-windows-x86_64/JadeEngine/JadeEngine.lib\"\n"
 				"   }\n"
@@ -224,9 +306,10 @@ namespace Jade
 				"   }\n"
 				"   \n"
 				"   postbuildcommands {\n"
-				"       \"copy /y \\\"$(SolutionDir)bin\\\\ScriptModule\\\\ScriptModule.dll\\\" \\\"C:\\\\dev\\\\C++\\\\JadeEngine\\\\bin\\\\Debug-windows-x86_64\\\\JadeEditor\\\\ScriptModuleTmp.dll\\\"\"\n"
+				"       \"copy /y \\\"$(SolutionDir)bin\\\\ScriptModule\\\\ScriptModule.dll\\\" \\\"C:\\\\dev\\\\C++\\\\JadeEngine\\\\bin\\\\Debug-windows-x86_64\\\\JadeEditor\\\\ScriptModuleTmp.dll\\\"\",\n"
+				"		\"del /S *.pdb\"\n"
 				"   }\n"
-				"   \n"
+				"\n"
 				"   filter \"configurations:Debug\"\n"
 				"   runtime \"Debug\"\n"
 				"   symbols \"on\"\n"

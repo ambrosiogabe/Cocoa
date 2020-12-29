@@ -10,8 +10,11 @@ namespace Jade
 		file << "#pragma once\n\n";
 		file << "#define ENTT_STANDARD_CPP\n";
 		file << "#include <entt/entt.hpp>\n";
-		file << "#include <map>\n";
+		file << "#include <nlohmann/json.hpp>\n";
+		file << "#include <imgui.h>\n";
+		file << "#include <map>\n\n";
 		file << "#include \"../" << m_FullFilepath.GetFilenameWithoutExt() << ".h\"\n\n";
+
 		file << "namespace Jade{\n";
 		file << "\tnamespace Reflect" << m_FullFilepath.GetFilenameWithoutExt() << " \n\t{\n";
 
@@ -130,8 +133,8 @@ namespace Jade
 		// Create Init function
 		file << "\t\tvoid Init()\n";
 		file << "\t\t{\n";
-		file << "\t\tif (initialized) return;\n";
-		file << "\t\tinitialized = true;\n\n";
+		file << "\t\t\tif (initialized) return;\n";
+		file << "\t\t\tinitialized = true;\n\n";
 
 		id = 0;
 		for(auto ustruct : m_Structs)
@@ -180,6 +183,190 @@ namespace Jade
 			file << "\t\t\t}\n";
 			i++;
 		}
+		file << "\t\t}\n";
+
+		// SaveScript function
+		file << "\n"
+		"		void SaveScript(entt::meta_any any, json& j, Entity entity)\n"
+		"		{\n"
+		"			auto typeData = entt::resolve_type(any.type().id());\n"
+		"			\n"
+		"			int size = j[\"Size\"];\n"
+		"			auto typeName = debugNames.find(any.type().id())->second;\n"
+		"			json compJson;\n"
+		"			compJson[typeName] = {};\n"
+		"			compJson[typeName][\"Entity\"] = entity.GetID();\n"
+		"\n"
+		"			for (auto data : typeData.data())\n"
+		"			{\n"
+		"				auto name = debugNames.find(data.id());\n"
+		"				auto type = debugNames.find(data.type().id());\n"
+		"				if (name == debugNames.end() && type == debugNames.end())\n"
+		"					continue;\n"
+		"\n"
+		"				if (data.type().is_floating_point())\n"
+		"				{\n"
+		"					entt::meta_handle handle = entt::meta_handle(any);\n"
+		"					float val = data.get(handle).cast<float>();\n"
+		"					compJson[typeName][name->second] = val;\n"
+		"				}\n"
+		"				else if (data.type().is_integral())\n"
+		"				{\n"
+		"					entt::meta_handle handle = entt::meta_handle(any);\n"
+		"					int val = data.get(handle).cast<int>();\n"
+		"					compJson[typeName][name->second] = val;\n"
+		"				}\n"
+		"			}\n"
+		"\n"
+		"			j[\"Components\"][size] = compJson;\n"
+		"			j[\"Size\"] = size + 1;\n"
+		"		}\n"
+		"\n";
+
+		// Save Scripts function
+		file << "\t\tvoid SaveScripts(json& j, entt::registry& registry)\n";
+		file << "\t\t{\n";
+
+		for (auto uclass : m_Classes)
+		{
+			file << "\t\t\t{\n";
+
+			file << "\t\t\t\tauto view = registry.view<" << uclass.m_ClassName.c_str() << ">();\n";
+			file << "\t\t\t\tfor (auto entity : view)\n";
+			file << "\t\t\t\t{\n";
+			file << "\t\t\t\t\tauto comp = registry.get<" << uclass.m_ClassName.c_str() << ">(entity);\n";
+			file << "\t\t\t\t\tentt::meta_any any = { comp };\n";
+			file << "\t\t\t\t\tSaveScript(any, j, Entity(entity));\n";
+			file << "\t\t\t\t}\n";
+
+			file << "\t\t\t}\n";
+		}
+
+		file << "\t\t}\n";
+
+		// Load Script function
+		file << "\n"
+			"		void LoadScript(entt::meta_any any, json& j)\n"
+			"		{\n"
+			"			auto typeData = entt::resolve_type(any.type().id());\n"
+			"			auto typeName = debugNames.find(any.type().id())->second;\n"
+			"\n"
+			"			for (auto data : typeData.data())\n"
+			"			{\n"
+			"				auto name = debugNames.find(data.id());\n"
+			"				auto type = debugNames.find(data.type().id());\n"
+			"				if (name == debugNames.end() && type == debugNames.end())\n"
+			"					continue;\n"
+			"\n"
+			"				if (data.type().is_floating_point())\n"
+			"				{\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					data.set(handle, j[typeName][name->second]);\n"
+			"				}\n"
+			"				else if (data.type().is_integral())\n"
+			"				{\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					data.set(handle, j[typeName][name->second]);\n"
+			"				}\n"
+			"			}\n"
+			"		}\n"
+			"\n";
+
+		// Try Load Script function
+		file << "\t\tvoid TryLoad(json& j, Entity entity, entt::registry& registry)\n";
+		file << "\t\t{\n";
+		file << "\t\t\tjson::iterator it = j.begin();\n";
+		file << "\t\t\tentt::entity e = entity.GetRawEntity();\n";
+		file << "\t\t\tif (!registry.valid(e))\n";
+		file << "\t\t\t{\n";
+		file << "\t\t\t\te = registry.create(e);\n";
+		file << "\t\t\t}\n";
+		file << "\n";
+
+		i = 0;
+		for (auto uclass : m_Classes)
+		{
+			if (i == 0)
+				file << "\t\t\tif";
+			else
+				file << "\t\t\telse if";
+
+			file << " (it.key() == \"" << uclass.m_ClassName.c_str() << "\")\n";
+			file << "\t\t\t{\n";
+			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = registry.emplace<" << uclass.m_ClassName.c_str() << ">(e);\n";
+			file << "\t\t\t\tLoadScript({ comp }, j);\n";
+			file << "\t\t\t}\n";
+
+			i++;
+		}
+
+		file << "\t\t}\n";
+
+		// ImGuiAny function
+		file << "\n"
+			"		void ImGuiAny(entt::meta_any any, entt::entity entity)\n"
+			"		{\n"
+			"			auto typeData = entt::resolve_type(any.type().id());\n"
+			"			auto typeName = debugNames.find(any.type().id())->second;\n"
+			"\n"
+			"			for (auto data : typeData.data())\n"
+			"			{\n"
+			"				auto name = debugNames.find(data.id());\n"
+			"				auto type = debugNames.find(data.type().id());\n"
+			"				if (name == debugNames.end() && type == debugNames.end())\n"
+			"					continue;\n"
+			"\n"
+			"				if (data.type().is_floating_point())\n"
+			"				{\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					float val = data.get(handle).cast<float>();\n"
+			"					ImGui::DragFloat(name->second, &val, 0.1f);\n"
+			"					data.set(handle, val);\n"
+			"				}\n"
+			"				else if (data.type().is_integral())\n"
+			"				{\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					int val = data.get(handle).cast<int>();\n"
+			"					ImGui::DragInt(name->second, &val);\n"
+			"					data.set(handle, val);\n"
+			"				}\n"
+			"			}\n"
+			"		}\n"
+			"\n";
+
+		// ImGui function
+		file << "\t\tvoid ImGui(Entity entity, entt::registry& registry)\n";
+		file << "\t\t{\n";
+		file << "\t\t\tentt::entity e = entity.GetRawEntity();\n";
+		file << "\t\t\tif (!registry.valid(e)) return;\n";
+
+		i = 0;
+		for (auto uclass : m_Classes)
+		{
+			file << "\t\t\tif (registry.has<" << uclass.m_ClassName.c_str() << ">(e))\n";
+			file << "\t\t\t{\n";
+			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = registry.get<" << uclass.m_ClassName.c_str() << ">(e);\n";
+			file << "\t\t\t\tImGuiAny({ comp }, e);\n";
+			file << "\t\t\t}\n";
+
+			i++;
+		}
+
+		file << "\t\t}\n";
+
+		// Delete Scripts function
+		file << "\t\tvoid DeleteScripts(entt::registry& registry)\n";
+		file << "\t\t{\n";
+
+		for (auto uclass : m_Classes)
+		{
+			file << "\t\t\t{\n";
+
+			file << "\t\t\t\tregistry.clear<" << uclass.m_ClassName.c_str() << ">();\n";
+
+			file << "\t\t\t}\n";
+		}
+
 		file << "\t\t}\n";
 
 		// Tabs function

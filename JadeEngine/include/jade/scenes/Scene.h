@@ -28,6 +28,7 @@ namespace Jade
 		void Stop();
 		void Save(const JPath& filename);
 		void Load(const JPath& filename);
+		void LoadScriptsOnly(const JPath& filename);
 		void Reset();
 
 		Entity CreateEntity();

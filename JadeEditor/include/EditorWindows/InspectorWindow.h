@@ -19,6 +19,11 @@ namespace Jade
 		static Entity GetActiveEntity();
 
 		// =====================================================================
+		// Script components
+		// =====================================================================
+		static void ImGuiScriptComponents(ScriptSystem* scriptSystem);
+
+		// =====================================================================
 		// Basic components
 		// =====================================================================
 		static void ImGuiTransform(Transform& transform);

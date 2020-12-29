@@ -27,11 +27,14 @@ namespace Jade
 	static JPath tmpScriptDll;
 	static JPath scriptDll;
 
+	static bool initImGui = false;
+
 	void LevelEditorSystem::Start()
 	{
 		tmpScriptDll = Settings::General::s_EngineExeDirectory + JPath("ScriptModuleTmp.dll");
 		scriptDll = Settings::General::s_EngineExeDirectory + JPath("ScriptModule.dll");
 		auto view = m_Scene->GetRegistry().view<Transform>();
+		initImGui = false;
 		for (Entity entity : view)
 		{
 			//Transform& transform = entity.GetComponent<Transform>();
@@ -54,11 +57,30 @@ namespace Jade
 
 	void LevelEditorSystem::EditorUpdate(float dt)
 	{
+		if (!initImGui)
+		{
+			if (m_ScriptSystem->m_InitImGui)
+			{
+				m_ScriptSystem->m_InitImGui(ImGui::GetCurrentContext());
+			}
+			initImGui = true;
+		}
+
 		if (IFile::IsFile(tmpScriptDll))
 		{
+			m_Scene->Save(Settings::General::s_CurrentScene);
+			EditorLayer::SaveProject();
 			m_ScriptSystem->FreeScriptLibrary();
-			IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule.dll");
+
+			IFile::DeleteFile(scriptDll);
+			IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule");
 			m_ScriptSystem->Reload();
+			if (m_ScriptSystem->m_InitImGui)
+			{
+				m_ScriptSystem->m_InitImGui(ImGui::GetCurrentContext());
+			}
+			m_Scene->LoadScriptsOnly(Settings::General::s_CurrentScene);
+
 			IFile::DeleteFile(tmpScriptDll);
 		}
 
