@@ -31,6 +31,7 @@ namespace Jade
 		static std::vector<JPath> GetFoldersInDir(const JPath& directory) { return Get()->ImplGetFoldersInDir(directory); }
 		static void CreateDirIfNotExists(const JPath& directory) { Get()->ImplCreateDirIfNotExists(directory); }
 		static bool IsFile(const JPath& filepath) { return Get()->ImplIsFile(filepath); }
+		static bool IsHidden(const JPath& filepath) { return Get()->ImplIsHidden(filepath); }
 		static bool IsDirectory(const JPath& directory) { return Get()->ImplIsDirectory(directory); }
 		static JPath GetAbsolutePath(const JPath& path) { return Get()->ImplGetAbsolutePath(path); }
 
@@ -51,6 +52,7 @@ namespace Jade
 		virtual std::vector<JPath> ImplGetFoldersInDir(const JPath& directory) = 0;
 		virtual void ImplCreateDirIfNotExists(const JPath& directory) = 0;
 		virtual bool ImplIsFile(const JPath& filepath) = 0;
+		virtual bool ImplIsHidden(const JPath& filepath) = 0;
 		virtual bool ImplIsDirectory(const JPath& filepath) = 0;
 		virtual JPath ImplGetAbsolutePath(const JPath& path) = 0;
 		
@@ -85,6 +87,7 @@ namespace Jade
 		virtual std::vector<JPath> ImplGetFoldersInDir(const JPath& directory) override;
 		virtual void ImplCreateDirIfNotExists(const JPath& directory) override;
 		virtual bool ImplIsFile(const JPath& filepath) override;
+		virtual bool ImplIsHidden(const JPath& filepath) override;
 		virtual bool ImplIsDirectory(const JPath& filepath) override;
 		virtual JPath ImplGetAbsolutePath(const JPath& path) override;
 

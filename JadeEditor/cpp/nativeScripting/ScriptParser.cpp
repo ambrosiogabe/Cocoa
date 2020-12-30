@@ -482,6 +482,7 @@ namespace Jade
 			{
 				Expect(TokenType::LEFT_PAREN);
 				Expect(TokenType::RIGHT_PAREN);
+				Match(TokenType::SEMICOLON);
 				Expect(TokenType::STRUCT_KW);
 				ParseStruct();
 			}
@@ -489,6 +490,7 @@ namespace Jade
 			{
 				Expect(TokenType::LEFT_PAREN);
 				Expect(TokenType::RIGHT_PAREN);
+				Match(TokenType::SEMICOLON);
 				Expect(TokenType::CLASS_KW);
 				ParseClass();
 			}
@@ -503,7 +505,19 @@ namespace Jade
 	void ScriptParser::ParseClass()
 	{
 		Token classType = Expect(TokenType::IDENTIFIER);
-		Expect(TokenType::LEFT_BRACKET);
+
+		if (Match(TokenType::COLON))
+		{
+			while (!Match(TokenType::LEFT_BRACKET)) 
+			{
+				m_CurrentToken++;
+				m_CurrentIter++;
+			}
+		}
+		else
+		{
+			Expect(TokenType::LEFT_BRACKET);
+		}
 
 		UClass clazz = UClass{ classType.m_Lexeme, m_FullFilepath, std::list<UVariable>() };
 
@@ -517,7 +531,7 @@ namespace Jade
 			else if (Match(TokenType::RIGHT_BRACKET))
 			{
 				level--;
-				if (level <= 1)
+				if (level <= 0)
 				{
 					Expect(TokenType::SEMICOLON);
 					break;
@@ -528,6 +542,7 @@ namespace Jade
 				Expect(TokenType::LEFT_PAREN);
 				Match(TokenType::IDENTIFIER); // Consume any EditAnywhere type thing, it doesn't do anything for now...
 				Expect(TokenType::RIGHT_PAREN);
+				Match(TokenType::SEMICOLON); // Consume a semicolon if it is there, this is to help with indentation
 				clazz.m_Variables.push_back(ParseVariable());
 			}
 			else
@@ -568,6 +583,7 @@ namespace Jade
 				Expect(TokenType::LEFT_PAREN);
 				Match(TokenType::IDENTIFIER); // Consume any EditAnywhere type thing, it doesn't do anything for now...
 				Expect(TokenType::RIGHT_PAREN);
+				Match(TokenType::SEMICOLON); // Consume a semicolon if it is there, this is to help with indentation
 				structure.m_Variables.push_back(ParseVariable());
 			}
 			// TODO: This might need another else statement like class parser

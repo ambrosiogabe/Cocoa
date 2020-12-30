@@ -40,7 +40,7 @@ namespace Jade
 		void Parse();
 
 		bool CanGenerateHeaderFile() const { return m_Structs.size() != 0 || m_Classes.size() != 0; }
-		const std::vector<UClass>& GetClasses() { return m_Classes; }
+		std::vector<UClass>& GetClasses() { return m_Classes; }
 
 	private:
 		void ParseClass();

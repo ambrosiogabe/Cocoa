@@ -17,6 +17,7 @@ namespace Jade
 	static JPath projectPremakeLua = "";
 	static auto classes = std::vector<UClass>();
 	static bool fileModified = false;
+	static bool runningPremake = false;
 
 	SourceFileWatcher::SourceFileWatcher(JPath rootDirectory)
 		: m_RootDirectory(rootDirectory)
@@ -29,9 +30,9 @@ namespace Jade
 		return classes;
 	}
 
-	static bool IsHeaderFile(const JPath& file)
+	static bool IsSourceFile(const JPath& file)
 	{
-		return strcmp(file.FileExt(), ".h") == 0;
+		return strcmp(file.FileExt(), ".h") == 0 || strcmp(file.FileExt(), ".hpp") == 0 || strcmp(file.FileExt(), ".cpp") == 0 || strcmp(file.FileExt(), ".c") == 0;
 	}
 
 	static bool IsReflectionHeaderFile(const JPath& file)
@@ -56,82 +57,89 @@ namespace Jade
 		classes.push_back(clazz);
 	}
 
-	static void ProcessFile(JPath& file, JPath generatedDirPath, bool generateHeaders = true)
+	static std::vector<UClass>::iterator FindClass(UClass& c, std::vector<UClass>& classesToSearch)
 	{
-		if (!IFile::IsFile(file) || strcmp(file.FileExt(), ".TMP") == 0)
+		for (auto classIter = classesToSearch.begin(); classIter != classesToSearch.end(); classIter++)
 		{
-			return;
+			if (classIter->m_ClassName == c.m_ClassName)
+			{
+				return classIter;
+			}
 		}
+
+		return classesToSearch.end();
+	}
+
+	static void MergeNewClasses(std::vector<UClass>& classesToMerge, const JPath& filepath)
+	{
+		for (auto clazz : classesToMerge)
+		{
+			auto c = FindClass(clazz, classes);
+			if (c != classes.end())
+			{
+				c->m_ClassName = clazz.m_ClassName;
+				c->m_FullFilepath = clazz.m_FullFilepath;
+				c->m_Variables = clazz.m_Variables;
+			}
+			else
+			{
+				classes.push_back(clazz);
+			}
+		}
+
+		for (auto classIter = classes.begin(); classIter != classes.end(); classIter++)
+		{
+			if (classIter->m_FullFilepath == filepath)
+			{
+				if (FindClass(*classIter, classesToMerge) == classesToMerge.end())
+				{
+					classIter = classes.erase(classIter);
+				}
+			}
+		}
+	}
+
+	static bool ProcessFile(JPath& file, JPath generatedDirPath)
+	{
+		if (!IFile::IsFile(file) || file.Contains("generated") || IFile::IsHidden(file) || !IsSourceFile(file))
+		{
+			return false;
+		}
+		IFile::CreateDirIfNotExists(generatedDirPath);
 
 		ScriptScanner fileScanner = ScriptScanner(file);
 		std::vector<Token> fileTokens = fileScanner.ScanTokens();
 		ScriptParser fileParser = ScriptParser(fileTokens, file);
 		fileParser.Parse();
-		// fileParser.DebugPrint();
+		MergeNewClasses(fileParser.GetClasses(), file);
 
-		if (fileParser.CanGenerateHeaderFile())
-		{
-			auto newClasses = fileParser.GetClasses();
-			for (auto clazz : newClasses)
-			{
-				AddClassIfNotExist(clazz);
-			}
+		JPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");
+		IFile::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
 
-			if (generateHeaders)
-			{
-				JPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");
-				IFile::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
-				Log::Info("Generating file at %s", path.Filepath());
-
-				CodeGenerators::GenerateInitFile(classes, rootDir + "generated" + "init.h");
-				IFile::WriteFile("#include \"init.h\"\n", rootDir + "generated" + "init.cpp");
-				Log::Info("Generating init file at %s", (rootDir + "generated" + "init-tmp.h").Filepath());
-				RunPremake();
-			}
-		}
+		CodeGenerators::GenerateInitFile(classes, rootDir + "generated" + "init.h");
+		IFile::WriteFile("#include \"init.h\"\n", rootDir + "generated" + "init.cpp");
+		return true;
 	}
 
-	static void Preprocess(const JPath& directoryPath)
-	{
-		if (directoryPath.Contains("generated"))
-		{
-			// Return if we are in /generated path
-			return;
-		}
-
-		JPath generatedDirPath = directoryPath + "generated";
-		for (JPath& file : IFile::GetFilesInDir(generatedDirPath))
-		{
-			if (IsHeaderFile(file) && !IsReflectionHeaderFile(file))
-			{
-				IFile::CreateDirIfNotExists(generatedDirPath);
-
-				ProcessFile(file, generatedDirPath);
-			}
-		}
-
-		for (JPath& directory : IFile::GetFoldersInDir(generatedDirPath))
-		{
-			if (directory.Contains("generated"))
-			{
-				Preprocess(directory);
-			}
-		}
-	}
 
 	static void RunPremake()
 	{
-		JPath pathToPremake = Settings::General::s_EngineExeDirectory + "premake5.exe";
-		std::string cmdArgs = "vs2019 --file=\"" + std::string(projectPremakeLua.Filepath()) + "\"";
-		IFile::RunProgram(pathToPremake, cmdArgs);
+		if (!runningPremake)
+		{
+			runningPremake = true;
+			JPath pathToPremake = Settings::General::s_EngineExeDirectory + "premake5.exe";
+			std::string cmdArgs = "vs2019 --file=\"" + std::string(projectPremakeLua.Filepath()) + "\"";
+			IFile::RunProgram(pathToPremake, cmdArgs);
+			runningPremake = false;
+		}
 	}
 
 	static void FileChanged(const JPath& file)
 	{
-		if (!file.Contains("generated"))
+		JPath generatedDirPath = file.GetDirectory(-1) + "generated";
+		if (ProcessFile(rootDir + JPath(file), rootDir + generatedDirPath))
 		{
-			JPath generatedDirPath = file.GetDirectory(-1) + "generated";
-			ProcessFile(rootDir + JPath(file), rootDir + generatedDirPath);
+			RunPremake();
 		}
 	}
 
@@ -144,9 +152,10 @@ namespace Jade
 		}
 
 		auto files = IFile::GetFilesInDir(directory);
+		JPath generatedDir = directory + "generated";
 		for (auto file : files)
 		{
-			ProcessFile(file, directory, false);
+			ProcessFile(file, generatedDir);
 		}
 	}
 
@@ -158,14 +167,15 @@ namespace Jade
 			return;
 		}
 		rootDir = m_RootDirectory;
-		Log::Info("Monitoring directory '%s'", m_RootDirectory.Filepath());
+		Log::Log("Monitoring directory '%s'", m_RootDirectory.Filepath());
 
 		projectPremakeLua = JPath(m_RootDirectory.GetDirectory(-1)) + "/premake5.lua";
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
-		Log::Info("Generating premake file %s", projectPremakeLua.Filepath());
-		RunPremake();
-		Log::Info("Generating initial class information");
+
+		Log::Log("Generating initial class information");
 		GenerateInitialClassInformation(m_RootDirectory);
+		Log::Log("Generating premake file %s", projectPremakeLua.Filepath());
+		RunPremake();
 
 		m_FileWatcher.m_Path = m_RootDirectory;
 		m_FileWatcher.m_NotifyFilters = NotifyFilters::LastAccess

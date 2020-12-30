@@ -39,7 +39,6 @@ namespace Jade
 			source << "#include \"jade/core/Core.h\"\n";
 			source << "#include \"jade/util/Log.h\"\n";
 			source << "#include \"jade/core/Entity.h\"\n";
-			//source << "#include \"jade/scenes/Scene.h\"\n";
 
 			const std::filesystem::path base = filepath.GetDirectory(-1);
 			for (auto clazz : classes)
@@ -49,7 +48,6 @@ namespace Jade
 
 				std::string genFilename = clazz.m_FullFilepath.GetFilenameWithoutExt() + "-generated" + clazz.m_FullFilepath.FileExt();
 				const std::filesystem::path otherGenPath = (JPath(clazz.m_FullFilepath.GetDirectory(-1)) + JPath("generated") + genFilename).Filepath();
-				Log::Info("%s", (JPath(clazz.m_FullFilepath.GetDirectory(-1)) + JPath("generated") + clazz.m_FullFilepath.Filename()).Filepath());
 				source << "#include \"" << std::filesystem::relative(otherGenPath, base).generic_string().c_str() << "\"\n";
 			}
 

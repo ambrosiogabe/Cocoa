@@ -268,7 +268,6 @@ namespace Jade
 			else
 			{
 				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
-				Log::Info("Deserializing entity %s id %d", it.key().c_str(), entity.GetID());
 				scriptSystem->Deserialize(component, entity);
 			}
 		}
@@ -302,7 +301,6 @@ namespace Jade
 			if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB")
 			{
 				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
-				Log::Info("Deserializing entity %s id %d", it.key().c_str(), entity.GetID());
 				scriptSystem->Deserialize(component, entity);
 			}
 		}

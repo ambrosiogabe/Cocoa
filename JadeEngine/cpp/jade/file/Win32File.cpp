@@ -202,6 +202,11 @@ namespace Jade
 		return !IsDirectory(filepath);
 	}
 
+	bool Win32File::ImplIsHidden(const JPath& filepath)
+	{
+		return (GetFileAttributesA(filepath.Filepath()) & FILE_ATTRIBUTE_HIDDEN);
+	}
+
 	bool Win32File::ImplIsDirectory(const JPath& filepath)
 	{
 		return (GetFileAttributesA(filepath.Filepath()) & FILE_ATTRIBUTE_DIRECTORY);

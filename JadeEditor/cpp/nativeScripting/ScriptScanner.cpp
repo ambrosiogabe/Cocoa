@@ -15,7 +15,7 @@ namespace Jade
 
 	std::vector<Token> ScriptScanner::ScanTokens()
 	{
-		Log::Info("Scanning file '%s'", m_Filepath.Filepath());
+		Log::Log("Scanning file '%s'", m_Filepath.Filepath());
 		auto tokens = std::vector<Token>();
 
 		m_Cursor = 0;
@@ -48,6 +48,7 @@ namespace Jade
 		case '}': return GenerateToken(TokenType::RIGHT_BRACKET, "}");
 		case ';': return GenerateToken(TokenType::SEMICOLON, ";");
 		case '=': return GenerateToken(TokenType::EQUAL, "=");
+		case ':': return GenerateToken(TokenType::COLON, ":");
 		case '"': return String();
 			// Whitespace
 		case '/':

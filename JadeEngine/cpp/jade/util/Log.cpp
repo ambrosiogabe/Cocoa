@@ -3,9 +3,26 @@
 #include "jade/util/Log.h"
 #include "jade/core/Application.h"
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 namespace Jade {
+    void Log::_Log(const char* filename, int line, const char* format, ...)
+    {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN);
+        printf("%s (line %d) Log: \n", filename, line);
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x0F);
+        printf("-> ");
+
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+
+        printf("\n");
+    }
+
     void Log::_Info(const char* filename, int line, const char* format, ...) {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN);
         printf("%s (line %d) Info: \n", filename, line);
