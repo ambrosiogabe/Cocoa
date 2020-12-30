@@ -247,7 +247,7 @@ namespace Jade
 
 		// Load Script function
 		file << "\n"
-			"		void LoadScript(entt::meta_any any, json& j)\n"
+			"		void LoadScript(entt::meta_any any, entt::meta_handle handle, json& j)\n"
 			"		{\n"
 			"			auto typeData = entt::resolve_type(any.type().id());\n"
 			"			auto typeName = debugNames.find(any.type().id())->second;\n"
@@ -261,12 +261,10 @@ namespace Jade
 			"\n"
 			"				if (data.type().is_floating_point())\n"
 			"				{\n"
-			"					entt::meta_handle handle = entt::meta_handle(any);\n"
 			"					data.get(handle).cast<float>() = j[typeName][name->second];\n"
 			"				}\n"
 			"				else if (data.type().is_integral())\n"
 			"				{\n"
-			"					entt::meta_handle handle = entt::meta_handle(any);\n"
 			"					data.get(handle).cast<int>() = j[typeName][name->second];\n"
 			"				}\n"
 			"			}\n"
@@ -295,7 +293,7 @@ namespace Jade
 			file << " (it.key() == \"" << uclass.m_ClassName.c_str() << "\")\n";
 			file << "\t\t\t{\n";
 			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = registry.emplace<" << uclass.m_ClassName.c_str() << ">(e);\n";
-			file << "\t\t\t\tLoadScript({ comp }, j);\n";
+			file << "\t\t\t\tLoadScript({ comp }, comp, j);\n";
 			file << "\t\t\t}\n";
 
 			i++;

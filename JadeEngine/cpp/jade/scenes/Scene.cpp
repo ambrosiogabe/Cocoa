@@ -137,6 +137,7 @@ namespace Jade
 
 	void Scene::Save(const JPath& filename)
 	{
+		Log::Info("Saving scene for %s", filename.Filepath());
 		m_SaveDataJson = {
 			{"Size", 0},
 			{"Components", {}},
@@ -206,6 +207,7 @@ namespace Jade
 	void Scene::Load(const JPath& filename)
 	{
 		Reset();
+		Log::Info("Loading scene %s", filename.Filepath());
 
 		Settings::General::s_CurrentScene = filename;
 		File* file = IFile::OpenFile(filename);
@@ -292,6 +294,7 @@ namespace Jade
 			}
 		}
 
+		Log::Info("Loading scripts only for %s", filename.Filepath());
 		json j = json::parse(file->m_Data);
 		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
 		for (int i = 0; i < size; i++)
