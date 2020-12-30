@@ -41,6 +41,10 @@ project "JadeEditor"
         "Box2D",
     }
 
+    defines {
+        "ENTT_API_IMPORT"
+    }
+
     filter { "system:windows", "configurations:Debug" }
         buildoptions "/MDd"        
 
@@ -52,12 +56,14 @@ project "JadeEditor"
 
         postbuildcommands {
             "xcopy /s /e /q /y /i \"$(SolutionDir)\\%{prj.name}\\assets\" \"$(SolutionDir)\\%{fullOutputDir}\\assets\" > nul",
-            "copy \"$(SolutionDir)\\vendor\\premake\\premake5.exe\" \"$(SolutionDir)\\%{fullOutputDir}\\premake5.exe\""
+            "copy \"$(SolutionDir)\\vendor\\premake\\premake5.exe\" \"$(SolutionDir)\\%{fullOutputDir}\\premake5.exe\"",
+            "copy /y \"$(SolutionDir)\\JadeEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.dll\" \"$(OutDir)\\ImGui.dll\"",
+            "copy /y \"$(SolutionDir)\\JadeEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.lib\" \"$(OutDir)\\ImGui.lib\"",
+            "copy /y \"$(SolutionDir)\\JadeEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.pdb\" \"$(OutDir)\\ImGui.pdb\""
         }
 
         defines {
-            "_JADE_PLATFORM_WINDOWS",
-            "ENTT_API_IMPORT"
+            "_JADE_PLATFORM_WINDOWS"
         }
 
     filter "configurations:Debug"
