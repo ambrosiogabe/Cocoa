@@ -146,7 +146,7 @@ namespace Jade
 
 			for (auto var : ustruct.m_Variables)
 			{
-				file << "\t\t\t\t.data<&" << ustruct.m_StructName.c_str() << "::" << var.m_Identifier.c_str() << ">(ids[" << id << "])\n";
+				file << "\t\t\t\t.data<&" << ustruct.m_StructName.c_str() << "::" << var.m_Identifier.c_str() << ", entt::as_ref_t>(ids[" << id << "])\n";
 				id++;
 			}
 			file << "\t\t\t\t.type();\n\n";
@@ -160,7 +160,7 @@ namespace Jade
 
 			for (auto var : uclass.m_Variables)
 			{
-				file << "\t\t\t\t.data<&" << uclass.m_ClassName.c_str() << "::" << var.m_Identifier.c_str() << ">(ids[" << id << "])\n";
+				file << "\t\t\t\t.data<&" << uclass.m_ClassName.c_str() << "::" << var.m_Identifier.c_str() << ", entt::as_ref_t>(ids[" << id << "])\n";
 				id++;
 			}
 			file << "\t\t\t\t.type();\n\n";
@@ -262,12 +262,12 @@ namespace Jade
 			"				if (data.type().is_floating_point())\n"
 			"				{\n"
 			"					entt::meta_handle handle = entt::meta_handle(any);\n"
-			"					data.set(handle, j[typeName][name->second]);\n"
+			"					data.get(handle).cast<float>() = j[typeName][name->second];\n"
 			"				}\n"
 			"				else if (data.type().is_integral())\n"
 			"				{\n"
 			"					entt::meta_handle handle = entt::meta_handle(any);\n"
-			"					data.set(handle, j[typeName][name->second]);\n"
+			"					data.get(handle).cast<int>() = j[typeName][name->second];\n"
 			"				}\n"
 			"			}\n"
 			"		}\n"
@@ -305,7 +305,7 @@ namespace Jade
 
 		// ImGuiAny function
 		file << "\n"
-			"		void ImGuiAny(entt::meta_any any, entt::entity entity)\n"
+			"		void ImGuiAny(entt::meta_any any, entt::meta_handle handle)\n"
 			"		{\n"
 			"			auto typeData = entt::resolve_type(any.type().id());\n"
 			"			auto typeName = debugNames.find(any.type().id())->second;\n"
@@ -322,17 +322,13 @@ namespace Jade
 			"\n"
 			"					if (data.type().is_floating_point())\n"
 			"					{\n"
-			"						entt::meta_handle handle = entt::meta_handle(any);\n"
-			"						float val = data.get(handle).cast<float>();\n"
+			"						float& val = data.get(handle).cast<float>();\n"
 			"						JImGui::UndoableDragFloat(name->second, val);\n"
-			"						data.set(handle, val);\n"
 			"					}\n"
 			"					else if (data.type().is_integral())\n"
 			"					{\n"
-			"						entt::meta_handle handle = entt::meta_handle(any);\n"
-			"						int val = data.get(handle).cast<int>();\n"
+			"						int& val = data.get(handle).cast<int>();\n"
 			"						JImGui::UndoableDragInt(name->second, val);\n"
-			"						data.set(handle, val);\n"
 			"					}\n"
 			"				}\n"
 			"				JImGui::EndCollapsingHeaderGroup();\n"
@@ -352,7 +348,7 @@ namespace Jade
 			file << "\t\t\tif (registry.has<" << uclass.m_ClassName.c_str() << ">(e))\n";
 			file << "\t\t\t{\n";
 			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = registry.get<" << uclass.m_ClassName.c_str() << ">(e);\n";
-			file << "\t\t\t\tImGuiAny({ comp }, e);\n";
+			file << "\t\t\t\tImGuiAny({ comp }, comp);\n";
 			file << "\t\t\t}\n";
 
 			i++;
