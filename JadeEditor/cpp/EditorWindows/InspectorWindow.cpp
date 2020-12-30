@@ -148,7 +148,6 @@ namespace Jade
 	void InspectorWindow::ImGuiTransform(Transform& transform)
 	{
 		static bool collapsingHeaderOpen = true;
-		ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 		if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
 		{
 			JImGui::BeginCollapsingHeaderGroup();
@@ -166,7 +165,6 @@ namespace Jade
 	void InspectorWindow::ImGuiSpriteRenderer(SpriteRenderer& spr)
 	{
 		static bool collapsingHeaderOpen = true;
-		ImGui::SetNextTreeNodeOpen(collapsingHeaderOpen);
 		if (ImGui::CollapsingHeader("Sprite Renderer"))
 		{
 			JImGui::BeginCollapsingHeaderGroup();
