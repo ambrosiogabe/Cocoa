@@ -124,19 +124,19 @@ namespace Jade
 
 	void GizmoSystem::ImGui()
 	{
-		ImGui::Begin("Gizmo debug");
-		ImGui::DragFloat2("Free Move Offset:", &m_FreeMove.m_Offset[0]);
-		ImGui::DragFloat2("Free Move HalfSize: ", &m_FreeMove.m_HalfSize[0]);
-		ImGui::DragFloat2("Free Move BBHalfSize: ", &m_FreeMove.m_Box2D.m_HalfSize[0]);
+		//ImGui::Begin("Gizmo debug");
+		//ImGui::DragFloat2("Free Move Offset:", &m_FreeMove.m_Offset[0]);
+		//ImGui::DragFloat2("Free Move HalfSize: ", &m_FreeMove.m_HalfSize[0]);
+		//ImGui::DragFloat2("Free Move BBHalfSize: ", &m_FreeMove.m_Box2D.m_HalfSize[0]);
 
-		ImGui::DragFloat2("HzMove Offset:", &m_HzMove.m_Offset[0]);
-		ImGui::DragFloat2("HzMove HalfSize: ", &m_HzMove.m_HalfSize[0]);
-		ImGui::DragFloat2("HzMove BBHalfSize: ", &m_HzMove.m_Box2D.m_HalfSize[0]);
+		//ImGui::DragFloat2("HzMove Offset:", &m_HzMove.m_Offset[0]);
+		//ImGui::DragFloat2("HzMove HalfSize: ", &m_HzMove.m_HalfSize[0]);
+		//ImGui::DragFloat2("HzMove BBHalfSize: ", &m_HzMove.m_Box2D.m_HalfSize[0]);
 
-		ImGui::DragFloat2("VtMove Offset:", &m_VtMove.m_Offset[0]);
-		ImGui::DragFloat2("VtMove HalfSize: ", &m_VtMove.m_HalfSize[0]);
-		ImGui::DragFloat2("VtMove BBHalfSize: ", &m_VtMove.m_Box2D.m_HalfSize[0]);
-		ImGui::End();
+		//ImGui::DragFloat2("VtMove Offset:", &m_VtMove.m_Offset[0]);
+		//ImGui::DragFloat2("VtMove HalfSize: ", &m_VtMove.m_HalfSize[0]);
+		//ImGui::DragFloat2("VtMove BBHalfSize: ", &m_VtMove.m_Box2D.m_HalfSize[0]);
+		//ImGui::End();
 	}
 
 	void GizmoSystem::EditorUpdate(float dt)

@@ -111,6 +111,7 @@ namespace Jade
 		std::vector<Token> fileTokens = fileScanner.ScanTokens();
 		ScriptParser fileParser = ScriptParser(fileTokens, file);
 		fileParser.Parse();
+		fileParser.DebugPrint();
 		MergeNewClasses(fileParser.GetClasses(), file);
 
 		JPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");

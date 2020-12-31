@@ -100,7 +100,7 @@ namespace Jade
 
 	Token ScriptScanner::PropertyIdentifier()
 	{
-		while (IsAlphaNumeric(Peek())) Advance();
+		while (IsAlphaNumeric(Peek()) || Peek() == '_') Advance();
 
 		std::string text = m_FileContents.substr(m_Start, m_Cursor - m_Start);
 		TokenType type = TokenType::IDENTIFIER;
