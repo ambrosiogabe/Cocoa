@@ -1,7 +1,0 @@
-assemblies_dir=/cygdrive/d/j/workspace/build-package-win-mono/2019-12/packaging/Windows/tmp/mono/lib/mono
-Libraries=${assemblies_dir}/gac/Mono.Cecil/0.9.5.0__0738eb9f132ed756/Mono.Cecil.dll
-
-Name: Mono Internal -- Do not use.
-Description: Mono Internal Libraries -- Do not use 
-Version: 6.10.0
-Libs: -r:Mono.Cecil.dll
