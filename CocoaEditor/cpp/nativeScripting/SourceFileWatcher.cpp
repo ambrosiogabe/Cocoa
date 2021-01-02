@@ -175,7 +175,7 @@ namespace Cocoa
 			return;
 		}
 		rootDir = m_RootDirectory;
-		Log::Log("Monitoring directory '%s'", m_RootDirectory.Filepath());
+		Log::Log("Monitoring directory '%s'", IFile::GetAbsolutePath(m_RootDirectory.Filepath()).Filepath());
 
 		projectPremakeLua = CPath(m_RootDirectory.GetDirectory(-1)) + "/premake5.lua";
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);

@@ -114,7 +114,7 @@ namespace Cocoa
 	{
 		if (!(CreateDirectoryA(directory.Filepath(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 		{
-			Log::Assert(false, "Failed to create directory %s", directory);
+			Log::Assert(false, "Failed to create directory %s", directory.Filepath());
 		}
 	}
 
@@ -199,17 +199,20 @@ namespace Cocoa
 
 	bool Win32File::ImplIsFile(const CPath& filepath)
 	{
-		return !IsDirectory(filepath);
+		DWORD fileAttributes = GetFileAttributesA(filepath.Filepath());
+		return (fileAttributes != INVALID_FILE_ATTRIBUTES) && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
 	bool Win32File::ImplIsHidden(const CPath& filepath)
 	{
-		return (GetFileAttributesA(filepath.Filepath()) & FILE_ATTRIBUTE_HIDDEN);
+		DWORD fileAttributes = GetFileAttributesA(filepath.Filepath());
+		return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_HIDDEN);
 	}
 
 	bool Win32File::ImplIsDirectory(const CPath& filepath)
 	{
-		return (GetFileAttributesA(filepath.Filepath()) & FILE_ATTRIBUTE_DIRECTORY);
+		DWORD fileAttributes = GetFileAttributesA(filepath.Filepath());
+		return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
 	bool Win32File::ImplRunProgram(const CPath& pathToExe, const char* cmdArguments)

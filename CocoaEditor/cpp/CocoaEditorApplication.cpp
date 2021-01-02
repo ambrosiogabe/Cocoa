@@ -131,6 +131,7 @@ namespace Cocoa
 				std::string winTitle = std::string(Settings::General::s_CurrentProject.Filename()) + " -- " + std::string(Settings::General::s_CurrentScene.Filename());
 				Application::Get()->GetWindow()->SetTitle(winTitle.c_str());
 
+				
 				static_cast<CocoaEditor*>(Application::Get())->SetProjectLoaded();
 				return true;
 			}

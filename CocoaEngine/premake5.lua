@@ -62,6 +62,7 @@ project "CocoaEngine"
 		}
 
 		postbuildcommands {
+			"if not exist \"$(OutDir)..\\CocoaEditor\" mkdir \"$(OutDir)..\\CocoaEditor\"",
 			"copy /y \"$(OutDir)CocoaEngine.dll\" \"$(OutDir)..\\CocoaEditor\\CocoaEngine.dll\"",
 			"copy /y \"$(SolutionDir)CocoaEngine\\vendor\\GLFW\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\GLFW\\GLFW.dll\" \"$(OutDir)..\\CocoaEditor\\GLFW.dll\""
 		}
