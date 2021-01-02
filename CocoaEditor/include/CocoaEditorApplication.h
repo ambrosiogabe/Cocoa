@@ -57,7 +57,7 @@ namespace Cocoa
 		virtual void Init() override;
 		virtual void Shutdown() override;
 
-		const EditorLayer* GetEditorLayer() { return m_EditorLayer; }
+		EditorLayer* GetEditorLayer() { return m_EditorLayer; }
 
 		static bool IsProjectLoaded()
 		{

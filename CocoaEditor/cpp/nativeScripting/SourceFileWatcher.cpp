@@ -30,9 +30,9 @@ namespace Cocoa
 		return classes;
 	}
 
-	static bool IsSourceFile(const CPath& file)
+	static bool IsHeaderFile(const CPath& file)
 	{
-		return strcmp(file.FileExt(), ".h") == 0 || strcmp(file.FileExt(), ".hpp") == 0 || strcmp(file.FileExt(), ".cpp") == 0 || strcmp(file.FileExt(), ".c") == 0;
+		return strcmp(file.FileExt(), ".h") == 0 || strcmp(file.FileExt(), ".hpp") == 0;
 	}
 
 	static bool IsReflectionHeaderFile(const CPath& file)
@@ -108,7 +108,7 @@ namespace Cocoa
 
 	static bool ProcessFile(CPath& file, CPath generatedDirPath)
 	{
-		if (!IFile::IsFile(file) || file.Contains("generated") || IFile::IsHidden(file) || !IsSourceFile(file))
+		if (!IFile::IsFile(file) || file.Contains("generated") || IFile::IsHidden(file) || !IsHeaderFile(file))
 		{
 			return false;
 		}

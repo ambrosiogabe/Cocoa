@@ -37,11 +37,12 @@ namespace Cocoa
 	{
 		Settings::General::s_CurrentProject = projectPath + (std::string(filename) + ".cprj");
 		Settings::General::s_CurrentScene = projectPath + "scenes" + "NewScene.cocoa";
+		Settings::General::s_WorkingDirectory = Settings::General::s_CurrentProject.GetDirectory(-1);
 
 		json saveData = {
 			{"ProjectPath", Settings::General::s_CurrentProject.Filepath()},
 			{"CurrentScene", Settings::General::s_CurrentScene.Filepath()},
-			{"WorkingDirectory", Settings::General::s_CurrentProject.GetDirectory(-1) }
+			{"WorkingDirectory", Settings::General::s_WorkingDirectory.Filepath() }
 		};
 
 		IFile::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
@@ -52,6 +53,7 @@ namespace Cocoa
 		CocoaEditor* application = (CocoaEditor*)Application::Get();
 		application->GetEditorLayer()->m_Scene->Reset();
 		application->GetEditorLayer()->m_Scene->Save(Settings::General::s_CurrentScene);
+		application->GetEditorLayer()->m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(projectPath + "scripts");
 		SaveEditorData();
 
 		return true;
@@ -131,7 +133,7 @@ namespace Cocoa
 				std::string winTitle = std::string(Settings::General::s_CurrentProject.Filename()) + " -- " + std::string(Settings::General::s_CurrentScene.Filename());
 				Application::Get()->GetWindow()->SetTitle(winTitle.c_str());
 
-				
+				application->GetEditorLayer()->m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(Settings::General::s_WorkingDirectory + "scripts");
 				static_cast<CocoaEditor*>(Application::Get())->SetProjectLoaded();
 				return true;
 			}
@@ -159,8 +161,6 @@ namespace Cocoa
 		IFile::CopyFile(Settings::General::s_EngineAssetsPath + "defaultCodeFiles" + "DefaultScript.cpp", IFile::GetSpecialAppFolder() + "CocoaEngine", "DefaultScript");
 
 		LoadEditorData(Settings::General::s_EditorSaveData);
-
-		m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(Settings::General::s_WorkingDirectory + "scripts");
 	}
 
 	void EditorLayer::OnUpdate(float dt)
