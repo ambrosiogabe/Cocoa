@@ -9,7 +9,7 @@ namespace Cocoa
 	class DefaultScript : public Script
 	{
 	public:
-		virtual void Start(float dt) override;
+		virtual void Start() override;
 		virtual void Update(float dt) override;
 
 	public:

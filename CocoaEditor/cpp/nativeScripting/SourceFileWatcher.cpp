@@ -118,7 +118,6 @@ namespace Cocoa
 		std::vector<Token> fileTokens = fileScanner.ScanTokens();
 		ScriptParser fileParser = ScriptParser(fileTokens, file);
 		fileParser.Parse();
-		fileParser.DebugPrint();
 		MergeNewClasses(fileParser.GetClasses(), file);
 
 		CPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");

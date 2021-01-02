@@ -168,10 +168,10 @@ namespace Cocoa
 			ImGui::PopID();
 		}
 
-		if (IconButton(ICON_FA_PLUS, "New Script", m_ButtonSize))
+		if (IconButton(ICON_FA_PLUS, "DefaultScript", m_ButtonSize))
 		{
-			char newScriptName[32] = "New Script ";
-			snprintf(&newScriptName[11], 32 - 12, "%d", scriptCount);
+			char newScriptName[32] = "DefaultScript";
+			snprintf(&newScriptName[13], 32 - 13, "%d", scriptCount);
 			std::string scriptName = newScriptName;
 			IFile::CopyFile(IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.cpp", CPath(Settings::General::s_CurrentProject.GetDirectory(-1)) + "scripts", newScriptName);
 			IFile::CopyFile(IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.h", CPath(Settings::General::s_CurrentProject.GetDirectory(-1)) + "scripts", newScriptName);
