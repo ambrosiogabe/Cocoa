@@ -41,6 +41,8 @@ namespace Cocoa
 
 		bool CanGenerateHeaderFile() const { return m_Structs.size() != 0 || m_Classes.size() != 0; }
 		std::vector<UClass>& GetClasses() { return m_Classes; }
+		
+		static std::string GetFilenameAsClassName(std::string filename);
 
 	private:
 		void ParseClass();

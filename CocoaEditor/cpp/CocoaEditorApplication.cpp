@@ -13,6 +13,10 @@
 #include <glad/glad.h>
 #include <nlohmann/json.hpp>
 
+#ifdef CopyFile
+#undef CopyFile
+#endif
+
 namespace Cocoa
 {
 	// ===================================================================================
@@ -146,6 +150,15 @@ namespace Cocoa
 
 		Settings::General::s_EditorSaveData = IFile::GetSpecialAppFolder() + "CocoaEngine" + Settings::General::s_EditorSaveData;
 		Settings::General::s_EditorStyleData = IFile::GetSpecialAppFolder() + "CocoaEngine" + Settings::General::s_EditorStyleData;
+		
+		// Copy default script files to the assets path if they aren't already
+		CPath scriptHFile = IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.h";
+		CPath scriptCppFile = IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.cpp";
+		if (!IFile::IsFile(scriptHFile) || !IFile::IsFile(scriptCppFile))
+		{
+			IFile::CopyFile(Settings::General::s_EngineAssetsPath + "defaultCodeFiles" + "DefaultScript.h", IFile::GetSpecialAppFolder() + "CocoaEngine", "DefaultScript");
+			IFile::CopyFile(Settings::General::s_EngineAssetsPath + "defaultCodeFiles" + "DefaultScript.cpp", IFile::GetSpecialAppFolder() + "CocoaEngine", "DefaultScript");
+		}
 
 		LoadEditorData(Settings::General::s_EditorSaveData);
 

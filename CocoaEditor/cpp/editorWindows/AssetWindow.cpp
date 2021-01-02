@@ -35,6 +35,9 @@ namespace Cocoa
 		case AssetView::SceneBrowser:
 			ShowSceneBrowser();
 			break;
+		case AssetView::ScriptBrowser:
+			ShowScriptBrowser();
+			break;
 		default:
 			Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
 			break;
@@ -147,6 +150,31 @@ namespace Cocoa
 			m_Scene->Save(Settings::General::s_CurrentScene);
 			CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
 			editor->GetEditorLayer()->SaveProject();
+		}
+	}
+
+	void AssetWindow::ShowScriptBrowser()
+	{
+		auto scriptFiles = IFile::GetFilesInDir(Settings::General::s_WorkingDirectory + "scripts");
+		int scriptCount = 0;
+		for (auto script : scriptFiles)
+		{
+			ImGui::PushID(scriptCount++);
+			if (IconButton(ICON_FA_FILE, script.Filename(), m_ButtonSize))
+			{
+				Log::Warning("TODO: Create a way to load a script in visual studio.");
+			}
+			ImGui::SameLine();
+			ImGui::PopID();
+		}
+
+		if (IconButton(ICON_FA_PLUS, "New Script", m_ButtonSize))
+		{
+			char newScriptName[32] = "New Script ";
+			snprintf(&newScriptName[11], 32 - 12, "%d", scriptCount);
+			std::string scriptName = newScriptName;
+			IFile::CopyFile(IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.cpp", CPath(Settings::General::s_CurrentProject.GetDirectory(-1)) + "scripts", newScriptName);
+			IFile::CopyFile(IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.h", CPath(Settings::General::s_CurrentProject.GetDirectory(-1)) + "scripts", newScriptName);
 		}
 	}
 }

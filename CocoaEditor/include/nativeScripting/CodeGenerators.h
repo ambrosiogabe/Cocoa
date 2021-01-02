@@ -37,9 +37,9 @@ namespace Cocoa
 			std::ostringstream source;
 
 			source << "#pragma once\n";
-			source << "#include \"jade/core/Core.h\"\n";
-			source << "#include \"jade/util/Log.h\"\n";
-			source << "#include \"jade/core/Entity.h\"\n";
+			source << "#include \"cocoa/core/Core.h\"\n";
+			source << "#include \"cocoa/util/Log.h\"\n";
+			source << "#include \"cocoa/core/Entity.h\"\n";
 
 			const std::filesystem::path base = filepath.GetDirectory(-1);
 			for (auto clazz : classes)
@@ -57,14 +57,14 @@ namespace Cocoa
 			source << "#include <entt/entt.hpp>\n";
 			source << "#include <nlohmann/json.hpp>\n\n";
 
-			source << "extern \"C\" namespace Jade\n";
+			source << "extern \"C\" namespace Cocoa\n";
 			source << "{\n";
 			source << "\textern \"C\" namespace Init\n";
 			source << "\t{\n";
 			source << "\t\tentt::registry registry = entt::registry();\n\n";
 
 			// AddComponent function
-			source << "\t\textern \"C\" JADE_SCRIPT void AddComponent(std::string className, entt::entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void AddComponent(std::string className, entt::entity entity)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tif (!registry.valid(entity))\n";
 			source << "\t\t\t{\n";
@@ -77,7 +77,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz)) 
 				{
-					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\tfor (auto strClass : " << namespaceName.c_str() << "::stringToMap)\n";
 					source << "\t\t\t{\n";
 					source << "\t\t\t\tif (strClass.first == className)\n";
@@ -95,7 +95,7 @@ namespace Cocoa
 			source << "\t\t}\n\n";
 
 			// Generate UpdateScripts function
-			source << "\t\textern \"C\" JADE_SCRIPT void UpdateScripts(float dt, Scene* scene)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void UpdateScripts(float dt, Scene* scene)\n";
 			source << "\t\t{\n";
 			for (auto clazz : classes)
 			{
@@ -112,7 +112,7 @@ namespace Cocoa
 
 			// Generate EditorUpdateScripts function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void EditorUpdateScripts(float dt, Scene* scene)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void EditorUpdateScripts(float dt, Scene* scene)\n";
 			source << "\t\t{\n";
 			for (auto clazz : classes)
 			{
@@ -129,7 +129,7 @@ namespace Cocoa
 
 			// Generate SaveScript function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void SaveScripts(json& j)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void SaveScripts(json& j)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Saving scripts\");\n";
 			numVisited = 0;
@@ -137,7 +137,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registry);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -148,14 +148,14 @@ namespace Cocoa
 
 			// Generate Load Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void LoadScript(json& j, Entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void LoadScript(json& j, Entity entity)\n";
 			source << "\t\t{\n";
 			numVisited = 0;
 			for (auto clazz : classes)
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::TryLoad(j, entity, registry);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -166,7 +166,7 @@ namespace Cocoa
 
 			// Generate Init Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void InitScripts()\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void InitScripts()\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Initializing scripts\");\n";
 
@@ -175,7 +175,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::Init();\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -186,7 +186,7 @@ namespace Cocoa
 
 			// Generate Init ImGui function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void InitImGui(ImGuiContext* ctx)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void InitImGui(ImGuiContext* ctx)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Initializing ImGui\");\n";
 			source << "\t\t\tImGui::SetCurrentContext(ctx);\n";
@@ -194,7 +194,7 @@ namespace Cocoa
 
 			// Generate ImGui function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void ImGui(Entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void ImGui(Entity entity)\n";
 			source << "\t\t{\n";
 
 			numVisited = 0;
@@ -202,7 +202,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registry);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -213,7 +213,7 @@ namespace Cocoa
 
 			// Generate Delete Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" JADE_SCRIPT void DeleteScripts()\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void DeleteScripts()\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Deleting Scripts\");\n";
 
@@ -222,7 +222,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + clazz.m_FullFilepath.GetFilenameWithoutExt();
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts(registry);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;

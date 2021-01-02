@@ -4,6 +4,37 @@
 
 namespace Cocoa
 {
+	static bool IsAlpha(char c)
+	{
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+	}
+	static bool IsAlphaNumeric(char c)
+	{
+		return IsAlpha(c) || (c >= '0' && c <= '9');
+	}
+
+	static bool IsVariableFriendly(char c)
+	{
+		return IsAlphaNumeric(c) || c == '_';
+	}
+
+	std::string ScriptParser::GetFilenameAsClassName(std::string filename)
+	{
+		for (int i = 0; i < filename.length(); i++)
+		{
+			if (i == 0 && !IsAlpha(filename[i]))
+			{
+				filename[i] = '_';
+			}
+			else if (!IsVariableFriendly(filename[i]))
+			{
+				filename[i] = '_';
+			}
+		}
+
+		return filename;
+	}
+
 	std::string ScriptParser::GenerateHeaderFile()
 	{
 		std::ostringstream file;
@@ -16,8 +47,8 @@ namespace Cocoa
 		file << "#include \"ImGuiExtended.h\"\n";
 		file << "#include \"../" << m_FullFilepath.GetFilenameWithoutExt() << ".h\"\n\n";
 
-		file << "namespace Jade{\n";
-		file << "\tnamespace Reflect" << m_FullFilepath.GetFilenameWithoutExt() << " \n\t{\n";
+		file << "namespace Cocoa\n{\n";
+		file << "\tnamespace Reflect" << GetFilenameAsClassName(m_FullFilepath.GetFilenameWithoutExt()) << " \n\t{\n";
 
 		file << "\t\tbool initialized = false;\n\n";
 
@@ -312,7 +343,7 @@ namespace Cocoa
 			"\n"
 			"			if (ImGui::CollapsingHeader(typeName))\n"
 			"			{\n"
-			"				JImGui::BeginCollapsingHeaderGroup();\n"
+			"				CImGui::BeginCollapsingHeaderGroup();\n"
 			"				for (auto data : typeData.data())\n"
 			"				{\n"
 			"					auto name = debugNames.find(data.id());\n"
@@ -323,15 +354,15 @@ namespace Cocoa
 			"					if (data.type().is_floating_point())\n"
 			"					{\n"
 			"						float& val = data.get(handle).cast<float>();\n"
-			"						JImGui::UndoableDragFloat(name->second, val);\n"
+			"						CImGui::UndoableDragFloat(name->second, val);\n"
 			"					}\n"
 			"					else if (data.type().is_integral())\n"
 			"					{\n"
 			"						int& val = data.get(handle).cast<int>();\n"
-			"						JImGui::UndoableDragInt(name->second, val);\n"
+			"						CImGui::UndoableDragInt(name->second, val);\n"
 			"					}\n"
 			"				}\n"
-			"				JImGui::EndCollapsingHeaderGroup();\n"
+			"				CImGui::EndCollapsingHeaderGroup();\n"
 			"			}\n"
 			"		}\n"
 			"\n";
