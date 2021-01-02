@@ -1,22 +1,18 @@
-[submodule "JadeEngine/vendor/GLFW"]
-	path = JadeEngine/vendor/GLFW
+[submodule "CocoaEngine/vendor/GLFW"]
+	path = CocoaEngine/vendor/GLFW
 	url = https://github.com/ambrosiogabe/glfw
-[submodule "JadeEngine/vendor/PhysX"]
-	path = JadeEngine/vendor/PhysX
-	url = https://github.com/ambrosiogabe/PhysX
-[submodule "JadeEngine/vendor/box2DVendor"]
-	path = JadeEngine/vendor/box2DVendor
+[submodule "CocoaEngine/vendor/box2DVendor"]
+	path = CocoaEngine/vendor/box2DVendor
 	url = https://github.com/ambrosiogabe/box2d
-[submodule "JadeEngine/vendor/nlohmann-json"]
-	path = JadeEngine/vendor/nlohmann-json
+[submodule "CocoaEngine/vendor/nlohmann-json"]
+	path = CocoaEngine/vendor/nlohmann-json
 	url = https://github.com/ambrosiogabe/json
-[submodule "JadeEngine/vendor/enttVendor"]
-	path = JadeEngine/vendor/enttVendor
+[submodule "CocoaEngine/vendor/enttVendor"]
+	path = CocoaEngine/vendor/enttVendor
 	url = https://github.com/skypjack/entt
-[submodule "JadeEngine/vendor/glmVendor"]
-	path = JadeEngine/vendor/glmVendor
+[submodule "CocoaEngine/vendor/glmVendor"]
+	path = CocoaEngine/vendor/glmVendor
 	url = https://github.com/g-truc/glm
-[submodule "JadeEngine/vendor/imguiVendor"]
-	path = JadeEngine/vendor/imguiVendor
+[submodule "CocoaEngine/vendor/imguiVendor"]
+	path = CocoaEngine/vendor/imguiVendor
 	url = https://github.com/ambrosiogabe/imgui
-	branch = docking
