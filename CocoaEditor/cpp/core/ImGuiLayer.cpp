@@ -1,18 +1,14 @@
-#include "externalLibs.h"
-#include "cocoa/core/Core.h"
-
-#include "ImGuiLayer.h"
-#include "AssetWizard.h"
-#include "EditorWindows/InspectorWindow.h"
-#include "EditorWindows/SceneHeirarchyWindow.h"
-#include "Gui/ImGuiExtended.h"
-#include "Util/Settings.h"
-#include "FontAwesome.h"
+#include "core/ImGuiLayer.h"
+#include "core/CocoaEditorApplication.h"
+#include "editorWindows/InspectorWindow.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
+#include "gui/ImGuiExtended.h"
+#include "gui/FontAwesome.h"
+#include "util/Settings.h"
 
 #include "cocoa/file/IFile.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"
-#include "CocoaEditorApplication.h"
 #include "cocoa/util/JsonExtended.h"
 
 #include <examples/imgui_impl_glfw.h>
@@ -121,7 +117,6 @@ namespace Cocoa
 		{
 			SetupDockspace();
 			RenderGameViewport();
-			AssetWizard::ImGui();
 			m_AssetWindow.ImGui();
 			InspectorWindow::ImGui();
 			SceneHeirarchyWindow::ImGui();

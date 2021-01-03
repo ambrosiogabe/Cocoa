@@ -1,7 +1,7 @@
 #pragma once
-#include "Gui/ImGuiExtended.h"
-#include "CocoaEditorApplication.h"
-#include "FontAwesome.h"
+#include "gui/ImGuiExtended.h"
+#include "gui/FontAwesome.h"
+#include "core/CocoaEditorApplication.h"
 
 #include "cocoa/core/CWindow.h"
 #include "cocoa/core/Application.h"
@@ -68,7 +68,7 @@ namespace Cocoa
 		if (CImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", s_ButtonSize) && !s_CreatingProject)
 		{
 			FileDialogResult res;
-			if (IFileDialog::GetOpenFileName("", res, { {"Jade Project", "*.jprj"} }))
+			if (IFileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 			{
 				if (!EditorLayer::LoadProject(CPath(res.filepath)))
 				{

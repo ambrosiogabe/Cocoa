@@ -1,9 +1,7 @@
-#include "externalLibs.h"
-
 #ifdef _COCOA_SCRIPT_DLL
 #include "ImGuiExtended.h"
 #else
-#include "Gui/ImGuiExtended.h"
+#include "gui/ImGuiExtended.h"
 #endif
 
 #include "cocoa/core/Core.h"

@@ -1,4 +1,5 @@
-#include "PickingTexture.h"
+#include "renderer/PickingTexture.h"
+
 #include "cocoa/util/Log.h"
 
 namespace Cocoa

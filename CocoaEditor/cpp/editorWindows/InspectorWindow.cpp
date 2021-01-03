@@ -1,12 +1,9 @@
-#pragma once
-#include "externalLibs.h"
-#include "cocoa/util/CMath.h"
-
-#include "EditorWindows/InspectorWindow.h"
-#include "Gui/ImGuiExtended.h"
-#include "FontAwesome.h"
+#include "editorWindows/InspectorWindow.h"
+#include "gui/ImGuiExtended.h"
+#include "gui/FontAwesome.h"
 #include "nativeScripting/SourceFileWatcher.h"
 
+#include "cocoa/util/CMath.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/physics2d/Physics2DSystem.h"

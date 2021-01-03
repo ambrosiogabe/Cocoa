@@ -1,5 +1,7 @@
 #pragma once
+#include "cocoa/core/Core.h"
 #include "externalLibs.h"
+
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/systems/System.h"

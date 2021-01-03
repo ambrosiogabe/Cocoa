@@ -1,11 +1,8 @@
-#include "externalLibs.h"
-#include "cocoa/core/Core.h"
-
-#include "ImGuiLayer.h"
-#include "MenuBar.h"
-#include "ProjectWizard.h"
-#include "CocoaEditorApplication.h"
-#include "Gui/ImGuiExtended.h"
+#include "editorWindows/MenuBar.h"
+#include "core/ImGuiLayer.h"
+#include "core/CocoaEditorApplication.h"
+#include "editorWindows/ProjectWizard.h"
+#include "gui/ImGuiExtended.h"
 
 #include "cocoa/core/Entity.h"
 #include "cocoa/file/IFileDialog.h"

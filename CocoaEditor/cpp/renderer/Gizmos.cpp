@@ -1,7 +1,7 @@
-#include "Gizmos.h"
-#include "CocoaEditorApplication.h"
-#include "PickingTexture.h"
-#include "EditorWindows/InspectorWindow.h"
+#include "renderer/Gizmos.h"
+#include "renderer/PickingTexture.h"
+#include "core/CocoaEditorApplication.h"
+#include "editorWindows/InspectorWindow.h"
 
 #include "cocoa/physics2d/Physics2DSystem.h"
 #include "cocoa/renderer/DebugDraw.h"

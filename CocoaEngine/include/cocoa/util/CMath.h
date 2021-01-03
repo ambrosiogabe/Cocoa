@@ -1,6 +1,14 @@
 #pragma once
 #include "externalLibs.h"
 
+// TODO: Find who's leaking min, max macros...
+#ifdef min 
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
 namespace Cocoa
 {
 	namespace CMath

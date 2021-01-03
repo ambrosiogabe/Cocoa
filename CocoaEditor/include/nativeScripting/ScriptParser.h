@@ -2,9 +2,9 @@
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "cocoa/file/CPath.h"
-
 #include "ScriptScanner.h"
+
+#include "cocoa/file/CPath.h"
 
 namespace Cocoa
 {

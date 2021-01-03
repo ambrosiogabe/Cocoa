@@ -1,16 +1,14 @@
 #pragma once
-
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
+
+#include "nativeScripting/ScriptParser.h"
 
 #include "cocoa/file/IFile.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/util/Settings.h"
 
-#include "nativeScripting/ScriptParser.h"
-
 #include <filesystem>
-#include <iostream>
 
 namespace Cocoa
 {

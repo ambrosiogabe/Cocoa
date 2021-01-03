@@ -1,8 +1,8 @@
-#include "EditorWindows/AssetWindow.h"
-#include "Gui/ImGuiExtended.h"
-#include "FontAwesome.h"
-#include "Util/Settings.h"
-#include "CocoaEditorApplication.h"
+#include "editorWindows/AssetWindow.h"
+#include "core/CocoaEditorApplication.h"
+#include "gui/FontAwesome.h"
+#include "gui/ImGuiExtended.h"
+#include "util/Settings.h"
 
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/file/IFile.h"

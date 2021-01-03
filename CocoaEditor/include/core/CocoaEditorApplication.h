@@ -1,6 +1,10 @@
-#include "LevelEditorSystem.h"
-#include "ProjectWizard.h"
-#include "PickingTexture.h"
+#pragma once
+#include "externalLibs.h"
+#include "cocoa/core/Core.h"
+
+#include "core/LevelEditorSystem.h"
+#include "renderer/PickingTexture.h"
+#include "editorWindows/ProjectWizard.h"
 
 #include "cocoa/core/Layer.h"
 #include "cocoa/core/Application.h"

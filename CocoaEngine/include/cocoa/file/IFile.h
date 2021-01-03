@@ -2,6 +2,17 @@
 #include "externalLibs.h"
 #include "cocoa/file/CPath.h"
 
+// TODO: Windows file leaking somewhere, figure out where so I don't have to do this...
+#ifdef CopyFile
+#undef CopyFile
+#endif
+#ifdef CreateFile
+#undef CreateFile
+#endif
+#ifdef DeleteFile
+#undef DeleteFile
+#endif
+
 namespace Cocoa
 {
 	struct File

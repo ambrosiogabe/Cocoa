@@ -1,4 +1,6 @@
 #pragma once
+#include "cocoa/core/Core.h"
+#include "externalLibs.h"
 
 #include "cocoa/systems/System.h"
 #include "cocoa/events/KeyEvent.h"

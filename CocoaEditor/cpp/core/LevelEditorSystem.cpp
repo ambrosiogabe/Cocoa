@@ -1,6 +1,10 @@
-#include "LevelEditorSystem.h"
-#include "Gui/ImGuiExtended.h"
+#include "core/LevelEditorSystem.h"
+#include "core/CocoaEditorApplication.h"
+#include "gui/FontAwesome.h"
+#include "gui/ImGuiExtended.h"
+#include "editorWindows/InspectorWindow.h"
 
+#include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/events/Input.h"
 #include "cocoa/commands/ICommand.h"
@@ -8,16 +12,8 @@
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/file/IFile.h"
-#include "FontAwesome.h"
-#include "CocoaEditorApplication.h"
-#include "EditorWindows/InspectorWindow.h"
-#include "cocoa/systems/ScriptSystem.h"
 
-#include <string>
 #include <imgui.h>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 
 #undef CopyFile;
 #undef DeleteFile;

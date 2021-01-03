@@ -1,6 +1,8 @@
 #pragma once
+#include "cocoa/core/Core.h"
+#include "externalLibs.h"
 
-#include "Gui/ImGuiExtended.h"
+#include "gui/ImGuiExtended.h"
 
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"

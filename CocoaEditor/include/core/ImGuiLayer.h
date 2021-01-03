@@ -1,8 +1,9 @@
 #pragma once
+#include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "MenuBar.h"
-#include "EditorWindows/AssetWindow.h"
+#include "editorWindows/MenuBar.h"
+#include "editorWindows/AssetWindow.h"
 
 #include "cocoa/core/Layer.h"
 

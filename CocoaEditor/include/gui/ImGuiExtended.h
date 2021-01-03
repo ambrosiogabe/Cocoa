@@ -1,10 +1,11 @@
 #pragma once
+#include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
 #ifdef _COCOA_SCRIPT_DLL
 #include "ImGuiHeader.h"
 #else
-#include "Gui/ImGuiHeader.h"
+#include "gui/ImGuiHeader.h"
 #endif
 
 #include "cocoa/util/Settings.h"
@@ -12,10 +13,6 @@
 #include "cocoa/renderer/Texture.h"
 
 #include <imgui.h>
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 namespace CImGui
 {

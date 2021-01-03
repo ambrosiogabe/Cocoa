@@ -1,4 +1,5 @@
 #pragma once
+#include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
 namespace Cocoa

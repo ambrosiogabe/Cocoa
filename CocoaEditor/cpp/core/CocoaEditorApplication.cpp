@@ -1,11 +1,12 @@
 #include "Cocoa.h"
-#include "Gui/ImGuiHeader.h"
-#include "EditorWindows/InspectorWindow.h"
+
+#include "core/CocoaEditorApplication.h"
+#include "core/LevelEditorSceneInitializer.h"
+#include "core/ImGuiLayer.h"
+#include "gui/ImGuiHeader.h"
+#include "editorWindows/InspectorWindow.h"
 #include "nativeScripting/SourceFileWatcher.h"
 
-#include "CocoaEditorApplication.h"
-#include "LevelEditorSceneInitializer.h"
-#include "ImGuiLayer.h"
 #include "cocoa/file/IFile.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/systems/RenderSystem.h"

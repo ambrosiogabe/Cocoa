@@ -1,13 +1,13 @@
 #include "nativeScripting/SourceFileWatcher.h"
 
-#include "cocoa/util/Log.h"
-#include "cocoa/file/IFile.h"
-#include "cocoa/util/Settings.h"
-
 #include "util/Settings.h"
 #include "nativeScripting/ScriptScanner.h"
 #include "nativeScripting/ScriptParser.h"
 #include "nativeScripting/CodeGenerators.h"
+
+#include "cocoa/util/Log.h"
+#include "cocoa/file/IFile.h"
+#include "cocoa/util/Settings.h"
 
 namespace Cocoa
 {

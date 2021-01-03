@@ -1,9 +1,9 @@
-#include "EditorWindows/SceneHeirarchyWindow.h"
-#include "Gui/ImGuiExtended.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
+#include "gui/ImGuiExtended.h"
+#include "gui/FontAwesome.h"
 
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
-#include "FontAwesome.h"
 
 namespace Cocoa
 {

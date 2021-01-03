@@ -1,4 +1,6 @@
 #pragma once
+#include "cocoa/core/Core.h"
+#include "externalLibs.h"
 
 #include "cocoa/util/Settings.h"
 #include "cocoa/scenes/Scene.h"

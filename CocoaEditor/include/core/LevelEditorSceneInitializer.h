@@ -1,5 +1,7 @@
 #pragma once
 #include "cocoa/core/Core.h"
+#include "externalLibs.h"
+
 #include "cocoa/scenes/SceneInitializer.h"
 
 #include "cocoa/systems/System.h"

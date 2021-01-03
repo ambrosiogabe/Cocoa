@@ -1,7 +1,7 @@
-#include "LevelEditorSceneInitializer.h"
+#include "core/LevelEditorSceneInitializer.h"
 
-#include "Gizmos.h"
-#include "LevelEditorSystem.h"
+#include "renderer/Gizmos.h"
+#include "core/LevelEditorSystem.h"
 #include "editorWindows/InspectorWindow.h"
 
 #include "cocoa/scenes/Scene.h"

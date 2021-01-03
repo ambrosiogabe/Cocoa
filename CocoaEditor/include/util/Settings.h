@@ -1,6 +1,9 @@
 #pragma once
+#include "cocoa/core/Core.h"
 #include "externalLibs.h"
-#include "Gui/ImGuiHeader.h"
+
+#include "gui/ImGuiHeader.h"
+
 #include "cocoa/file/CPath.h"
 
 namespace Cocoa
