@@ -40,5 +40,12 @@ namespace Cocoa
 		COCOA json Serialize(const std::string& name, const glm::vec2& vec);
 		COCOA glm::vec2 DeserializeVec2(const json& json);
 		COCOA glm::vec2 DeserializeVec2(const json& json, bool& success);
+
+		// Map Ranges
+		COCOA float MapRange(float val, float inMin, float inMax, float outMin, float outMax);
+
+		// Max, Min impls
+		COCOA int Max(int a, int b);
+		COCOA int Min(int a, int b);
 	}
 }

@@ -13,7 +13,7 @@ project "CocoaEngine"
 		"include/**.h",
 		"../%{prj.name}/vendor/glmVendor/glm/**.hpp",
 		"../%{prj.name}/vendor/glmVendor/glm/**.inl",
-        "../%{prj.name}/vendor/nlohmann-json/single_include/**.hpp"
+        "../%{prj.name}/vendor/nlohmann-json/single_include/**.hpp",
 	}
 
     disablewarnings { 
@@ -38,13 +38,15 @@ project "CocoaEngine"
         "../%{IncludeDir.stb}",
         "../%{IncludeDir.entt}",
         "../%{IncludeDir.Json}",
+		"../%{IncludeDir.Freetype}"
 	}
 
 	links {
 		"GLFW",
         "opengl32.lib",
         "Glad",
-        "Box2D"
+        "Box2D",
+		"Freetype"
 	}
 
     filter { "system:windows", "configurations:Debug" }

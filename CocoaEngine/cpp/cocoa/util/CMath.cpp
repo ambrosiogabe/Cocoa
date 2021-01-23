@@ -149,5 +149,20 @@ namespace Cocoa
 			success = !j["X"].is_null() && !j["Y"].is_null();
 			return DeserializeVec2(j);
 		}
+
+		float MapRange(float val, float inMin, float inMax, float outMin, float outMax)
+		{
+			return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+		}
+
+		int Max(int a, int b)
+		{
+			return a > b ? a : b;
+		}
+
+		int Min(int a, int b)
+		{
+			return a < b ? a : b;
+		}
 	}
 }

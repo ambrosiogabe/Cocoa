@@ -5,7 +5,6 @@
 #include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/physics2d/Physics2DSystem.h"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 namespace Cocoa

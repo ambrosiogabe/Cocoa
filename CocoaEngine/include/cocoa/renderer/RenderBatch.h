@@ -3,6 +3,7 @@
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/renderer/TextureHandle.h"
+#include "cocoa/renderer/FontHandle.h"
 
 namespace Cocoa
 {
@@ -22,6 +23,7 @@ namespace Cocoa
 
         void Clear();
         void Start();
+        void Add(FontHandle font, const std::string& text, const Transform& transform, int zIndex);
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
         void Add(const glm::vec2* vertices, const glm::vec3& color);
