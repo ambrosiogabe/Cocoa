@@ -83,6 +83,11 @@ namespace Cocoa
 		LoadVertexProperties(transform, spr);
 	}
 
+	void RenderBatch::Add(FontHandle font, const std::string& text, const Transform& transform, int zIndex)
+	{
+		
+	}
+
 	void RenderBatch::Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color)
 	{
 		m_NumSprites++;

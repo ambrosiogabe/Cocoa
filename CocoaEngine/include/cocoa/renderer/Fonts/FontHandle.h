@@ -2,7 +2,7 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/renderer/Font.h"
+#include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/core/AssetManager.h"
 
 namespace Cocoa

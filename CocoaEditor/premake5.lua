@@ -29,7 +29,7 @@ project "CocoaEditor"
         "../%{IncludeDir.Box2D}",
         "../%{IncludeDir.Json}",
         "../%{IncludeDir.GLFW}",
-        "../%{IncludeDir.Mono}",
+        "../%{IncludeDir.Freetype}",
     }
 
     links {
@@ -39,6 +39,7 @@ project "CocoaEditor"
         "opengl32.lib",
         "Glad",
         "Box2D",
+        "Freetype"
     }
 
     defines {

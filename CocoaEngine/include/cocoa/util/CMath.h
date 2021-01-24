@@ -47,5 +47,6 @@ namespace Cocoa
 		// Max, Min impls
 		COCOA int Max(int a, int b);
 		COCOA int Min(int a, int b);
+		COCOA float Saturate(float val);
 	}
 }

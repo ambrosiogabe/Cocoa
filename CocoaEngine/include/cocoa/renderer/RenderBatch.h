@@ -3,7 +3,7 @@
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/renderer/TextureHandle.h"
-#include "cocoa/renderer/FontHandle.h"
+#include "cocoa/renderer/fonts/FontHandle.h"
 
 namespace Cocoa
 {

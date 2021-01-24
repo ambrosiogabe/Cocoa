@@ -33,6 +33,7 @@ namespace Cocoa
 		Font testFont = Font(CPath("C:/Windows/Fonts/ariblk.ttf"));
 		testFont.Load();
 		testFont.Unload();
-		FontUtil::CreateSdfFontTexture(Settings::General::s_EngineExeDirectory + "font.png");
+		CharInfo characterMap['z' + 1];
+		FontUtil::CreateSdfFontTexture("C:/Windows/Fonts/ariblk.ttf", 32, characterMap, 'z' + 1, 5, 256);
 	}
 }

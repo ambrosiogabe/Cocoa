@@ -164,5 +164,12 @@ namespace Cocoa
 		{
 			return a < b ? a : b;
 		}
+
+		float Saturate(float val)
+		{
+			return val < 0 ? 0 :
+				val > 1 ? 1 :
+				val;
+		}
 	}
 }
