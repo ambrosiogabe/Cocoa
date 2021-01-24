@@ -1,4 +1,4 @@
-#include "cocoa/renderer/FontHandle.h"
+#include "cocoa/renderer/fonts/FontHandle.h"
 
 namespace Cocoa
 {

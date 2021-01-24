@@ -8,7 +8,7 @@
 #include "cocoa/systems/ScriptSystem.h"
 
 // TODO: TESTING REMOVE THESE INCLUDES
-#include "cocoa/renderer/Font.h"
+#include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/Fonts/FontUtil.h"
 
 namespace Cocoa
@@ -34,6 +34,6 @@ namespace Cocoa
 		testFont.Load();
 		testFont.Unload();
 		CharInfo characterMap['z' + 1];
-		FontUtil::CreateSdfFontTexture("C:/Windows/Fonts/ariblk.ttf", 32, characterMap, 'z' + 1, 5, 256);
+		FontUtil::CreateSdfFontTexture("C:/Windows/Fonts/ariblk.ttf", 32, characterMap, 'z' + 1, "sdfOutput.png", 5, 256);
 	}
 }

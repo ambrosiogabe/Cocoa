@@ -30,51 +30,6 @@ namespace Cocoa
 			Log::Warning("Attempted to load font with non-existent file: '%s'", m_Path.Filepath());
 			return;
 		}
-
-		File* file = IFile::OpenFile(m_Path);
-		if (file->m_Data.size() <= 0)
-		{
-			Log::Warning("Attempted to load font with no data: '%s'", m_Path.Filepath());
-			return;
-		}
-
-		json j = json::parse(file->m_Data);
-		if (j["CharacterMap"].is_array())
-		{
-			int size = j["CharacterMap"].size();
-			m_CharacterMap = (CharInfo*)malloc(sizeof(CharInfo) * size);
-			m_CharacterMapSize = size;
-			for (int i=0; i < size; i++)
-			{
-				json& component = j["CharacterMap"][i];
-				CharInfo& info = m_CharacterMap[i];
-				info.ux0 = component["ux0"];
-				info.uy0 = component["uy0"];
-				info.ux1 = component["ux1"];
-				info.uy1 = component["uy1"];
-				info.advance = component["advance"];
-				info.bearingX = component["bearingX"];
-				info.bearingY = component["bearingY"];
-				info.chScaleX = component["chScaleX"];
-				info.chScaleY = component["chScaleY"];
-			}
-		}
-
-		if (j["TexturePath"].is_string())
-		{
-			CPath texturePath = std::string(j["TexturePath"]);
-			m_FontTexture = AssetManager::LoadTextureFromFile(texturePath);
-		}
-
-		if (j["GlyphRangeStart"].is_number_integer())
-		{
-			m_GlyphRangeStart = j["GlyphRangeStart"];
-		}
-
-		if (j["GlyphRangeEnd"].is_number_integer())
-		{
-			m_GlyphRangeEnd = j["GlyphRangeEnd"];
-		}
 	}
 
 	const CharInfo& Font::GetCharacterInfo(int codepoint)
