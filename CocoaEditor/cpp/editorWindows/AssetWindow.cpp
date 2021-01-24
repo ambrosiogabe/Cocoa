@@ -71,11 +71,11 @@ namespace Cocoa
 		return res;
 	}
 
-	bool AssetWindow::ImageButton(Texture* texture, const char* label, const glm::vec2& size)
+	bool AssetWindow::ImageButton(const Texture& texture, const char* label, const glm::vec2& size)
 	{
 		ImGui::BeginGroup();
 		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-		bool res = CImGui::ImageButton(*texture, size);
+		bool res = CImGui::ImageButton(texture, size);
 		ImGui::PopFont();
 
 		ImVec2 textSize = ImGui::CalcTextSize(label);
@@ -87,17 +87,19 @@ namespace Cocoa
 
 	void AssetWindow::ShowTextureBrowser()
 	{
-		std::vector<std::shared_ptr<Texture>> textures = AssetManager::GetAllAssets<Texture>(AssetManager::GetScene());
-		for (auto tex : textures)
+		const std::vector<Texture>& textures = AssetManager::GetAllTextures();
+		int i = -1;
+		for (auto& tex : textures)
 		{
-			if (tex->IsDefault())
+			i++;
+			if (tex.IsDefault())
 			{
 				continue;
 			}
 
-			int texResourceId = tex->GetResourceId();
+			int texResourceId = i;
 			ImGui::PushID(texResourceId);
-			if (ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize))
+			if (ImageButton(tex, tex.GetFilepath().Filename(), m_ButtonSize))
 			{
 				//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 			}
@@ -105,7 +107,7 @@ namespace Cocoa
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
 				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
-				ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize);
+				ImageButton(tex, tex.GetFilepath().Filename(), m_ButtonSize);
 				ImGui::EndDragDropSource();
 			}
 			ImGui::SameLine();

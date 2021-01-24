@@ -5,7 +5,7 @@
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/systems/System.h"
-#include "cocoa/renderer/TextureHandle.h"
+#include "cocoa/core/Handle.h"
 
 namespace Cocoa
 {
@@ -70,7 +70,7 @@ namespace Cocoa
         bool HandleMouseScroll(MouseScrolledEvent& e);
 
     private:
-        TextureHandle m_Texture = TextureHandle::null;
+        Handle<Texture> m_Texture = {};
         std::unique_ptr<Spritesheet> m_Spritesheet = nullptr;
 
         bool m_MouseDragging = false;

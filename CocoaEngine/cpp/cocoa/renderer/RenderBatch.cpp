@@ -4,6 +4,7 @@
 #include "cocoa/components/components.h"
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Application.h"
+#include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
 {
@@ -22,7 +23,7 @@ namespace Cocoa
 
 		for (int i = 0; i < m_Textures.size(); i++)
 		{
-			m_Textures[i] = TextureHandle::null;
+			m_Textures[i] = {};
 		}
 
 		m_VAO = -1;
@@ -70,8 +71,8 @@ namespace Cocoa
 		m_NumSprites++;
 
 		const Sprite& sprite = spr.m_Sprite;
-		TextureHandle tex = sprite.m_Texture;
-		if (tex != TextureHandle::null)
+		Handle<Texture> tex = sprite.m_Texture;
+		if (!tex.IsNull())
 		{
 			if (!HasTexture(tex))
 			{
@@ -83,7 +84,7 @@ namespace Cocoa
 		LoadVertexProperties(transform, spr);
 	}
 
-	void RenderBatch::Add(FontHandle font, const std::string& text, const Transform& transform, int zIndex)
+	void RenderBatch::Add(Handle<Font> font, const std::string& text, const Transform& transform, int zIndex)
 	{
 		
 	}
@@ -122,7 +123,7 @@ namespace Cocoa
 		LoadVertexProperties(vertices, &texCoords[0], vec4Color, texId);
 	}
 
-	void RenderBatch::Add(TextureHandle textureHandle, const glm::vec2& size, const glm::vec2& position,
+	void RenderBatch::Add(Handle<Texture> textureHandle, const glm::vec2& size, const glm::vec2& position,
 		const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
 	{
 		m_NumSprites++;
@@ -165,7 +166,7 @@ namespace Cocoa
 		float rotation = transform.m_EulerRotation.z;
 
 		int texId = 0;
-		if (sprite.m_Texture != TextureHandle::null)
+		if (!sprite.m_Texture.IsNull())
 		{
 			for (int i = 0; i < m_Textures.size(); i++)
 			{
@@ -260,7 +261,7 @@ namespace Cocoa
 		for (int i = 0; i < this->m_NumTextures; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i + 1);
-			m_Textures[i].Get()->Bind();
+			AssetManager::GetTexture(m_Textures[i].m_AssetId).Bind();
 		}
 
 		glBindVertexArray(m_VAO);
@@ -275,7 +276,7 @@ namespace Cocoa
 
 		for (int i = 0; i < this->m_NumTextures; i++)
 		{
-			m_Textures[i].Get()->Unbind();
+			AssetManager::GetTexture(m_Textures[i].m_AssetId).Unbind();
 		}
 	}
 
@@ -310,7 +311,7 @@ namespace Cocoa
 		this->m_NumTextures = 0;
 		for (int i = 0; i < m_NumTextures; i++)
 		{
-			m_Textures[i] = TextureHandle::null;
+			m_Textures[i] = {};
 		}
 	}
 }

@@ -2,8 +2,9 @@
 #include "externalLibs.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
-#include "cocoa/renderer/TextureHandle.h"
-#include "cocoa/renderer/fonts/FontHandle.h"
+#include "cocoa/core/Handle.h"
+#include "cocoa/renderer/fonts/Font.h"
+#include "cocoa/renderer/Texture.h"
 
 namespace Cocoa
 {
@@ -23,11 +24,11 @@ namespace Cocoa
 
         void Clear();
         void Start();
-        void Add(FontHandle font, const std::string& text, const Transform& transform, int zIndex);
+        void Add(Handle<Font> font, const std::string& text, const Transform& transform, int zIndex);
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
         void Add(const glm::vec2* vertices, const glm::vec3& color);
-        void Add(TextureHandle textureHandle, const glm::vec2& size, const glm::vec2& position, 
+        void Add(Handle<Texture> textureHandle, const glm::vec2& size, const glm::vec2& position, 
             const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
         void Render();
 
@@ -40,7 +41,7 @@ namespace Cocoa
 
         static bool Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2);
 
-        bool const HasTexture(TextureHandle resourceId)
+        bool const HasTexture(Handle<Texture> resourceId)
         {
             for (int i = 0; i < m_NumTextures; i++)
             {
@@ -69,7 +70,7 @@ namespace Cocoa
         Vertex* m_VertexBufferBase;
         Vertex* m_VertexStackPointer;
         uint32* m_Indices;
-        std::array<TextureHandle, 16> m_Textures;
+        std::array<Handle<Texture>, 16> m_Textures;
 
         uint32 m_VAO, m_VBO, m_EBO;
         int16 m_ZIndex = 0;

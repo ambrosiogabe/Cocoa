@@ -11,6 +11,7 @@
 #include "cocoa/util/CMath.h"
 #include "cocoa/core/Entity.h"
 #include "cocoa/commands/ICommand.h"
+#include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
 {
@@ -28,7 +29,7 @@ namespace Cocoa
 		m_SpriteRotation = spriteRotation;
 		m_TexCoordMin = sprite.m_TexCoords[0];
 		m_TexCoordMax = sprite.m_TexCoords[2];
-		m_TextureAssetId = sprite.m_Texture.Get()->GetResourceId();
+		m_TextureAssetId = sprite.m_Texture.m_AssetId;
 		m_Tint = darkTint;
 		m_Type = type;
 	}
@@ -100,8 +101,7 @@ namespace Cocoa
 	{
 		Log::Assert(scene != nullptr, "Cannot initialize gizmo system with null scene.");
 
-		std::shared_ptr<Texture> texture = std::static_pointer_cast<Texture>(AssetManager::GetAsset(Settings::General::s_EngineAssetsPath + "images/gizmos.png"));
-		m_Texture = TextureHandle(texture->GetResourceId());
+		m_Texture = AssetManager::GetTexture(Settings::General::s_EngineAssetsPath + "images/gizmos.png");
 		m_Spritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_Texture, 16, 40, 9, 0));
 
 		m_Camera = m_Scene->GetCamera();

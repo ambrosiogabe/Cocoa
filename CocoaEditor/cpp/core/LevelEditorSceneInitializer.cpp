@@ -30,10 +30,8 @@ namespace Cocoa
 		systems.emplace_back(std::make_unique<GizmoSystem>("Gizmo System", scene));
 		systems.emplace_back(std::make_unique<LevelEditorSystem>("Level Editor System", scene, scriptSystem));
 
-		Font testFont = Font(CPath("C:/Windows/Fonts/ariblk.ttf"));
-		testFont.Load();
-		testFont.Unload();
-		CharInfo characterMap['z' + 1];
-		FontUtil::CreateSdfFontTexture("C:/Windows/Fonts/ariblk.ttf", 32, characterMap, 'z' + 1, "sdfOutput.png", 5, 256);
+		//Font testFont = Font(CPath("C:/Windows/Fonts/ariblk.ttf"));
+		//CharInfo characterMap['z' + 1];
+		//FontUtil::CreateSdfFontTexture("C:/Windows/Fonts/ariblk.ttf", 32, characterMap, 'z' + 1, "sdfOutput.png", 5, 256);
 	}
 }

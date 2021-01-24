@@ -6,111 +6,110 @@
 
 namespace Cocoa
 {
-	std::unique_ptr<AssetManager> AssetManager::s_Instance = nullptr;
-	AssetManager* AssetManager::Get()
-	{
-		Log::Assert(s_Instance != nullptr, "Asset Manager never initialized.");
-		return s_Instance.get();
-	}
+	std::vector<Texture> AssetManager::s_Textures = std::vector<Texture>();
+	std::vector<Font> AssetManager::s_Fonts = std::vector<Font>();
+	uint32 AssetManager::s_CurrentScene = 0;
+	uint32 AssetManager::s_ResourceCount = 0;
 
 	void AssetManager::Init(uint32 scene)
 	{
-		Log::Assert(s_Instance == nullptr, "Asset Manager is already initialized. Cannot initailze twice.");
-		s_Instance = std::unique_ptr<AssetManager>(new AssetManager(scene));
+		s_CurrentScene = scene;
+		s_ResourceCount = 0;
+		// TODO: Clear assets somehow?
 	}
 
-	std::unordered_map<uint32, std::shared_ptr<Asset>>& AssetManager::GetAllAssets(uint32 scene)
+	const Texture& AssetManager::GetTexture(uint32 resourceId)
 	{
-		AssetManager* manager = Get();
-		auto it = manager->m_Assets.find(scene);
-		if (it == manager->m_Assets.end())
+		if (resourceId < s_Textures.size())
 		{
-			return manager->m_EmptyAssetContainer;
+			return s_Textures[resourceId];
 		}
-		return it->second;
+
+		return Texture::nullTexture;
 	}
 
-	std::shared_ptr<Asset> AssetManager::GetAsset(uint32 assetId)
+	const Font& AssetManager::GetFont(uint32 resourceId)
 	{
-		AssetManager* manager = Get();
-		auto assetsIt = manager->m_Assets.find(manager->m_CurrentScene);
-		if (assetsIt != manager->m_Assets.end())
+		if (resourceId < s_Fonts.size())
 		{
-			auto assetIt = assetsIt->second.find(assetId);
-			if (assetIt != assetsIt->second.end())
+			return s_Fonts[resourceId];
+		}
+
+		return Font::nullFont;
+	}
+
+	Handle<Texture> AssetManager::GetTexture(const CPath& path)
+	{
+		int i = 0;
+		for (auto& tex : s_Textures)
+		{
+			if (tex.GetFilepath() == path)
 			{
-				return assetIt->second;
+				return Handle<Texture>(i);
 			}
+			i++;
 		}
 
-		return std::shared_ptr<Asset>(new NullAsset());
+		return Handle<Texture>();
 	}
 
-	std::shared_ptr<Asset> AssetManager::GetAsset(const CPath& path)
+	Handle<Texture> AssetManager::LoadTextureFromFile(const CPath& path, bool isDefault)
 	{
-		AssetManager* manager = Get();
-		auto assetsIt = manager->m_Assets.find(manager->m_CurrentScene);
-		if (assetsIt != manager->m_Assets.end())
-		{
-			for (auto asset = assetsIt->second.begin(); asset != assetsIt->second.end(); asset++)
-			{
-				if (asset->second->GetPath() == path)
-				{
-					return asset->second;
-				}
-			}
-		}
-
-		return std::shared_ptr<Asset>(new NullAsset());
-	}
-
-	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const CPath& path, bool isDefault)
-	{
-		AssetManager* manager = Get();
-
-		std::shared_ptr<Asset> assetExists = GetAsset(path);
-		if (!assetExists->IsNull())
+		Handle<Texture> texture = GetTexture(path);
+		if (!texture.IsNull())
 		{
 			Log::Warning("Tried to load asset that has already been loaded.");
-			return std::shared_ptr<Asset>(new NullAsset());
+			return texture;
 		}
 
 		CPath absPath = IFile::GetAbsolutePath(path);
 		std::shared_ptr<Texture> newAsset = std::make_shared<Texture>(absPath.Filepath(), isDefault);
+		s_Textures.push_back({ absPath.Filepath(), isDefault });
 
-		auto& assets = manager->m_Assets[manager->m_CurrentScene];
-
-		uint32 newId = (uint32)assets.size();
-
-		newAsset->SetResourceId(newId);
-		assets.insert({ newId, newAsset });
-		newAsset->Load();
-		return newAsset;
+		int index = s_Textures.size() - 1;
+		Texture& newTexture = s_Textures.at(index);
+		newTexture.Load();
+		return Handle<Texture>(index);
 	}
 
-	void AssetManager::Clear()
+	json AssetManager::Serialize()
 	{
-		AssetManager* manager = Get();
-		for (auto assetListIt = manager->m_Assets.begin(); assetListIt != manager->m_Assets.end(); assetListIt++)
+		json res;
+
+		res["SceneID"] = s_CurrentScene;
+		int assetCount = 0;
+
+		int i = 0;
+		for (auto& assetIt : s_Textures)
 		{
-			for (auto assetIt = assetListIt->second.begin(); assetIt != assetListIt->second.end(); assetIt++)
+			if (!assetIt.IsDefault())
 			{
-				auto asset = assetIt->second;
-				if (!asset->IsNull())
-				{
-					asset->Unload();
-				}
+				json assetSerialized = assetIt.Serialize();
+				assetSerialized["ResourceId"] = i;
+				res["AssetList"][std::to_string(i)] = assetSerialized;
+				i++;
+				assetCount++;
 			}
-			assetListIt->second.clear();
 		}
 
-		manager->m_Assets.clear();
+		for (auto& assetIt : s_Fonts)
+		{
+			//if (!assetIt.IsDefault())
+			//{
+			//	json assetSerialized = assetIt.Serialize();
+			//	assetSerialized["ResourceId"] = i;
+			//	i++;
+			//	assetCount++;
+			//}
+		}
+
+		res["AssetCount"] = assetCount;
+
+		return res;
 	}
 
 	std::unordered_map<uint32, uint32> AssetManager::LoadFrom(const json& j)
 	{
-		AssetManager* manager = Get();
-
 		std::unordered_map<uint32, uint32> resourceIDMap{};
 
 		uint32 scene = -1;
@@ -136,15 +135,15 @@ namespace Cocoa
 
 				if (resourceId >= 0)
 				{
-					switch ((Asset::AssetType)type)
+					switch (static_cast<AssetType>(type))
 					{
-					case Asset::AssetType::None:
+					case AssetType::None:
 						Log::Warning("Tried to deserialize asset of type none: %s", path.Filepath());
 						break;
-					case Asset::AssetType::Texture:
+					case AssetType::Texture:
 					{
-						std::shared_ptr<Asset> tex = LoadTextureFromFile(path);
-						resourceIDMap.insert({resourceId, tex->GetResourceId()});
+						Handle<Texture> tex = LoadTextureFromFile(path);
+						resourceIDMap.insert({ resourceId, tex.m_AssetId });
 					}
 					break;
 					default:
@@ -158,51 +157,9 @@ namespace Cocoa
 		return resourceIDMap;
 	}
 
-	json AssetManager::Serialize()
+	void AssetManager::Clear()
 	{
-		json res;
-
-		AssetManager* manager = Get();
-
-		res["SceneID"] = manager->m_CurrentScene;
-		auto assetList = manager->m_Assets[manager->m_CurrentScene];
-
-		int assetCount = 0;
-		
-		for (auto assetIt = assetList.begin(); assetIt != assetList.end(); assetIt++)
-		{
-			if (!assetIt->second->m_IsDefault)
-			{
-				json assetSerialized = assetIt->second->Serialize();
-				if (assetSerialized["Type"] != 0)
-				{
-					assetCount++;
-					res["AssetList"][std::to_string(assetIt->first)] = assetSerialized;
-				}
-			}
-		}
-
-		res["AssetCount"] = assetCount;
-
-		return res;
-	}
-
-	json Asset::Serialize()
-	{
-		Asset::AssetType type = Asset::AssetType::None;
-		if (GetType() == Asset::GetResourceTypeId<Texture>())
-		{
-			type = Asset::AssetType::Texture;
-		}
-		else
-		{
-			return { {"Type", Asset::AssetType::None} };
-		}
-
-		return {
-			{"Type", type},
-			{"Filepath", m_Path.Filepath()},
-			{"ResourceId", m_ResourceId}
-		};
+		s_Textures.clear();
+		s_Fonts.clear();
 	}
 }

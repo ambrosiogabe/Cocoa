@@ -3,8 +3,6 @@
 
 #include "cocoa/file/CPath.h"
 #include "cocoa/systems/System.h"
-#include "cocoa/core/AssetManager.h"
-#include "cocoa/core/AssetManager.h"
 #include "cocoa/scenes/SceneInitializer.h"
 
 #include <entt/entt.hpp>

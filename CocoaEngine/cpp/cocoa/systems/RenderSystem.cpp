@@ -21,7 +21,7 @@ namespace Cocoa
 		{
 			if (batch->HasRoom() && spr.m_ZIndex == batch->ZIndex())
 			{
-				TextureHandle tex = sprite.m_Texture;
+				Handle<Texture> tex = sprite.m_Texture;
 				if (!tex || batch->HasTexture(tex) || batch->HasTextureRoom())
 				{
 					batch->Add(transform, spr);
@@ -72,7 +72,7 @@ namespace Cocoa
 		json zIndex = { "ZIndex", spriteRenderer.m_ZIndex };
 		if (spriteRenderer.m_Sprite.m_Texture)
 		{
-			assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture.Get()->GetResourceId() };
+			assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture.m_AssetId };
 		}
 
 		int size = j["Size"];
@@ -96,7 +96,7 @@ namespace Cocoa
 		{
 			if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 			{
-				spriteRenderer.m_Sprite.m_Texture = TextureHandle(j["SpriteRenderer"]["AssetId"]);
+				spriteRenderer.m_Sprite.m_Texture = Handle<Texture>(j["SpriteRenderer"]["AssetId"]);
 			}
 		}
 

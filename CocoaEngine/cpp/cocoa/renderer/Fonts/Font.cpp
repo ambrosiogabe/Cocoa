@@ -7,10 +7,15 @@
 namespace Cocoa
 {
 	CharInfo Font::nullCharacter = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	Font Font::nullFont = {};
+
+	Font::Font()
+	{
+		m_IsNull = true;
+	}
 
 	Font::Font(CPath& resourcePath, bool isDefault)
 	{
-		GenerateTypeId<Font>();
 		m_IsDefault = isDefault;
 		m_Path = CPath(resourcePath);
 	}
@@ -20,15 +25,6 @@ namespace Cocoa
 		if (m_CharacterMap)
 		{
 			free(m_CharacterMap);
-		}
-	}
-
-	void Font::Load()
-	{
-		if (!IFile::IsFile(m_Path))
-		{
-			Log::Warning("Attempted to load font with non-existent file: '%s'", m_Path.Filepath());
-			return;
 		}
 	}
 
@@ -51,9 +47,5 @@ namespace Cocoa
 		m_CharacterMap = (CharInfo*)malloc(sizeof(CharInfo) * (glyphRangeEnd - glyphRangeStart));
 		FontUtil::CreateSdfFontTexture(fontFile, fontSize, m_CharacterMap, (glyphRangeEnd - glyphRangeStart), outputFile, padding, upscaleResolution, glyphRangeStart);
 		
-	}
-
-	void Font::Unload()
-	{
 	}
 }

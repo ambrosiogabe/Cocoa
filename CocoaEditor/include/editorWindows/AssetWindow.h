@@ -28,7 +28,7 @@ namespace Cocoa
 		void ShowSceneBrowser();
 		void ShowScriptBrowser();
 		bool IconButton(const char* icon, const char* label, const glm::vec2& size=glm::vec2());
-		bool ImageButton(Texture* texture, const char* label, const glm::vec2& size=glm::vec2());
+		bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size=glm::vec2());
 
 	private:
 		glm::vec2 m_ButtonSize{ 128, 128 };

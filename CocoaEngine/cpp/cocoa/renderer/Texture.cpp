@@ -4,11 +4,19 @@
 #include "cocoa/util/Log.h"
 #include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/core/AssetManager.h"
 
 #include <stb_image.h>
 
 namespace Cocoa
 {
+	Texture Texture::nullTexture = {};
+
+	Texture::Texture()
+	{
+		m_IsNull = true;
+	}
+
 	Texture::Texture(int width, int height, bool isDefault)
 	{
 		m_IsDefault = isDefault;
@@ -36,7 +44,6 @@ namespace Cocoa
 
 	Texture::Texture(const CPath& resourceName, bool isDefault)
 	{
-		GenerateTypeId<Texture>();
 		m_IsDefault = isDefault;
 		m_Height = 0;
 		m_Width = 0;
@@ -94,15 +101,14 @@ namespace Cocoa
 		m_PixelBuffer = nullptr;
 		m_PixelsFreed = true;
 		glDeleteTextures(1, &m_ID);
-		m_Loaded = false;
 	}
 
-	void Texture::Bind()
+	void Texture::Bind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, m_ID);
 	}
 
-	void Texture::Unbind()
+	void Texture::Unbind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, m_ID);
 	}
@@ -117,8 +123,16 @@ namespace Cocoa
 		}
 	}
 
-	const uint8* Texture::GetPixelBuffer()
+	const uint8* Texture::GetPixelBuffer() const
 	{
 		return m_PixelBuffer;
+	}
+
+	json Texture::Serialize()
+	{
+		return {
+			{"Type", AssetType::Texture},
+			{"Filepath", m_Path.Filepath()}
+		};
 	}
 }

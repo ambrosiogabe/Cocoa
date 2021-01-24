@@ -9,6 +9,7 @@
 #include "cocoa/physics2d/Physics2DSystem.h"
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/systems/ScriptSystem.h"
+#include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
 {
@@ -170,8 +171,9 @@ namespace Cocoa
 
 			if (spr.m_Sprite.m_Texture)
 			{
-				CImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture.Get()->GetFilepath().Filename(),
-					spr.m_Sprite.m_Texture.Get()->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+				const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.m_AssetId);
+				CImGui::InputText("##SpriteRendererTexture", (char*)tex.GetFilepath().Filename(),
+					tex.GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 			}
 			else
 			{

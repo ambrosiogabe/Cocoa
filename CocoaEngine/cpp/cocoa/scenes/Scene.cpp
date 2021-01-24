@@ -7,6 +7,7 @@
 #include "cocoa/components/Transform.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/scenes/SceneInitializer.h"
+#include "cocoa/core/AssetManager.h"
 
 #include <nlohmann/json.hpp>
 
