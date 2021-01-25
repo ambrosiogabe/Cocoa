@@ -226,18 +226,12 @@ namespace Cocoa
 			}
 		}
 
-		std::unordered_map<uint32, uint32> textureIdMap{};
-		std::unordered_map<uint32, uint32> fontIdMap{};
 		json j = json::parse(file->m_Data);
 
 		if (j.contains("Assets"))
 		{
-			textureIdMap = AssetManager::LoadTexturesFrom(j["Assets"]);
-		}
-
-		if (j.contains("Fonts"))
-		{
-			fontIdMap = AssetManager::LoadFontsFrom(j["Fonts"]);
+			AssetManager::LoadTexturesFrom(j["Assets"]);
+			AssetManager::LoadFontsFrom(j["Assets"]);
 		}
 
 		int size = !j.contains("Components") ? 0 : j["Components"].size();
@@ -249,8 +243,6 @@ namespace Cocoa
 			{
 				Entity entity = FindOrCreateEntity(component["SpriteRenderer"]["Entity"], this, m_Registry);
 				const json& originalId = component["SpriteRenderer"]["AssetId"];
-				if (!originalId.is_null() && (uint32)originalId != std::numeric_limits<uint32>::max())
-					component["SpriteRenderer"]["AssetId"] = textureIdMap[(uint32)originalId];
 				RenderSystem::Deserialize(component, entity);
 			}
 			else if (it.key() == "Transform")

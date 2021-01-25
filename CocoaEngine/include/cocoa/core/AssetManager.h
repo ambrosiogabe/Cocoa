@@ -20,17 +20,17 @@ namespace Cocoa
 	class COCOA AssetManager
 	{
 	public:		
-		static Handle<Texture> LoadTextureFromFile(const CPath& path, bool isDefault = false);
+		static Handle<Texture> LoadTextureFromFile(const CPath& path, bool isDefault = false, int id=-1);
 		static Handle<Texture> GetTexture(const CPath& path);
 		static const Texture& GetTexture(uint32 resourceId);
 
-		static Handle<Font> LoadFontFromJson(const CPath& path, const json& j, bool isDefault = false);
+		static Handle<Font> LoadFontFromJson(const CPath& path, const json& j, bool isDefault = false, int id=-1);
 		static Handle<Font> LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution);
 		static Handle<Font> GetFont(const CPath& path);
 		static const Font& GetFont(uint32 resourceId);
 
-		static std::unordered_map<uint32, uint32> LoadTexturesFrom(const json& j);
-		static std::unordered_map<uint32, uint32> LoadFontsFrom(const json& j);
+		static void LoadTexturesFrom(const json& j);
+		static void LoadFontsFrom(const json& j);
 		static json Serialize();
 
 		static void Clear();

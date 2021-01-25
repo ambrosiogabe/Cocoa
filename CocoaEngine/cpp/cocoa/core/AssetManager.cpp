@@ -43,7 +43,7 @@ namespace Cocoa
 		return Handle<Texture>();
 	}
 
-	Handle<Texture> AssetManager::LoadTextureFromFile(const CPath& path, bool isDefault)
+	Handle<Texture> AssetManager::LoadTextureFromFile(const CPath& path, bool isDefault, int id)
 	{
 		Handle<Texture> texture = GetTexture(path);
 		if (!texture.IsNull())
@@ -53,8 +53,28 @@ namespace Cocoa
 		}
 
 		CPath absPath = IFile::GetAbsolutePath(path);
-		int index = s_Textures.size();
-		s_Textures.push_back({ absPath.Filepath(), isDefault });
+		int index = id;
+
+		// If id is -1, we don't care where you place the texture so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Textures.size();
+			s_Textures.push_back({ absPath.Filepath(), isDefault });
+		}
+		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
+			Log::Assert(s_Textures[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
+			if (s_Textures[index].IsNull())
+			{
+				s_Textures[index] = { absPath.Filepath(), isDefault };
+			}
+			else
+			{
+				Log::Error("Could not place texture at requested id. The slot is already taken.");
+			}
+		}
 
 		Texture& newTexture = s_Textures.at(index);
 		newTexture.Load();
@@ -86,7 +106,7 @@ namespace Cocoa
 		return Handle<Font>();
 	}
 
-	Handle<Font> AssetManager::LoadFontFromJson(const CPath& path, const json& j, bool isDefault)
+	Handle<Font> AssetManager::LoadFontFromJson(const CPath& path, const json& j, bool isDefault, int id)
 	{
 		Handle<Font> font = GetFont(path);
 		if (!font.IsNull())
@@ -96,8 +116,28 @@ namespace Cocoa
 		}
 
 		CPath absPath = IFile::GetAbsolutePath(path);
-		int index = s_Fonts.size();
-		s_Fonts.push_back(Font{ absPath, isDefault });
+		int index = id;
+
+		// If id is -1, we don't care where you place the font so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Fonts.size();
+			s_Fonts.push_back(Font{ absPath, isDefault });
+		}
+		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Fonts.size(), "Id must be smaller then texture size.");
+			Log::Assert(s_Fonts[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
+			if (s_Fonts[index].IsNull())
+			{
+				s_Fonts[index] = Font{ absPath, isDefault };
+			}
+			else
+			{
+				Log::Error("Could not place font at requested id. The slot is already taken.");
+			}
+		}
 
 		Font& newFont = s_Fonts.at(index);
 		newFont.Deserialize(j);
@@ -156,16 +196,15 @@ namespace Cocoa
 		return res;
 	}
 
-	std::unordered_map<uint32, uint32> AssetManager::LoadTexturesFrom(const json& j)
+	void AssetManager::LoadTexturesFrom(const json& j)
 	{
-		std::unordered_map<uint32, uint32> resourceIDMap{};
-
 		uint32 scene = -1;
 		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
 
 		// TODO: Switch all json accessors to use .contains(key) instead of [key]
 		if (scene >= 0 && j.contains("Textures"))
 		{
+			s_Textures.resize(s_Textures.size() + j["Textures"].size());
 			for (auto it = j["Textures"].begin(); it != j["Textures"].end(); ++it)
 			{
 				const json& assetJson = it.value();
@@ -180,24 +219,20 @@ namespace Cocoa
 
 				if (resourceId >= 0)
 				{
-					Handle<Texture> tex = LoadTextureFromFile(path);
-					resourceIDMap.insert({ resourceId, tex.m_AssetId });
+					LoadTextureFromFile(path, false, resourceId);
 				}
 			}
 		}
-
-		return resourceIDMap;
 	}
 
-	std::unordered_map<uint32, uint32> AssetManager::LoadFontsFrom(const json& j)
+	void AssetManager::LoadFontsFrom(const json& j)
 	{
-		std::unordered_map<uint32, uint32> resourceIDMap{};
-
 		uint32 scene = -1;
 		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
 
 		if (scene >= 0 && j.contains("Fonts"))
 		{
+			s_Fonts.resize(s_Fonts.size() + j["Fonts"].size());
 			for (auto it = j["Fonts"].begin(); it != j["Fonts"].end(); ++it)
 			{
 				const json& assetJson = it.value();
@@ -212,13 +247,10 @@ namespace Cocoa
 
 				if (resourceId >= 0)
 				{
-					Handle<Font> font = LoadFontFromJson(path, assetJson);
-					resourceIDMap.insert({ resourceId, font.m_AssetId });
+					LoadFontFromJson(path, assetJson, false, resourceId);
 				}
 			}
 		}
-
-		return resourceIDMap;
 	}
 
 	void AssetManager::Clear()
