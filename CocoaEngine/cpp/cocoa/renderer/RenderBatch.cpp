@@ -84,9 +84,57 @@ namespace Cocoa
 		LoadVertexProperties(transform, spr);
 	}
 
-	void RenderBatch::Add(Handle<Font> font, const std::string& text, const Transform& transform, int zIndex)
+	void RenderBatch::Add(const Transform& transform, const FontRenderer& fontRenderer)
 	{
-		
+		const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+		Handle<Texture> tex = font.m_FontTexture;
+		const Texture& texture = AssetManager::GetTexture(tex.m_AssetId);
+
+		if (!tex.IsNull())
+		{
+			if (!HasTexture(tex))
+			{
+				m_Textures[m_NumTextures] = tex;
+				m_NumTextures++;
+			}
+		}
+
+		int texId = 0;
+		for (int i = 0; i < m_Textures.size(); i++)
+		{
+			if (m_Textures[i] == tex)
+			{
+				texId = i + 1;
+				break;
+			}
+		}
+
+		Entity res = Entity::FromComponent<Transform>(transform);
+		uint32 entityId = res.GetID();
+
+		const std::string& str = fontRenderer.text;
+		int x = transform.m_Position.x;
+		int y = transform.m_Position.y;
+		int strLength = str.size();
+		for (int i = 0; i < strLength; i++)
+		{
+			m_NumSprites++;
+			const CharInfo& charInfo = font.GetCharacterInfo(str[i]);
+			float xPos = x + charInfo.bearingX * fontRenderer.fontSize;
+			float yPos = y - (charInfo.chScaleY - charInfo.bearingY) * fontRenderer.fontSize;
+
+			glm::vec2 texCoords[4] = {
+				{charInfo.ux1, charInfo.uy0},
+				{charInfo.ux1, charInfo.uy1},
+				{charInfo.ux0, charInfo.uy1},
+				{charInfo.ux0, charInfo.uy0}
+			};
+			glm::vec2 quadSize = { charInfo.chScaleX * fontRenderer.fontSize, charInfo.chScaleY * fontRenderer.fontSize };
+
+			LoadVertexProperties({ xPos, yPos, 0.0f }, transform.m_Scale, quadSize, texCoords, 0, fontRenderer.m_Color, texId, entityId);
+
+			x += charInfo.advance * fontRenderer.fontSize;
+		}
 	}
 
 	void RenderBatch::Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color)

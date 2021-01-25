@@ -40,6 +40,11 @@ namespace Cocoa
 				const SpriteRenderer* renderer = reinterpret_cast<const SpriteRenderer*>(&component);
 				RenderSystem::Serialize(m_Json, entity, *renderer);
 			}
+			else if (info.id() == entt::type_info<FontRenderer>().id())
+			{
+				const FontRenderer* fontRenderer = reinterpret_cast<const FontRenderer*>(&component);
+				RenderSystem::Serialize(m_Json, entity, *fontRenderer);
+			}
 			else if (info.id() == entt::type_info<Box2D>().id())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);

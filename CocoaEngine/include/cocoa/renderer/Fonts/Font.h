@@ -13,7 +13,7 @@ namespace Cocoa
 		Font();
 		~Font();
 
-		const CharInfo& GetCharacterInfo(int codepoint);
+		const CharInfo& GetCharacterInfo(int codepoint) const;
 		void GenerateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);
 
 		inline bool IsNull() const { return m_IsNull; }

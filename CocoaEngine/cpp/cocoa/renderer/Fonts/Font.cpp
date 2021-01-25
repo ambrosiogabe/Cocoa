@@ -30,7 +30,7 @@ namespace Cocoa
 		}
 	}
 
-	const CharInfo& Font::GetCharacterInfo(int codepoint)
+	const CharInfo& Font::GetCharacterInfo(int codepoint) const
 	{
 		if (codepoint < m_CharacterMapSize && codepoint >= 0)
 		{

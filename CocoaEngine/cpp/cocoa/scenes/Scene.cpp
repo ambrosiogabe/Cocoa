@@ -148,7 +148,7 @@ namespace Cocoa
 		OutputArchive output(m_SaveDataJson);
 		entt::snapshot{ m_Registry }
 			.entities(output)
-			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
+			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB>(output);
 
 		for (const auto& system : m_Systems)
 		{
@@ -242,8 +242,12 @@ namespace Cocoa
 			if (it.key() == "SpriteRenderer")
 			{
 				Entity entity = FindOrCreateEntity(component["SpriteRenderer"]["Entity"], this, m_Registry);
-				const json& originalId = component["SpriteRenderer"]["AssetId"];
-				RenderSystem::Deserialize(component, entity);
+				RenderSystem::DeserializeSpriteRenderer(component, entity);
+			}
+			else if (it.key() == "FontRenderer")
+			{
+				Entity entity = FindOrCreateEntity(component["FontRenderer"]["Entity"], this, m_Registry);
+				RenderSystem::DeserializeFontRenderer(component, entity);
 			}
 			else if (it.key() == "Transform")
 			{

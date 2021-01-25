@@ -111,4 +111,13 @@ namespace Cocoa
 		int m_ZIndex = 0;
 		Sprite m_Sprite;
 	};
+
+	struct FontRenderer
+	{
+		glm::vec4 m_Color = glm::vec4(1, 1, 1, 1);
+		int m_ZIndex = 0;
+		Handle<Font> m_Font;
+		std::string text;
+		int fontSize;
+	};
 }

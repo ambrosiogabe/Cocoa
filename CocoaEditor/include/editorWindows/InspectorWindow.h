@@ -34,6 +34,7 @@ namespace Cocoa
 		// Renderer components
 		// =====================================================================
 		static void ImGuiSpriteRenderer(SpriteRenderer& spr);
+		static void ImGuiFontRenderer(FontRenderer& fontRenderer);
 
 		// =====================================================================
 		// Physics components

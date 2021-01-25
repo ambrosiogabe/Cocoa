@@ -41,11 +41,44 @@ namespace Cocoa
 		}
 	}
 
+	void RenderSystem::AddEntity(const Transform& transform, const FontRenderer& fontRenderer)
+	{
+		const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+		bool wasAdded = false;
+		for (auto& batch : m_Batches)
+		{
+			if (batch->HasRoom(fontRenderer) && fontRenderer.m_ZIndex == batch->ZIndex())
+			{
+				Handle<Texture> tex = font.m_FontTexture;
+				if (!tex || batch->HasTexture(tex) || batch->HasTextureRoom())
+				{
+					batch->Add(transform, fontRenderer);
+					wasAdded = true;
+					break;
+				}
+			}
+		}
+
+		if (!wasAdded)
+		{
+			std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(MAX_BATCH_SIZE, fontRenderer.m_ZIndex);
+			newBatch->Start();
+			newBatch->Add(transform, fontRenderer);
+			m_Batches.emplace_back(newBatch);
+			std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
+		}
+	}
+
 	void RenderSystem::Render()
 	{
 		m_Scene->GetRegistry().group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, auto& spr, auto& transform)
 		{
 			this->AddEntity(transform, spr);
+		});
+
+		m_Scene->GetRegistry().group<FontRenderer>(entt::get<Transform>).each([this](auto entity, auto& fontRenderer, auto& transform)
+		{
+			this->AddEntity(transform, fontRenderer);
 		});
 
 		Log::Assert((s_Shader != nullptr), "Must bind shader before render call");
@@ -86,11 +119,11 @@ namespace Cocoa
 		};
 	}
 
-	void RenderSystem::Deserialize(json& j, Entity entity)
+	void RenderSystem::DeserializeSpriteRenderer(json& j, Entity entity)
 	{
 		SpriteRenderer spriteRenderer;
 		spriteRenderer.m_Color = CMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
-		if (!j["SpriteRenderer"]["AssetId"].is_null())
+		if (j["SpriteRenderer"].contains("AssetId"))
 		{
 			if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 			{
@@ -98,10 +131,64 @@ namespace Cocoa
 			}
 		}
 
-		if (!j["SpriteRenderer"]["ZIndex"].is_null())
+		if (j["SpriteRenderer"].contains("ZIndex"))
 		{
 			spriteRenderer.m_ZIndex = j["SpriteRenderer"]["ZIndex"];
 		}
 		entity.AddComponent<SpriteRenderer>(spriteRenderer);
+	}
+
+	void RenderSystem::Serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
+	{
+		json color = CMath::Serialize("Color", fontRenderer.m_Color);
+		json assetId = { "AssetId", (uint32)std::numeric_limits<uint32>::max() };
+		json zIndex = { "ZIndex", fontRenderer.m_ZIndex };
+		json text = { "Text", fontRenderer.text };
+		json fontSize = { "FontSize", fontRenderer.fontSize };
+		if (fontRenderer.m_Font)
+		{
+			assetId = { "AssetId", fontRenderer.m_Font.m_AssetId };
+		}
+
+		int size = j["Components"].size();
+		j["Components"][size] = {
+			{"FontRenderer", {
+				{"Entity", entity.GetID()},
+				assetId,
+				zIndex,
+				color,
+				text,
+				fontSize
+			}}
+		};
+	}
+
+	void RenderSystem::DeserializeFontRenderer(json& j, Entity entity)
+	{
+		FontRenderer fontRenderer;
+		fontRenderer.m_Color = CMath::DeserializeVec4(j["FontRenderer"]["Color"]);
+		if (j["FontRenderer"].contains("AssetId"))
+		{
+			if (j["FontRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
+			{
+				fontRenderer.m_Font = Handle<Font>(j["FontRenderer"]["AssetId"]);
+			}
+		}
+
+		if (j["FontRenderer"].contains("ZIndex"))
+		{
+			fontRenderer.m_ZIndex = j["FontRenderer"]["ZIndex"];
+		}
+
+		if (j["FontRenderer"].contains("Text"))
+		{
+			fontRenderer.text = j["FontRenderer"]["Text"];
+		}
+
+		if (j["FontRenderer"].contains("FontSize"))
+		{
+			fontRenderer.fontSize = j["FontRenderer"]["FontSize"];
+		}
+		entity.AddComponent<FontRenderer>(fontRenderer);
 	}
 }

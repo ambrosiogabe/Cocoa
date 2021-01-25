@@ -24,7 +24,7 @@ namespace Cocoa
 
         void Clear();
         void Start();
-        void Add(Handle<Font> font, const std::string& text, const Transform& transform, int zIndex);
+        void Add(const Transform& transform, const FontRenderer& fontRenderer);
         void Add(const Transform& transform, const SpriteRenderer& spr);
         void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
         void Add(const glm::vec2* vertices, const glm::vec3& color);
@@ -34,6 +34,7 @@ namespace Cocoa
 
         inline bool BatchOnTop() { return m_BatchOnTop; }
         inline bool HasRoom() { return m_NumSprites < m_MaxBatchSize; }
+        inline bool HasRoom(const FontRenderer& fontRenderer) const { return m_NumSprites + fontRenderer.text.size() < m_MaxBatchSize; }
         inline int NumSprites() { return m_NumSprites; }
 
         inline bool HasTextureRoom() { return m_NumTextures < m_Textures.size(); }

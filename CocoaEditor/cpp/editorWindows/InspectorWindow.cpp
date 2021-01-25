@@ -29,6 +29,7 @@ namespace Cocoa
 
 		bool doTransform = true;
 		bool doSpriteRenderer = true;
+		bool doFontRenderer = true;
 		bool doRigidbody2D = true;
 		bool doAABB = true;
 		bool doBox2D = true;
@@ -38,6 +39,7 @@ namespace Cocoa
 		{
 			doTransform &= entity.HasComponent<Transform>();
 			doSpriteRenderer &= entity.HasComponent<SpriteRenderer>();
+			doFontRenderer &= entity.HasComponent<FontRenderer>();
 			doRigidbody2D &= entity.HasComponent<Rigidbody2D>();
 			doAABB &= entity.HasComponent<AABB>();
 			doBox2D &= entity.HasComponent<Box2D>();
@@ -48,6 +50,8 @@ namespace Cocoa
 			ImGuiTransform(s_ActiveEntities[0].GetComponent<Transform>());
 		if (doSpriteRenderer)
 			ImGuiSpriteRenderer(s_ActiveEntities[0].GetComponent<SpriteRenderer>());
+		if (doFontRenderer)
+			ImGuiFontRenderer(s_ActiveEntities[0].GetComponent<FontRenderer>());
 		if (doRigidbody2D)
 			ImGuiRigidbody2D(s_ActiveEntities[0].GetComponent<Rigidbody2D>());
 		if (doBox2D)
@@ -96,16 +100,17 @@ namespace Cocoa
 		const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
 		int size = classes.size() + 4;
 		auto classIter = classes.begin();
-		for (int i = 4; i < classes.size() + 4; i++)
+		for (int i = 5; i < classes.size() + 5; i++)
 		{
 			stringBuffer[i] = classIter->m_ClassName.c_str();
 			classIter++;
 		}
 
 		stringBuffer[0] = "Sprite Renderer";
-		stringBuffer[1] = "Rigidbody2D";
-		stringBuffer[2] = "Box Collider2D";
-		stringBuffer[3] = "Circle Collider2D";
+		stringBuffer[1] = "Font Renderer";
+		stringBuffer[2] = "Rigidbody2D";
+		stringBuffer[3] = "Box Collider2D";
+		stringBuffer[4] = "Circle Collider2D";
 
 		Entity activeEntity = s_ActiveEntities[0];
 		int itemPressed = 0;
@@ -117,12 +122,15 @@ namespace Cocoa
 				activeEntity.AddComponent<SpriteRenderer>();
 				break;
 			case 1:
-				activeEntity.AddComponent<Rigidbody2D>();
+				activeEntity.AddComponent<FontRenderer>();
 				break;
 			case 2:
-				activeEntity.AddComponent<Box2D>();
+				activeEntity.AddComponent<Rigidbody2D>();
 				break;
 			case 3:
+				activeEntity.AddComponent<Box2D>();
+				break;
+			case 4:
 				activeEntity.AddComponent<Circle>();
 				break;
 			default:
@@ -186,6 +194,49 @@ namespace Cocoa
 					IM_ASSERT(payload->DataSize == sizeof(int));
 					int textureResourceId = *(const int*)payload->Data;
 					spr.m_Sprite.m_Texture = textureResourceId;
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			CImGui::EndCollapsingHeaderGroup();
+		}
+	}
+
+	void InspectorWindow::ImGuiFontRenderer(FontRenderer& fontRenderer)
+	{
+		static bool collapsingHeaderOpen = true;
+		if (ImGui::CollapsingHeader("Font Renderer"))
+		{
+			CImGui::BeginCollapsingHeaderGroup();
+			CImGui::UndoableDragInt("Z-Index: ##fonts", fontRenderer.m_ZIndex);
+			CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.m_Color);
+			CImGui::UndoableDragInt("Font Size: ", fontRenderer.fontSize);
+			
+			static char textBuffer[100];
+			Log::Assert(fontRenderer.text.size() < 100, "Font Renderer only supports text sizes up to 100 characters.");
+			strcpy(textBuffer, fontRenderer.text.c_str());
+			if (CImGui::InputText("Text: ", textBuffer, 100))
+			{
+				fontRenderer.text = textBuffer;
+			}
+
+			if (fontRenderer.m_Font)
+			{
+				const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+				CImGui::InputText("##FontRendererTexture", (char*)font.m_Path.Filename(),
+					font.m_Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+			}
+			else
+			{
+				CImGui::InputText("##FontRendererTexture", "Default Font", 12, ImGuiInputTextFlags_ReadOnly);
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FONT_HANDLE_ID"))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(int));
+					int fontResourceId = *(const int*)payload->Data;
+					fontRenderer.m_Font = fontResourceId;
 				}
 				ImGui::EndDragDropTarget();
 			}

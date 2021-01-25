@@ -153,7 +153,7 @@ namespace Cocoa
 
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
-				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &fontResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+				ImGui::SetDragDropPayload("FONT_HANDLE_ID", &fontResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
 				ImageButton(fontTexture, font.m_Path.Filename(), m_ButtonSize);
 				ImGui::EndDragDropSource();
 			}

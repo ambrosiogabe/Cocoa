@@ -21,13 +21,16 @@ namespace Cocoa
 			m_Camera = m_Scene->GetCamera();
 		}
 
+		void AddEntity(const Transform& transform, const FontRenderer& fontRenderer);
 		void AddEntity(const Transform& transform, const SpriteRenderer& spr);
 		virtual void Render() override;
 
 		Camera& GetCamera() const { return *m_Camera; }
 
 		static void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer);
-		static void Deserialize(json& json, Entity entity);
+		static void DeserializeSpriteRenderer(json& json, Entity entity);
+		static void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer);
+		static void DeserializeFontRenderer(json& json, Entity entity);
 		static void BindShader(std::shared_ptr<Shader> shader) { s_Shader = shader; }
 		static void UploadUniform1ui(const char* name, uint32 val) { s_Shader->UploadUInt(name, val); }
 
