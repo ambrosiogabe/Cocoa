@@ -16,12 +16,14 @@ namespace Cocoa
 		const CharInfo& GetCharacterInfo(int codepoint);
 		void GenerateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);
 
-		inline bool IsNull() { return m_IsNull; }
+		inline bool IsNull() const { return m_IsNull; }
+		inline bool IsDefault() const { return m_IsDefault; }
+
+		json Serialize() const;
+		void Deserialize(const json& j);
 
 	public:
 		static Font nullFont;
-
-	private:
 		static CharInfo nullCharacter;
 
 		CPath m_Path;

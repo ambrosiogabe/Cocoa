@@ -140,7 +140,6 @@ namespace Cocoa
 	{
 		Log::Info("Saving scene for %s", filename.Filepath());
 		m_SaveDataJson = {
-			{"Size", 0},
 			{"Components", {}},
 			{"Project", Settings::General::s_CurrentProject.Filepath()},
 			{"Assets", AssetManager::Serialize()}
@@ -227,15 +226,21 @@ namespace Cocoa
 			}
 		}
 
-		std::unordered_map<uint32, uint32> resourceIdMap{};
+		std::unordered_map<uint32, uint32> textureIdMap{};
+		std::unordered_map<uint32, uint32> fontIdMap{};
 		json j = json::parse(file->m_Data);
 
-		if (!j["Assets"].is_null())
+		if (j.contains("Assets"))
 		{
-			resourceIdMap = AssetManager::LoadFrom(j["Assets"]);
+			textureIdMap = AssetManager::LoadTexturesFrom(j["Assets"]);
 		}
 
-		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
+		if (j.contains("Fonts"))
+		{
+			fontIdMap = AssetManager::LoadFontsFrom(j["Fonts"]);
+		}
+
+		int size = !j.contains("Components") ? 0 : j["Components"].size();
 		for (int i=0; i < size; i++)
 		{
 			json::iterator it = j["Components"][i].begin();
@@ -245,7 +250,7 @@ namespace Cocoa
 				Entity entity = FindOrCreateEntity(component["SpriteRenderer"]["Entity"], this, m_Registry);
 				const json& originalId = component["SpriteRenderer"]["AssetId"];
 				if (!originalId.is_null() && (uint32)originalId != std::numeric_limits<uint32>::max())
-					component["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)originalId];
+					component["SpriteRenderer"]["AssetId"] = textureIdMap[(uint32)originalId];
 				RenderSystem::Deserialize(component, entity);
 			}
 			else if (it.key() == "Transform")
@@ -297,7 +302,7 @@ namespace Cocoa
 
 		Log::Info("Loading scripts only for %s", filename.Filepath());
 		json j = json::parse(file->m_Data);
-		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
+		int size = !j.contains("Components") ? 0 : j["Components"].size();
 		for (int i = 0; i < size; i++)
 		{
 			json::iterator it = j["Components"][i].begin();

@@ -117,6 +117,13 @@ namespace CImGui
 		ImGui::EndGroup();
 	}
 
+	void ReadonlyText(const char* label, const std::string& readonlyTextValue)
+	{
+		char* buf = (char*)readonlyTextValue.c_str();
+		int buf_size = readonlyTextValue.size();
+		ImGui::InputText(label, buf, buf_size, ImGuiInputTextFlags_ReadOnly);
+	}
+
 	void UndoableDragFloat4(const char* label, glm::vec4& vector)
 	{
 		glm::vec4 tmp = glm::vec4(vector);

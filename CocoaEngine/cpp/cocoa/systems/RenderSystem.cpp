@@ -75,7 +75,7 @@ namespace Cocoa
 			assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture.m_AssetId };
 		}
 
-		int size = j["Size"];
+		int size = j["Components"].size();
 		j["Components"][size] = {
 			{"SpriteRenderer", {
 				{"Entity", entity.GetID()},
@@ -84,8 +84,6 @@ namespace Cocoa
 				color
 			}}
 		};
-
-		j["Size"] = size + 1;
 	}
 
 	void RenderSystem::Deserialize(json& j, Entity entity)

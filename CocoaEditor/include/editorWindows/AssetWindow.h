@@ -13,6 +13,7 @@ namespace Cocoa
 		TextureBrowser,
 		SceneBrowser,
 		ScriptBrowser,
+		FontBrowser,
 		Length
 	};
 
@@ -27,6 +28,7 @@ namespace Cocoa
 		void ShowTextureBrowser();
 		void ShowSceneBrowser();
 		void ShowScriptBrowser();
+		void ShowFontBrowser();
 		bool IconButton(const char* icon, const char* label, const glm::vec2& size=glm::vec2());
 		bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size=glm::vec2());
 

@@ -20,41 +20,24 @@ namespace Cocoa
 	class COCOA AssetManager
 	{
 	public:		
-		template<typename T>
-		static std::vector<std::shared_ptr<T>> GetAllAssets(uint32 scene)
-		{
-			AssetManager* manager = Get();
-			auto it = manager->m_Assets.find(scene);
-			if (it == manager->m_Assets.end())
-			{
-				return std::vector<std::shared_ptr<T>>{};
-			}
-
-			std::vector<std::shared_ptr<T>> res{};
-			for (auto assetIt = it->second.begin(); assetIt != it->second.end(); assetIt++)
-			{
-				if (assetIt->second->GetType() == Asset::GetResourceTypeId<T>())
-				{
-					res.push_back(std::static_pointer_cast<T>(assetIt->second));
-				}
-			}
-
-			return res;
-		}
-
-		static Handle<Texture> LoadTextureFromFile(const CPath& path, bool isDefault=false);
+		static Handle<Texture> LoadTextureFromFile(const CPath& path, bool isDefault = false);
 		static Handle<Texture> GetTexture(const CPath& path);
-
 		static const Texture& GetTexture(uint32 resourceId);
+
+		static Handle<Font> LoadFontFromJson(const CPath& path, const json& j, bool isDefault = false);
+		static Handle<Font> LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution);
+		static Handle<Font> GetFont(const CPath& path);
 		static const Font& GetFont(uint32 resourceId);
 
-		static std::unordered_map<uint32, uint32> LoadFrom(const json& j);
+		static std::unordered_map<uint32, uint32> LoadTexturesFrom(const json& j);
+		static std::unordered_map<uint32, uint32> LoadFontsFrom(const json& j);
 		static json Serialize();
 
 		static void Clear();
 		static void Init(uint32 scene);
 
 		static const std::vector<Texture>& GetAllTextures() { return s_Textures; }
+		static const std::vector<Font>& GetAllFonts() { return s_Fonts; }
 
 	public:
 		static uint32 s_CurrentScene;

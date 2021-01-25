@@ -33,6 +33,8 @@ namespace CImGui
 	void UndoableDragFloat(const char* label, float& val);
 	void UndoableDragInt(const char* label, int& val);
 
+	void ReadonlyText(const char* label, const std::string& readonlyTextValue);
+
 	template <typename T>
 	bool UndoableCombo(T& enumVal, const char* label, const char* const items[], int items_count)
 	{

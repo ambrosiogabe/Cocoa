@@ -12,19 +12,16 @@ namespace Cocoa
 	public:
 		Handle()
 		{
-			m_Type = entt::type_info<T>().id();
 			m_AssetId = m_NullId;
 		}
 
 		Handle(uint32 id)
 		{
-			m_Type = entt::type_info<T>().id();
 			m_AssetId = id;
 		}
 
 		Handle(const Handle& other)
 		{
-			m_Type = entt::type_info<T>().id();
 			m_AssetId = other.m_AssetId;
 		}
 
@@ -50,7 +47,6 @@ namespace Cocoa
 
 	public:
 		uint32 m_AssetId;
-		uint32 m_Type;
 
 	private:
 		uint32 m_NullId = -1;

@@ -81,4 +81,12 @@ namespace Cocoa
 			value = j;
 		}
 	}
+
+	void JsonExtended::AssignIfNotNull(const json& j, CPath& path)
+	{
+		if (!j.is_null() && j.is_string())
+		{
+			path = CPath(std::string(j));
+		}
+	}
 }

@@ -223,7 +223,7 @@ namespace Cocoa
 		"		{\n"
 		"			auto typeData = entt::resolve_type(any.type().id());\n"
 		"			\n"
-		"			int size = j[\"Size\"];\n"
+		"			int size = j[\"Components\"].size();\n"
 		"			auto typeName = debugNames.find(any.type().id())->second;\n"
 		"			json compJson;\n"
 		"			compJson[typeName] = {};\n"
@@ -251,7 +251,6 @@ namespace Cocoa
 		"			}\n"
 		"\n"
 		"			j[\"Components\"][size] = compJson;\n"
-		"			j[\"Size\"] = size + 1;\n"
 		"		}\n"
 		"\n";
 

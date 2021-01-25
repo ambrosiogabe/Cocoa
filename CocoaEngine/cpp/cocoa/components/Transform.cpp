@@ -9,7 +9,7 @@ namespace Cocoa
 		json position = CMath::Serialize("Position", transform.m_Position);
 		json scale = CMath::Serialize("Scale", transform.m_Scale);
 		json rotation = CMath::Serialize("Rotation", transform.m_EulerRotation);
-		int size = j["Size"];
+		int size = j["Components"].size();
 		j["Components"][size] = {
 			{"Transform", {
 				{"Entity", entity.GetID()},
@@ -18,8 +18,6 @@ namespace Cocoa
 				rotation
 			}}
 		};
-
-		j["Size"] = size + 1;
 	}
 	void Transform::Deserialize(json& j, Entity entity)
 	{

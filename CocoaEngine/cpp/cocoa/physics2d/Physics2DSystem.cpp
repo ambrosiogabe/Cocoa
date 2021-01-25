@@ -177,7 +177,7 @@ namespace Cocoa
 	{
 		json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
 		json offset = CMath::Serialize("Offset", box.m_Offset);
-		int size = j["Size"];
+		int size = j["Components"].size();
 		j["Components"][size] = {
 			{"AABB", {
 				{"Entity", entity.GetID()},
@@ -185,8 +185,6 @@ namespace Cocoa
 				offset
 			}}
 		};
-
-		j["Size"] = size + 1;
 	}
 
 	void Physics2DSystem::DeserializeAABB(json& j, Entity entity)
@@ -201,15 +199,13 @@ namespace Cocoa
 	void Physics2DSystem::Serialize(json& j, Entity entity, const Box2D& box)
 	{
 		json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
-		int size = j["Size"];
+		int size = j["Components"].size();
 		j["Components"][size] = {
 			{"Box2D", {
 				{"Entity", entity.GetID()},
 				halfSize,
 			}}
 		};
-
-		j["Size"] = size + 1;
 	}
 
 	void Physics2DSystem::DeserializeBox2D(json& j, Entity entity)
@@ -228,7 +224,7 @@ namespace Cocoa
 		json velocity = CMath::Serialize("Velocity", rb.m_Velocity);
 		json continousCollision = { "ContinousCollision", rb.m_ContinuousCollision };
 		json fixedRotation = { "FixedRotation", rb.m_FixedRotation };
-		int size = j["Size"];
+		int size = j["Components"].size();
 		j["Components"][size] = {
 			{"Rigidbody2D", {
 				{"Entity", entity.GetID()},
@@ -240,8 +236,6 @@ namespace Cocoa
 				fixedRotation
 			}}
 		};
-
-		j["Size"] = size + 1;
 	}
 
 	void Physics2DSystem::DeserializeRigidbody2D(json& j, Entity entity)

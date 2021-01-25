@@ -11,6 +11,7 @@
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/scenes/Scene.h"
+#include "cocoa/renderer/fonts/FontUtil.h"
 
 namespace Cocoa
 {
@@ -38,6 +39,9 @@ namespace Cocoa
 		case AssetView::ScriptBrowser:
 			ShowScriptBrowser();
 			break;
+		case AssetView::FontBrowser:
+			ShowFontBrowser();
+			break;
 		default:
 			Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
 			break;
@@ -51,7 +55,7 @@ namespace Cocoa
 	{
 		ImGui::BeginGroup();
 
-		std::array<const char*, (int)AssetView::Length> assetViews = { "TextureBrowser", "SceneBrowser", "ScriptBrowser" };
+		std::array<const char*, (int)AssetView::Length> assetViews = { "Texture Browser", "Scene Browser", "Script Browser", "Font Browser" };
 		CImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 		ImGui::EndGroup();
 		ImGui::Separator();
@@ -123,6 +127,89 @@ namespace Cocoa
 			{
 				AssetManager::LoadTextureFromFile(CPath(result.filepath));
 			}
+		}
+	}
+
+	void AssetWindow::ShowFontBrowser()
+	{
+		const std::vector<Font>& fonts = AssetManager::GetAllFonts();
+		int i = -1;
+		for (auto& font : fonts)
+		{
+			i++;
+			if (font.IsDefault())
+			{
+				continue;
+			}
+
+			int fontResourceId = i;
+			ImGui::PushID(fontResourceId);
+			const Texture& fontTexture = AssetManager::GetTexture(font.m_FontTexture.m_AssetId);
+
+			if (ImageButton(fontTexture, font.m_Path.Filename(), m_ButtonSize))
+			{
+				//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
+			}
+
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+			{
+				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &fontResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+				ImageButton(fontTexture, font.m_Path.Filename(), m_ButtonSize);
+				ImGui::EndDragDropSource();
+			}
+			ImGui::SameLine();
+
+			ImGui::PopID();
+		}
+
+		if (IconButton(ICON_FA_PLUS, "Add Font", m_ButtonSize))
+		{
+			ImGui::OpenPopup("FontCreator");
+		}
+
+		if (ImGui::BeginPopup("FontCreator", ImGuiWindowFlags_NoDocking))
+		{
+			//const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096
+			static std::string fontPath;
+			
+			CImGui::ReadonlyText("Font File: ", fontPath);
+			if (CImGui::Button("Select Font File"))
+			{
+				FileDialogResult result;
+				if (IFileDialog::GetOpenFileName(fontPath, result))
+				{
+					fontPath = result.filepath;
+				}
+				else
+				{
+					Log::Warning("Unable to get file name for font.");
+				}
+			}
+
+			static int fontSize = 32;
+			CImGui::UndoableDragInt("Font Size: ", fontSize);
+
+			CPath outputTexture = Settings::General::s_WorkingDirectory + "assets" + (std::string(CPath(fontPath).GetFilenameWithoutExt()) + ".png");
+
+			// Advanced stuff...
+			static int glyphRangeStart = 0;
+			CImGui::UndoableDragInt("Glyph Range Start: ", glyphRangeStart);
+
+			static int glyphRangeEnd = 'z' + 1;
+			CImGui::UndoableDragInt("Glyph Range End: ", glyphRangeEnd);
+
+			static int padding = 5;
+			CImGui::UndoableDragInt("Padding: ", padding);
+
+			static int upscaleResolution = 4096;
+			CImGui::UndoableDragInt("Upscale Resolution: ", upscaleResolution);
+
+			if (CImGui::Button("Generate Font"))
+			{
+				AssetManager::LoadFontFromTtfFile(fontPath, fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
 		}
 	}
 

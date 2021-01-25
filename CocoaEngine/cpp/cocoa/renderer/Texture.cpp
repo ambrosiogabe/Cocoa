@@ -131,7 +131,6 @@ namespace Cocoa
 	json Texture::Serialize()
 	{
 		return {
-			{"Type", AssetType::Texture},
 			{"Filepath", m_Path.Filepath()}
 		};
 	}

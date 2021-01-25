@@ -28,16 +28,6 @@ namespace Cocoa
 		return Texture::nullTexture;
 	}
 
-	const Font& AssetManager::GetFont(uint32 resourceId)
-	{
-		if (resourceId < s_Fonts.size())
-		{
-			return s_Fonts[resourceId];
-		}
-
-		return Font::nullFont;
-	}
-
 	Handle<Texture> AssetManager::GetTexture(const CPath& path)
 	{
 		int i = 0;
@@ -58,7 +48,7 @@ namespace Cocoa
 		Handle<Texture> texture = GetTexture(path);
 		if (!texture.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded.");
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Filepath());
 			return texture;
 		}
 
@@ -71,12 +61,73 @@ namespace Cocoa
 		return Handle<Texture>(index);
 	}
 
+	const Font& AssetManager::GetFont(uint32 resourceId)
+	{
+		if (resourceId < s_Fonts.size())
+		{
+			return s_Fonts[resourceId];
+		}
+
+		return Font::nullFont;
+	}
+
+	Handle<Font> AssetManager::GetFont(const CPath& path)
+	{
+		int i = 0;
+		for (auto& font : s_Fonts)
+		{
+			if (font.m_Path == path)
+			{
+				return Handle<Texture>(i);
+			}
+			i++;
+		}
+
+		return Handle<Font>();
+	}
+
+	Handle<Font> AssetManager::LoadFontFromJson(const CPath& path, const json& j, bool isDefault)
+	{
+		Handle<Font> font = GetFont(path);
+		if (!font.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", path.Filepath());
+			return font;
+		}
+
+		CPath absPath = IFile::GetAbsolutePath(path);
+		int index = s_Fonts.size();
+		s_Fonts.push_back(Font{ absPath, isDefault });
+
+		Font& newFont = s_Fonts.at(index);
+		newFont.Deserialize(j);
+		return Handle<Texture>(index);
+	}
+
+	Handle<Font> AssetManager::LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
+	{
+		Handle<Font> font = GetFont(fontFile);
+		if (!font.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Filepath());
+			return font;
+		}
+
+		CPath absPath = IFile::GetAbsolutePath(fontFile);
+		int index = s_Fonts.size();
+		s_Fonts.push_back(Font{ absPath, false });
+
+		Font& newFont = s_Fonts.at(index);
+		newFont.GenerateSdf(fontFile, fontSize, outputFile, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+		newFont.m_FontTexture = AssetManager::LoadTextureFromFile(outputFile);
+		return Handle<Font>(index);
+	}
+
 	json AssetManager::Serialize()
 	{
 		json res;
 
 		res["SceneID"] = s_CurrentScene;
-		int assetCount = 0;
 
 		int i = 0;
 		for (auto& assetIt : s_Textures)
@@ -85,70 +136,84 @@ namespace Cocoa
 			{
 				json assetSerialized = assetIt.Serialize();
 				assetSerialized["ResourceId"] = i;
-				res["AssetList"][std::to_string(i)] = assetSerialized;
-				assetCount++;
+				res["Textures"][std::to_string(i)] = assetSerialized;
 			}
 			i++;
 		}
 
+		i = 0;
 		for (auto& assetIt : s_Fonts)
 		{
-			//if (!assetIt.IsDefault())
-			//{
-			//	json assetSerialized = assetIt.Serialize();
-			//	assetSerialized["ResourceId"] = i;
-			//	i++;
-			//	assetCount++;
-			//}
+			if (!assetIt.IsDefault())
+			{
+				json assetSerialized = assetIt.Serialize();
+				assetSerialized["ResourceId"] = i;
+				res["Fonts"][std::to_string(i)] = assetSerialized;
+			}
+			i++;
 		}
-
-		res["AssetCount"] = assetCount;
 
 		return res;
 	}
 
-	std::unordered_map<uint32, uint32> AssetManager::LoadFrom(const json& j)
+	std::unordered_map<uint32, uint32> AssetManager::LoadTexturesFrom(const json& j)
 	{
 		std::unordered_map<uint32, uint32> resourceIDMap{};
 
 		uint32 scene = -1;
 		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
-		int assetCount = -1;
-		JsonExtended::AssignIfNotNull(j["AssetCount"], assetCount);
 
-		if (scene >= 0 && assetCount > 0)
+		// TODO: Switch all json accessors to use .contains(key) instead of [key]
+		if (scene >= 0 && j.contains("Textures"))
 		{
-			for (auto it = j["AssetList"].begin(); it != j["AssetList"].end(); ++it)
+			for (auto it = j["Textures"].begin(); it != j["Textures"].end(); ++it)
 			{
 				const json& assetJson = it.value();
-				uint32 type = 0;
-				JsonExtended::AssignIfNotNull(assetJson["Type"], type);
 				uint32 resourceId = -1;
 				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
 
 				CPath path = "";
-				if (!assetJson["Filepath"].is_null())
+				if (assetJson.contains("Filepath"))
 				{
 					path = CPath(assetJson["Filepath"], false);
 				}
 
 				if (resourceId >= 0)
 				{
-					switch (static_cast<AssetType>(type))
-					{
-					case AssetType::None:
-						Log::Warning("Tried to deserialize asset of type none: %s", path.Filepath());
-						break;
-					case AssetType::Texture:
-					{
-						Handle<Texture> tex = LoadTextureFromFile(path);
-						resourceIDMap.insert({ resourceId, tex.m_AssetId });
-					}
-					break;
-					default:
-						Log::Warning("Unkown asset type %d for: %s", type, path.Filepath());
-						break;
-					}
+					Handle<Texture> tex = LoadTextureFromFile(path);
+					resourceIDMap.insert({ resourceId, tex.m_AssetId });
+				}
+			}
+		}
+
+		return resourceIDMap;
+	}
+
+	std::unordered_map<uint32, uint32> AssetManager::LoadFontsFrom(const json& j)
+	{
+		std::unordered_map<uint32, uint32> resourceIDMap{};
+
+		uint32 scene = -1;
+		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
+
+		if (scene >= 0 && j.contains("Fonts"))
+		{
+			for (auto it = j["Fonts"].begin(); it != j["Fonts"].end(); ++it)
+			{
+				const json& assetJson = it.value();
+				uint32 resourceId = -1;
+				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
+
+				CPath path = "";
+				if (assetJson.contains("Filepath"))
+				{
+					path = CPath(assetJson["Filepath"], false);
+				}
+
+				if (resourceId >= 0)
+				{
+					Handle<Font> font = LoadFontFromJson(path, assetJson);
+					resourceIDMap.insert({ resourceId, font.m_AssetId });
 				}
 			}
 		}
