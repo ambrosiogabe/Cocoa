@@ -63,10 +63,9 @@ namespace Cocoa
 		}
 
 		CPath absPath = IFile::GetAbsolutePath(path);
-		std::shared_ptr<Texture> newAsset = std::make_shared<Texture>(absPath.Filepath(), isDefault);
+		int index = s_Textures.size();
 		s_Textures.push_back({ absPath.Filepath(), isDefault });
 
-		int index = s_Textures.size() - 1;
 		Texture& newTexture = s_Textures.at(index);
 		newTexture.Load();
 		return Handle<Texture>(index);
@@ -87,9 +86,9 @@ namespace Cocoa
 				json assetSerialized = assetIt.Serialize();
 				assetSerialized["ResourceId"] = i;
 				res["AssetList"][std::to_string(i)] = assetSerialized;
-				i++;
 				assetCount++;
 			}
+			i++;
 		}
 
 		for (auto& assetIt : s_Fonts)
