@@ -14,6 +14,7 @@ namespace Cocoa
 	Font::Font()
 	{
 		m_IsNull = true;
+		m_IsDefault = false;
 	}
 
 	Font::Font(CPath& resourcePath, bool isDefault)
@@ -24,10 +25,17 @@ namespace Cocoa
 
 	Font::~Font()
 	{
-		if (m_CharacterMap)
-		{
-			free(m_CharacterMap);
-		}
+		// We can't do this in the destructor, because when the vector resizes it might prematurely release this...
+		// So instead we have to manually declare when to release the memory (ha, RAII will save you from problems *eye roll*)
+		//if (m_CharacterMap)
+		//{
+		//	free(m_CharacterMap);
+		//}
+	}
+
+	void Font::Free()
+	{
+		free(m_CharacterMap);
 	}
 
 	const CharInfo& Font::GetCharacterInfo(int codepoint) const

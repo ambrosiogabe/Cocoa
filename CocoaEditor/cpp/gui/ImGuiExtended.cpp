@@ -59,12 +59,21 @@ namespace CImGui
 		return res;
 	}
 
-	bool Button(const char* label, const glm::vec2& size)
+	bool Button(const char* label, const glm::vec2& size, bool invertTextColor)
 	{
-		ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_TextInverted);
-		ImGui::PushStyleColor(ImGuiCol_Text, color);
+		if (invertTextColor)
+		{
+			ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_TextInverted);
+			ImGui::PushStyleColor(ImGuiCol_Text, color);
+		}
+
 		bool res = ImGui::Button(label, ImVec2(size.x, size.y));
-		ImGui::PopStyleColor();
+
+		if (invertTextColor)
+		{
+			ImGui::PopStyleColor();
+		}
+
 		return res;
 	}
 
@@ -119,9 +128,10 @@ namespace CImGui
 
 	void ReadonlyText(const char* label, const std::string& readonlyTextValue)
 	{
+		ImGui::Text(label);
 		char* buf = (char*)readonlyTextValue.c_str();
 		int buf_size = readonlyTextValue.size();
-		ImGui::InputText(label, buf, buf_size, ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText((std::string("##") + std::string(label)).c_str(), buf, buf_size, ImGuiInputTextFlags_ReadOnly);
 	}
 
 	void UndoableDragFloat4(const char* label, glm::vec4& vector)

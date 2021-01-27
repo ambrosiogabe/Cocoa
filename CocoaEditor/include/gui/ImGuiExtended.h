@@ -17,7 +17,7 @@
 namespace CImGui
 {
 	bool MenuButton(const char* label, const glm::vec2& size = { 0, 0 });
-	bool Button(const char* label, const glm::vec2& size = { 0, 0 });
+	bool Button(const char* label, const glm::vec2& size = { 0, 0 }, bool invertTextColor=true);
 	bool ButtonDropdown(const char* label, const char* const items[], int items_size, int& item_pressed);
 	bool ImageButton(const Cocoa::Texture& texture, const glm::vec2& size, int framePadding = -1,
 		const glm::vec4& bgColor = { 0, 0, 0, 0 }, const glm::vec4& tintColor = { 1, 1, 1, 1 });

@@ -173,7 +173,8 @@ namespace Cocoa
 			static std::string fontPath;
 			
 			CImGui::ReadonlyText("Font File: ", fontPath);
-			if (CImGui::Button("Select Font File"))
+			ImGui::SameLine();
+			if (CImGui::Button("Select Font File", {0, 0}, false))
 			{
 				FileDialogResult result;
 				if (IFileDialog::GetOpenFileName(fontPath, result))
@@ -204,7 +205,8 @@ namespace Cocoa
 			static int upscaleResolution = 4096;
 			CImGui::UndoableDragInt("Upscale Resolution: ", upscaleResolution);
 
-			if (CImGui::Button("Generate Font"))
+			ImGui::NewLine();
+			if (CImGui::Button("Generate Font", {0, 0}, false))
 			{
 				AssetManager::LoadFontFromTtfFile(fontPath, fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
 				ImGui::CloseCurrentPopup();

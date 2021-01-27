@@ -141,7 +141,7 @@ namespace Cocoa
 
 		Font& newFont = s_Fonts.at(index);
 		newFont.Deserialize(j);
-		return Handle<Texture>(index);
+		return Handle<Font>(index);
 	}
 
 	Handle<Font> AssetManager::LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
@@ -176,7 +176,7 @@ namespace Cocoa
 			{
 				json assetSerialized = assetIt.Serialize();
 				assetSerialized["ResourceId"] = i;
-				res["Textures"][std::to_string(i)] = assetSerialized;
+				res["Textures"][i] = assetSerialized;
 			}
 			i++;
 		}
@@ -188,7 +188,7 @@ namespace Cocoa
 			{
 				json assetSerialized = assetIt.Serialize();
 				assetSerialized["ResourceId"] = i;
-				res["Fonts"][std::to_string(i)] = assetSerialized;
+				res["Fonts"][i] = assetSerialized;
 			}
 			i++;
 		}
@@ -208,6 +208,8 @@ namespace Cocoa
 			for (auto it = j["Textures"].begin(); it != j["Textures"].end(); ++it)
 			{
 				const json& assetJson = it.value();
+				if (assetJson.is_null()) continue;
+
 				uint32 resourceId = -1;
 				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
 
@@ -236,6 +238,8 @@ namespace Cocoa
 			for (auto it = j["Fonts"].begin(); it != j["Fonts"].end(); ++it)
 			{
 				const json& assetJson = it.value();
+				if (assetJson.is_null()) continue;
+
 				uint32 resourceId = -1;
 				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
 
@@ -256,6 +260,12 @@ namespace Cocoa
 	void AssetManager::Clear()
 	{
 		s_Textures.clear();
+
+		// Free all fonts before destroying them
+		for (auto& font : s_Fonts)
+		{
+			font.Free();
+		}
 		s_Fonts.clear();
 	}
 }
