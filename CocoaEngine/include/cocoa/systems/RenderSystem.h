@@ -31,15 +31,15 @@ namespace Cocoa
 		static void DeserializeSpriteRenderer(json& json, Entity entity);
 		static void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer);
 		static void DeserializeFontRenderer(json& json, Entity entity);
-		static void BindShader(std::shared_ptr<Shader> shader) { s_Shader = shader; }
-		static void UploadUniform1ui(const char* name, uint32 val) { s_Shader->UploadUInt(name, val); }
+		static void BindShader(Handle<Shader> shader) { s_Shader = shader; }
+		static void UploadUniform1ui(const char* name, uint32 val);
 
 	public:
 		int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		const int MAX_BATCH_SIZE = 1000;
 
 	private:
-		static std::shared_ptr<Shader> s_Shader;
+		static Handle<Shader> s_Shader;
 		std::vector<std::shared_ptr<RenderBatch>> m_Batches;
 		Camera* m_Camera;
 	};

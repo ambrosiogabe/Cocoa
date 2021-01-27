@@ -13,7 +13,7 @@ namespace Cocoa
 		Texture(int width, int height, bool isDefault=false);
 
 		void Load();
-		void Unload();
+		void Delete();
 		json Serialize();
 
 		void Bind() const;

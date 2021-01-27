@@ -11,7 +11,16 @@
 
 namespace Cocoa
 {
-	std::shared_ptr<Shader> RenderSystem::s_Shader = nullptr;
+	Handle<Shader> RenderSystem::s_Shader = Handle<Shader>();
+
+	void RenderSystem::UploadUniform1ui(const char* name, uint32 val)
+	{
+		const Shader& shader = AssetManager::GetShader(s_Shader);
+		if (!shader.IsNull())
+		{
+			shader.UploadUInt(name, val);
+		}
+	}
 
 	void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr)
 	{
@@ -81,13 +90,14 @@ namespace Cocoa
 			this->AddEntity(transform, fontRenderer);
 		});
 
-		Log::Assert((s_Shader != nullptr), "Must bind shader before render call");
+		Log::Assert((!s_Shader.IsNull()), "Must bind shader before render call");
 
-		s_Shader->Bind();
-		s_Shader->UploadMat4("uProjection", m_Camera->GetOrthoProjection());
-		s_Shader->UploadMat4("uView", m_Camera->GetOrthoView());
-		s_Shader->UploadIntArray("uTextures", 16, m_TexSlots);
-		//s_Shader->UploadFloat("uActiveEntityID", (float)(m_Scene->GetActiveEntity().GetID() + 1));
+		const Shader& shader = AssetManager::GetShader(s_Shader.m_AssetId);
+		Log::Assert(!shader.IsNull(), "Cannot render with a null shader.");
+		shader.Bind();
+		shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
+		shader.UploadMat4("uView", m_Camera->GetOrthoView());
+		shader.UploadIntArray("uTextures", 16, m_TexSlots);
 
 		for (auto& batch : m_Batches)
 		{
@@ -95,7 +105,7 @@ namespace Cocoa
 			batch->Clear();
 		}
 
-		s_Shader->Unbind();
+		shader.Unbind();
 	}
 
 	void RenderSystem::Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)

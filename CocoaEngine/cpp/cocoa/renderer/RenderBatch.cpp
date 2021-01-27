@@ -313,13 +313,9 @@ namespace Cocoa
 		}
 
 		glBindVertexArray(m_VAO);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
 
 		glDrawElements(GL_TRIANGLES, m_NumSprites * 6, GL_UNSIGNED_INT, 0);
 
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
 		glBindVertexArray(0);
 
 		for (int i = 0; i < this->m_NumTextures; i++)

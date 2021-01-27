@@ -4,6 +4,7 @@
 #include "cocoa/file/CPath.h"
 #include "cocoa/systems/System.h"
 #include "cocoa/scenes/SceneInitializer.h"
+#include "cocoa/renderer/PickingTexture.h"
 
 #include <entt/entt.hpp>
 

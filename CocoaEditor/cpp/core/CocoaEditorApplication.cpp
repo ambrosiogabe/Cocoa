@@ -26,9 +26,8 @@ namespace Cocoa
 	EditorLayer::EditorLayer(Scene* scene)
 		: Layer(scene), m_PickingTexture(3840, 2160)
 	{
-		m_PickingShader = std::make_shared<Shader>(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"));
-		m_DefaultShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
-		m_OutlineShader = std::make_shared<Shader>(Settings::General::s_EngineAssetsPath + "shaders/SingleColor.glsl");
+		m_PickingShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
+		m_DefaultShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl", true);
 		Settings::General::s_EngineExeDirectory = IFile::GetExecutableDirectory().GetDirectory(-1);
 		Settings::General::s_EngineSourceDirectory = IFile::GetExecutableDirectory().GetDirectory(-4);
 		Log::Info("%s", Settings::General::s_EngineExeDirectory.Filepath());
@@ -198,6 +197,9 @@ namespace Cocoa
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			// TODO: Very temporary ugly, horrible fix, fix this ASAP
+			m_PickingShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
+			m_DefaultShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl", true);
 			RenderSystem::BindShader(m_PickingShader);
 			m_Scene->Render();
 

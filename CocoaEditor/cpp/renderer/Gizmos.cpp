@@ -190,7 +190,7 @@ namespace Cocoa
 				{
 					gizmo.m_Active = false;
 				}
-				gizmo.Render(m_Camera);
+				//gizmo.Render(m_Camera);
 			}
 			if (!anyHot)
 			{

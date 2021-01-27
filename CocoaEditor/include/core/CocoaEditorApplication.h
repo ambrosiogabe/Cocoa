@@ -9,6 +9,7 @@
 #include "cocoa/core/Layer.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/renderer/Shader.h"
+#include "cocoa/core/Handle.h"
 
 namespace Cocoa
 {
@@ -38,9 +39,8 @@ namespace Cocoa
 
 	private:
 		PickingTexture m_PickingTexture;
-		std::shared_ptr<Shader> m_PickingShader;
-		std::shared_ptr<Shader> m_DefaultShader;
-		std::shared_ptr<Shader> m_OutlineShader;
+		Handle<Shader> m_PickingShader;
+		Handle<Shader> m_DefaultShader;
 		std::shared_ptr<SourceFileWatcher> m_SourceFileWatcher;
 
 	private:

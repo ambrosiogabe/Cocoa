@@ -95,11 +95,14 @@ namespace Cocoa
 		}
 	}
 
-	void Texture::Unload()
+	void Texture::Delete()
 	{
-		stbi_image_free(m_PixelBuffer);
-		m_PixelBuffer = nullptr;
-		m_PixelsFreed = true;
+		if (m_PixelBuffer)
+		{
+			stbi_image_free(m_PixelBuffer);
+			m_PixelBuffer = nullptr;
+			m_PixelsFreed = true;
+		}
 		glDeleteTextures(1, &m_ID);
 	}
 

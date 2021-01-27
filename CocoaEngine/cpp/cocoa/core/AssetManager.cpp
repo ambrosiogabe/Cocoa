@@ -8,6 +8,7 @@ namespace Cocoa
 {
 	std::vector<Texture> AssetManager::s_Textures = std::vector<Texture>();
 	std::vector<Font> AssetManager::s_Fonts = std::vector<Font>();
+	std::vector<Shader> AssetManager::s_Shaders = std::vector<Shader>();
 	uint32 AssetManager::s_CurrentScene = 0;
 	uint32 AssetManager::s_ResourceCount = 0;
 
@@ -16,6 +17,69 @@ namespace Cocoa
 		s_CurrentScene = scene;
 		s_ResourceCount = 0;
 		// TODO: Clear assets somehow?
+	}
+
+	const Shader& AssetManager::GetShader(uint32 resourceId)
+	{
+		if (resourceId < s_Shaders.size())
+		{
+			return s_Shaders[resourceId];
+		}
+
+		return Shader::nullShader;
+	}
+
+	Handle<Shader> AssetManager::GetShader(const CPath& path)
+	{
+		int i = 0;
+		for (auto& shader : s_Shaders)
+		{
+			if (shader.GetPath() == path)
+			{
+				return Handle<Shader>(i);
+			}
+			i++;
+		}
+
+		return Handle<Shader>();
+	}
+
+	Handle<Shader> AssetManager::LoadShaderFromFile(const CPath& path, bool isDefault, int id)
+	{
+		Handle<Shader> shader = GetShader(path);
+		if (!shader.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Filepath());
+			return shader;
+		}
+
+		CPath absPath = IFile::GetAbsolutePath(path);
+		int index = id;
+
+		// If id is -1, we don't care where you place the texture so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Shaders.size();
+			s_Shaders.emplace_back(Shader{ absPath.Filepath(), isDefault });
+		}
+		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Shaders.size(), "Id must be smaller then shader size.");
+			Log::Assert(s_Shaders[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
+			if (s_Shaders[index].IsNull())
+			{
+				s_Shaders[index] = { absPath.Filepath(), isDefault };
+			}
+			else
+			{
+				Log::Error("Could not place shader at requested id. The slot is already taken.");
+			}
+		}
+
+		Shader& newShader = s_Shaders.at(index);
+		newShader.Compile(newShader.GetPath().Filepath());
+		return Handle<Shader>(index);
 	}
 
 	const Texture& AssetManager::GetTexture(uint32 resourceId)
@@ -59,7 +123,7 @@ namespace Cocoa
 		if (index == -1)
 		{
 			index = s_Textures.size();
-			s_Textures.push_back({ absPath.Filepath(), isDefault });
+			s_Textures.emplace_back(Texture{ absPath.Filepath(), isDefault });
 		}
 		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 		else
@@ -122,7 +186,7 @@ namespace Cocoa
 		if (index == -1)
 		{
 			index = s_Fonts.size();
-			s_Fonts.push_back(Font{ absPath, isDefault });
+			s_Fonts.emplace_back(Font{ absPath, isDefault });
 		}
 		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
 		else
@@ -259,6 +323,11 @@ namespace Cocoa
 
 	void AssetManager::Clear()
 	{
+		// Delete all textures on GPU before clear
+		for (auto& tex : s_Textures)
+		{
+			tex.Delete();
+		}
 		s_Textures.clear();
 
 		// Free all fonts before destroying them
@@ -267,5 +336,12 @@ namespace Cocoa
 			font.Free();
 		}
 		s_Fonts.clear();
+
+		// Delete all shaders on clear
+		for (auto& shader : s_Shaders)
+		{
+			shader.Delete();
+		}
+		s_Shaders.clear();
 	}
 }
