@@ -40,13 +40,6 @@ namespace Cocoa
 			// change the pointers it holds
 			m_Sprites.reserve(numSprites);
 
-			const uint8* rawPixels = texture.GetPixelBuffer();
-
-			int bytesPerPixel = texture.BytesPerPixel();
-			int area = spriteWidth * spriteHeight * bytesPerPixel;
-			// This will be used to house temporary sprite data to calculate bounding boxes for all sprites
-			std::unique_ptr<uint8> tmpSubImage(new uint8[area]);
-
 			int currentX = 0;
 			int currentY = texture.GetHeight() - spriteHeight;
 			for (int i = 0; i < numSprites; i++)
@@ -55,22 +48,6 @@ namespace Cocoa
 				float rightX = (currentX + spriteWidth) / (float)texture.GetWidth();
 				float leftX = currentX / (float)texture.GetWidth();
 				float bottomY = currentY / (float)texture.GetHeight();
-
-				for (int y = 0; y < spriteHeight; y++)
-				{
-					for (int x = 0; x < spriteWidth; x++)
-					{
-						int absY = y + currentY;
-						int absX = x + currentX;
-						int offset = (absX + absY * texture.GetWidth()) * bytesPerPixel;
-						const uint8* pixel = rawPixels + offset;
-						tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 0] = *(pixel + 0); // R
-						tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 1] = *(pixel + 1); // G
-						tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 2] = *(pixel + 2); // B
-						tmpSubImage.get()[(x + y * spriteWidth) * bytesPerPixel + 3] = *(pixel + 3); // A
-					}
-				}
-				AABB boundingBox = Physics2D::GetBoundingBoxForPixels(tmpSubImage.get(), spriteWidth, spriteHeight, texture.BytesPerPixel());
 
 				Sprite sprite{
 					textureHandle,

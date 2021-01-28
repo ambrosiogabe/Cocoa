@@ -3,6 +3,7 @@
 #include "cocoa/renderer/Framebuffer.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/util/Log.h"
+#include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
 {
@@ -11,7 +12,7 @@ namespace Cocoa
 		glGenFramebuffers(1, &m_ID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
 
-		// Create texture to render data too and attach it to framebuffer
+		// Create texture to render data to and attach it to framebuffer
 		m_Texture = new Texture(m_Width, m_Height);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture->GetId(), 0);
 
@@ -34,5 +35,21 @@ namespace Cocoa
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	Framebuffer& Framebuffer::AddAttachment(TextureSpecification textureSpecification)
+	{
+		//// Create texture to render data to and attach it to framebuffer
+		//Handle<Texture> texture = AssetManager::CreateInternalTexture(m_Width, m_Height);
+		//m_Texture = new Texture(m_Width, m_Height);
+		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture->GetId(), 0);
+
+		//// Create renderbuffer to store depth_stencil info
+		//unsigned int rboID;
+		//glGenRenderbuffers(1, &rboID);
+		//glBindRenderbuffer(GL_RENDERBUFFER, rboID);
+		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height);
+		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboID);
+		return *this;
 	}
 }
