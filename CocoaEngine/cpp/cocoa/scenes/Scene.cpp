@@ -218,7 +218,13 @@ namespace Cocoa
 
 	void Scene::LoadDefaultAssets()
 	{
-		auto asset = AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", true);
+		Texture gizmoSpec;
+		gizmoSpec.MagFilter = FilterMode::Linear;
+		gizmoSpec.MinFilter = FilterMode::Linear;
+		gizmoSpec.WrapS = WrapMode::Repeat;
+		gizmoSpec.WrapT = WrapMode::Repeat;
+		gizmoSpec.IsDefault = true;
+		auto asset = AssetManager::LoadTextureFromFile(gizmoSpec, Settings::General::s_EngineAssetsPath + "images/gizmos.png");
 	}
 
 	static Entity FindOrCreateEntity(int id, Scene* scene, entt::registry& registry)

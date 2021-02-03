@@ -9,7 +9,6 @@
 
 namespace Cocoa
 {
-	//TODO: SDF bug when generating the textures... not sure if it's rendering shader related or the texture itself. Check it out ASAP
 	namespace FontUtil
 	{
 		int GetPixel(int x, int y, uint8* bitmap, int width, int height)

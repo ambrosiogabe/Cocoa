@@ -89,7 +89,7 @@ namespace Cocoa
 			return s_Textures[resourceId];
 		}
 
-		return Texture::nullTexture;
+		return TextureUtil::NullTexture;
 	}
 
 	Handle<Texture> AssetManager::GetTexture(const CPath& path)
@@ -97,7 +97,7 @@ namespace Cocoa
 		int i = 0;
 		for (auto& tex : s_Textures)
 		{
-			if (tex.GetFilepath() == path)
+			if (tex.Path == path)
 			{
 				return Handle<Texture>(i);
 			}
@@ -107,32 +107,38 @@ namespace Cocoa
 		return Handle<Texture>();
 	}
 
-	Handle<Texture> AssetManager::LoadTextureFromFile(const CPath& path, bool isDefault, int id)
+	Handle<Texture> AssetManager::LoadTextureFromJson(const json& j, bool isDefault, int id)
 	{
-		Handle<Texture> texture = GetTexture(path);
-		if (!texture.IsNull())
+		Texture texture = TextureUtil::Deserialize(j);
+		texture.IsDefault = isDefault;
+
+		Handle<Texture> textureHandle = GetTexture(texture.Path);
+		if (!textureHandle.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Filepath());
-			return texture;
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Filepath());
+			return textureHandle;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(path);
+		CPath absPath = IFile::GetAbsolutePath(texture.Path);
 		int index = id;
 
-		// If id is -1, we don't care where you place the texture so long as it gets loaded
+		// Make sure to generate texture *before* pushing back since we are pushing back a copy
+		TextureUtil::Generate(texture, texture.Path);
+
+		// If id is -1, we don't care where you place the font so long as it gets loaded
 		if (index == -1)
 		{
 			index = s_Textures.size();
-			s_Textures.emplace_back(Texture{ absPath.Filepath(), isDefault });
+			s_Textures.push_back(texture);
 		}
-		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
+		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
 		else
 		{
 			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
-			Log::Assert(s_Textures[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
-			if (s_Textures[index].IsNull())
+			Log::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
+			if (TextureUtil::IsNull(s_Textures[index]))
 			{
-				s_Textures[index] = { absPath.Filepath(), isDefault };
+				s_Textures[index] = texture;
 			}
 			else
 			{
@@ -140,8 +146,44 @@ namespace Cocoa
 			}
 		}
 
-		Texture& newTexture = s_Textures.at(index);
-		newTexture.Load();
+		return Handle<Font>(index);
+	}
+
+	Handle<Texture> AssetManager::LoadTextureFromFile(Texture& texture, const CPath& path, int id)
+	{
+		Handle<Texture> textureHandle = GetTexture(path);
+		if (!textureHandle.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Filepath());
+			return textureHandle;
+		}
+
+		CPath absPath = IFile::GetAbsolutePath(path);
+		int index = id;
+		texture.Path = path;
+		TextureUtil::Generate(texture, path);
+
+		// If id is -1, we don't care where you place the texture so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Textures.size();
+			s_Textures.push_back(texture);
+		}
+		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
+			Log::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
+			if (TextureUtil::IsNull(s_Textures[index]))
+			{
+				s_Textures[index] = texture;
+			}
+			else
+			{
+				Log::Error("Could not place texture at requested id. The slot is already taken.");
+			}
+		}
+
 		return Handle<Texture>(index);
 	}
 
@@ -219,11 +261,19 @@ namespace Cocoa
 
 		CPath absPath = IFile::GetAbsolutePath(fontFile);
 		int index = s_Fonts.size();
-		s_Fonts.push_back(Font{ absPath, false });
 
+		s_Fonts.push_back(Font{ absPath, false });
 		Font& newFont = s_Fonts.at(index);
 		newFont.GenerateSdf(fontFile, fontSize, outputFile, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
-		newFont.m_FontTexture = AssetManager::LoadTextureFromFile(outputFile);
+
+		Texture fontTexSpec;
+		fontTexSpec.IsDefault = false;
+		fontTexSpec.MagFilter = FilterMode::Linear;
+		fontTexSpec.MinFilter = FilterMode::Linear;
+		fontTexSpec.WrapS = WrapMode::Repeat;
+		fontTexSpec.WrapT = WrapMode::Repeat;
+		newFont.m_FontTexture = AssetManager::LoadTextureFromFile(fontTexSpec, outputFile);
+
 		return Handle<Font>(index);
 	}
 
@@ -236,9 +286,9 @@ namespace Cocoa
 		int i = 0;
 		for (auto& assetIt : s_Textures)
 		{
-			if (!assetIt.IsDefault())
+			if (!assetIt.IsDefault)
 			{
-				json assetSerialized = assetIt.Serialize();
+				json assetSerialized = TextureUtil::Serialize(assetIt);
 				assetSerialized["ResourceId"] = i;
 				res["Textures"][i] = assetSerialized;
 			}
@@ -263,29 +313,24 @@ namespace Cocoa
 	void AssetManager::LoadTexturesFrom(const json& j)
 	{
 		uint32 scene = -1;
-		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
+		JsonExtended::AssignIfNotNull(j, "SceneID", scene);
 
-		// TODO: Switch all json accessors to use .contains(key) instead of [key]
 		if (scene >= 0 && j.contains("Textures"))
 		{
-			s_Textures.resize(s_Textures.size() + j["Textures"].size());
+			// Note: We shouldn't have to worry about adding in the size of the default textures because they get 'serialized' as null
+			// Note: Should we keep it this way though?
+			s_Textures.resize(j["Textures"].size());
 			for (auto it = j["Textures"].begin(); it != j["Textures"].end(); ++it)
 			{
 				const json& assetJson = it.value();
 				if (assetJson.is_null()) continue;
 
 				uint32 resourceId = -1;
-				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
-
-				CPath path = "";
-				if (assetJson.contains("Filepath"))
-				{
-					path = CPath(assetJson["Filepath"], false);
-				}
+				JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
 
 				if (resourceId >= 0)
 				{
-					LoadTextureFromFile(path, false, resourceId);
+					LoadTextureFromJson(assetJson, false, resourceId);
 				}
 			}
 		}
@@ -294,7 +339,7 @@ namespace Cocoa
 	void AssetManager::LoadFontsFrom(const json& j)
 	{
 		uint32 scene = -1;
-		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
+		JsonExtended::AssignIfNotNull(j, "SceneID", scene);
 
 		if (scene >= 0 && j.contains("Fonts"))
 		{
@@ -305,7 +350,7 @@ namespace Cocoa
 				if (assetJson.is_null()) continue;
 
 				uint32 resourceId = -1;
-				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
+				JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
 
 				CPath path = "";
 				if (assetJson.contains("Filepath"))
@@ -326,7 +371,7 @@ namespace Cocoa
 		// Delete all textures on GPU before clear
 		for (auto& tex : s_Textures)
 		{
-			tex.Delete();
+			TextureUtil::Delete(tex);
 		}
 		s_Textures.clear();
 

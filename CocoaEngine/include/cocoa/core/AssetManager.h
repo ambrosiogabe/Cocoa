@@ -13,20 +13,21 @@ namespace Cocoa
 {
 	enum class AssetType : char
 	{
-		None=0,
-		Texture=1,
-		Font=2,
-		Shader=3
+		None = 0,
+		Texture = 1,
+		Font = 2,
+		Shader = 3
 	};
 
 	class COCOA AssetManager
 	{
-	public:		
-		static Handle<Texture> LoadTextureFromFile(const CPath& path, bool isDefault = false, int id=-1);
+	public:
+		static Handle<Texture> LoadTextureFromJson(const json& j, bool isDefault = false, int id = -1);
+		static Handle<Texture> LoadTextureFromFile(Texture& texture, const CPath& path, int id = -1);
 		static Handle<Texture> GetTexture(const CPath& path);
 		static const Texture& GetTexture(uint32 resourceId);
 
-		static Handle<Font> LoadFontFromJson(const CPath& path, const json& j, bool isDefault = false, int id=-1);
+		static Handle<Font> LoadFontFromJson(const CPath& path, const json& j, bool isDefault = false, int id = -1);
 		static Handle<Font> LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution);
 		static Handle<Font> GetFont(const CPath& path);
 		static const Font& GetFont(uint32 resourceId);

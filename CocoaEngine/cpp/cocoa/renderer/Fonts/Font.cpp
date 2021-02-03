@@ -88,33 +88,37 @@ namespace Cocoa
 
 	void Font::Deserialize(const json& j)
 	{
-		JsonExtended::AssignIfNotNull(j["CharacterMapSize"], m_CharacterMapSize);
-		
+		JsonExtended::AssignIfNotNull(j, "CharacterMapSize", m_CharacterMapSize);
+
 		m_CharacterMap = (CharInfo*)malloc(sizeof(CharInfo) * m_CharacterMapSize);
 		for (int i = 0; i < m_CharacterMapSize; i++)
 		{
 			float ux0, uy0, ux1, uy1, advance, bearingX, bearingY, chScaleX, chScaleY;
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["ux0"], ux0);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["uy0"], uy0);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["ux1"], ux1);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["uy1"], uy1);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["advance"], advance);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["bearingX"], bearingX);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["bearingY"], bearingY);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["chScaleX"], chScaleX);
-			JsonExtended::AssignIfNotNull(j["CharacterMap"][std::to_string(i)]["chScaleY"], chScaleY);
-			m_CharacterMap[i] = {
-				ux0, uy0,
-				ux1, uy1,
-				advance,
-				bearingX, bearingY,
-				chScaleX, chScaleY
-			};
+			if (j.contains("CharacterMap") && j["CharacterMap"].contains(std::to_string(i)))
+			{
+				json subJ = j["CharacterMap"][std::to_string(i)];
+				JsonExtended::AssignIfNotNull(subJ, "ux0", ux0);
+				JsonExtended::AssignIfNotNull(subJ, "uy0", uy0);
+				JsonExtended::AssignIfNotNull(subJ, "ux1", ux1);
+				JsonExtended::AssignIfNotNull(subJ, "uy1", uy1);
+				JsonExtended::AssignIfNotNull(subJ, "advance", advance);
+				JsonExtended::AssignIfNotNull(subJ, "bearingX", bearingX);
+				JsonExtended::AssignIfNotNull(subJ, "bearingY", bearingY);
+				JsonExtended::AssignIfNotNull(subJ, "chScaleX", chScaleX);
+				JsonExtended::AssignIfNotNull(subJ, "chScaleY", chScaleY);
+				m_CharacterMap[i] = {
+					ux0, uy0,
+					ux1, uy1,
+					advance,
+					bearingX, bearingY,
+					chScaleX, chScaleY
+				};
+			}
 		}
 
-		JsonExtended::AssignIfNotNull(j["FontTextureId"], m_FontTexture.m_AssetId);
-		JsonExtended::AssignIfNotNull(j["GlyphRangeStart"], m_GlyphRangeStart);
-		JsonExtended::AssignIfNotNull(j["GlyphRangeEnd"], m_GlyphRangeEnd);
-		JsonExtended::AssignIfNotNull(j["Filepath"], m_Path);
+		JsonExtended::AssignIfNotNull(j, "FontTextureId", m_FontTexture.m_AssetId);
+		JsonExtended::AssignIfNotNull(j, "GlyphRangeStart", m_GlyphRangeStart);
+		JsonExtended::AssignIfNotNull(j, "GlyphRangeEnd", m_GlyphRangeEnd);
+		JsonExtended::AssignIfNotNull(j, "Filepath", m_Path);
 	}
 }

@@ -5,35 +5,65 @@
 
 namespace Cocoa
 {
-	class COCOA Texture
+	enum class FilterMode
 	{
-	public:
-		Texture();
-		Texture(const CPath& resourceName, bool isDefault=false);
-		Texture(int width, int height, bool isDefault=false);
+		None=0,
+		Linear,
+		Nearest
+	};
 
-		void Load();
-		void Delete();
-		json Serialize();
+	enum class WrapMode
+	{
+		None=0,
+		Repeat
+	};
 
-		void Bind() const;
-		void Unbind() const;
+	enum class ByteFormat
+	{
+		None=0,
+		RGBA8,
+		RGB8,
+		RGB
+	};
 
-		inline int GetId() const { return m_Id; }
-		inline int GetWidth() const { return m_Width; }
-		inline int GetHeight() const { return m_Height; }
-		inline const CPath& GetFilepath() const { return m_Path; }
-		inline bool IsDefault() const { return m_IsDefault; }
-		inline bool IsNull() { return m_IsNull; }
+	struct COCOA Texture
+	{
+		uint32 GraphicsId = (uint32)-1;
+		int32 Width = 0;
+		int32 Height = 0;
 
-	public:
-		static Texture nullTexture;
+		// Texture attributes
+		FilterMode MagFilter = FilterMode::None;
+		FilterMode MinFilter = FilterMode::None;
+		WrapMode WrapS = WrapMode::None;
+		WrapMode WrapT = WrapMode::None;
+		ByteFormat InternalFormat = ByteFormat::None;
 
-	private:
-		bool m_IsDefault;
-		bool m_IsNull = false;
-		CPath m_Path;
-		unsigned int m_Id;
-		int m_Width, m_Height;
+		CPath Path = "";
+		bool IsDefault = false;
+	};
+
+	namespace TextureUtil
+	{
+		// Namespace variables
+		// NOTE: To make sure this variable is visible to other translation units, declare it as extern
+		COCOA extern const Texture NullTexture;
+
+		// Namespace functions
+		COCOA json Serialize(const Texture& texture);
+		COCOA Texture Deserialize(const json& j);
+
+		COCOA void Bind(const Texture& texture);
+		COCOA void Unbind(const Texture& texture);
+		COCOA void Delete(Texture& texture);
+
+		// Loads a texture using stb library and generates a texutre using the filter/wrap modes and automatically detects
+		// internal/external format, width, height, and alpha channel
+		COCOA void Generate(Texture& texture, const CPath& filepath);
+
+		// Allocates memory space on the GPU according to the texture specifications listed here
+		COCOA void Generate(Texture& texture);
+
+		COCOA bool IsNull(const Texture& texture);
 	};
 }

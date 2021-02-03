@@ -96,14 +96,14 @@ namespace Cocoa
 		for (auto& tex : textures)
 		{
 			i++;
-			if (tex.IsDefault())
+			if (tex.IsDefault || TextureUtil::IsNull(tex))
 			{
 				continue;
 			}
 
 			int texResourceId = i;
 			ImGui::PushID(texResourceId);
-			if (ImageButton(tex, tex.GetFilepath().Filename(), m_ButtonSize))
+			if (ImageButton(tex, tex.Path.Filename(), m_ButtonSize))
 			{
 				//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 			}
@@ -111,7 +111,7 @@ namespace Cocoa
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
 				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
-				ImageButton(tex, tex.GetFilepath().Filename(), m_ButtonSize);
+				ImageButton(tex, tex.Path.Filename(), m_ButtonSize);
 				ImGui::EndDragDropSource();
 			}
 			ImGui::SameLine();
@@ -125,7 +125,13 @@ namespace Cocoa
 			FileDialogResult result;
 			if (IFileDialog::GetOpenFileName(initialPath, result))
 			{
-				AssetManager::LoadTextureFromFile(CPath(result.filepath));
+				Texture texSpec;
+				texSpec.IsDefault = false;
+				texSpec.MagFilter = FilterMode::Nearest;
+				texSpec.MinFilter = FilterMode::Nearest;
+				texSpec.WrapS = WrapMode::Repeat;
+				texSpec.WrapT = WrapMode::Repeat;
+				AssetManager::LoadTextureFromFile(texSpec, CPath(result.filepath));
 			}
 		}
 	}

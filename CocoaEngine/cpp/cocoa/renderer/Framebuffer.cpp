@@ -13,8 +13,14 @@ namespace Cocoa
 		glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
 
 		// Create texture to render data to and attach it to framebuffer
-		m_Texture = new Texture(m_Width, m_Height);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture->GetId(), 0);
+		m_Texture = {};
+		m_Texture.Width = m_Width;
+		m_Texture.Height = m_Height;
+		m_Texture.MinFilter = FilterMode::Linear;
+		m_Texture.MagFilter = FilterMode::Linear;
+		m_Texture.InternalFormat = ByteFormat::RGB;
+		TextureUtil::Generate(m_Texture);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture.GraphicsId, 0);
 
 		// Create renderbuffer to store depth_stencil info
 		unsigned int rboID;

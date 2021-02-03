@@ -18,7 +18,7 @@ namespace Cocoa
 		static bool CreateProjectImGui();
 
 	private:
-		static Texture* s_JadeLogo;
+		static Texture s_JadeLogo;
 		static glm::vec2 s_IdealSize;
 		static glm::vec2 s_TexturePos;
 		static glm::vec2 s_VersionPos;

@@ -209,7 +209,7 @@ namespace Cocoa
 		Input::SetGameViewMousePos(m_GameviewMousePos);
 
 		CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-		uint32 texId = RenderSystem::s_MainFramebuffer.GetTexture()->GetId();
+		uint32 texId = RenderSystem::s_MainFramebuffer.m_Texture.GraphicsId;
 		ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
 		ImGui::End();
@@ -271,35 +271,44 @@ namespace Cocoa
 		ImGui::PopStyleColor(5);
 		ImGui::End();
 	}
-	
+
 	void ImGuiLayer::LoadStyle(const CPath& filepath)
 	{
 		File* styleData = IFile::OpenFile(filepath);
 		if (styleData->m_Data.size() > 0)
 		{
 			json j = json::parse(styleData->m_Data);
-			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgLight0"], Settings::EditorStyle::s_MainBgLight0);
-			JsonExtended::AssignIfNotNull(j["Colors"]["MainBg"], Settings::EditorStyle::s_MainBg);
-			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgDark0"], Settings::EditorStyle::s_MainBgDark0);
-			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgDark1"], Settings::EditorStyle::s_MainBgDark1);
-			JsonExtended::AssignIfNotNull(j["Colors"]["MainBgDark2"], Settings::EditorStyle::s_MainBgDark2);
-			JsonExtended::AssignIfNotNull(j["Colors"]["Accent"], Settings::EditorStyle::s_Accent);
-			JsonExtended::AssignIfNotNull(j["Colors"]["AccentDark0"], Settings::EditorStyle::s_AccentDark0);
-			JsonExtended::AssignIfNotNull(j["Colors"]["AccentDark1"], Settings::EditorStyle::s_AccentDark1);
-			JsonExtended::AssignIfNotNull(j["Colors"]["Button"], Settings::EditorStyle::s_Button);
-			JsonExtended::AssignIfNotNull(j["Colors"]["ButtonHovered"], Settings::EditorStyle::s_ButtonHovered);
-			JsonExtended::AssignIfNotNull(j["Colors"]["Font"], Settings::EditorStyle::s_Font);
-			JsonExtended::AssignIfNotNull(j["Colors"]["FontDisabled"], Settings::EditorStyle::s_FontDisabled);
-			JsonExtended::AssignIfNotNull(j["Colors"]["HighlightColor"], Settings::EditorStyle::s_HighlightColor);
+			if (j.contains("Colors"))
+			{
+				json& subJ = j["Colors"];
+				JsonExtended::AssignIfNotNull(subJ, "MainBgLight0", Settings::EditorStyle::s_MainBgLight0);
+				JsonExtended::AssignIfNotNull(subJ, "MainBg", Settings::EditorStyle::s_MainBg);
+				JsonExtended::AssignIfNotNull(subJ, "MainBgDark0", Settings::EditorStyle::s_MainBgDark0);
+				JsonExtended::AssignIfNotNull(subJ, "MainBgDark1", Settings::EditorStyle::s_MainBgDark1);
+				JsonExtended::AssignIfNotNull(subJ, "MainBgDark2", Settings::EditorStyle::s_MainBgDark2);
+				JsonExtended::AssignIfNotNull(subJ, "Accent", Settings::EditorStyle::s_Accent);
+				JsonExtended::AssignIfNotNull(subJ, "AccentDark0", Settings::EditorStyle::s_AccentDark0);
+				JsonExtended::AssignIfNotNull(subJ, "AccentDark1", Settings::EditorStyle::s_AccentDark1);
+				JsonExtended::AssignIfNotNull(subJ, "Button", Settings::EditorStyle::s_Button);
+				JsonExtended::AssignIfNotNull(subJ, "ButtonHovered", Settings::EditorStyle::s_ButtonHovered);
+				JsonExtended::AssignIfNotNull(subJ, "Font", Settings::EditorStyle::s_Font);
+				JsonExtended::AssignIfNotNull(subJ, "FontDisabled", Settings::EditorStyle::s_FontDisabled);
+				JsonExtended::AssignIfNotNull(subJ, "HighlightColor", Settings::EditorStyle::s_HighlightColor);
+			}
 
-			JsonExtended::AssignIfNotNull(j["Sizing"]["WindowPadding"], Settings::EditorStyle::s_WindowPadding);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["FramePadding"], Settings::EditorStyle::s_FramePadding);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["ItemSpacing"], Settings::EditorStyle::s_ItemSpacing);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["ScrollbarSize"], Settings::EditorStyle::s_ScrollbarSize);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["ScrollbarRounding"], Settings::EditorStyle::s_ScrollbarRounding);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["FrameRounding"], Settings::EditorStyle::s_FrameRounding);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["GrabRounding"], Settings::EditorStyle::s_TabRounding);
-			JsonExtended::AssignIfNotNull(j["Sizing"]["TabRounding"], Settings::EditorStyle::s_GrabRounding);
+			if (j.contains("Sizing"))
+			{
+				json& subJ = j["Sizing"];
+				JsonExtended::AssignIfNotNull(subJ, "WindowPadding", Settings::EditorStyle::s_WindowPadding);
+				JsonExtended::AssignIfNotNull(subJ, "FramePadding", Settings::EditorStyle::s_FramePadding);
+				JsonExtended::AssignIfNotNull(subJ, "ItemSpacing", Settings::EditorStyle::s_ItemSpacing);
+				JsonExtended::AssignIfNotNull(subJ, "ScrollbarSize", Settings::EditorStyle::s_ScrollbarSize);
+				JsonExtended::AssignIfNotNull(subJ, "ScrollbarRounding", Settings::EditorStyle::s_ScrollbarRounding);
+				JsonExtended::AssignIfNotNull(subJ, "FrameRounding", Settings::EditorStyle::s_FrameRounding);
+				JsonExtended::AssignIfNotNull(subJ, "GrabRounding", Settings::EditorStyle::s_TabRounding);
+				JsonExtended::AssignIfNotNull(subJ, "TabRounding", Settings::EditorStyle::s_GrabRounding);
+			}
+
 		}
 		else
 		{

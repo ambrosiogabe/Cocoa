@@ -180,8 +180,8 @@ namespace Cocoa
 			if (spr.m_Sprite.m_Texture)
 			{
 				const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.m_AssetId);
-				CImGui::InputText("##SpriteRendererTexture", (char*)tex.GetFilepath().Filename(),
-					tex.GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+				CImGui::InputText("##SpriteRendererTexture", (char*)tex.Path.Filename(),
+					tex.Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 			}
 			else
 			{

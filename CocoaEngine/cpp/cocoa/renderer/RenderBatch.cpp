@@ -310,7 +310,7 @@ namespace Cocoa
 		for (int i = 0; i < this->m_NumTextures; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i + 1);
-			AssetManager::GetTexture(m_Textures[i].m_AssetId).Bind();
+			TextureUtil::Bind(AssetManager::GetTexture(m_Textures[i].m_AssetId));
 		}
 
 		glBindVertexArray(m_VAO);
@@ -321,7 +321,7 @@ namespace Cocoa
 
 		for (int i = 0; i < this->m_NumTextures; i++)
 		{
-			AssetManager::GetTexture(m_Textures[i].m_AssetId).Unbind();
+			TextureUtil::Unbind(AssetManager::GetTexture(m_Textures[i].m_AssetId));
 		}
 	}
 

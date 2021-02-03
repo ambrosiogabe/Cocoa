@@ -1,6 +1,7 @@
 #include "externalLibs.h"
 
 #include "cocoa/util/CMath.h"
+#include "cocoa/util/JsonExtended.h"
 
 #include <nlohmann/json.hpp>
 
@@ -89,16 +90,20 @@ namespace Cocoa
 
 		glm::vec4 CMath::DeserializeVec4(const json& j)
 		{
-			float x = j["X"].is_null() ? 0.0f : j["X"];
-			float y = j["Y"].is_null() ? 0.0f : j["Y"];
-			float z = j["Z"].is_null() ? 0.0f : j["Z"];
-			float w = j["W"].is_null() ? 0.0f : j["W"];
+			float x = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "X", x);
+			float y = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "Y", y);
+			float z = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "Z", z);
+			float w = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "W", w);
 			return glm::vec4{ x, y, z, w };
 		}
 
 		glm::vec4 CMath::DeserializeVec4(const json& j, bool& success)
 		{
-			success = !j["X"].is_null() && !j["Y"].is_null() && !j["Z"].is_null() && !j["W"].is_null();
+			success = j.contains("X") && j.contains("Y") && j.contains("Z") && j.contains("W");
 			return DeserializeVec4(j);
 		}
 
@@ -115,15 +120,18 @@ namespace Cocoa
 
 		glm::vec3 CMath::DeserializeVec3(const json& j)
 		{
-			float x = j["X"].is_null() ? 0.0f : j["X"];
-			float y = j["Y"].is_null() ? 0.0f : j["Y"];
-			float z = j["Z"].is_null() ? 0.0f : j["Z"];
+			float x = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "X", x);
+			float y = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "Y", y);
+			float z = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "Z", z);
 			return glm::vec3{ x, y, z };
 		}
 
 		glm::vec3 CMath::DeserializeVec3(const json& j, bool& success)
 		{
-			success = !j["X"].is_null() && !j["Y"].is_null() && !j["Z"].is_null();
+			success = j.contains("X") && j.contains("Y") && j.contains("Z");
 			return DeserializeVec3(j);
 		}
 
@@ -139,14 +147,16 @@ namespace Cocoa
 
 		glm::vec2 CMath::DeserializeVec2(const json& j)
 		{
-			float x = j["X"].is_null() ? 0.0f : j["X"];
-			float y = j["Y"].is_null() ? 0.0f : j["Y"];
+			float x = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "X", x);
+			float y = 0.0f;
+			JsonExtended::AssignIfNotNull(j, "Y", y);
 			return glm::vec2{ x, y };
 		}
 
 		glm::vec2 CMath::DeserializeVec2(const json& j, bool& success)
 		{
-			success = !j["X"].is_null() && !j["Y"].is_null();
+			success = j.contains("X") && j.contains("Y");
 			return DeserializeVec2(j);
 		}
 
