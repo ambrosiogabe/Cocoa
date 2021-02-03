@@ -356,7 +356,7 @@ namespace Cocoa
 		this->m_NumTextures = 0;
 		for (int i = 0; i < m_NumTextures; i++)
 		{
-			m_Textures[i] = {};
+			m_Textures[i] = Handle<Texture>();
 		}
 	}
 }

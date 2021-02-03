@@ -87,7 +87,7 @@ namespace Cocoa
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// TODO: Very temporary ugly, horrible fix, fix this ASAP
-		m_PickingShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
+		m_PickingShader = AssetManager::GetShader(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl");
 		RenderSystem::BindShader(m_PickingShader);
 		
 		for (const auto& system : m_Systems)

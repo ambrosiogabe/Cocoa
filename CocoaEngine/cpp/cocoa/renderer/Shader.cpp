@@ -194,6 +194,7 @@ namespace Cocoa
 			return m_Variables.at(varName);
 		}
 
+		Log::Warning("Could not find location of '%s' in shader", varName);
 		return -1;
 	}
 

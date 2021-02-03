@@ -41,7 +41,7 @@ namespace Cocoa
 		shaderRef.Bind();
 		shaderRef.UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
 		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
-		shaderRef.UploadIntArray("uTextures", 16, s_TexSlots);
+		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
 
 		for (auto& batch : s_Batches)
 		{
@@ -61,7 +61,7 @@ namespace Cocoa
 		shaderRef.Bind();
 		shaderRef.UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
 		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
-		shaderRef.UploadIntArray("uTextures", 16, s_TexSlots);
+		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
 
 		for (auto& batch : s_Batches)
 		{

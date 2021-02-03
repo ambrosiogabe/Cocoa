@@ -25,6 +25,7 @@ namespace Cocoa
 		void AddEntity(const Transform& transform, const FontRenderer& fontRenderer);
 		void AddEntity(const Transform& transform, const SpriteRenderer& spr);
 		virtual void Render() override;
+		virtual void Start() override;
 
 		Camera& GetCamera() const { return *m_Camera; }
 

@@ -18,8 +18,6 @@ namespace Cocoa
 
 	void RenderSystem::Init()
 	{
-		s_SpriteShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl"), true);
-		//s_FontShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/FontRenderer.glsl", true);
 		s_MainFramebuffer = Framebuffer(3840, 2160);
 	}
 
@@ -30,6 +28,13 @@ namespace Cocoa
 		{
 			shader.UploadUInt(name, val);
 		}
+	}
+
+	void RenderSystem::Start()
+	{
+		s_SpriteShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl"), true);
+		s_FontShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/FontRenderer.glsl"), true);
+		AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
 	}
 
 	void RenderSystem::AddEntity(const Transform& transform, const SpriteRenderer& spr)
@@ -107,7 +112,7 @@ namespace Cocoa
 			shader.Bind();
 			shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
 			shader.UploadMat4("uView", m_Camera->GetOrthoView());
-			shader.UploadIntArray("uTextures", 16, m_TexSlots);
+			shader.UploadIntArray("uTextures[0]", 16, m_TexSlots);
 		}
 
 		for (auto& batch : m_Batches)
@@ -119,7 +124,7 @@ namespace Cocoa
 				shader.Bind();
 				shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
 				shader.UploadMat4("uView", m_Camera->GetOrthoView());
-				shader.UploadIntArray("uTextures", 16, m_TexSlots);
+				shader.UploadIntArray("uTextures[0]", 16, m_TexSlots);
 			}
 
 			batch->Render();

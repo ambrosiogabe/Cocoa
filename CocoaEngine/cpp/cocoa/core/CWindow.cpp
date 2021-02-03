@@ -19,6 +19,15 @@ namespace Cocoa
 			return;
 		}
 
+		// Suppress some useless warnings
+		switch (id)
+		{
+		case 131218: // NVIDIA: "shader will be recompiled due to GL state mismatches"
+			return;
+		default:
+			break;
+		}
+
 		Log::Warning("---------------------opengl-callback-start------------\n");
 		Log::Warning("message: %s\n", message);
 		Log::Warning("type: ");
