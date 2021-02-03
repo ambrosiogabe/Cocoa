@@ -79,7 +79,9 @@ namespace Cocoa
 	{
 		ImGui::BeginGroup();
 		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-		bool res = CImGui::ImageButton(texture, size);
+		float texRatio = (float)texture.Width / (float)texture.Height;
+		glm::vec2 adjustedSize = {size.x * texRatio, size.y};
+		bool res = CImGui::ImageButton(texture, adjustedSize);
 		ImGui::PopFont();
 
 		ImVec2 textSize = ImGui::CalcTextSize(label);
