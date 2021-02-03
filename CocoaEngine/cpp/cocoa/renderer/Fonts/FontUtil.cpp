@@ -27,7 +27,7 @@ namespace Cocoa
 			int minY = pixY - spread;
 			int maxY = pixY + spread;
 
-			int minDistance = (spread * spread) + (spread * spread);
+			int minDistance = spread * spread;
 			for (int y = minY; y <= maxY; y++)
 			{
 				for (int x = minX; x <= maxX; x++)
@@ -76,6 +76,8 @@ namespace Cocoa
 			float scaleX = (float)width / (float)characterWidth;
 			float scaleY = (float)height / (float)characterHeight;
 			unsigned char* sdfBitmap = (unsigned char*)malloc(sizeof(unsigned char) * bitmapHeight * bitmapWidth);
+			Log::Assert(sdfBitmap != nullptr, "Ran out of memory. Could not allocate memory to generate a font.");
+
 			for (int y = -padding; y < bitmapHeight - padding; y++)
 			{
 				for (int x = -padding; x < bitmapWidth - padding; x++)
@@ -229,6 +231,7 @@ namespace Cocoa
 			// Write all the image data to the final sdf
 			int bitmapLength = sdfWidth * sdfHeight * 4;
 			uint8* finalSdf = (uint8*)malloc(sizeof(uint8) * bitmapLength);
+			Log::Assert(finalSdf != nullptr, "Out of memory. Could not allocate memory to generate font.");
 			memset(finalSdf, 0, bitmapLength);
 			int endBitmap = bitmapLength + 1;
 

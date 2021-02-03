@@ -165,14 +165,19 @@ void main()
     //}
 
     if (fTexSlot > 0) {
-        if (texColor.r > 0.5)
+        float c = texColor.r;
+        if (c > 0.5)
         {
             color = fColor;
         }
-        else if (texColor.r > 0.48)
+        else if (c > 0.48)
         {
-            float grayScale = smoothstep(0.48, 0.5, texColor.r);
-            color = fColor * vec4(1, 1, 1, grayScale);
+            c = smoothstep(0.48, 0.5, c);
+            color = vec4(fColor.rgb, c);
+        }
+        else 
+        {
+            color = vec4(0, 0, 0, 0);
         }
     } 
     
