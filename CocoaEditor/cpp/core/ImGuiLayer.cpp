@@ -10,6 +10,7 @@
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/JsonExtended.h"
+#include "cocoa/systems/RenderSystem.h"
 
 #include <examples/imgui_impl_glfw.h>
 #ifndef _JADE_IMPL_IMGUI
@@ -208,8 +209,7 @@ namespace Cocoa
 		Input::SetGameViewMousePos(m_GameviewMousePos);
 
 		CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-		//uint32 texId = editor->GetEditorLayer()->GetPickingTextureID();
-		uint32 texId = Application::Get()->GetFramebuffer()->GetTexture()->GetId();
+		uint32 texId = RenderSystem::s_MainFramebuffer.GetTexture()->GetId();
 		ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
 		ImGui::End();

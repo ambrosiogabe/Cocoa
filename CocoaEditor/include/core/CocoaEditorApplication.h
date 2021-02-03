@@ -3,7 +3,6 @@
 #include "cocoa/core/Core.h"
 
 #include "core/LevelEditorSystem.h"
-#include "renderer/PickingTexture.h"
 #include "editorWindows/ProjectWizard.h"
 
 #include "cocoa/core/Layer.h"
@@ -34,13 +33,9 @@ namespace Cocoa
 		inline void SetProjectLoaded() { m_ProjectLoaded = true; }
 		inline bool IsProjectLoaded() { return m_ProjectLoaded; }
 
-		inline uint32 GetPickingTextureID() const { return m_PickingTexture.GetPickingTextureID(); }
-		inline const PickingTexture& GetPickingTexture() const { return m_PickingTexture; }
+		inline const PickingTexture& GetPickingTexture() const { return m_Scene->m_PickingTexture; }
 
 	private:
-		PickingTexture m_PickingTexture;
-		Handle<Shader> m_PickingShader;
-		Handle<Shader> m_DefaultShader;
 		std::shared_ptr<SourceFileWatcher> m_SourceFileWatcher;
 
 	private:

@@ -24,10 +24,8 @@ namespace Cocoa
 	// Editor Layer
 	// ===================================================================================
 	EditorLayer::EditorLayer(Scene* scene)
-		: Layer(scene), m_PickingTexture(3840, 2160)
+		: Layer(scene)
 	{
-		m_PickingShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
-		m_DefaultShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl", true);
 		Settings::General::s_EngineExeDirectory = IFile::GetExecutableDirectory().GetDirectory(-1);
 		Settings::General::s_EngineSourceDirectory = IFile::GetExecutableDirectory().GetDirectory(-4);
 		Log::Info("%s", Settings::General::s_EngineExeDirectory.Filepath());
@@ -190,32 +188,7 @@ namespace Cocoa
 	{
 		if (CocoaEditor::IsProjectLoaded())
 		{
-			glDisable(GL_BLEND);
-			m_PickingTexture.EnableWriting();
-
-			glViewport(0, 0, 3840, 2160);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			// TODO: Very temporary ugly, horrible fix, fix this ASAP
-			m_PickingShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
-			m_DefaultShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl", true);
-			RenderSystem::BindShader(m_PickingShader);
 			m_Scene->Render();
-
-			m_PickingTexture.DisableWriting();
-			glEnable(GL_BLEND);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, Application::Get()->GetFramebuffer()->GetId());
-
-			glViewport(0, 0, 3840, 2160);
-			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			RenderSystem::BindShader(m_DefaultShader);
-			RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
-			DebugDraw::DrawBottomBatches();
-			m_Scene->Render();
-			DebugDraw::DrawTopBatches();
 		}
 	}
 
@@ -256,6 +229,7 @@ namespace Cocoa
 		Cocoa::ProjectWizard::Init();
 		Cocoa::Physics2D::Init();
 		Cocoa::Input::Init();
+		Cocoa::RenderSystem::Init();
 
 		m_EditorLayer = new EditorLayer(nullptr);
 		ChangeScene(new LevelEditorSceneInitializer());

@@ -9,6 +9,7 @@
 #include "cocoa/components/Transform.h"
 #include "cocoa/renderer/RenderBatch.h"
 #include "cocoa/util/Settings.h"
+#include "cocoa/renderer/Framebuffer.h"
 
 namespace Cocoa
 {
@@ -33,10 +34,13 @@ namespace Cocoa
 		static void DeserializeFontRenderer(json& json, Entity entity);
 		static void BindShader(Handle<Shader> shader) { s_Shader = shader; }
 		static void UploadUniform1ui(const char* name, uint32 val);
+		static void Init();
 
 	public:
 		int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		const int MAX_BATCH_SIZE = 1000;
+
+		static Framebuffer s_MainFramebuffer;
 
 	private:
 		static Handle<Shader> s_Shader;

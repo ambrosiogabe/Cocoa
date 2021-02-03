@@ -1,5 +1,4 @@
 #include "renderer/Gizmos.h"
-#include "renderer/PickingTexture.h"
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/InspectorWindow.h"
 

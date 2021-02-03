@@ -12,6 +12,12 @@
 namespace Cocoa
 {
 	Handle<Shader> RenderSystem::s_Shader = Handle<Shader>();
+	Framebuffer RenderSystem::s_MainFramebuffer = Framebuffer();
+
+	void RenderSystem::Init()
+	{
+		s_MainFramebuffer = Framebuffer(3840, 2160);
+	}
 
 	void RenderSystem::UploadUniform1ui(const char* name, uint32 val)
 	{

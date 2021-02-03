@@ -5,6 +5,8 @@
 #include "cocoa/systems/System.h"
 #include "cocoa/scenes/SceneInitializer.h"
 #include "cocoa/renderer/PickingTexture.h"
+#include "cocoa/core/Handle.h"
+#include "cocoa/renderer/Shader.h"
 
 #include <entt/entt.hpp>
 
@@ -43,10 +45,16 @@ namespace Cocoa
 		inline void ShowDemoWindow() { m_ShowDemoWindow = true; }
 		inline bool IsPlaying() { return m_IsPlaying; }
 
+	public:
+		PickingTexture m_PickingTexture;
+
 	protected:
 		void LoadDefaultAssets();
 
 	protected:
+		Handle<Shader> m_PickingShader;
+		Handle<Shader> m_DefaultShader;
+
 		bool m_ShowDemoWindow;
 		bool m_IsPlaying;
 		std::vector<std::unique_ptr<System>> m_Systems;

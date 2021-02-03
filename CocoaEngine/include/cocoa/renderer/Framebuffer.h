@@ -39,6 +39,8 @@ namespace Cocoa
 			Init();
 		}
 
+		Framebuffer() {}
+
 		void Init();
 
 		Framebuffer& AddAttachment(TextureSpecification textureSpecification);
