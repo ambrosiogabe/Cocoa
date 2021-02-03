@@ -43,6 +43,8 @@ namespace Cocoa
 		static Framebuffer s_MainFramebuffer;
 
 	private:
+		static Handle<Shader> s_SpriteShader;
+		static Handle<Shader> s_FontShader;
 		static Handle<Shader> s_Shader;
 		std::vector<std::shared_ptr<RenderBatch>> m_Batches;
 		Camera* m_Camera;

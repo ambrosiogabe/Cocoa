@@ -14,57 +14,57 @@ namespace Cocoa
 		const GLchar* message,
 		const void* userParam)
 	{
-		//if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
-		//{
-		//	return;
-		//}
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+		{
+			return;
+		}
 
-		//Log::Warning("---------------------opengl-callback-start------------\n");
-		//Log::Warning("message: %s\n", message);
-		//Log::Warning("type: ");
-		//switch (type)
-		//{
-		//case GL_DEBUG_TYPE_ERROR:
-		//	Log::Warning("ERROR\n");
-		//	break;
-		//case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-		//	Log::Warning("DEPRECATED_BEHAVIOR\n");
-		//	break;
-		//case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-		//	Log::Warning("UNDEFINED_BEHAVIOR\n");
-		//	break;
-		//case GL_DEBUG_TYPE_PORTABILITY:
-		//	Log::Warning("PORTABILITY\n");
-		//	break;
-		//case GL_DEBUG_TYPE_PERFORMANCE:
-		//	Log::Warning("PERFORMANCE\n");
-		//	break;
-		//case GL_DEBUG_TYPE_OTHER:
-		//	Log::Warning("OTHER\n");
-		//	break;
-		//}
+		Log::Warning("---------------------opengl-callback-start------------\n");
+		Log::Warning("message: %s\n", message);
+		Log::Warning("type: ");
+		switch (type)
+		{
+		case GL_DEBUG_TYPE_ERROR:
+			Log::Warning("ERROR\n");
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			Log::Warning("DEPRECATED_BEHAVIOR\n");
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			Log::Warning("UNDEFINED_BEHAVIOR\n");
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			Log::Warning("PORTABILITY\n");
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			Log::Warning("PERFORMANCE\n");
+			break;
+		case GL_DEBUG_TYPE_OTHER:
+			Log::Warning("OTHER\n");
+			break;
+		}
 
-		//Log::Warning("id: %u\n", id);
-		//Log::Warning("severity: ");
-		//switch (severity)
-		//{
-		//case GL_DEBUG_SEVERITY_LOW:
-		//	Log::Warning("LOW\n");
-		//	break;
-		//case GL_DEBUG_SEVERITY_MEDIUM:
-		//	Log::Warning("MEDIUM\n");
-		//	break;
-		//case GL_DEBUG_SEVERITY_HIGH:
-		//	Log::Warning("HIGH\n");
-		//	break;
-		//case GL_DEBUG_SEVERITY_NOTIFICATION:
-		//	Log::Warning("NOTIFICATION\n");
-		//	break;
-		//default:
-		//	Log::Warning("Unkown\n");
-		//	break;
-		//}
-		//Log::Warning("---------------------opengl-callback-end--------------\n");
+		Log::Warning("id: %u\n", id);
+		Log::Warning("severity: ");
+		switch (severity)
+		{
+		case GL_DEBUG_SEVERITY_LOW:
+			Log::Warning("LOW\n");
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			Log::Warning("MEDIUM\n");
+			break;
+		case GL_DEBUG_SEVERITY_HIGH:
+			Log::Warning("HIGH\n");
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			Log::Warning("NOTIFICATION\n");
+			break;
+		default:
+			Log::Warning("Unkown\n");
+			break;
+		}
+		Log::Warning("---------------------opengl-callback-end--------------\n");
 	}
 
 	CWindow* CWindow::Create(uint32 width, uint32 height, const std::string& name)

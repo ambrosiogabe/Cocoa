@@ -5,6 +5,7 @@
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/renderer/RenderBatch.h"
 #include "cocoa/renderer/DebugSprite.h"
+#include "cocoa/core/Handle.h"
 
 namespace Cocoa
 {
@@ -34,7 +35,7 @@ namespace Cocoa
 		static std::vector<Line2D> s_Lines;
 		static std::vector<DebugSprite> s_Sprites;
 		static int s_TexSlots[16];
-		static Shader* s_Shader;
+		static Handle<Shader> s_Shader;
 		static int s_MaxBatchSize;
 		static Scene* s_Scene;
 	};

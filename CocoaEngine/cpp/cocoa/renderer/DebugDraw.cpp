@@ -11,7 +11,7 @@ namespace Cocoa
 	std::vector<Line2D> DebugDraw::s_Lines = std::vector<Line2D>();
 	std::vector<DebugSprite> DebugDraw::s_Sprites = std::vector<DebugSprite>();
 	int DebugDraw::s_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-	Shader* DebugDraw::s_Shader = nullptr;
+	Handle<Shader> DebugDraw::s_Shader = Handle<Shader>();
 	int DebugDraw::s_MaxBatchSize = 500;
 	Scene* DebugDraw::s_Scene = nullptr;
 
@@ -22,10 +22,10 @@ namespace Cocoa
 
 	void DebugDraw::BeginFrame()
 	{
-		if (s_Shader == nullptr)
+		if (s_Shader.IsNull())
 		{
 			Log::Assert((s_Scene != nullptr), "DebugDraw's scene is nullptr. Did you forget to initialize DebugDraw when you changed scenes?");
-			s_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
+			s_Shader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
 		}
 
 		RemoveDeadLines();
@@ -37,10 +37,11 @@ namespace Cocoa
 		AddLinesToBatches();
 		AddSpritesToBatches();
 
-		s_Shader->Bind();
-		s_Shader->UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
-		s_Shader->UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
-		s_Shader->UploadIntArray("uTextures", 16, s_TexSlots);
+		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
+		shaderRef.Bind();
+		shaderRef.UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
+		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
+		shaderRef.UploadIntArray("uTextures", 16, s_TexSlots);
 
 		for (auto& batch : s_Batches)
 		{
@@ -51,15 +52,16 @@ namespace Cocoa
 			}
 		}
 
-		s_Shader->Unbind();
+		shaderRef.Unbind();
 	}
 
 	void DebugDraw::DrawTopBatches()
 	{
-		s_Shader->Bind();
-		s_Shader->UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
-		s_Shader->UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
-		s_Shader->UploadIntArray("uTextures", 16, s_TexSlots);
+		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
+		shaderRef.Bind();
+		shaderRef.UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
+		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
+		shaderRef.UploadIntArray("uTextures", 16, s_TexSlots);
 
 		for (auto& batch : s_Batches)
 		{
@@ -70,7 +72,7 @@ namespace Cocoa
 			}
 		}
 
-		s_Shader->Unbind();
+		shaderRef.Unbind();
 	}
 
 	// ===================================================================================================================

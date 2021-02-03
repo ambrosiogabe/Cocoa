@@ -5,6 +5,7 @@
 #include "cocoa/core/Handle.h"
 #include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/Texture.h"
+#include "cocoa/renderer/Shader.h"
 
 namespace Cocoa
 {
@@ -20,7 +21,7 @@ namespace Cocoa
     class COCOA RenderBatch
     {
     public:
-        RenderBatch(int maxBatchSize, int zIndex, bool batchOnTop=false);
+        RenderBatch(int maxBatchSize, int zIndex, Handle<Shader> shader, bool batchOnTop=false);
 
         void Clear();
         void Start();
@@ -38,6 +39,7 @@ namespace Cocoa
         inline int NumSprites() { return m_NumSprites; }
 
         inline bool HasTextureRoom() { return m_NumTextures < m_Textures.size(); }
+        inline Handle<Shader> GetShader() { return m_Shader; }
         inline int ZIndex() { return m_ZIndex; }
 
         static bool Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2);
@@ -68,6 +70,7 @@ namespace Cocoa
         void GenerateIndices();
 
     private:
+        Handle<Shader> m_Shader;
         Vertex* m_VertexBufferBase;
         Vertex* m_VertexStackPointer;
         uint32* m_Indices;

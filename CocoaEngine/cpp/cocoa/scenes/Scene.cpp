@@ -88,7 +88,6 @@ namespace Cocoa
 
 		// TODO: Very temporary ugly, horrible fix, fix this ASAP
 		m_PickingShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
-		m_DefaultShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl", true);
 		RenderSystem::BindShader(m_PickingShader);
 		
 		for (const auto& system : m_Systems)
@@ -104,7 +103,7 @@ namespace Cocoa
 		glViewport(0, 0, 3840, 2160);
 		glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		RenderSystem::BindShader(m_DefaultShader);
+		RenderSystem::BindShader(Handle<Shader>());
 		//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
 		DebugDraw::DrawBottomBatches();
 		

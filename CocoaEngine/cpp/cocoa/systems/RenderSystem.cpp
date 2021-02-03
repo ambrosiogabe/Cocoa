@@ -12,10 +12,14 @@
 namespace Cocoa
 {
 	Handle<Shader> RenderSystem::s_Shader = Handle<Shader>();
+	Handle<Shader> RenderSystem::s_SpriteShader = Handle<Shader>();
+	Handle<Shader> RenderSystem::s_FontShader = Handle<Shader>();
 	Framebuffer RenderSystem::s_MainFramebuffer = Framebuffer();
 
 	void RenderSystem::Init()
 	{
+		s_SpriteShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl"), true);
+		//s_FontShader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/FontRenderer.glsl", true);
 		s_MainFramebuffer = Framebuffer(3840, 2160);
 	}
 
@@ -34,7 +38,7 @@ namespace Cocoa
 		bool wasAdded = false;
 		for (auto& batch : m_Batches)
 		{
-			if (batch->HasRoom() && spr.m_ZIndex == batch->ZIndex())
+			if (batch->HasRoom() && spr.m_ZIndex == batch->ZIndex() && batch->GetShader() == s_SpriteShader)
 			{
 				Handle<Texture> tex = sprite.m_Texture;
 				if (!tex || batch->HasTexture(tex) || batch->HasTextureRoom())
@@ -48,7 +52,7 @@ namespace Cocoa
 
 		if (!wasAdded)
 		{
-			std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(MAX_BATCH_SIZE, spr.m_ZIndex);
+			std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(MAX_BATCH_SIZE, spr.m_ZIndex, s_SpriteShader);
 			newBatch->Start();
 			newBatch->Add(transform, spr);
 			m_Batches.emplace_back(newBatch);
@@ -62,7 +66,7 @@ namespace Cocoa
 		bool wasAdded = false;
 		for (auto& batch : m_Batches)
 		{
-			if (batch->HasRoom(fontRenderer) && fontRenderer.m_ZIndex == batch->ZIndex())
+			if (batch->HasRoom(fontRenderer) && fontRenderer.m_ZIndex == batch->ZIndex() && batch->GetShader() == s_FontShader)
 			{
 				Handle<Texture> tex = font.m_FontTexture;
 				if (!tex || batch->HasTexture(tex) || batch->HasTextureRoom())
@@ -76,7 +80,7 @@ namespace Cocoa
 
 		if (!wasAdded)
 		{
-			std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(MAX_BATCH_SIZE, fontRenderer.m_ZIndex);
+			std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(MAX_BATCH_SIZE, fontRenderer.m_ZIndex, s_FontShader);
 			newBatch->Start();
 			newBatch->Add(transform, fontRenderer);
 			m_Batches.emplace_back(newBatch);
@@ -87,31 +91,40 @@ namespace Cocoa
 	void RenderSystem::Render()
 	{
 		m_Scene->GetRegistry().group<SpriteRenderer>(entt::get<Transform>).each([this](auto entity, auto& spr, auto& transform)
-		{
-			this->AddEntity(transform, spr);
-		});
+			{
+				this->AddEntity(transform, spr);
+			});
 
 		m_Scene->GetRegistry().group<FontRenderer>(entt::get<Transform>).each([this](auto entity, auto& fontRenderer, auto& transform)
+			{
+				this->AddEntity(transform, fontRenderer);
+			});
+
+		bool useShader = s_Shader.IsNull();
+		if (!useShader)
 		{
-			this->AddEntity(transform, fontRenderer);
-		});
-
-		Log::Assert((!s_Shader.IsNull()), "Must bind shader before render call");
-
-		const Shader& shader = AssetManager::GetShader(s_Shader.m_AssetId);
-		Log::Assert(!shader.IsNull(), "Cannot render with a null shader.");
-		shader.Bind();
-		shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
-		shader.UploadMat4("uView", m_Camera->GetOrthoView());
-		shader.UploadIntArray("uTextures", 16, m_TexSlots);
+			const Shader& shader = AssetManager::GetShader(s_Shader.m_AssetId);
+			shader.Bind();
+			shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
+			shader.UploadMat4("uView", m_Camera->GetOrthoView());
+			shader.UploadIntArray("uTextures", 16, m_TexSlots);
+		}
 
 		for (auto& batch : m_Batches)
 		{
+			if (useShader)
+			{
+				Log::Assert(!batch->GetShader().IsNull(), "Cannot render with a null shader.");
+				const Shader& shader = AssetManager::GetShader(batch->GetShader().m_AssetId);
+				shader.Bind();
+				shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
+				shader.UploadMat4("uView", m_Camera->GetOrthoView());
+				shader.UploadIntArray("uTextures", 16, m_TexSlots);
+			}
+
 			batch->Render();
 			batch->Clear();
 		}
-
-		shader.Unbind();
 	}
 
 	void RenderSystem::Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)

@@ -13,8 +13,9 @@ namespace Cocoa
 		return b1->ZIndex() < b2->ZIndex();
 	}
 
-	RenderBatch::RenderBatch(int maxBatchSize, int zIndex, bool batchOnTop)
+	RenderBatch::RenderBatch(int maxBatchSize, int zIndex, Handle<Shader> shader, bool batchOnTop)
 	{
+		m_Shader = shader;
 		m_ZIndex = zIndex;
 		m_MaxBatchSize = maxBatchSize;
 		m_VertexBufferBase = new Vertex[m_MaxBatchSize * 4];
