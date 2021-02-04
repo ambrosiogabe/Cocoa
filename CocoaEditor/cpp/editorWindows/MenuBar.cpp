@@ -14,6 +14,8 @@
 
 namespace Cocoa
 {
+	bool MenuBar::ShowDemoWindow = false;
+
 	void MenuBar::SettingsWindow()
 	{
 		ImGui::Begin("Settings", &m_SettingsOpen);
@@ -121,7 +123,7 @@ namespace Cocoa
 
 				if (CImGui::MenuButton("Show Demo Window"))
 				{
-					m_Scene->ShowDemoWindow();
+					ShowDemoWindow = true;
 				}
 
 				ImGui::EndMenu();

@@ -15,6 +15,9 @@ namespace Cocoa
             : m_Scene(scene) {}
 
         void ImGui();
+        
+    public:
+        static bool ShowDemoWindow;
 
     private:
         void SettingsWindow();

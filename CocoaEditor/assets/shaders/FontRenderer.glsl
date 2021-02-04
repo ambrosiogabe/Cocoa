@@ -176,7 +176,7 @@ void main()
         else if (c > aa)
         {
             c = smoothstep(aa, midpoint, c);
-            color = vec4(fColor.rgb, c);
+            color = vec4(1, 1, 1, c) * fColor;
         }
         else 
         {

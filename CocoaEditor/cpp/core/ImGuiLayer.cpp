@@ -121,6 +121,10 @@ namespace Cocoa
 			m_AssetWindow.ImGui();
 			InspectorWindow::ImGui();
 			SceneHeirarchyWindow::ImGui();
+			if (MenuBar::ShowDemoWindow)
+			{
+				ImGui::ShowDemoWindow(&MenuBar::ShowDemoWindow);
+			}
 		}
 		else
 		{

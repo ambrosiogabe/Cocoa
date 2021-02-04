@@ -42,7 +42,6 @@ namespace Cocoa
 
 		// TODO: TEMPORARY GET BETTER SYSTEM THAN THESE!!!
 		inline json& GetSaveDataJson() { return m_SaveDataJson; }
-		inline void ShowDemoWindow() { m_ShowDemoWindow = true; }
 		inline bool IsPlaying() { return m_IsPlaying; }
 
 	public:
@@ -55,7 +54,6 @@ namespace Cocoa
 		Handle<Shader> m_PickingShader;
 		Handle<Shader> m_DefaultShader;
 
-		bool m_ShowDemoWindow;
 		bool m_IsPlaying;
 		std::vector<std::unique_ptr<System>> m_Systems;
 

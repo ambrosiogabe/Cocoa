@@ -19,7 +19,6 @@ namespace Cocoa
 	{
 		m_SceneInitializer = sceneInitializer;
 
-		m_ShowDemoWindow = false;
 		m_Camera = nullptr;
 		m_IsPlaying = false;
 
