@@ -121,20 +121,32 @@ namespace Cocoa
 		{
 			m_NumSprites++;
 			const CharInfo& charInfo = font.GetCharacterInfo(str[i]);
-			float xPos = x + charInfo.bearingX * fontRenderer.fontSize;
-			float yPos = y - (charInfo.chScaleY - charInfo.bearingY) * fontRenderer.fontSize;
+			float scaleX = transform.m_Scale.x * fontRenderer.fontSize;
+			float scaleY = transform.m_Scale.y * fontRenderer.fontSize;
+			float x0 = x + (charInfo.bearingX * scaleX);
+			float y0 = y + charInfo.bearingY * scaleY;
+			float x1 = x + (charInfo.bearingX * scaleX) + (charInfo.chScaleX * scaleX);
+			float y1 = y - (charInfo.chScaleY - charInfo.bearingY) * scaleY;
+
+			glm::vec2 vertices[4] = {
+				{x1, y0},
+				{x1, y1},
+				{x0, y1},
+				{x0, y0}
+			};
 
 			glm::vec2 texCoords[4] = {
-				{charInfo.ux1, charInfo.uy0},
 				{charInfo.ux1, charInfo.uy1},
-				{charInfo.ux0, charInfo.uy1},
-				{charInfo.ux0, charInfo.uy0}
+				{charInfo.ux1, charInfo.uy0},
+				{charInfo.ux0, charInfo.uy0},
+				{charInfo.ux0, charInfo.uy1}
 			};
 			glm::vec2 quadSize = { charInfo.chScaleX * fontRenderer.fontSize, charInfo.chScaleY * fontRenderer.fontSize };
+			//glm::vec3 pos = { xPos, yPos, 0.0f };
 
-			LoadVertexProperties({ xPos, yPos, 0.0f }, transform.m_Scale, quadSize, texCoords, 0, fontRenderer.m_Color, texId, entityId);
+			LoadVertexProperties(vertices, texCoords, fontRenderer.m_Color, texId, entityId);
 
-			x += charInfo.advance * fontRenderer.fontSize;
+			x += charInfo.advance * fontRenderer.fontSize * transform.m_Scale.x;
 		}
 	}
 

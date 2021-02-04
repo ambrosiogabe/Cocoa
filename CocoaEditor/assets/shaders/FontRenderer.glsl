@@ -164,15 +164,18 @@ void main()
     //    texColor = texture(uTextures[texId], fTexCoords);
     //}
 
+    float midpoint = 0.5;
+    float aa = 0.49;
+
     if (fTexSlot > 0) {
         float c = texColor.r;
-        if (c > 0.5)
+        if (c > midpoint)
         {
             color = fColor;
         }
-        else if (c > 0.48)
+        else if (c > aa)
         {
-            c = smoothstep(0.48, 0.5, c);
+            c = smoothstep(aa, midpoint, c);
             color = vec4(fColor.rgb, c);
         }
         else 
