@@ -10,120 +10,124 @@
 
 namespace Cocoa
 {
-	Texture ProjectWizard::s_JadeLogo = {};
-	glm::vec2 ProjectWizard::s_IdealSize{ 0, 0 };
-	glm::vec2 ProjectWizard::s_TexturePos{ 0, 0 };
-	glm::vec2 ProjectWizard::s_VersionPos{ 0, 0 };
-	glm::vec2 ProjectWizard::s_CreateProjButtonPos{ 0, 0 };
-	glm::vec2 ProjectWizard::s_OpenProjectButtonPos{ 0, 0 };
-	glm::vec2 ProjectWizard::s_ButtonSize{ 0, 0 };
-	glm::vec2 ProjectWizard::s_Padding{ 10.0f, 20.0f };
-
-	bool ProjectWizard::s_CreatingProject = false;
-	char ProjectWizard::s_TmpFilename[256];
-	CPath ProjectWizard::s_NewProjectPath = "";
-
-	void ProjectWizard::Init()
+	namespace ProjectWizard
 	{
-		s_TmpFilename[0] = '\0';
-		s_IdealSize = Application::Get()->GetWindow()->GetMonitorSize() / 2.0f;
-
-		s_JadeLogo.MagFilter = FilterMode::Linear;
-		s_JadeLogo.MinFilter = FilterMode::Linear;
-		s_JadeLogo.WrapS = WrapMode::Repeat;
-		s_JadeLogo.WrapT = WrapMode::Repeat;
-		TextureUtil::Generate(s_JadeLogo, CPath("assets/jadeLogo.png"));
+		// Internal Variables
+		static Texture mJadeLogo = {};
+		static glm::vec2 mIdealSize{ 0, 0 };
+		static glm::vec2 mTexturePos{ 0, 0 };
+		static glm::vec2 mVersionPos{ 0, 0 };
+		static glm::vec2 mCreateProjectButtonPos{ 0, 0 };
+		static glm::vec2 mOpenProjectButtonPos{ 0, 0 };
+		static glm::vec2 mButtonSize{ 0, 0 };
+		static glm::vec2 mPadding{ 10.0f, 20.0f };
 		
-		s_TexturePos.x = (s_IdealSize.x / 2.0f) - (s_JadeLogo.Width / 2.0f);
-		s_TexturePos.y = s_IdealSize.y / 10.0f;
-		s_VersionPos = glm::vec2(-1.0f, -1.0f);
-		s_ButtonSize = glm::vec2(s_IdealSize.x / 3.0f, s_IdealSize.y / 18.0f);
-		s_CreateProjButtonPos = (s_IdealSize / 2.0f) - (s_ButtonSize / 2.0f);
-		s_OpenProjectButtonPos = s_CreateProjButtonPos + glm::vec2(0.0f, s_ButtonSize.y) + glm::vec2(0.0f, s_Padding.y);
-	}
+		static bool mCreatingProject = false;
+		static char mTmpFilename[256];
+		static CPath mNewProjectPath = "";
 
-	void ProjectWizard::ImGui()
-	{
-		static bool open = true;
-		if (s_VersionPos.x < 0 && s_VersionPos.y < 0)
+		void Init()
 		{
-			ImVec2 textSize = ImGui::CalcTextSize("Version 1.0 Alpha");
-			s_VersionPos = (s_IdealSize / 2.0f) - glm::vec2(textSize.x / 2.0f, textSize.y / 2.0f);
-			s_VersionPos.y = s_TexturePos.y + s_JadeLogo.Height + textSize.y / 2.0f;
+			mTmpFilename[0] = '\0';
+			mIdealSize = Application::Get()->GetWindow()->GetMonitorSize() / 2.0f;
+
+			mJadeLogo.MagFilter = FilterMode::Linear;
+			mJadeLogo.MinFilter = FilterMode::Linear;
+			mJadeLogo.WrapS = WrapMode::Repeat;
+			mJadeLogo.WrapT = WrapMode::Repeat;
+			TextureUtil::Generate(mJadeLogo, CPath("assets/jadeLogo.png"));
+
+			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.Width / 2.0f);
+			mTexturePos.y = mIdealSize.y / 10.0f;
+			mVersionPos = glm::vec2(-1.0f, -1.0f);
+			mButtonSize = glm::vec2(mIdealSize.x / 3.0f, mIdealSize.y / 18.0f);
+			mCreateProjectButtonPos = (mIdealSize / 2.0f) - (mButtonSize / 2.0f);
+			mOpenProjectButtonPos = mCreateProjectButtonPos + glm::vec2(0.0f, mButtonSize.y) + glm::vec2(0.0f, mPadding.y);
 		}
 
-		Application::Get()->GetWindow()->SetSize(s_IdealSize);
-		glm::vec2 winPos = Application::Get()->GetWindow()->GetWindowPos();
-		ImGui::SetNextWindowPos(ImVec2(winPos.x, winPos.y));
-		ImGui::SetNextWindowSize(ImVec2(s_IdealSize.x, s_IdealSize.y), ImGuiCond_Once);
-		ImGui::Begin("Create or Open Project", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
-		ImGui::SetCursorPos(ImVec2(s_TexturePos.x, s_TexturePos.y));
-		ImGui::Image(reinterpret_cast<void*>(s_JadeLogo.GraphicsId), ImVec2(s_JadeLogo.Width, s_JadeLogo.Height));
-		ImGui::SetCursorPos(ImVec2(s_VersionPos.x, s_VersionPos.y));
-		ImGui::Text("Version 1.0 Alpha");
-
-		ImGui::SetCursorPos(ImVec2(s_CreateProjButtonPos.x, s_CreateProjButtonPos.y));
-		if (CImGui::Button(ICON_FA_PLUS " Create Project", s_ButtonSize))
+		void ImGui()
 		{
-			s_CreatingProject = true;
-		}
-
-		ImGui::SetCursorPos(ImVec2(s_OpenProjectButtonPos.x, s_OpenProjectButtonPos.y));
-		if (CImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", s_ButtonSize) && !s_CreatingProject)
-		{
-			FileDialogResult res;
-			if (IFileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
+			static bool open = true;
+			if (mVersionPos.x < 0 && mVersionPos.y < 0)
 			{
-				if (!EditorLayer::LoadProject(CPath(res.filepath)))
+				ImVec2 textSize = ImGui::CalcTextSize("Version 1.0 Alpha");
+				mVersionPos = (mIdealSize / 2.0f) - glm::vec2(textSize.x / 2.0f, textSize.y / 2.0f);
+				mVersionPos.y = mTexturePos.y + mJadeLogo.Height + textSize.y / 2.0f;
+			}
+
+			Application::Get()->GetWindow()->SetSize(mIdealSize);
+			glm::vec2 winPos = Application::Get()->GetWindow()->GetWindowPos();
+			ImGui::SetNextWindowPos(ImVec2(winPos.x, winPos.y));
+			ImGui::SetNextWindowSize(ImVec2(mIdealSize.x, mIdealSize.y), ImGuiCond_Once);
+			ImGui::Begin("Create or Open Project", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+			ImGui::SetCursorPos(ImVec2(mTexturePos.x, mTexturePos.y));
+			ImGui::Image(reinterpret_cast<void*>(mJadeLogo.GraphicsId), ImVec2(mJadeLogo.Width, mJadeLogo.Height));
+			ImGui::SetCursorPos(ImVec2(mVersionPos.x, mVersionPos.y));
+			ImGui::Text("Version 1.0 Alpha");
+
+			ImGui::SetCursorPos(ImVec2(mCreateProjectButtonPos.x, mCreateProjectButtonPos.y));
+			if (CImGui::Button(ICON_FA_PLUS " Create Project", mButtonSize))
+			{
+				mCreatingProject = true;
+			}
+
+			ImGui::SetCursorPos(ImVec2(mOpenProjectButtonPos.x, mOpenProjectButtonPos.y));
+			if (CImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", mButtonSize) && !mCreatingProject)
+			{
+				FileDialogResult res;
+				if (IFileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
-					Log::Warning("Unable to load project: %s", res.filepath.c_str());
+					if (!EditorLayer::LoadProject(CPath(res.filepath)))
+					{
+						Log::Warning("Unable to load project: %s", res.filepath.c_str());
+					}
 				}
 			}
-		}
 
-		ImGui::End();
+			ImGui::End();
 
-		if (s_CreatingProject)
-		{
-			CreateProjectImGui(s_CreatingProject);
-		}
-	}
-
-
-	void ProjectWizard::CreateProjectImGui(bool& windowOpen)
-	{
-		ImGui::Begin("Create New Project", &windowOpen);
-
-		ImGui::LabelText("##tmp_projectname", "Project Name:");
-		ImGui::InputText("##tmp_filename", s_TmpFilename, 256);
-		ImGui::LabelText("##tmp_projectdir", "Project Directory:");
-		ImGui::LabelText("##tmp_showfile", "%s", s_NewProjectPath.Filepath());
-		ImGui::SameLine();
-
-		if (CImGui::Button("Choose Directory"))
-		{
-			FileDialogResult res;
-			if (IFileDialog::GetOpenFolderName(".", res))
+			if (mCreatingProject)
 			{
-				s_NewProjectPath = res.filepath;
+				CreateProjectImGui(mCreatingProject);
 			}
 		}
 
-		if (CImGui::Button("Cancel"))
+
+		void CreateProjectImGui(bool& windowOpen)
 		{
-			windowOpen = false;
-		}
-		ImGui::SameLine();
-		if (CImGui::Button("Create"))
-		{
-			if (EditorLayer::CreateProject(s_NewProjectPath, s_TmpFilename))
+			ImGui::Begin("Create New Project", &windowOpen);
+
+			ImGui::LabelText("##tmp_projectname", "Project Name:");
+			ImGui::InputText("##tmp_filename", mTmpFilename, 256);
+			ImGui::LabelText("##tmp_projectdir", "Project Directory:");
+			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.Filepath());
+			ImGui::SameLine();
+
+			if (CImGui::Button("Choose Directory"))
 			{
-				CocoaEditor* e = static_cast<CocoaEditor*>(Application::Get());
-				e->SetProjectLoaded();
+				FileDialogResult res;
+				if (IFileDialog::GetOpenFolderName(".", res))
+				{
+					mNewProjectPath = res.filepath;
+				}
+			}
+
+			if (CImGui::Button("Cancel"))
+			{
 				windowOpen = false;
 			}
+			ImGui::SameLine();
+			if (CImGui::Button("Create"))
+			{
+				if (EditorLayer::CreateProject(mNewProjectPath, mTmpFilename))
+				{
+					CocoaEditor* e = static_cast<CocoaEditor*>(Application::Get());
+					e->SetProjectLoaded();
+					windowOpen = false;
+				}
+			}
+			ImGui::End();
 		}
-		ImGui::End();
 	}
 }
