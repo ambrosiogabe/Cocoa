@@ -21,202 +21,234 @@
 
 namespace Cocoa
 {
-	static CPath tmpScriptDll;
-	static CPath scriptDll;
-
-	static bool initImGui = false;
-
-	void LevelEditorSystem::Start()
+	namespace LevelEditorSystem
 	{
-		tmpScriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModuleTmp.dll");
-		scriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModule.dll");
-		auto view = m_Scene->GetRegistry().view<Transform>();
-		initImGui = false;
-		for (Entity entity : view)
+		// Internal Variables
+		static float m_KeyDebounceTime = 0.1f;
+		static float m_KeyDebounceLeft = 0.0f;
+
+		static bool m_IsDragging = false;
+		static bool m_ControlModifierPressed = false;
+		static bool initImGui = false;
+
+		static glm::vec3 m_OriginalDragClickPos = glm::vec3();
+		static glm::vec3 m_OriginalCameraPos = glm::vec3();
+
+		static CPath tmpScriptDll;
+		static CPath scriptDll;
+
+		// Forward Declarations
+		static bool HandleKeyPress(KeyPressedEvent& e, Scene* scene);
+		static bool HandleKeyRelease(KeyReleasedEvent& e, Scene* scene);
+		static bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, Scene* scene);
+		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, Scene* scene);
+		static bool HandleMouseScroll(MouseScrolledEvent& e, Scene* scene);
+
+		void Start(Scene* scene)
 		{
-			//Transform& transform = entity.GetComponent<Transform>();
-			//if (!transform.m_Previous.IsNull())
-			//{
-			//	Transform& prevTransform = transform.m_Previous.GetComponent<Transform>();
-			//	prevTransform.m_Next = entity;
-
-			//	if (!transform.m_Parent.IsNull())
-			//	{
-			//		Transform& parentTransform = transform.m_Parent.GetComponent<Transform>();
-			//		if (!transform.m_First.IsNull())
-			//		{
-			//			parentTransform.m_First = entity;
-			//		}
-			//	}
-			//}
-		}
-	}
-
-	void LevelEditorSystem::EditorUpdate(float dt)
-	{
-		if (!initImGui)
-		{
-			ScriptSystem::InitImGui(ImGui::GetCurrentContext());
-			initImGui = true;
-		}
-
-		if (IFile::IsFile(tmpScriptDll))
-		{
-			m_Scene->Save(Settings::General::s_CurrentScene);
-			EditorLayer::SaveProject();
-			ScriptSystem::FreeScriptLibrary();
-
-			IFile::DeleteFile(scriptDll);
-			IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule");
-			ScriptSystem::Reload();
-			ScriptSystem::InitImGui(ImGui::GetCurrentContext());
-			m_Scene->LoadScriptsOnly(Settings::General::s_CurrentScene);
-
-			IFile::DeleteFile(tmpScriptDll);
-		}
-
-		if (m_IsDragging)
-		{
-			Camera* camera = m_Scene->GetCamera();
-			glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
-			glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
-			delta *= 0.8f;
-			camera->GetTransform().m_Position = m_OriginalCameraPos + delta;
-		}
-
-		// Draw grid lines
-		if (Settings::Editor::DrawGrid)
-		{
-			Transform& cameraTransform = m_Scene->GetCamera()->GetTransform();
-			float cameraZoom = m_Scene->GetCamera()->GetZoom();
-			int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
-			int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
-
-			float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
-			float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;
-
-			int yLinesNeeded = (int)((cameraZoom * 1920 + gridWidth) / gridWidth);
-			int xLinesNeeded = (int)((cameraZoom * 1080 + gridHeight) / gridHeight);
-
-			for (int i = 0; i < yLinesNeeded; i++)
+			tmpScriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModuleTmp.dll");
+			scriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModule.dll");
+			auto view = scene->GetRegistry().view<Transform>();
+			initImGui = false;
+			for (Entity entity : view)
 			{
-				float x = (i * gridWidth) + firstX + (gridWidth / 2.0f);
-				float y = (i * gridHeight) + firstY + (gridHeight / 2.0f);
-				glm::vec2 from(x, firstY - gridHeight);
-				glm::vec2 to(x, firstY + 1080 + gridWidth);
-				glm::vec3 color(0.2f, 0.2f, 0.2f);
-				DebugDraw::AddLine2D(from, to, 1.0f, color);
+				//Transform& transform = entity.GetComponent<Transform>();
+				//if (!transform.m_Previous.IsNull())
+				//{
+				//	Transform& prevTransform = transform.m_Previous.GetComponent<Transform>();
+				//	prevTransform.m_Next = entity;
 
-				if (i <= xLinesNeeded)
-				{
-					glm::vec2 from2(firstX - gridWidth, y);
-					glm::vec2 to2(firstX + 1920 + gridHeight, y);
-					glm::vec3 color2(0.2f, 0.2f, 0.2f);
-					DebugDraw::AddLine2D(from2, to2, 1.0f, color2, 1, false);
-				}
+				//	if (!transform.m_Parent.IsNull())
+				//	{
+				//		Transform& parentTransform = transform.m_Parent.GetComponent<Transform>();
+				//		if (!transform.m_First.IsNull())
+				//		{
+				//			parentTransform.m_First = entity;
+				//		}
+				//	}
+				//}
 			}
 		}
-	}
 
-	static ImVec4 From(const glm::vec4& vec4)
-	{
-		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
-	}
-
-	void LevelEditorSystem::OnEvent(Event& e)
-	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<KeyPressedEvent>(std::bind(&LevelEditorSystem::HandleKeyPress, this, std::placeholders::_1));
-		dispatcher.Dispatch<KeyReleasedEvent>(std::bind(&LevelEditorSystem::HandleKeyRelease, this, std::placeholders::_1));
-		dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind(&LevelEditorSystem::HandleMouseButtonPressed, this, std::placeholders::_1));
-		dispatcher.Dispatch<MouseButtonReleasedEvent>(std::bind(&LevelEditorSystem::HandleMouseButtonReleased, this, std::placeholders::_1));
-		dispatcher.Dispatch<MouseScrolledEvent>(std::bind(&LevelEditorSystem::HandleMouseScroll, this, std::placeholders::_1));
-	}
-
-	bool LevelEditorSystem::HandleKeyPress(KeyPressedEvent& e)
-	{
-		if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+		void EditorUpdate(Scene* scene, float dt)
 		{
-			m_ControlModifierPressed = true;
-		}
-
-		if (m_ControlModifierPressed)
-		{
-			if (e.GetKeyCode() == COCOA_KEY_Z)
+			if (!initImGui)
 			{
-				CommandHistory::Undo();
+				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
+				initImGui = true;
 			}
 
-			if (e.GetKeyCode() == COCOA_KEY_R)
+			if (IFile::IsFile(tmpScriptDll))
 			{
-				CommandHistory::Redo();
-			}
-
-			if (e.GetKeyCode() == COCOA_KEY_S)
-			{
-				m_Scene->Save(Settings::General::s_CurrentScene);
+				scene->Save(Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
+				ScriptSystem::FreeScriptLibrary();
+
+				IFile::DeleteFile(scriptDll);
+				IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule");
+				ScriptSystem::Reload();
+				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
+				scene->LoadScriptsOnly(Settings::General::s_CurrentScene);
+
+				IFile::DeleteFile(tmpScriptDll);
 			}
 
-			if (e.GetKeyCode() == COCOA_KEY_D)
+			if (m_IsDragging)
 			{
-				Entity activeEntity = InspectorWindow::GetActiveEntity();
-				if (!activeEntity.IsNull())
+				Camera* camera = scene->GetCamera();
+				glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
+				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
+				delta *= 0.8f;
+				camera->GetTransform().m_Position = m_OriginalCameraPos + delta;
+			}
+
+			// Draw grid lines
+			if (Settings::Editor::DrawGrid)
+			{
+				Transform& cameraTransform = scene->GetCamera()->GetTransform();
+				float cameraZoom = scene->GetCamera()->GetZoom();
+				int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
+				int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
+
+				float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
+				float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;
+
+				int yLinesNeeded = (int)((cameraZoom * 1920 + gridWidth) / gridWidth);
+				int xLinesNeeded = (int)((cameraZoom * 1080 + gridHeight) / gridHeight);
+
+				for (int i = 0; i < yLinesNeeded; i++)
 				{
-					Entity duplicated = m_Scene->DuplicateEntity(activeEntity);
-					InspectorWindow::ClearAllEntities();
-					InspectorWindow::AddEntity(duplicated);
+					float x = (i * gridWidth) + firstX + (gridWidth / 2.0f);
+					float y = (i * gridHeight) + firstY + (gridHeight / 2.0f);
+					glm::vec2 from(x, firstY - gridHeight);
+					glm::vec2 to(x, firstY + 1080 + gridWidth);
+					glm::vec3 color(0.2f, 0.2f, 0.2f);
+					DebugDraw::AddLine2D(from, to, 1.0f, color);
+
+					if (i <= xLinesNeeded)
+					{
+						glm::vec2 from2(firstX - gridWidth, y);
+						glm::vec2 to2(firstX + 1920 + gridHeight, y);
+						glm::vec3 color2(0.2f, 0.2f, 0.2f);
+						DebugDraw::AddLine2D(from2, to2, 1.0f, color2, 1, false);
+					}
 				}
 			}
 		}
 
-		return false;
-	}
-
-	bool LevelEditorSystem::HandleKeyRelease(KeyReleasedEvent& e)
-	{
-		if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+		// TODO: Move this into CImGui?
+		static ImVec4 From(const glm::vec4& vec4)
 		{
-			m_ControlModifierPressed = false;
+			return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
 		}
 
-		return false;
-	}
-
-	bool LevelEditorSystem::HandleMouseScroll(MouseScrolledEvent& e)
-	{
-		float yOffset = -e.GetYOffset();
-		if (yOffset != 0)
+		void LevelEditorSystem::OnEvent(Scene* scene, Event& e)
 		{
-			Camera* camera = m_Scene->GetCamera();
-			//float speed = 500.0f * camera->GetZoom();
-			camera->SetZoom(camera->GetZoom() + (yOffset * 0.05f));
+			switch (e.GetType())
+			{
+			case EventType::KeyPressed:
+				e.m_Handled = HandleKeyPress((KeyPressedEvent&)e, scene);
+				return;
+			case EventType::KeyReleased:
+				e.m_Handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
+				return;
+			case EventType::MouseButtonPressed:
+				e.m_Handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
+				return;
+			case EventType::MouseButtonReleased:
+				e.m_Handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
+				return;
+			case EventType::MouseScrolled:
+				e.m_Handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
+				return;
+			}
 		}
 
-		return false;
-	}
-
-	bool LevelEditorSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e)
-	{
-		static float speed = 500.0f;
-		if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+		bool HandleKeyPress(KeyPressedEvent& e, Scene* scene)
 		{
-			m_IsDragging = true;
-			Camera* camera = m_Scene->GetCamera();
-			m_OriginalCameraPos = camera->GetTransform().m_Position;
-			m_OriginalDragClickPos = CMath::Vector3From2(camera->ScreenToOrtho());
-			//m_DragClickOffset = CMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
+			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+			{
+				m_ControlModifierPressed = true;
+			}
+
+			if (m_ControlModifierPressed)
+			{
+				if (e.GetKeyCode() == COCOA_KEY_Z)
+				{
+					CommandHistory::Undo();
+				}
+
+				if (e.GetKeyCode() == COCOA_KEY_R)
+				{
+					CommandHistory::Redo();
+				}
+
+				if (e.GetKeyCode() == COCOA_KEY_S)
+				{
+					scene->Save(Settings::General::s_CurrentScene);
+					EditorLayer::SaveProject();
+				}
+
+				if (e.GetKeyCode() == COCOA_KEY_D)
+				{
+					Entity activeEntity = InspectorWindow::GetActiveEntity();
+					if (!activeEntity.IsNull())
+					{
+						Entity duplicated = scene->DuplicateEntity(activeEntity);
+						InspectorWindow::ClearAllEntities();
+						InspectorWindow::AddEntity(duplicated);
+					}
+				}
+			}
+
+			return false;
 		}
 
-		return false;
-	}
-
-	bool LevelEditorSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e)
-	{
-		if (m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+		bool HandleKeyRelease(KeyReleasedEvent& e, Scene* scene)
 		{
-			m_IsDragging = false;
+			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+			{
+				m_ControlModifierPressed = false;
+			}
+
+			return false;
 		}
-		return false;
+
+		bool HandleMouseScroll(MouseScrolledEvent& e, Scene* scene)
+		{
+			float yOffset = -e.GetYOffset();
+			if (yOffset != 0)
+			{
+				Camera* camera = scene->GetCamera();
+				//float speed = 500.0f * camera->GetZoom();
+				camera->SetZoom(camera->GetZoom() + (yOffset * 0.05f));
+			}
+
+			return false;
+		}
+
+		bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, Scene* scene)
+		{
+			static float speed = 500.0f;
+			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+			{
+				m_IsDragging = true;
+				Camera* camera = scene->GetCamera();
+				m_OriginalCameraPos = camera->GetTransform().m_Position;
+				m_OriginalDragClickPos = CMath::Vector3From2(camera->ScreenToOrtho());
+				//m_DragClickOffset = CMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
+			}
+
+			return false;
+		}
+
+		bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, Scene* scene)
+		{
+			if (m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+			{
+				m_IsDragging = false;
+			}
+			return false;
+		}
 	}
 }

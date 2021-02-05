@@ -56,6 +56,7 @@ namespace Cocoa
 		{
 			system->Start();
 		}
+		m_SceneInitializer->Start(this);
 	}
 
 	void Scene::Update(float dt)

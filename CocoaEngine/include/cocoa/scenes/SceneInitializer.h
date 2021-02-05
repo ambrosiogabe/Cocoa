@@ -13,5 +13,6 @@ namespace Cocoa
 		SceneInitializer() {}
 
 		virtual void Init(Scene* scene, std::vector<std::unique_ptr<System>>& systems) = 0;
+		virtual void Start(Scene* scene) = 0;
 	};
 }

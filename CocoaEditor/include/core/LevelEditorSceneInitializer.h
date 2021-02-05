@@ -15,5 +15,6 @@ namespace Cocoa
 		LevelEditorSceneInitializer() {}
 
 		virtual void Init(Scene* scene, std::vector<std::unique_ptr<System>>& systems) override;
+		virtual void Start(Scene* scene) override;
 	};
 }

@@ -181,6 +181,7 @@ namespace Cocoa
 		{
 			DebugDraw::BeginFrame();
 			m_Scene->EditorUpdate(dt);
+			LevelEditorSystem::EditorUpdate(m_Scene, dt);
 		}
 	}
 
@@ -202,6 +203,8 @@ namespace Cocoa
 			{
 				system->OnEvent(e);
 			}
+
+			LevelEditorSystem::OnEvent(m_Scene, e);
 		}
 	}
 

@@ -13,6 +13,10 @@ namespace Cocoa
 	{
 		InspectorWindow::ClearAllEntities();
 		systems.emplace_back(std::make_unique<GizmoSystem>("Gizmo System", scene));
-		systems.emplace_back(std::make_unique<LevelEditorSystem>("Level Editor System", scene));
+	}
+
+	void LevelEditorSceneInitializer::Start(Scene* scene)
+	{
+		LevelEditorSystem::Start(scene);
 	}
 }
