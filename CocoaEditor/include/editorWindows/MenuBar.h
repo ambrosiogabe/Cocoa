@@ -2,12 +2,9 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/util/Settings.h"
-#include "cocoa/scenes/Scene.h"
-#include "cocoa/file/CPath.h"
-
 namespace Cocoa
 {
+    class Scene;
     struct MenuBar
     {
         Scene* ScenePtr;

@@ -6,8 +6,9 @@
 #include "gui/FontAwesome.h"
 #include "util/Settings.h"
 
-#include "cocoa/file/IFile.h"
 #include "cocoa/core/Application.h"
+#include "cocoa/file/IFile.h"
+#include "cocoa/file/CPath.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/JsonExtended.h"
 #include "cocoa/systems/RenderSystem.h"

@@ -6,12 +6,12 @@
 #include "util/Settings.h"
 
 #include "cocoa/core/Entity.h"
+#include "cocoa/core/Application.h"
 #include "cocoa/file/IFileDialog.h"
+#include "cocoa/file/IFile.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/util/Settings.h"
-#include "cocoa/core/Application.h"
-#include "cocoa/file/IFile.h"
 
 namespace Cocoa
 {

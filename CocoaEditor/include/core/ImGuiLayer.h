@@ -5,6 +5,7 @@
 #include "editorWindows/MenuBar.h"
 #include "editorWindows/AssetWindow.h"
 
+#include "cocoa/file/CPath.h"
 #include "cocoa/core/Layer.h"
 
 namespace Cocoa
