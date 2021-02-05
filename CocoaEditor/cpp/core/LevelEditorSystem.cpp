@@ -166,12 +166,12 @@ namespace Cocoa
 
 			if (e.GetKeyCode() == COCOA_KEY_D)
 			{
-				Entity activeEntity = InspectorWindow::GetActiveEntity();
+				Entity activeEntity = InspectorWindowUtil::GetActiveEntity();
 				if (!activeEntity.IsNull())
 				{
 					Entity duplicated = m_Scene->DuplicateEntity(activeEntity);
-					InspectorWindow::ClearAllEntities();
-					InspectorWindow::AddEntity(duplicated);
+					InspectorWindowUtil::ClearAllEntities();
+					InspectorWindowUtil::AddEntity(duplicated);
 				}
 			}
 		}

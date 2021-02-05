@@ -4,21 +4,24 @@
 
 #include "editorWindows/MenuBar.h"
 #include "editorWindows/AssetWindow.h"
+#include "editorWindows/InspectorWindow.h"
 
 #include "cocoa/file/CPath.h"
 #include "cocoa/core/Layer.h"
 
 namespace Cocoa
 {
+    class ScriptSystem;
     class ImGuiLayer : public Layer
     {
     public:
-        ImGuiLayer(Scene* scene)
+        ImGuiLayer(Scene* scene, ScriptSystem* scriptSystem)
             : Layer(scene)
         {
             m_Window = nullptr;
             m_MenuBar = { scene };
             m_AssetWindow = { scene };
+            m_InspectorWindow = { scriptSystem };
         }
 
         void Setup(void* window);
@@ -44,5 +47,6 @@ namespace Cocoa
         void* m_Window;
         MenuBar m_MenuBar;
         AssetWindow m_AssetWindow;
+        InspectorWindow m_InspectorWindow;
     };
 }

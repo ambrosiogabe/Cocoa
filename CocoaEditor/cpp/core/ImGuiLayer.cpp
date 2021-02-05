@@ -120,7 +120,7 @@ namespace Cocoa
 			SetupDockspace();
 			RenderGameViewport();
 			AssetWindowUtil::ImGui(m_AssetWindow);
-			InspectorWindow::ImGui();
+			InspectorWindowUtil::ImGui(m_InspectorWindow);
 			SceneHeirarchyWindow::ImGui();
 			if (Settings::Editor::ShowDemoWindow)
 			{

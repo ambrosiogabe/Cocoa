@@ -235,7 +235,17 @@ namespace Cocoa
 		ChangeScene(new LevelEditorSceneInitializer());
 		m_EditorLayer->SetScene(m_CurrentScene);
 
-		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
+		// TODO: Temporary find a better way to get a hold of the script system (if it's even needed...)
+		ScriptSystem* scriptSystem = nullptr;
+		for (const auto& system : m_CurrentScene->GetSystems())
+		{
+			if (strcmp(system->GetName(), "Script System") == 0)
+			{
+				scriptSystem = (ScriptSystem*)system.get();
+				break;
+			}
+		}
+		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene, scriptSystem);
 		PushOverlay(m_EditorLayer);
 		PushOverlay(m_ImGuiLayer);
 	}

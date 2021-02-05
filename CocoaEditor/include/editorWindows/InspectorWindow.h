@@ -11,46 +11,21 @@
 namespace Cocoa
 {
 	class ScriptSystem;
-	class InspectorWindow
+	struct InspectorWindow
 	{
-	public:
-		static void ImGui();
-		static void AddEntity(Entity entity);
-		static void RemoveEntity(Entity entity);
-		static void ClearAllEntities();
-		static Entity GetActiveEntity();
+		ScriptSystem* ScriptSystemPtr;
+	};
 
-		// =====================================================================
-		// Script components
-		// =====================================================================
-		static void ImGuiScriptComponents(ScriptSystem* scriptSystem);
+	namespace InspectorWindowUtil
+	{
+		void ImGui(const InspectorWindow& inspectorWindow);
 
-		// =====================================================================
-		// Basic components
-		// =====================================================================
-		static void ImGuiTransform(Transform& transform);
+		void AddEntity(Entity entity);
 
-		// =====================================================================
-		// Renderer components
-		// =====================================================================
-		static void ImGuiSpriteRenderer(SpriteRenderer& spr);
-		static void ImGuiFontRenderer(FontRenderer& fontRenderer);
+		void RemoveEntity(Entity entity);
 
-		// =====================================================================
-		// Physics components
-		// =====================================================================
-		static void ImGuiRigidbody2D(Rigidbody2D& rb);
-		static void ImGuiAABB(AABB& box);
-		static void ImGuiBox2D(Box2D& box);
-		static void ImGuiCircle(Circle& circle);
+		void ClearAllEntities();
 
-	private:
-		static void ImGuiAddComponentButton();
-
-	public:
-		static ScriptSystem* s_ScriptSystem;
-
-	private:
-		static std::vector<Entity> s_ActiveEntities;
+		Entity GetActiveEntity();
 	};
 }

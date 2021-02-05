@@ -140,7 +140,7 @@ namespace Cocoa
 
 	void GizmoSystem::EditorUpdate(float dt)
 	{
-		Entity activeEntity = InspectorWindow::GetActiveEntity();
+		Entity activeEntity = InspectorWindowUtil::GetActiveEntity();
 		if (!activeEntity.IsNull())
 		{
 			ImGui();
@@ -246,15 +246,15 @@ namespace Cocoa
 
 			Entity entity = m_Scene->GetEntity(info.m_EntityID);
 
-			Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();
+			Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindowUtil::GetActiveEntity();
 
 			m_OriginalDragClickPos = CMath::Vector3From2(mousePosWorld);
 			m_ActiveGizmo = -1;
 			
 			if (!selectedEntity.IsNull())
 			{
-				InspectorWindow::ClearAllEntities();
-				InspectorWindow::AddEntity(selectedEntity);
+				InspectorWindowUtil::ClearAllEntities();
+				InspectorWindowUtil::AddEntity(selectedEntity);
 				const Transform& transform = selectedEntity.GetComponent<Transform>();
 				m_ActiveGizmo = m_HotGizmo;
 				m_MouseDragging = true;
@@ -263,7 +263,7 @@ namespace Cocoa
 			}
 			else
 			{
-				InspectorWindow::ClearAllEntities();
+				InspectorWindowUtil::ClearAllEntities();
 				m_ActiveGizmo = -1;
 			}
 		}
