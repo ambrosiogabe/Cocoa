@@ -13,10 +13,11 @@ namespace Cocoa
     {
     public:
         ImGuiLayer(Scene* scene)
-            : Layer(scene), m_AssetWindow(scene)
+            : Layer(scene)
         {
             m_Window = nullptr;
             m_MenuBar = { scene };
+            m_AssetWindow = { scene };
         }
 
         void Setup(void* window);

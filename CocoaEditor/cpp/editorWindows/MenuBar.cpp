@@ -55,7 +55,7 @@ namespace Cocoa
 		}
 
 
-		void ImGui(MenuBar& menuBar)
+		void ImGui(const MenuBar& menuBar)
 		{
 			if (Settings::Editor::ShowSettingsWindow)
 			{

@@ -17,24 +17,14 @@ namespace Cocoa
 		Length
 	};
 
-	class AssetWindow
+	struct AssetWindow
 	{
-	public:
-		AssetWindow(Scene* scene);
-		void ImGui();
+		Scene* ScenePtr = nullptr;
+		AssetView CurrentView = AssetView::TextureBrowser;;
+	};
 
-	private:
-		void ShowMenuBar();
-		void ShowTextureBrowser();
-		void ShowSceneBrowser();
-		void ShowScriptBrowser();
-		void ShowFontBrowser();
-		bool IconButton(const char* icon, const char* label, const glm::vec2& size=glm::vec2());
-		bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size=glm::vec2());
-
-	private:
-		glm::vec2 m_ButtonSize{ 128, 128 };
-		AssetView m_CurrentView = AssetView::TextureBrowser;
-		Scene* m_Scene;
+	namespace AssetWindowUtil
+	{
+		void ImGui(AssetWindow& assetWindow);
 	};
 }

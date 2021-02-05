@@ -15,6 +15,6 @@ namespace Cocoa
 
     namespace MenuBarUtil
     {        
-        void ImGui(MenuBar& menuBar);
+        void ImGui(const MenuBar& menuBar);
     };
 }
