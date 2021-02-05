@@ -6,6 +6,7 @@
 #include "gui/ImGuiHeader.h"
 #include "editorWindows/InspectorWindow.h"
 #include "nativeScripting/SourceFileWatcher.h"
+#include "renderer/Gizmos.h"
 
 #include "cocoa/file/IFile.h"
 #include "cocoa/util/Settings.h"
@@ -182,6 +183,11 @@ namespace Cocoa
 			DebugDraw::BeginFrame();
 			m_Scene->EditorUpdate(dt);
 			LevelEditorSystem::EditorUpdate(m_Scene, dt);
+			GizmoSystem::EditorUpdate(m_Scene, dt);
+
+			// TODO: It doesn't *really* matter where we put the imgui as long as it gets called... consider creating a dedicated imgui function for 
+			// TODO: applications though...
+			GizmoSystem::ImGui();
 		}
 	}
 
@@ -205,6 +211,7 @@ namespace Cocoa
 			}
 
 			LevelEditorSystem::OnEvent(m_Scene, e);
+			GizmoSystem::OnEvent(m_Scene, e);
 		}
 	}
 

@@ -12,11 +12,11 @@ namespace Cocoa
 	void LevelEditorSceneInitializer::Init(Scene* scene, std::vector<std::unique_ptr<System>>& systems)
 	{
 		InspectorWindow::ClearAllEntities();
-		systems.emplace_back(std::make_unique<GizmoSystem>("Gizmo System", scene));
 	}
 
 	void LevelEditorSceneInitializer::Start(Scene* scene)
 	{
+		GizmoSystem::Start(scene);
 		LevelEditorSystem::Start(scene);
 	}
 }
