@@ -236,7 +236,7 @@ namespace Cocoa
 		m_EditorLayer->SetScene(m_CurrentScene);
 
 		// TODO: Find a way to either get reference of script system to imgui layer, or to nix that dependency altogether
-		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene, nullptr);
+		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
 		PushOverlay(m_EditorLayer);
 		PushOverlay(m_ImGuiLayer);
 	}

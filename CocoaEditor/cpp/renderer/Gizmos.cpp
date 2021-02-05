@@ -8,6 +8,7 @@
 #include "cocoa/core/Application.h"
 #include "cocoa/core/Core.h"
 #include "cocoa/util/CMath.h"
+#include "cocoa/util/Settings.h"
 #include "cocoa/core/Entity.h"
 #include "cocoa/commands/ICommand.h"
 #include "cocoa/core/AssetManager.h"
@@ -140,7 +141,7 @@ namespace Cocoa
 
 	void GizmoSystem::EditorUpdate(float dt)
 	{
-		Entity activeEntity = InspectorWindowUtil::GetActiveEntity();
+		Entity activeEntity = InspectorWindow::GetActiveEntity();
 		if (!activeEntity.IsNull())
 		{
 			ImGui();
@@ -246,15 +247,15 @@ namespace Cocoa
 
 			Entity entity = m_Scene->GetEntity(info.m_EntityID);
 
-			Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindowUtil::GetActiveEntity();
+			Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();
 
 			m_OriginalDragClickPos = CMath::Vector3From2(mousePosWorld);
 			m_ActiveGizmo = -1;
 			
 			if (!selectedEntity.IsNull())
 			{
-				InspectorWindowUtil::ClearAllEntities();
-				InspectorWindowUtil::AddEntity(selectedEntity);
+				InspectorWindow::ClearAllEntities();
+				InspectorWindow::AddEntity(selectedEntity);
 				const Transform& transform = selectedEntity.GetComponent<Transform>();
 				m_ActiveGizmo = m_HotGizmo;
 				m_MouseDragging = true;
@@ -263,7 +264,7 @@ namespace Cocoa
 			}
 			else
 			{
-				InspectorWindowUtil::ClearAllEntities();
+				InspectorWindow::ClearAllEntities();
 				m_ActiveGizmo = -1;
 			}
 		}

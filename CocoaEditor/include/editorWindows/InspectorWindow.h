@@ -2,23 +2,13 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "gui/ImGuiExtended.h"
-
-#include "cocoa/components/components.h"
-#include "cocoa/components/Transform.h"
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/core/Entity.h"
 
 namespace Cocoa
 {
-	class ScriptSystem;
-	struct InspectorWindow
+	namespace InspectorWindow
 	{
-		ScriptSystem* ScriptSystemPtr;
-	};
-
-	namespace InspectorWindowUtil
-	{
-		void ImGui(const InspectorWindow& inspectorWindow);
+		void ImGui();
 
 		void AddEntity(Entity entity);
 

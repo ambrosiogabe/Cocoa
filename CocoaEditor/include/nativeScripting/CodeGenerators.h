@@ -184,10 +184,10 @@ namespace Cocoa
 
 			// Generate Init ImGui function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void InitImGui(ImGuiContext* ctx)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void InitImGui(void* ctx)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Initializing ImGui\");\n";
-			source << "\t\t\tImGui::SetCurrentContext(ctx);\n";
+			source << "\t\t\tImGui::SetCurrentContext((ImGuiContext*)ctx);\n";
 			source << "\t\t}\n";
 
 			// Generate ImGui function

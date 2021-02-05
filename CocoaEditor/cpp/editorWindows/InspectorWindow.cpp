@@ -1,8 +1,12 @@
 #include "editorWindows/InspectorWindow.h"
 #include "gui/ImGuiExtended.h"
 #include "gui/FontAwesome.h"
+#include "gui/ImGuiExtended.h"
 #include "nativeScripting/SourceFileWatcher.h"
 
+#include "cocoa/components/components.h"
+#include "cocoa/components/Transform.h"
+#include "cocoa/physics2d/Physics2DSystem.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
@@ -13,7 +17,7 @@
 
 namespace Cocoa
 {
-	namespace InspectorWindowUtil
+	namespace InspectorWindow
 	{
 		// Internal Variables
 		std::vector<Entity> ActiveEntities = std::vector<Entity>();
@@ -39,9 +43,9 @@ namespace Cocoa
 		static void ImGuiBox2D(Box2D& box);
 		static void ImGuiCircle(Circle& circle);
 
-		static void ImGuiAddComponentButton(const InspectorWindow& inspectorWindow);
+		static void ImGuiAddComponentButton();
 
-		void ImGui(const InspectorWindow& inspectorWindow)
+		void ImGui()
 		{
 			ImGui::Begin(ICON_FA_CUBE "Inspector");
 			if (ActiveEntities.size() == 0)
@@ -83,11 +87,9 @@ namespace Cocoa
 				ImGuiAABB(ActiveEntities[0].GetComponent<AABB>());
 			if (doCircle)
 				ImGuiCircle(ActiveEntities[0].GetComponent<Circle>());
-			// TODO Fix this by resolving depenedency on imguilayer somehow
-			//if (inspectorWindow.ScriptSystemPtr)
-				//inspectorWindow.ScriptSystemPtr->ImGui(ActiveEntities[0]);
+			ScriptSystem::ImGui(ActiveEntities[0]);
 
-			ImGuiAddComponentButton(inspectorWindow);
+			ImGuiAddComponentButton();
 			ImGui::End();
 		}
 
@@ -119,14 +121,15 @@ namespace Cocoa
 		// =====================================================================
 		// Internal Functions
 		// =====================================================================
-		static void ImGuiAddComponentButton(const InspectorWindow& inspectorWindow)
+		static void ImGuiAddComponentButton()
 		{
 			const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
-			int size = classes.size() + 4;
+			int defaultComponentSize = 5;
+			int size = classes.size() + defaultComponentSize;
 			auto classIter = classes.begin();
-			for (int i = 5; i < classes.size() + 5; i++)
+			for (int i = 0; i < classes.size(); i++)
 			{
-				StringBuffer[i] = classIter->m_ClassName.c_str();
+				StringBuffer[i + defaultComponentSize] = classIter->m_ClassName.c_str();
 				classIter++;
 			}
 
@@ -158,15 +161,8 @@ namespace Cocoa
 					activeEntity.AddComponent<Circle>();
 					break;
 				default:
-					if (inspectorWindow.ScriptSystemPtr)
-					{
-						Log::Info("Adding component %s from inspector tp %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.GetRawEntity()));
-						inspectorWindow.ScriptSystemPtr->AddComponentFromString(StringBuffer[itemPressed], activeEntity.GetRawEntity(), activeEntity.GetRegistry());
-					}
-					else
-					{
-						Log::Error("Trying to add script as component, but script system not set in inspector.");
-					}
+					Log::Info("Adding component %s from inspector tp %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.GetRawEntity()));
+					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.GetRawEntity(), activeEntity.GetRegistry());
 					break;
 				}
 			}

@@ -47,7 +47,6 @@ namespace Cocoa
 
 		m_Systems.emplace_back(std::make_unique<RenderSystem>("Render System", this));
 		m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System", this));
-		m_Systems.emplace_back(std::make_unique<ScriptSystem>("Script System", this));
 		m_SceneInitializer->Init(this, m_Systems);
 	}
 
@@ -66,6 +65,7 @@ namespace Cocoa
 		{
 			system->Update(dt);
 		}
+		ScriptSystem::Update(this, dt);
 	}
 
 	void Scene::EditorUpdate(float dt)
@@ -181,15 +181,7 @@ namespace Cocoa
 			.entities(output)
 			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB>(output);
 
-		for (const auto& system : m_Systems)
-		{
-			if (strcmp(system.get()->GetName(), "Script System") == 0)
-			{
-				ScriptSystem* scriptSystem = (ScriptSystem*)system.get();
-				scriptSystem->SaveScripts(m_SaveDataJson);
-				break;
-			}
-		}
+		ScriptSystem::SaveScripts(m_SaveDataJson);
 
 		IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename);
 	}
@@ -200,15 +192,7 @@ namespace Cocoa
 		auto view = m_Registry.view<Transform>();
 		m_Registry.destroy(view.begin(), view.end());
 
-		for (auto& system : m_Systems)
-		{
-			if (strcmp(system->GetName(), "Script System") == 0)
-			{
-				ScriptSystem* scriptSystem = (ScriptSystem*)system.get();
-				scriptSystem->FreeScriptLibrary();
-				break;
-			}
-		}
+		ScriptSystem::FreeScriptLibrary();
 
 		m_Systems.clear();
 		delete m_Camera;
@@ -253,14 +237,10 @@ namespace Cocoa
 			return;
 		}
 
-		ScriptSystem* scriptSystem = nullptr;
+		ScriptSystem::Start();
 		for (auto& system : m_Systems)
 		{
 			system->Start();
-			if (strcmp(system->GetName(), "Script System") == 0)
-			{
-				scriptSystem = (ScriptSystem*)system.get();
-			}
 		}
 
 		json j = json::parse(file->m_Data);
@@ -309,7 +289,7 @@ namespace Cocoa
 			else
 			{
 				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
-				scriptSystem->Deserialize(component, entity);
+				ScriptSystem::Deserialize(component, entity);
 			}
 		}
 
@@ -324,15 +304,6 @@ namespace Cocoa
 			return;
 		}
 
-		ScriptSystem* scriptSystem = nullptr;
-		for (auto& system : m_Systems)
-		{
-			if (strcmp(system->GetName(), "Script System") == 0)
-			{
-				scriptSystem = (ScriptSystem*)system.get();
-			}
-		}
-
 		Log::Info("Loading scripts only for %s", filename.Filepath());
 		json j = json::parse(file->m_Data);
 		int size = !j.contains("Components") ? 0 : j["Components"].size();
@@ -343,7 +314,7 @@ namespace Cocoa
 			if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB")
 			{
 				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
-				scriptSystem->Deserialize(component, entity);
+				ScriptSystem::Deserialize(component, entity);
 			}
 		}
 

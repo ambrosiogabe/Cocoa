@@ -56,10 +56,7 @@ namespace Cocoa
 	{
 		if (!initImGui)
 		{
-			if (m_ScriptSystem->m_InitImGui)
-			{
-				m_ScriptSystem->m_InitImGui(ImGui::GetCurrentContext());
-			}
+			ScriptSystem::InitImGui(ImGui::GetCurrentContext());
 			initImGui = true;
 		}
 
@@ -67,15 +64,12 @@ namespace Cocoa
 		{
 			m_Scene->Save(Settings::General::s_CurrentScene);
 			EditorLayer::SaveProject();
-			m_ScriptSystem->FreeScriptLibrary();
+			ScriptSystem::FreeScriptLibrary();
 
 			IFile::DeleteFile(scriptDll);
 			IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule");
-			m_ScriptSystem->Reload();
-			if (m_ScriptSystem->m_InitImGui)
-			{
-				m_ScriptSystem->m_InitImGui(ImGui::GetCurrentContext());
-			}
+			ScriptSystem::Reload();
+			ScriptSystem::InitImGui(ImGui::GetCurrentContext());
 			m_Scene->LoadScriptsOnly(Settings::General::s_CurrentScene);
 
 			IFile::DeleteFile(tmpScriptDll);
@@ -166,12 +160,12 @@ namespace Cocoa
 
 			if (e.GetKeyCode() == COCOA_KEY_D)
 			{
-				Entity activeEntity = InspectorWindowUtil::GetActiveEntity();
+				Entity activeEntity = InspectorWindow::GetActiveEntity();
 				if (!activeEntity.IsNull())
 				{
 					Entity duplicated = m_Scene->DuplicateEntity(activeEntity);
-					InspectorWindowUtil::ClearAllEntities();
-					InspectorWindowUtil::AddEntity(duplicated);
+					InspectorWindow::ClearAllEntities();
+					InspectorWindow::AddEntity(duplicated);
 				}
 			}
 		}
