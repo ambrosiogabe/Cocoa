@@ -6,17 +6,10 @@
 
 namespace Cocoa
 {
-	class SceneHeirarchyWindow
+	namespace SceneHeirarchyWindow
 	{
-	public:
-		static void SetScene(Scene* scene);
+		void SetScene(Scene* scene);
 
-		static void ImGui();
-
-	private:
-		static void DoTreeNode(int& index, const Transform& transform);
-
-	private:
-		static Scene* s_CurrentScene;
+		void ImGui();
 	};
 }
