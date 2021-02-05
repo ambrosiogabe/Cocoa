@@ -8,36 +8,13 @@
 
 namespace Cocoa
 {
-    class MenuBar
+    struct MenuBar
     {
-    public:
-        MenuBar(Scene* scene) 
-            : m_Scene(scene) {}
+        Scene* ScenePtr;
+    };
 
-        void ImGui();
-        
-    public:
-        static bool ShowDemoWindow;
-
-    private:
-        void SettingsWindow();
-        void StylesWindow();
-
-        static bool CPathVectorGetter(void* data, int n, const char** out_text);
-
-    private:
-        Scene* m_Scene;
-        bool m_SettingsOpen = false;
-        bool m_StyleSelectOpen = false;
-        bool m_CreatingProject = false;
-
-        // -------------Settings Variables-------------------------
-        int m_GridSize[2] = { Settings::General::s_GridSizeX, Settings::General::s_GridSizeY };
-        bool m_SnapToGrid = false;
-        // --------------------------------------------------------
-
-        // -------------Style Settings-----------------------------
-        int m_SelectedStyle = 0;
-        // --------------------------------------------------------
+    namespace MenuBarUtil
+    {        
+        void ImGui(MenuBar& menuBar);
     };
 }

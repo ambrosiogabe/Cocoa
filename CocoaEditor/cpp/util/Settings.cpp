@@ -4,6 +4,24 @@ namespace Cocoa
 {
 	namespace Settings
 	{
+        // TODO: Serialize this stuff on a per project basis or a global basis per user
+        // =======================================================================
+        // Editor Toolbar Settings
+        // =======================================================================
+        
+        // Which windows are open (of the windows that can be closed)
+        bool Editor::ShowDemoWindow = false;
+        bool Editor::ShowSettingsWindow = false;
+        bool Editor::ShowStyleSelect = false;
+
+        // Grid stuff
+        bool Editor::SnapToGrid = false;
+        bool Editor::DrawGrid = false;
+        glm::ivec2 Editor::GridSize = { 32, 32 };
+
+        // Selected Style
+        int Editor::SelectedStyle = 0;
+
         // =======================================================================
         // Editor Style Settings
         // =======================================================================

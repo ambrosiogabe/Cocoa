@@ -7,10 +7,6 @@ namespace Cocoa
         // =======================================================================
         // General Settings
         // =======================================================================
-        int General::s_GridSizeX = 32;
-        int General::s_GridSizeY = 32;
-        bool General::s_DrawGrid = false;
-
         CPath General::s_ImGuiConfigPath = "default.ini";
         CPath General::s_EngineAssetsPath = "assets";
         CPath General::s_EngineExeDirectory = "";

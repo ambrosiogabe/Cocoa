@@ -9,10 +9,6 @@ namespace Cocoa
 		class COCOA General
 		{
 		public:
-			static int s_GridSizeX;
-			static int s_GridSizeY;
-			static bool s_DrawGrid;
-
 			static CPath s_ImGuiConfigPath;
 			static CPath s_EngineAssetsPath;
 			static CPath s_EngineExeDirectory;

@@ -7,6 +7,7 @@
 
 namespace Cocoa
 {
+	// TODO: Major memory leak in here, fix that...
 	std::vector<std::shared_ptr<RenderBatch>> DebugDraw::s_Batches = std::vector<std::shared_ptr<RenderBatch>>();
 	std::vector<Line2D> DebugDraw::s_Lines = std::vector<Line2D>();
 	std::vector<DebugSprite> DebugDraw::s_Sprites = std::vector<DebugSprite>();
@@ -80,7 +81,9 @@ namespace Cocoa
 	// ===================================================================================================================
 	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
 	{
-		s_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime, onTop));
+		// TODO: The offender
+		//if (s_Lines.size() < s_MaxBatchSize);
+			//s_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime, onTop));
 	}
 
 	void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
@@ -110,7 +113,8 @@ namespace Cocoa
 	void DebugDraw::AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position, glm::vec3 tint,
 		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime, bool onTop)
 	{
-		s_Sprites.push_back({ textureAssetId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
+		// TODO: Possibly another offender
+		//s_Sprites.push_back({ textureAssetId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 	}
 
 
@@ -119,24 +123,32 @@ namespace Cocoa
 	// ===================================================================================================================
 	void DebugDraw::RemoveDeadSprites()
 	{
-		for (int i = 0; i < s_Sprites.size(); i++)
+		auto spriteIter = s_Sprites.begin();
+		while (spriteIter != s_Sprites.end())
 		{
-			if (s_Sprites[i].BeginFrame() <= 0)
+			if (spriteIter->BeginFrame() <= 0)
 			{
-				s_Sprites.erase(s_Sprites.begin() + i);
-				i--;
+				spriteIter = s_Sprites.erase(spriteIter);
+			}
+			else
+			{
+				spriteIter++;
 			}
 		}
 	}
 
 	void DebugDraw::RemoveDeadLines()
 	{
-		for (int i = 0; i < s_Lines.size(); i++)
+		auto lineIter = s_Lines.begin();
+		while (lineIter != s_Lines.end())
 		{
-			if (s_Lines[i].BeginFrame() <= 0)
+			if (lineIter->BeginFrame() <= 0)
 			{
-				s_Lines.erase(s_Lines.begin() + i);
-				i--;
+				lineIter = s_Lines.erase(lineIter);
+			}
+			else
+			{
+				lineIter++;
 			}
 		}
 	}

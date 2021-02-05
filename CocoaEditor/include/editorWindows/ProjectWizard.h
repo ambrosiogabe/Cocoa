@@ -15,7 +15,7 @@ namespace Cocoa
 		static void Init();
 		static void ImGui();
 
-		static bool CreateProjectImGui();
+		static void CreateProjectImGui(bool& windowOpen);
 
 	private:
 		static Texture s_JadeLogo;

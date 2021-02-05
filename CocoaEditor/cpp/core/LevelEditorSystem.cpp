@@ -3,6 +3,7 @@
 #include "gui/FontAwesome.h"
 #include "gui/ImGuiExtended.h"
 #include "editorWindows/InspectorWindow.h"
+#include "util/Settings.h"
 
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/core/Application.h"
@@ -90,12 +91,12 @@ namespace Cocoa
 		}
 
 		// Draw grid lines
-		if (Settings::General::s_DrawGrid)
+		if (Settings::Editor::DrawGrid)
 		{
 			Transform& cameraTransform = m_Scene->GetCamera()->GetTransform();
 			float cameraZoom = m_Scene->GetCamera()->GetZoom();
-			int gridWidth = Settings::General::s_GridSizeX;// *cameraZoom;
-			int gridHeight = Settings::General::s_GridSizeY;// *cameraZoom;
+			int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
+			int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
 
 			float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
 			float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;

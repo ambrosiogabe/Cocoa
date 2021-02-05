@@ -3,6 +3,7 @@
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/ProjectWizard.h"
 #include "gui/ImGuiExtended.h"
+#include "util/Settings.h"
 
 #include "cocoa/core/Entity.h"
 #include "cocoa/file/IFileDialog.h"
@@ -14,133 +15,136 @@
 
 namespace Cocoa
 {
-	bool MenuBar::ShowDemoWindow = false;
-
-	void MenuBar::SettingsWindow()
+	namespace MenuBarUtil
 	{
-		ImGui::Begin("Settings", &m_SettingsOpen);
-		if (ImGui::DragInt2("Grid Size: ", m_GridSize))
+		// Internal variables
+		static bool m_CreatingProject = false;
+		static glm::vec2 m_DefaultPopupSize = { 900, 600 };
+
+		// Forward declarations
+		static void SettingsWindow();
+		static void StylesWindow();
+		static bool CPathVectorGetter(void* data, int n, const char** out_text);
+
+		static void SettingsWindow()
 		{
-			Settings::General::s_GridSizeX = m_GridSize[0];
-			Settings::General::s_GridSizeY = m_GridSize[1];
+			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
+			ImGui::Begin("Settings", &Settings::Editor::ShowSettingsWindow);
+			CImGui::UndoableDragInt2("Grid Size: ", Settings::Editor::GridSize);
+			ImGui::Checkbox("Draw Grid: ", &Settings::Editor::DrawGrid);
+			ImGui::End();
 		}
 
-		ImGui::Checkbox("Draw Grid: ", &Settings::General::s_DrawGrid);
-		ImGui::End();
-	}
-
-	void MenuBar::StylesWindow()
-	{
-		ImGui::Begin("Styles");
-		std::vector<CPath> styles = IFile::GetFilesInDir(Settings::General::s_StylesDirectory);
-		if (ImGui::ListBox("Styles", &m_SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
+		static void StylesWindow()
 		{
-			ImGuiLayer::LoadStyle(styles[m_SelectedStyle]);
-		}
-		ImGui::End();
-	}
-
-	bool MenuBar::CPathVectorGetter(void* data, int n, const char** out_text)
-	{
-		const std::vector<CPath>* v = (std::vector<CPath>*)data;
-		*out_text = v->at(n).Filename();
-		return true;
-	}
-
-
-	void MenuBar::ImGui()
-	{
-		if (m_SettingsOpen)
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-			SettingsWindow();
-			ImGui::PopStyleVar();
-		}
-
-		if (m_StyleSelectOpen)
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-			StylesWindow();
-			ImGui::PopStyleVar();
-		}
-
-		if (m_CreatingProject)
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-			if (ProjectWizard::CreateProjectImGui())
+			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
+			ImGui::Begin("Styles", &Settings::Editor::ShowStyleSelect);
+			std::vector<CPath> styles = IFile::GetFilesInDir(Settings::General::s_StylesDirectory);
+			if (ImGui::ListBox("Styles", &Settings::Editor::SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
-				m_CreatingProject = false;
+				ImGuiLayer::LoadStyle(styles[Settings::Editor::SelectedStyle]);
 			}
-			ImGui::PopStyleVar();
+			ImGui::End();
 		}
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBg));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBgHover));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBgActive));
-		if (ImGui::BeginMenuBar())
+		static bool CPathVectorGetter(void* data, int n, const char** out_text)
 		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (CImGui::MenuButton("New Project"))
-				{
-					m_CreatingProject = true;
-				}
+			const std::vector<CPath>* v = (std::vector<CPath>*)data;
+			*out_text = v->at(n).Filename();
+			return true;
+		}
 
-				if (CImGui::MenuButton("Open Project"))
+
+		void ImGui(MenuBar& menuBar)
+		{
+			if (Settings::Editor::ShowSettingsWindow)
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+				SettingsWindow();
+				ImGui::PopStyleVar();
+			}
+
+			if (Settings::Editor::ShowStyleSelect)
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+				StylesWindow();
+				ImGui::PopStyleVar();
+			}
+
+			if (m_CreatingProject)
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
+				ProjectWizard::CreateProjectImGui(m_CreatingProject);
+				ImGui::PopStyleVar();
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBg));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBgHover));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_MenuBarButtonBgActive));
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu("File"))
 				{
-					FileDialogResult result{};
-					if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
+					if (CImGui::MenuButton("New Project"))
 					{
-						EditorLayer::LoadProject(CPath(result.filepath));
+						m_CreatingProject = true;
 					}
-				}
 
-				if (CImGui::MenuButton("Save Scene As"))
-				{
-					FileDialogResult result{};
-					if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+					if (CImGui::MenuButton("Open Project"))
 					{
-						Settings::General::s_CurrentScene = result.filepath;
-						m_Scene->Save(result.filepath);
+						FileDialogResult result{};
+						if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
+						{
+							EditorLayer::LoadProject(CPath(result.filepath));
+						}
 					}
+
+					if (CImGui::MenuButton("Save Scene As"))
+					{
+						FileDialogResult result{};
+						if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+						{
+							Settings::General::s_CurrentScene = result.filepath;
+							menuBar.ScenePtr->Save(result.filepath);
+						}
+					}
+
+					ImGui::EndMenu();
 				}
 
-				ImGui::EndMenu();
+				if (ImGui::BeginMenu("Jade"))
+				{
+					if (CImGui::MenuButton("Settings"))
+					{
+						Settings::Editor::ShowSettingsWindow = true;
+					}
+
+					if (CImGui::MenuButton("Styles"))
+					{
+						Settings::Editor::ShowStyleSelect = true;
+					}
+
+					if (CImGui::MenuButton("Show Demo Window"))
+					{
+						Settings::Editor::ShowDemoWindow = true;
+					}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Game Objects"))
+				{
+					if (CImGui::MenuButton("Add Sprite Object"))
+					{
+						Entity entity = menuBar.ScenePtr->CreateEntity();
+						entity.AddComponent<SpriteRenderer>();
+					}
+
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
 			}
-
-			if (ImGui::BeginMenu("Jade"))
-			{
-				if (CImGui::MenuButton("Settings"))
-				{
-					m_SettingsOpen = true;
-				}
-
-				if (CImGui::MenuButton("Styles"))
-				{
-					// Maybe move this inside settings??
-					m_StyleSelectOpen = true;
-				}
-
-				if (CImGui::MenuButton("Show Demo Window"))
-				{
-					ShowDemoWindow = true;
-				}
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Game Objects"))
-			{
-				if (CImGui::MenuButton("Add Sprite Object"))
-				{
-					Entity entity = m_Scene->CreateEntity();
-					entity.AddComponent<SpriteRenderer>();
-				}
-
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
+			ImGui::PopStyleColor(3);
 		}
-		ImGui::PopStyleColor(3);
 	}
 }

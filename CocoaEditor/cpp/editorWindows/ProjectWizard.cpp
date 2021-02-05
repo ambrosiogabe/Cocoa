@@ -86,19 +86,14 @@ namespace Cocoa
 
 		if (s_CreatingProject)
 		{
-			if (CreateProjectImGui())
-			{
-				s_CreatingProject = false;
-			}
+			CreateProjectImGui(s_CreatingProject);
 		}
 	}
 
 
-	bool ProjectWizard::CreateProjectImGui()
+	void ProjectWizard::CreateProjectImGui(bool& windowOpen)
 	{
-		bool res = false;
-
-		ImGui::Begin("Create New Project");
+		ImGui::Begin("Create New Project", &windowOpen);
 
 		ImGui::LabelText("##tmp_projectname", "Project Name:");
 		ImGui::InputText("##tmp_filename", s_TmpFilename, 256);
@@ -117,7 +112,7 @@ namespace Cocoa
 
 		if (CImGui::Button("Cancel"))
 		{
-			res = true;
+			windowOpen = false;
 		}
 		ImGui::SameLine();
 		if (CImGui::Button("Create"))
@@ -126,11 +121,9 @@ namespace Cocoa
 			{
 				CocoaEditor* e = static_cast<CocoaEditor*>(Application::Get());
 				e->SetProjectLoaded();
-				res = true;
+				windowOpen = false;
 			}
 		}
 		ImGui::End();
-
-		return res;
 	}
 }

@@ -121,9 +121,9 @@ namespace Cocoa
 			m_AssetWindow.ImGui();
 			InspectorWindow::ImGui();
 			SceneHeirarchyWindow::ImGui();
-			if (MenuBar::ShowDemoWindow)
+			if (Settings::Editor::ShowDemoWindow)
 			{
-				ImGui::ShowDemoWindow(&MenuBar::ShowDemoWindow);
+				ImGui::ShowDemoWindow(&Settings::Editor::ShowDemoWindow);
 			}
 		}
 		else
@@ -270,7 +270,7 @@ namespace Cocoa
 		ImGui::PushStyleColor(ImGuiCol_Header, Settings::EditorStyle::s_AccentDark0);
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, Settings::EditorStyle::s_AccentDark0);
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, Settings::EditorStyle::s_AccentDark0);
-		m_MenuBar->ImGui();
+		MenuBarUtil::ImGui(m_MenuBar);
 		ImGui::PopStyleVar(4);
 		ImGui::PopStyleColor(5);
 		ImGui::End();

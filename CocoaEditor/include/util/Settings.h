@@ -10,6 +10,23 @@ namespace Cocoa
 {
 	namespace Settings
 	{
+        class Editor
+        {
+        public:
+            // Which windows are open (of the windows that can be closed)
+            static bool ShowDemoWindow;
+            static bool ShowSettingsWindow;
+            static bool ShowStyleSelect;
+
+            // Grid stuff
+            static bool SnapToGrid;
+            static bool DrawGrid;
+            static glm::ivec2 GridSize;
+
+            // Selected style
+            static int SelectedStyle;
+        };
+
         class EditorStyle
         {
         public:

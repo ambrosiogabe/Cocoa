@@ -16,7 +16,7 @@ namespace Cocoa
             : Layer(scene), m_AssetWindow(scene)
         {
             m_Window = nullptr;
-            m_MenuBar = std::make_unique<MenuBar>(scene);
+            m_MenuBar = { scene };
         }
 
         void Setup(void* window);
@@ -40,7 +40,7 @@ namespace Cocoa
         bool m_BlockEvents = false;
 
         void* m_Window;
-        std::unique_ptr<MenuBar> m_MenuBar;
+        MenuBar m_MenuBar;
         AssetWindow m_AssetWindow;
     };
 }

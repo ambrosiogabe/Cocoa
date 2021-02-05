@@ -29,6 +29,7 @@ namespace Cocoa {
 #include "cocoa/commands/ChangeVec2Command.h"
 #include "cocoa/commands/ChangeVec3Command.h"
 #include "cocoa/commands/ChangeVec4Command.h"
+#include "cocoa/commands/ChangeInt2Command.h"
 #include "cocoa/commands/ChangeIntCommand.h"
 #include "cocoa/commands/ChangeUint8Command.h"
 #include "cocoa/commands/ChangeEnumCommand.h"

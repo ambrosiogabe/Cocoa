@@ -25,13 +25,14 @@ namespace CImGui
 		ImGuiInputTextCallback callback = (ImGuiInputTextCallback)0, void* user_data = (void*)0);
 	bool Checkbox(const char* label, bool* checked);
 
-	void UndoableColorEdit4(const char* label, glm::vec4& color);
-	void UndoableColorEdit3(const char* label, glm::vec3& color);
-	void UndoableDragFloat4(const char* label, glm::vec4& vector);
-	void UndoableDragFloat3(const char* label, glm::vec3& vector);
-	void UndoableDragFloat2(const char* label, glm::vec2& vector);
-	void UndoableDragFloat(const char* label, float& val);
-	void UndoableDragInt(const char* label, int& val);
+	bool UndoableColorEdit4(const char* label, glm::vec4& color);
+	bool UndoableColorEdit3(const char* label, glm::vec3& color);
+	bool UndoableDragFloat4(const char* label, glm::vec4& vector);
+	bool UndoableDragFloat3(const char* label, glm::vec3& vector);
+	bool UndoableDragFloat2(const char* label, glm::vec2& vector);
+	bool UndoableDragFloat(const char* label, float& val);
+	bool UndoableDragInt2(const char* label, glm::ivec2& val);
+	bool UndoableDragInt(const char* label, int& val);
 
 	void ReadonlyText(const char* label, const std::string& readonlyTextValue);
 
