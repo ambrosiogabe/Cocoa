@@ -10,57 +10,55 @@ namespace Cocoa
 {
 	namespace Settings
 	{
-        class Editor
+        namespace Editor
         {
-        public:
             // Which windows are open (of the windows that can be closed)
-            static bool ShowDemoWindow;
-            static bool ShowSettingsWindow;
-            static bool ShowStyleSelect;
+            extern bool ShowDemoWindow;
+            extern bool ShowSettingsWindow;
+            extern bool ShowStyleSelect;
 
             // Grid stuff
-            static bool SnapToGrid;
-            static bool DrawGrid;
-            static glm::ivec2 GridSize;
+            extern bool SnapToGrid;
+            extern bool DrawGrid;
+            extern glm::ivec2 GridSize;
 
             // Selected style
-            static int SelectedStyle;
+            extern int SelectedStyle;
         };
 
-        class EditorStyle
+        namespace EditorStyle
         {
-        public:
             // Fonts
-            static ImFont* s_DefaultFont;
-            static ImFont* s_LargeIconFont;
+            extern ImFont* s_DefaultFont;
+            extern ImFont* s_LargeIconFont;
 
             // Style Colors
-            static glm::vec4 s_MainBgLight0;
-            static glm::vec4 s_MainBg;
-            static glm::vec4 s_MainBgDark0;
-            static glm::vec4 s_MainBgDark1;
-            static glm::vec4 s_MainBgDark2;
+            extern glm::vec4 s_MainBgLight0;
+            extern glm::vec4 s_MainBg;
+            extern glm::vec4 s_MainBgDark0;
+            extern glm::vec4 s_MainBgDark1;
+            extern glm::vec4 s_MainBgDark2;
 
-            static glm::vec4 s_Accent;
-            static glm::vec4 s_AccentDark0;
-            static glm::vec4 s_AccentDark1;
+            extern glm::vec4 s_Accent;
+            extern glm::vec4 s_AccentDark0;
+            extern glm::vec4 s_AccentDark1;
 
-            static glm::vec4 s_Button;
-            static glm::vec4 s_ButtonHovered;
+            extern glm::vec4 s_Button;
+            extern glm::vec4 s_ButtonHovered;
 
-            static glm::vec4 s_Font;
-            static glm::vec4 s_FontDisabled;
-            static glm::vec4 s_HighlightColor;
+            extern glm::vec4 s_Font;
+            extern glm::vec4 s_FontDisabled;
+            extern glm::vec4 s_HighlightColor;
 
             // Sizing
-            static glm::vec2 s_WindowPadding;
-            static glm::vec2 s_FramePadding;
-            static glm::vec2 s_ItemSpacing;
-            static float s_ScrollbarSize;
-            static float s_ScrollbarRounding;
-            static float s_FrameRounding;
-            static float s_GrabRounding;
-            static float s_TabRounding;
+            extern glm::vec2 s_WindowPadding;
+            extern glm::vec2 s_FramePadding;
+            extern glm::vec2 s_ItemSpacing;
+            extern float s_ScrollbarSize;
+            extern float s_ScrollbarRounding;
+            extern float s_FrameRounding;
+            extern float s_GrabRounding;
+            extern float s_TabRounding;
         };
 	}
 }
