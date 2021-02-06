@@ -7,11 +7,15 @@
 
 namespace Cocoa
 {
+	// Stub methods
+	static void AppOnUpdate(Scene* scene, float dt) { }
+	static void AppOnAttach(Scene* scene) { }
+	static void AppOnRender(Scene* scene) { }
+	static void AppOnEvent(Scene* scene, Event& e) { }
+
 	Application::Application()
 	{
-		m_LayerInsertIndex = 0;
 		m_Running = true;
-		m_Layers = std::vector<Layer*>();
 
 		std::string title = std::string("Test Window");
 		Log::Info("Initializing GLAD functions in DLL.");
@@ -30,10 +34,12 @@ namespace Cocoa
 
 	void Application::Run()
 	{
-		for (Layer* layer : m_Layers)
-		{
-			layer->OnAttach();
-		}
+		if (!m_AppData.AppOnAttach) { m_AppData.AppOnAttach = AppOnAttach; }
+		if (!m_AppData.AppOnEvent) { m_AppData.AppOnEvent = AppOnEvent; }
+		if (!m_AppData.AppOnRender) { m_AppData.AppOnRender = AppOnRender; }
+		if (!m_AppData.AppOnUpdate) { m_AppData.AppOnUpdate = AppOnUpdate; }
+
+		m_AppData.AppOnAttach(m_CurrentScene);
 
 		while (m_Running)
 		{
@@ -42,21 +48,19 @@ namespace Cocoa
 			m_LastFrameTime = time;
 
 			BeginFrame();
-			for (Layer* layer : m_Layers)
-			{
-				layer->OnUpdate(dt);
-				layer->OnRender();
-			}
+			m_AppData.AppOnUpdate(m_CurrentScene, dt);
+			m_AppData.AppOnRender(m_CurrentScene);
 			EndFrame();
 
 			m_Window->OnUpdate();
 			m_Window->Render();
 		}
 
-		for (Layer* layer : m_Layers)
-		{
-			layer->OnDetach();
-		}
+		// TODO: Should this be a thing? (probably, add support at some point...)
+		//for (Layer* layer : m_Layers)
+		//{
+		//	layer->OnDetach();
+		//}
 
 		m_Window->Destroy();
 	}
@@ -72,44 +76,7 @@ namespace Cocoa
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
 
-		for (auto it = m_Layers.end(); it != m_Layers.begin();)
-		{
-			(*--it)->OnEvent(e);
-			if (e.Handled())
-			{
-				break;
-			}
-		}
-	}
-
-	void Application::PushLayer(Layer* layer)
-	{
-		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
-		m_LayerInsertIndex++;
-	}
-
-	void Application::PushOverlay(Layer* overlay)
-	{
-		m_Layers.emplace_back(overlay);
-	}
-
-	void Application::PopLayer(Layer* layer)
-	{
-		auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
-		if (it != m_Layers.end())
-		{
-			m_Layers.erase(it);
-			m_LayerInsertIndex--;
-		}
-	}
-
-	void Application::PopOverlay(Layer* overlay)
-	{
-		auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
-		if (it != m_Layers.end())
-		{
-			m_Layers.erase(it);
-		}
+		m_AppData.AppOnEvent(m_CurrentScene, e);
 	}
 
 	Framebuffer* Application::GetFramebuffer() const

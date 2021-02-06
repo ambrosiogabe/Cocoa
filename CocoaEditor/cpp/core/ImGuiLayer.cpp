@@ -130,7 +130,7 @@ namespace Cocoa
 			}
 			else
 			{
-				ProjectWizard::ImGui();
+				ProjectWizard::ImGui(scene);
 			}
 		}
 

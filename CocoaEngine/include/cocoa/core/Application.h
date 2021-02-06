@@ -2,14 +2,28 @@
 #include "externalLibs.h"
 
 #include "cocoa/core/Core.h"
-#include "cocoa/core/Layer.h"
 #include "cocoa/core/CWindow.h"
 #include "cocoa/events/Event.h"
 #include "cocoa/events/WindowEvent.h"
 
 namespace Cocoa
 {
+	class Scene;
 	class SceneInitializer;
+
+	typedef void (*AppOnUpdateFn)(Scene* scene, float dt);
+	typedef void (*AppOnAttachFn)(Scene* scene);
+	typedef void (*AppOnRenderFn)(Scene* scene);
+	typedef void (*AppOnEventFn)(Scene* scene, Event& e);
+
+	struct ApplicationData
+	{
+		AppOnUpdateFn AppOnUpdate = nullptr;
+		AppOnAttachFn AppOnAttach = nullptr;
+		AppOnRenderFn AppOnRender = nullptr;
+		AppOnEventFn AppOnEvent = nullptr;
+	};
+
 	class COCOA Application
 	{
 	public:
@@ -21,12 +35,6 @@ namespace Cocoa
 
 		void Run();
 		void Stop();
-
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* overlay);
-
-		void PopLayer(Layer* layer);
-		void PopOverlay(Layer* overlay);
 
 		virtual void OnEvent(Event& e);
 
@@ -47,19 +55,13 @@ namespace Cocoa
 
 		bool m_Running;
 
-		// Overlays are always on top of layers
-		// So we keep the next index for the next layer handy at all times
-		std::vector<Layer*> m_Layers;
-		uint32 m_LayerInsertIndex;
-
-		//ImGuiLayer m_ImGuiLayer = ImGuiLayer();
-
 		float m_LastFrameTime = 0;
 
 	protected:
 		Framebuffer* m_Framebuffer = nullptr;
 		Scene* m_CurrentScene = nullptr;
 		CWindow* m_Window;
+		ApplicationData m_AppData;
 	};
 
 	// To be defined in CLIENT

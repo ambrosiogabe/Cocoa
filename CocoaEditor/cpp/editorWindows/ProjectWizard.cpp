@@ -45,7 +45,7 @@ namespace Cocoa
 			mOpenProjectButtonPos = mCreateProjectButtonPos + glm::vec2(0.0f, mButtonSize.y) + glm::vec2(0.0f, mPadding.y);
 		}
 
-		void ImGui()
+		void ImGui(Scene* scene)
 		{
 			static bool open = true;
 			if (mVersionPos.x < 0 && mVersionPos.y < 0)
@@ -78,7 +78,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (IFileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
-					if (!EditorLayer::LoadProject(CPath(res.filepath)))
+					if (!EditorLayer::LoadProject(scene, CPath(res.filepath)))
 					{
 						Log::Warning("Unable to load project: %s", res.filepath.c_str());
 					}
@@ -89,12 +89,12 @@ namespace Cocoa
 
 			if (mCreatingProject)
 			{
-				CreateProjectImGui(mCreatingProject);
+				CreateProjectImGui(scene, mCreatingProject);
 			}
 		}
 
 
-		void CreateProjectImGui(bool& windowOpen)
+		void CreateProjectImGui(Scene* scene, bool& windowOpen)
 		{
 			ImGui::Begin("Create New Project", &windowOpen);
 
@@ -120,7 +120,7 @@ namespace Cocoa
 			ImGui::SameLine();
 			if (CImGui::Button("Create"))
 			{
-				if (EditorLayer::CreateProject(mNewProjectPath, mTmpFilename))
+				if (EditorLayer::CreateProject(scene, mNewProjectPath, mTmpFilename))
 				{
 					CocoaEditor* e = static_cast<CocoaEditor*>(Application::Get());
 					e->SetProjectLoaded();

@@ -9,8 +9,8 @@ namespace Cocoa
 	namespace ProjectWizard
 	{
 		void Init();
-		void ImGui();
+		void ImGui(Scene* scene);
 
-		void CreateProjectImGui(bool& windowOpen);
+		void CreateProjectImGui(Scene* scene, bool& windowOpen);
 	};
 }

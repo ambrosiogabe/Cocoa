@@ -74,7 +74,7 @@ namespace Cocoa
 			if (m_CreatingProject)
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-				ProjectWizard::CreateProjectImGui(m_CreatingProject);
+				ProjectWizard::CreateProjectImGui(scene, m_CreatingProject);
 				ImGui::PopStyleVar();
 			}
 
@@ -95,7 +95,7 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
 						{
-							EditorLayer::LoadProject(CPath(result.filepath));
+							EditorLayer::LoadProject(scene, CPath(result.filepath));
 						}
 					}
 

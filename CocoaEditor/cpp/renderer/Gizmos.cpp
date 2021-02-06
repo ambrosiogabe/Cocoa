@@ -284,8 +284,7 @@ namespace Cocoa
 				glm::vec2 mousePosWorld = camera->ScreenToOrtho();
 
 				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
-				CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-				const PickingTexture& pickingTexture = editor->GetEditorLayer()->GetPickingTexture();
+				const PickingTexture& pickingTexture = scene->m_PickingTexture;
 				PickingTexture::PixelInfo info = pickingTexture.ReadPixel((uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
 
 				Entity entity = scene->GetEntity(info.m_EntityID);

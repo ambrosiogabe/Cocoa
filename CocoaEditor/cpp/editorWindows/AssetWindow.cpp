@@ -260,7 +260,7 @@ namespace Cocoa
 				Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory + "scenes" + std::string(newSceneTitle);
 				scene->Save(Settings::General::s_CurrentScene);
 				CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-				editor->GetEditorLayer()->SaveProject();
+				EditorLayer::SaveProject();
 			}
 		}
 
