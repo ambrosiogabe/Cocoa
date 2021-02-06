@@ -15,14 +15,8 @@ namespace Cocoa
 		Length
 	};
 
-	struct AssetWindow
+	namespace AssetWindow
 	{
-		Scene* ScenePtr = nullptr;
-		AssetView CurrentView = AssetView::TextureBrowser;;
-	};
-
-	namespace AssetWindowUtil
-	{
-		void ImGui(AssetWindow& assetWindow);
+		void ImGui(Scene* scene);
 	};
 }

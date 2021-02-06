@@ -40,7 +40,6 @@ namespace Cocoa
 
 		static void* m_Window;
 		static MenuBar m_MenuBar;
-		static AssetWindow m_AssetWindow;
 
 		// Forward Declarations
 		void HelpMarker(const char* desc);
@@ -60,7 +59,6 @@ namespace Cocoa
 		void Start(Scene* scene)
 		{
 			m_MenuBar = { scene };
-			m_AssetWindow = { scene };
 		}
 
 		void Init(void* window)
@@ -128,7 +126,7 @@ namespace Cocoa
 			{
 				SetupDockspace();
 				RenderGameViewport(scene);
-				AssetWindowUtil::ImGui(m_AssetWindow);
+				AssetWindow::ImGui(scene);
 				InspectorWindow::ImGui();
 				SceneHeirarchyWindow::ImGui();
 				if (Settings::Editor::ShowDemoWindow)

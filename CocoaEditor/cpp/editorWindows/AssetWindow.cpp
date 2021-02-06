@@ -15,37 +15,38 @@
 
 namespace Cocoa
 {
-	namespace AssetWindowUtil
+	namespace AssetWindow
 	{
 		// Internal Variables
 		static glm::vec2 m_ButtonSize{ 128, 128 };
+		static AssetView m_CurrentView = AssetView::TextureBrowser;
 
 		// Forward declarations
-		static void ShowMenuBar(AssetWindow& assetWindow);
+		static void ShowMenuBar();
 		static void ShowTextureBrowser();
-		static void ShowSceneBrowser(const AssetWindow& assetWindow);
+		static void ShowSceneBrowser(Scene* scene);
 		static void ShowScriptBrowser();
 		static void ShowFontBrowser();
 		static bool IconButton(const char* icon, const char* label, const glm::vec2& size);
 		static bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size);
 
-		void ImGui(AssetWindow& assetWindow)
+		void ImGui(Scene* scene)
 		{
 			ImGui::Begin("Assets");
-			ShowMenuBar(assetWindow);
+			ShowMenuBar();
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBgActive));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Text));
 			ImGui::PushStyleColor(ImGuiCol_TextDisabled, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
 
-			switch (assetWindow.CurrentView)
+			switch (m_CurrentView)
 			{
 			case AssetView::TextureBrowser:
 				ShowTextureBrowser();
 				break;
 			case AssetView::SceneBrowser:
-				ShowSceneBrowser(assetWindow);
+				ShowSceneBrowser(scene);
 				break;
 			case AssetView::ScriptBrowser:
 				ShowScriptBrowser();
@@ -54,7 +55,7 @@ namespace Cocoa
 				ShowFontBrowser();
 				break;
 			default:
-				Log::Warning("Unkown asset view: %d", (int)assetWindow.CurrentView);
+				Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
 				break;
 			}
 
@@ -62,12 +63,12 @@ namespace Cocoa
 			ImGui::End();
 		}
 
-		static void ShowMenuBar(AssetWindow& assetWindow)
+		static void ShowMenuBar()
 		{
 			ImGui::BeginGroup();
 
 			std::array<const char*, (int)AssetView::Length> assetViews = { "Texture Browser", "Scene Browser", "Script Browser", "Font Browser" };
-			CImGui::UndoableCombo<AssetView>(assetWindow.CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
+			CImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 			ImGui::EndGroup();
 			ImGui::Separator();
 		}
@@ -234,17 +235,17 @@ namespace Cocoa
 			}
 		}
 
-		static void ShowSceneBrowser(const AssetWindow& assetWindow)
+		static void ShowSceneBrowser(Scene* scene)
 		{
 			auto sceneFiles = IFile::GetFilesInDir(Settings::General::s_WorkingDirectory + "scenes");
 			int sceneCount = 0;
-			for (auto scene : sceneFiles)
+			for (auto scenePath : sceneFiles)
 			{
 				ImGui::PushID(sceneCount++);
-				if (IconButton(ICON_FA_FILE, scene.Filename(), m_ButtonSize))
+				if (IconButton(ICON_FA_FILE, scenePath.Filename(), m_ButtonSize))
 				{
-					assetWindow.ScenePtr->Save(Settings::General::s_CurrentScene);
-					assetWindow.ScenePtr->Load(scene);
+					scene->Save(Settings::General::s_CurrentScene);
+					scene->Load(scenePath);
 				}
 				ImGui::SameLine();
 				ImGui::PopID();
@@ -252,12 +253,12 @@ namespace Cocoa
 
 			if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
 			{
-				assetWindow.ScenePtr->Save(Settings::General::s_CurrentScene);
-				assetWindow.ScenePtr->Reset();
+				scene->Save(Settings::General::s_CurrentScene);
+				scene->Reset();
 				char newSceneTitle[32] = "New Scene (";
 				snprintf(&newSceneTitle[11], 32 - 11, "%d).cocoa", sceneCount);
 				Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory + "scenes" + std::string(newSceneTitle);
-				assetWindow.ScenePtr->Save(Settings::General::s_CurrentScene);
+				scene->Save(Settings::General::s_CurrentScene);
 				CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
 				editor->GetEditorLayer()->SaveProject();
 			}
