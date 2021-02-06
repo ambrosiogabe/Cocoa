@@ -15,7 +15,7 @@
 
 namespace Cocoa
 {
-	namespace MenuBarUtil
+	namespace MenuBar
 	{
 		// Internal variables
 		static bool m_CreatingProject = false;
@@ -55,7 +55,7 @@ namespace Cocoa
 		}
 
 
-		void ImGui(const MenuBar& menuBar)
+		void ImGui(Scene* scene)
 		{
 			if (Settings::Editor::ShowSettingsWindow)
 			{
@@ -105,7 +105,7 @@ namespace Cocoa
 						if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
 							Settings::General::s_CurrentScene = result.filepath;
-							menuBar.ScenePtr->Save(result.filepath);
+							scene->Save(result.filepath);
 						}
 					}
 
@@ -136,7 +136,7 @@ namespace Cocoa
 				{
 					if (CImGui::MenuButton("Add Sprite Object"))
 					{
-						Entity entity = menuBar.ScenePtr->CreateEntity();
+						Entity entity = scene->CreateEntity();
 						entity.AddComponent<SpriteRenderer>();
 					}
 

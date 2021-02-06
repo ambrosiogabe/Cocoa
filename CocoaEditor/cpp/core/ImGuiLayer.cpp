@@ -39,11 +39,10 @@ namespace Cocoa
 		static bool m_BlockEvents = false;
 
 		static void* m_Window;
-		static MenuBar m_MenuBar;
 
 		// Forward Declarations
 		void HelpMarker(const char* desc);
-		void SetupDockspace();
+		void SetupDockspace(Scene* scene);
 		void RenderGameViewport(Scene* scene);
 
 		ImVec4 From(const glm::vec4& vec4)
@@ -54,11 +53,6 @@ namespace Cocoa
 		ImVec2 From(const glm::vec2& vec2)
 		{
 			return ImVec2(vec2.x, vec2.y);
-		}
-
-		void Start(Scene* scene)
-		{
-			m_MenuBar = { scene };
 		}
 
 		void Init(void* window)
@@ -124,7 +118,7 @@ namespace Cocoa
 
 			if (CocoaEditor::IsProjectLoaded())
 			{
-				SetupDockspace();
+				SetupDockspace(scene);
 				RenderGameViewport(scene);
 				AssetWindow::ImGui(scene);
 				InspectorWindow::ImGui();
@@ -230,7 +224,7 @@ namespace Cocoa
 			m_BlockEvents = m_GameviewMousePos.x < 0 || m_GameviewMousePos.x > aspectWidth || m_GameviewMousePos.y < 0 || m_GameviewMousePos.y > aspectHeight;
 		}
 
-		void SetupDockspace()
+		void SetupDockspace(Scene* scene)
 		{
 			static bool p_open = true;
 			static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -278,7 +272,7 @@ namespace Cocoa
 			ImGui::PushStyleColor(ImGuiCol_Header, Settings::EditorStyle::s_AccentDark0);
 			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, Settings::EditorStyle::s_AccentDark0);
 			ImGui::PushStyleColor(ImGuiCol_HeaderActive, Settings::EditorStyle::s_AccentDark0);
-			MenuBarUtil::ImGui(m_MenuBar);
+			MenuBar::ImGui(scene);
 			ImGui::PopStyleVar(4);
 			ImGui::PopStyleColor(5);
 			ImGui::End();

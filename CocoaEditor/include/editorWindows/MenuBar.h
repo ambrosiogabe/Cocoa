@@ -5,13 +5,8 @@
 namespace Cocoa
 {
     class Scene;
-    struct MenuBar
-    {
-        Scene* ScenePtr;
-    };
-
-    namespace MenuBarUtil
+    namespace MenuBar
     {        
-        void ImGui(const MenuBar& menuBar);
+        void ImGui(Scene* scene);
     };
 }

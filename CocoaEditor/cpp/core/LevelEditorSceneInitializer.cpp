@@ -18,7 +18,6 @@ namespace Cocoa
 
 	void LevelEditorSceneInitializer::Start(Scene* scene)
 	{
-		ImGuiLayer::Start(scene);
 		GizmoSystem::Start(scene);
 		LevelEditorSystem::Start(scene);
 	}
