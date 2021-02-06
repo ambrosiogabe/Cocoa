@@ -43,8 +43,6 @@ namespace Cocoa
 		bool m_EditorUpdate = true;
 	};
 
-	class ImGuiLayer;
-
 	class CocoaEditor : public Application
 	{
 	public:
@@ -72,6 +70,5 @@ namespace Cocoa
 
 	private:
 		EditorLayer* m_EditorLayer;
-		ImGuiLayer* m_ImGuiLayer;
 	};
 }

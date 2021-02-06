@@ -11,39 +11,14 @@
 
 namespace Cocoa
 {
-    class ImGuiLayer : public Layer
+    namespace ImGuiLayer
     {
-    public:
-        ImGuiLayer(Scene* scene)
-            : Layer(scene)
-        {
-            m_Window = nullptr;
-            m_MenuBar = { scene };
-            m_AssetWindow = { scene };
-        }
-
-        void Setup(void* window);
-
-        virtual void OnAttach() override;
-        virtual void OnEvent(Event& e) override;
-        void BeginFrame();
+        void Init(void* window);
+        void Start(Scene* scene);
+        void OnEvent(Scene* scene, Event& e);
+        void BeginFrame(Scene* scene);
         void EndFrame();
 
-    private:
-        void SetupDockspace();
-        void RenderGameViewport();
-
-    public:
-        static void LoadStyle(const CPath& filepath);
-
-    private:
-        glm::vec2 m_GameviewPos = glm::vec2();
-        glm::vec2 m_GameviewSize = glm::vec2();
-        glm::vec2 m_GameviewMousePos = glm::vec2();
-        bool m_BlockEvents = false;
-
-        void* m_Window;
-        MenuBar m_MenuBar;
-        AssetWindow m_AssetWindow;
+        void LoadStyle(const CPath& filepath);
     };
 }

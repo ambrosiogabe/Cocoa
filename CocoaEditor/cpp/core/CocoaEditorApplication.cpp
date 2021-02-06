@@ -152,7 +152,7 @@ namespace Cocoa
 
 		Settings::General::s_EditorSaveData = IFile::GetSpecialAppFolder() + "CocoaEngine" + Settings::General::s_EditorSaveData;
 		Settings::General::s_EditorStyleData = IFile::GetSpecialAppFolder() + "CocoaEngine" + Settings::General::s_EditorStyleData;
-		
+
 		// Copy default script files to the assets path
 		CPath scriptHFile = IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.h";
 		CPath scriptCppFile = IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.cpp";
@@ -210,8 +210,21 @@ namespace Cocoa
 				system->OnEvent(e);
 			}
 
-			LevelEditorSystem::OnEvent(m_Scene, e);
-			GizmoSystem::OnEvent(m_Scene, e);
+			// Order matters here. We want to do the top most layer to the bottom most so that events are blocked
+			// if needed
+			// TODO: Come up with better solution then if checks constantly. (Maybe abstract this into another function?)
+			if (!e.Handled())
+			{
+				ImGuiLayer::OnEvent(m_Scene, e);
+			}
+			if (!e.Handled())
+			{
+				LevelEditorSystem::OnEvent(m_Scene, e);
+			}
+			if (!e.Handled())
+			{
+				GizmoSystem::OnEvent(m_Scene, e);
+			}
 		}
 	}
 
@@ -240,15 +253,14 @@ namespace Cocoa
 		Cocoa::Physics2D::Init();
 		Cocoa::Input::Init();
 		Cocoa::RenderSystem::Init();
+		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());
 
 		m_EditorLayer = new EditorLayer(nullptr);
 		ChangeScene(new LevelEditorSceneInitializer());
+
 		m_EditorLayer->SetScene(m_CurrentScene);
 
-		// TODO: Find a way to either get reference of script system to imgui layer, or to nix that dependency altogether
-		m_ImGuiLayer = new ImGuiLayer(m_CurrentScene);
 		PushOverlay(m_EditorLayer);
-		PushOverlay(m_ImGuiLayer);
 	}
 
 	void CocoaEditor::Shutdown()
@@ -260,12 +272,12 @@ namespace Cocoa
 
 	void CocoaEditor::BeginFrame()
 	{
-		m_ImGuiLayer->BeginFrame();
+		ImGuiLayer::BeginFrame(m_CurrentScene);
 	}
 
 	void CocoaEditor::EndFrame()
 	{
-		m_ImGuiLayer->EndFrame();
+		ImGuiLayer::EndFrame();
 	}
 
 	// ===================================================================================
