@@ -51,7 +51,7 @@ namespace Cocoa
 			}
 		}
 
-		void GizmoManipulateTranslate(const GizmoData& data, Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, Camera* camera)
+		void GizmoManipulateTranslate(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, Camera* camera)
 		{
 			glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
@@ -70,15 +70,15 @@ namespace Cocoa
 				newPos = startToMouse + originalDragClickPos - mouseOffset;
 			}
 
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Position, newPos));
+			CommandHistory::AddCommand(new ChangeVec3Command(transform.Position, newPos));
 		}
 
-		void GizmoManipulateRotate(const GizmoData& data, Transform& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, Camera* camera)
+		void GizmoManipulateRotate(const GizmoData& data, TransformData& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, Camera* camera)
 		{
 
 		}
 
-		void GizmoManipulateScale(const GizmoData& data, Transform& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, Camera* camera)
+		void GizmoManipulateScale(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, Camera* camera)
 		{
 			glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
@@ -94,7 +94,7 @@ namespace Cocoa
 				delta = glm::vec3(delta.x, 0, 0);
 			}
 
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.m_Scale, originalScale + delta));
+			CommandHistory::AddCommand(new ChangeVec3Command(transform.Scale, originalScale + delta));
 		}
 	}
 
@@ -175,7 +175,7 @@ namespace Cocoa
 			if (!activeEntity.IsNull())
 			{
 				ImGui();
-				Transform& entityTransform = activeEntity.GetComponent<Transform>();
+				TransformData& entityTransform = activeEntity.GetComponent<TransformData>();
 
 				if (m_MouseDragging && m_ActiveGizmo >= 0)
 				{
@@ -208,9 +208,9 @@ namespace Cocoa
 				{
 					GizmoData& gizmo = Gizmos[i];
 					float cameraZoom = m_Camera->GetZoom() * 2;
-					gizmo.Position = entityTransform.m_Position + gizmo.Offset * cameraZoom;
+					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = gizmo.Position + CMath::Vector3From2(gizmo.Box2D.m_Offset) * cameraZoom;
-					if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
+					if (!m_MouseDragging && Physics2DSystem::PointInBox(mousePosWorld, gizmo.Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
 					{
 						gizmo.Active = true;
 						m_HotGizmo = i;
@@ -298,11 +298,11 @@ namespace Cocoa
 				{
 					InspectorWindow::ClearAllEntities();
 					InspectorWindow::AddEntity(selectedEntity);
-					const Transform& transform = selectedEntity.GetComponent<Transform>();
+					const TransformData& transform = selectedEntity.GetComponent<TransformData>();
 					m_ActiveGizmo = m_HotGizmo;
 					m_MouseDragging = true;
-					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.m_Position;
-					m_OriginalScale = transform.m_Scale;
+					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.Position;
+					m_OriginalScale = transform.Scale;
 				}
 				else
 				{

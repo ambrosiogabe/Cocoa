@@ -11,7 +11,7 @@
 
 namespace Cocoa
 {
-	void LevelEditorSceneInitializer::Init(Scene* scene, std::vector<std::unique_ptr<System>>& systems)
+	void LevelEditorSceneInitializer::Init(Scene* scene)
 	{
 		InspectorWindow::ClearAllEntities();
 	}

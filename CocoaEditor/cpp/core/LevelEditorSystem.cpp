@@ -10,6 +10,7 @@
 #include "cocoa/events/Input.h"
 #include "cocoa/commands/ICommand.h"
 #include "cocoa/renderer/DebugDraw.h"
+#include "cocoa/renderer/Camera.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/file/IFile.h"
@@ -48,10 +49,10 @@ namespace Cocoa
 		{
 			tmpScriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModuleTmp.dll");
 			scriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModule.dll");
-			auto view = scene->GetRegistry().view<Transform>();
+			auto view = scene->GetRegistry().view<TransformData>();
 			initImGui = false;
-			for (Entity entity : view)
-			{
+			//for (Entity entity : view)
+			//{
 				//Transform& transform = entity.GetComponent<Transform>();
 				//if (!transform.m_Previous.IsNull())
 				//{
@@ -67,7 +68,7 @@ namespace Cocoa
 				//		}
 				//	}
 				//}
-			}
+			//}
 		}
 
 		void EditorUpdate(Scene* scene, float dt)
@@ -99,19 +100,19 @@ namespace Cocoa
 				glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				delta *= 0.8f;
-				camera->GetTransform().m_Position = m_OriginalCameraPos + delta;
+				camera->GetTransform().Position = m_OriginalCameraPos + delta;
 			}
 
 			// Draw grid lines
 			if (Settings::Editor::DrawGrid)
 			{
-				Transform& cameraTransform = scene->GetCamera()->GetTransform();
+				TransformData& cameraTransform = scene->GetCamera()->GetTransform();
 				float cameraZoom = scene->GetCamera()->GetZoom();
 				int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
 				int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
 
-				float firstX = (float)(((int)(cameraTransform.m_Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
-				float firstY = (float)(((int)(cameraTransform.m_Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;
+				float firstX = (float)(((int)(cameraTransform.Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
+				float firstY = (float)(((int)(cameraTransform.Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;
 
 				int yLinesNeeded = (int)((cameraZoom * 1920 + gridWidth) / gridWidth);
 				int xLinesNeeded = (int)((cameraZoom * 1080 + gridHeight) / gridHeight);
@@ -234,7 +235,7 @@ namespace Cocoa
 			{
 				m_IsDragging = true;
 				Camera* camera = scene->GetCamera();
-				m_OriginalCameraPos = camera->GetTransform().m_Position;
+				m_OriginalCameraPos = camera->GetTransform().Position;
 				m_OriginalDragClickPos = CMath::Vector3From2(camera->ScreenToOrtho());
 				//m_DragClickOffset = CMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
 			}

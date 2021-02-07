@@ -1,7 +1,6 @@
 #pragma once
-
-#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/core/Core.h"
+#include "cocoa/file/CPath.h"
 
 namespace Cocoa
 {

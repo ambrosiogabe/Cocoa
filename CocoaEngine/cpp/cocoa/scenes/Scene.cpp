@@ -23,14 +23,13 @@ namespace Cocoa
 		m_IsPlaying = false;
 
 		m_Registry = entt::registry();
-		m_Systems = std::vector<std::unique_ptr<System>>();
 	}
 
 	Entity Scene::CreateEntity()
 	{
 		entt::entity e = m_Registry.create();
 		Entity entity = Entity(e, this);
-		entity.AddComponent<Transform>();
+		entity.AddComponent<TransformData>();
 		return entity;
 	}
 
@@ -41,41 +40,30 @@ namespace Cocoa
 		glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
 		m_Camera = new Camera(cameraPos);
 
-		Physics2D::SetScene(this);
 		Input::SetScene(this);
 		Entity::SetScene(this);
 
 		RenderSystem::Init(this);
+		Physics2DSystem::Init({ 0, -10.0f });
 
-		m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System", this));
-		m_SceneInitializer->Init(this, m_Systems);
+		m_SceneInitializer->Init(this);
 	}
 
 	void Scene::Start()
-	{
-		for (const auto& system : m_Systems)
-		{
-			system->Start();
-		}
+	{		
+		ScriptSystem::Start();
 		m_SceneInitializer->Start(this);
 	}
 
 	void Scene::Update(float dt)
 	{
-		Physics2D::Get()->Update(dt);
-		for (const auto& system : m_Systems)
-		{
-			system->Update(dt);
-		}
+		Physics2DSystem::Update(this, dt);
 		ScriptSystem::Update(this, dt);
 	}
 
 	void Scene::EditorUpdate(float dt)
 	{
-		for (const auto& system : m_Systems)
-		{
-			system->EditorUpdate(dt);
-		}
+		ScriptSystem::EditorUpdate(this, dt);
 	}
 
 	void Scene::Render()
@@ -90,11 +78,6 @@ namespace Cocoa
 		// TODO: Very temporary ugly, horrible fix, fix this ASAP
 		m_PickingShader = AssetManager::GetShader(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl");
 		RenderSystem::BindShader(m_PickingShader);
-		
-		for (const auto& system : m_Systems)
-		{
-			system->Render();
-		}
 		RenderSystem::Render(this);
 
 		m_PickingTexture.DisableWriting();
@@ -107,14 +90,9 @@ namespace Cocoa
 		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		RenderSystem::BindShader(Handle<Shader>());
 		//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
-		DebugDraw::DrawBottomBatches();
-		
-		for (const auto& system : m_Systems)
-		{
-			system->Render();
-		}
-		RenderSystem::Render(this);
 
+		DebugDraw::DrawBottomBatches();
+		RenderSystem::Render(this);
 		DebugDraw::DrawTopBatches();
 	}
 
@@ -122,9 +100,9 @@ namespace Cocoa
 	{
 		entt::entity newEntEntity = m_Registry.create();
 		Entity newEntity = Entity(newEntEntity, this);
-		if (entity.HasComponent<Transform>())
+		if (entity.HasComponent<TransformData>())
 		{
-			newEntity.AddComponent<Transform>(entity.GetComponent<Transform>());
+			newEntity.AddComponent<TransformData>(entity.GetComponent<TransformData>());
 		}
 
 		if (entity.HasComponent<SpriteRenderer>())
@@ -158,10 +136,10 @@ namespace Cocoa
 	void Scene::Play()
 	{
 		m_IsPlaying = true;
-		auto view = m_Registry.view<Transform>();
+		auto view = m_Registry.view<TransformData>();
 		for (auto entity : view)
 		{
-			Physics2D::Get()->AddEntity(entity);
+			Physics2DSystem::AddEntity(Entity(entity));
 		}
 	}
 
@@ -173,15 +151,19 @@ namespace Cocoa
 	void Scene::Destroy()
 	{
 		AssetManager::Clear();
-		auto view = m_Registry.view<Transform>();
+		auto view = m_Registry.view<TransformData>();
 		m_Registry.destroy(view.begin(), view.end());
 
 		RenderSystem::Destroy();
-		Physics2D::Get()->Destroy();
+		Physics2DSystem::Destroy(this);
 		ScriptSystem::FreeScriptLibrary();
 
-		m_Systems.clear();
 		delete m_Camera;
+	}
+
+	void Scene::OnEvent(const Event& e)
+	{
+		// TODO: If you have systems that require events, place them in here
 	}
 
 	void Scene::Save(const CPath& filename)
@@ -196,7 +178,7 @@ namespace Cocoa
 		OutputArchive output(m_SaveDataJson);
 		entt::snapshot{ m_Registry }
 			.entities(output)
-			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB>(output);
+			.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB>(output);
 
 		ScriptSystem::SaveScripts(m_SaveDataJson);
 
@@ -247,11 +229,7 @@ namespace Cocoa
 			return;
 		}
 
-		ScriptSystem::Start();
-		for (auto& system : m_Systems)
-		{
-			system->Start();
-		}
+		Start();
 
 		json j = json::parse(file->m_Data);
 

@@ -1,10 +1,9 @@
 #include "cocoa/renderer/Camera.h"
-#include "cocoa/core/Application.h"
 #include "cocoa/events/Input.h"
 
 namespace Cocoa {
     Camera::Camera(glm::vec3& position) {
-        this->m_Transform = Transform(position, glm::vec3(1.0f), glm::vec3(0.0f));
+        this->m_Transform = Transform::CreateTransform(position, glm::vec3(1.0f), glm::vec3(0.0f));
         this->m_CameraForward = glm::vec3();
         this->m_CameraUp = glm::vec3();
         this->m_CameraRight = glm::vec3();
@@ -28,26 +27,26 @@ namespace Cocoa {
     }
 
     glm::mat4& Camera::GetViewMatrix() {
-        this->m_CameraForward.x = glm::cos(glm::radians(m_Transform.m_EulerRotation.y)) * glm::cos(glm::radians(m_Transform.m_EulerRotation.x));
-        this->m_CameraForward.y = glm::sin(glm::radians(m_Transform.m_EulerRotation.x));
-        this->m_CameraForward.z = glm::sin(glm::radians(m_Transform.m_EulerRotation.y)) * glm::cos(glm::radians(m_Transform.m_EulerRotation.x));
+        this->m_CameraForward.x = glm::cos(glm::radians(m_Transform.EulerRotation.y)) * glm::cos(glm::radians(m_Transform.EulerRotation.x));
+        this->m_CameraForward.y = glm::sin(glm::radians(m_Transform.EulerRotation.x));
+        this->m_CameraForward.z = glm::sin(glm::radians(m_Transform.EulerRotation.y)) * glm::cos(glm::radians(m_Transform.EulerRotation.x));
         this->m_CameraForward = glm::normalize(m_CameraForward);
 
         this->m_CameraRight = glm::cross(m_CameraUp, glm::vec3(0, 1, 0));
         this->m_CameraUp = glm::cross(m_CameraRight, m_CameraForward);
 
-        glm::vec3 front = glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, m_Transform.m_Position.z) + m_CameraForward;
+        glm::vec3 front = glm::vec3(m_Transform.Position.x, m_Transform.Position.y, m_Transform.Position.z) + m_CameraForward;
 
-        m_ViewMatrix = glm::lookAt(m_Transform.m_Position, front, m_CameraUp);
+        m_ViewMatrix = glm::lookAt(m_Transform.Position, front, m_CameraUp);
         return m_ViewMatrix;
     }
 
     glm::mat4& Camera::GetOrthoView() {
-        glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 0.0f);
+        glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(m_Transform.Position.x, m_Transform.Position.y, 0.0f);
         glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
         glm::normalize(cameraUp);
 
-        this->m_OrthoView = glm::lookAt(glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 20), cameraFront, cameraUp);
+        this->m_OrthoView = glm::lookAt(glm::vec3(m_Transform.Position.x, m_Transform.Position.y, 20), cameraFront, cameraUp);
         this->m_OrthoInverseView = glm::inverse(m_OrthoView);
 
         return this->m_OrthoView;
@@ -55,7 +54,7 @@ namespace Cocoa {
 
     void Camera::CalculateAspect() {
         // TODO: actually make this calculate window's current aspect
-        this->m_Aspect = Application::Get()->GetWindow()->GetTargetAspectRatio();
+        this->m_Aspect = 1920.0f / 1080.0f;// Application::Get()->GetWindow()->GetTargetAspectRatio();
     }
 
     glm::vec2 Camera::ScreenToOrtho()

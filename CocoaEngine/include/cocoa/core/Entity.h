@@ -1,5 +1,7 @@
 #pragma once
 #include "externalLibs.h"
+#include "cocoa/core/Core.h"
+
 #include "cocoa/util/Log.h"
 #include "cocoa/scenes/Scene.h"
 
@@ -7,7 +9,6 @@
 
 namespace Cocoa
 {
-	class Scene;
 	class COCOA Entity
 	{
 	public:
@@ -67,7 +68,7 @@ namespace Cocoa
 		{
 			size_t offset = &component - s_Scene->m_Registry.raw<T>();
 			Log::Assert(offset < s_Scene->m_Registry.size(), "Tried to get nonexistent entity.");
-			return Entity(*(s_Scene->m_Registry.data<T>() + offset), s_Scene); // { m_Registry, * (m_Registry.data<T>() + offset) };
+			return Entity(*(s_Scene->m_Registry.data<T>() + offset), s_Scene);
 		}
 
 		entt::entity GetRawEntity()

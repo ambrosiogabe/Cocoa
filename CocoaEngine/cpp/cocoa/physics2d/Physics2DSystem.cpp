@@ -1,252 +1,195 @@
-#include "externalLibs.h"
-
 #include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"
-#include "cocoa/commands/ICommand.h"
-#include "cocoa/renderer/DebugDraw.h"
+#include "cocoa/util/Settings.h"
 
 namespace Cocoa
 {
-	// ----------------------------------------------------------------------------
-	// Box2D Helpers
-	// ----------------------------------------------------------------------------
-	Box2D Physics2DSystem::Box2DFrom(glm::vec2 size)
+	namespace Physics2DSystem
 	{
-		Box2D box;
-		box.m_Size = size;
-		box.m_HalfSize = box.m_Size / 2.0f;
-		return box;
-	}
+		// Internal Variables
+		static b2Vec2 m_Gravity;
+		static b2World* m_World;
+		static float m_PhysicsTime;
 
-	Box2D Physics2DSystem::Box2DFrom(glm::vec2 min, glm::vec2 max)
-	{
-		Box2D box;
-		box.m_Size = max - min;
-		box.m_HalfSize = box.m_Size / 2.0f;
-		return box;
-	}
-
-	glm::vec2 Physics2DSystem::GetMin(const Box2D& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
-
-		glm::vec2 boxScale = transform.m_Scale;
-		glm::vec2 boxCenter = CMath::Vector2From3(transform.m_Position);// +(box.m_Offset * boxScale);
-		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
-
-		return boxCenter - boxHalfSize;
-	}
-
-	glm::vec2 Physics2DSystem::GetMax(const Box2D& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
-
-		glm::vec2 boxScale = transform.m_Scale;
-		glm::vec2 boxCenter = CMath::Vector2From3(transform.m_Position);// +(box.m_Offset * boxScale);
-		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
-
-		return boxCenter + boxHalfSize;
-	}
-
-	std::array<glm::vec2, 4> Physics2DSystem::GetVertices(const Box2D& box)
-	{
-		glm::vec center = GetCenter(box);
-		float rotation = GetRotation(box);
-		glm::vec2 min = GetMin(box);
-		glm::vec2 max = GetMax(box);
-
-		std::array<glm::vec2, 4> vertices = {
-			glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
-			glm::vec2(max.x, max.y), glm::vec2(max.x, min.y)
-		};
-
-		if (!CMath::Compare(GetRotation(box), 0.0f))
+		void Init(const glm::vec2& gravity)
 		{
-			for (auto& vec : vertices)
+			m_Gravity = { gravity.x, gravity.y };
+			m_World = new b2World{ m_Gravity };
+			m_PhysicsTime = 0.0f;
+		}
+
+		void Destroy(Scene* scene)
+		{
+			auto view = scene->GetRegistry().view<Rigidbody2D>();
+			for (Entity entity : view)
 			{
-				CMath::Rotate(vec, rotation, center);
+				Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
+
+				// Manually destroy all bodies, in case the physics system would like
+				// to use this world again
+				m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+				rb.m_RawRigidbody = nullptr;
+			}
+			delete m_World;
+		}
+
+		bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
+		{
+			b2PolygonShape shape;
+			shape.SetAsBox(halfSize.x, halfSize.y);
+			b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(CMath::ToRadians(rotationDegrees)));
+			return shape.TestPoint(transform, b2Vec2(point.x, point.y));
+		}
+
+		void AddEntity(Entity entity)
+		{
+			if (entity.HasComponent<TransformData, Rigidbody2D>())
+			{
+				TransformData& transform = entity.GetComponent<TransformData>();
+				Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
+
+				b2BodyDef bodyDef;
+				bodyDef.position.Set(transform.Position.x, transform.Position.y);
+				bodyDef.angle = CMath::ToRadians(transform.EulerRotation.z);
+				bodyDef.angularDamping = rb.m_AngularDamping;
+				bodyDef.linearDamping = rb.m_LinearDamping;
+				bodyDef.fixedRotation = rb.m_FixedRotation;
+				bodyDef.bullet = rb.m_ContinuousCollision;
+
+				if (rb.m_BodyType == BodyType2D::Dynamic)
+				{
+					bodyDef.type = b2BodyType::b2_dynamicBody;
+				}
+				else if (rb.m_BodyType == BodyType2D::Static)
+				{
+					bodyDef.type = b2BodyType::b2_staticBody;
+				}
+				else
+				{
+					bodyDef.type = b2BodyType::b2_kinematicBody;
+				}
+
+				b2Body* body = m_World->CreateBody(&bodyDef);
+				rb.m_RawRigidbody = body;
+
+				b2PolygonShape shape;
+				if (entity.HasComponent<Box2D>())
+				{
+					Box2D& box = entity.GetComponent<Box2D>();
+					shape.SetAsBox(box.m_HalfSize.x * transform.Scale.x, box.m_HalfSize.y * transform.Scale.y);
+					b2Vec2 pos = bodyDef.position;
+					bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.Scale.x, pos.y - box.m_HalfSize.y * transform.Scale.y);
+				}
+				else if (entity.HasComponent<Circle>())
+				{
+					// TODO: IMPLEMENT ME
+					Circle& circle = entity.GetComponent<Circle>();
+				}
+
+				body->CreateFixture(&shape, rb.m_Mass);
 			}
 		}
 
-		return vertices;
-	}
+		void Update(Scene* scene, float dt)
+		{
+			m_PhysicsTime += dt;
+			while (m_PhysicsTime > 0.0f)
+			{
+				m_World->Step(Settings::Physics2D::s_Timestep, Settings::Physics2D::s_VelocityIterations, Settings::Physics2D::s_PositionIterations);
+				m_PhysicsTime -= Settings::Physics2D::s_Timestep;
+			}
 
-	glm::vec2 Physics2DSystem::GetCenter(const Box2D& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
-		return CMath::Vector2From3(transform.m_Position);
-	}
+			auto view = scene->GetRegistry().view<TransformData, Rigidbody2D>();
+			for (Entity entity : view)
+			{
+				TransformData& transform = entity.GetComponent<TransformData>();
+				Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
+				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
+				b2Vec2 position = body->GetPosition();
+				transform.Position.x = position.x;
+				transform.Position.y = position.y;
+				transform.EulerRotation.z = CMath::ToDegrees(body->GetAngle());
+			}
+		}
 
-	float Physics2DSystem::GetRotation(const Box2D& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
-		return transform.m_EulerRotation.z;
-	}
+		void Serialize(json& j, Entity entity, const AABB& box)
+		{
+			json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
+			json offset = CMath::Serialize("Offset", box.m_Offset);
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"AABB", {
+					{"Entity", entity.GetID()},
+					halfSize,
+					offset
+				}}
+			};
+		}
 
-	// ----------------------------------------------------------------------------
-	// AABB Helpers and BoundingBox Helpers
-	// ----------------------------------------------------------------------------
-	AABB Physics2DSystem::AABBFrom(glm::vec2 min, glm::vec2 max)
-	{
-		AABB box;
-		box.m_Size = max - min;
-		box.m_HalfSize = box.m_Size / 2.0f;
-		return box;
-	}
+		void DeserializeAABB(json& j, Entity entity)
+		{
+			AABB box;
+			box.m_HalfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
+			box.m_Size = box.m_HalfSize * 2.0f;
+			box.m_Offset = CMath::DeserializeVec2(j["AABB"]["Offset"]);
+			entity.AddComponent<AABB>(box);
+		}
 
-	AABB Physics2DSystem::AABBFrom(glm::vec2 min, glm::vec2 max, glm::vec2 offset)
-	{
-		AABB box;
-		box.m_Offset = offset;
-		box.m_Size = max - min;
-		box.m_HalfSize = box.m_Size / 2.0f;
-		return box;
-	}
+		void Serialize(json& j, Entity entity, const Box2D& box)
+		{
+			json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"Box2D", {
+					{"Entity", entity.GetID()},
+					halfSize,
+				}}
+			};
+		}
 
-	glm::vec2 Physics2DSystem::GetMax(const AABB& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
+		void DeserializeBox2D(json& j, Entity entity)
+		{
+			Box2D box;
+			box.m_HalfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
+			box.m_Size = box.m_HalfSize * 2.0f;
+			entity.AddComponent<Box2D>(box);
+		}
 
-		glm::vec2 boxScale = transform.m_Scale;
-		glm::vec2 boxCenter = CMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
-		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
+		void Serialize(json& j, Entity entity, const Rigidbody2D& rb)
+		{
+			json angularDamping = { "AngularDamping", rb.m_AngularDamping };
+			json linearDamping = { "LinearDamping", rb.m_LinearDamping };
+			json mass = { "Mass", rb.m_Mass };
+			json velocity = CMath::Serialize("Velocity", rb.m_Velocity);
+			json continousCollision = { "ContinousCollision", rb.m_ContinuousCollision };
+			json fixedRotation = { "FixedRotation", rb.m_FixedRotation };
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"Rigidbody2D", {
+					{"Entity", entity.GetID()},
+					angularDamping,
+					linearDamping,
+					mass,
+					velocity,
+					continousCollision,
+					fixedRotation
+				}}
+			};
+		}
 
-		return boxCenter + boxHalfSize;
-	}
-
-	glm::vec2 Physics2DSystem::GetMin(const AABB& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
-
-		glm::vec2 boxScale = transform.m_Scale;
-		glm::vec2 boxCenter = CMath::Vector2From3(transform.m_Position) + (box.m_Offset * boxScale);
-		glm::vec2 boxHalfSize = box.m_HalfSize * boxScale;
-
-		return boxCenter - boxHalfSize;
-	}
-
-	glm::vec2 Physics2DSystem::GetCenter(const AABB& box)
-	{
-		Entity entity = Entity::FromComponent(box);
-		Transform& transform = entity.GetComponent<Transform>();
-		return CMath::Vector2From3(transform.m_Position);
-	}
-
-	// ----------------------------------------------------------------------------
-	// Circle Helpers
-	// ----------------------------------------------------------------------------
-	glm::vec2 Physics2DSystem::GetCenter(const Circle& circle)
-	{
-		Entity entity = Entity::FromComponent(circle);
-		Transform& transform = entity.GetComponent<Transform>();
-		return CMath::Vector2From3(transform.m_Position);
-	}
-
-	// ----------------------------------------------------------------------------
-	// Ray2D Helpers
-	// ----------------------------------------------------------------------------
-	Ray2D Physics2DSystem::Ray2DFrom(glm::vec2 origin, glm::vec2 direction)
-	{
-		Ray2D ray;
-		ray.m_Origin = origin;
-		ray.m_Direction = direction;
-		ray.m_MaxDistance = std::numeric_limits<float>::max();
-		ray.m_Ignore = Entity::Null;
-		return ray;
-	}
-
-	Ray2D Physics2DSystem::Ray2DFrom(glm::vec2 origin, glm::vec2 direction, float maxDistance, entt::entity ignore)
-	{
-		Ray2D ray;
-		ray.m_Origin = origin;
-		ray.m_Direction = direction;
-		ray.m_MaxDistance = maxDistance;
-		ray.m_Ignore = ignore;
-		return ray;
-	}
-
-	void Physics2DSystem::Serialize(json& j, Entity entity, const AABB& box)
-	{
-		json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
-		json offset = CMath::Serialize("Offset", box.m_Offset);
-		int size = j["Components"].size();
-		j["Components"][size] = {
-			{"AABB", {
-				{"Entity", entity.GetID()},
-				halfSize,
-				offset
-			}}
-		};
-	}
-
-	void Physics2DSystem::DeserializeAABB(json& j, Entity entity)
-	{
-		AABB box;
-		box.m_HalfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
-		box.m_Size = box.m_HalfSize * 2.0f;
-		box.m_Offset = CMath::DeserializeVec2(j["AABB"]["Offset"]);
-		entity.AddComponent<AABB>(box);
-	}
-
-	void Physics2DSystem::Serialize(json& j, Entity entity, const Box2D& box)
-	{
-		json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
-		int size = j["Components"].size();
-		j["Components"][size] = {
-			{"Box2D", {
-				{"Entity", entity.GetID()},
-				halfSize,
-			}}
-		};
-	}
-
-	void Physics2DSystem::DeserializeBox2D(json& j, Entity entity)
-	{
-		Box2D box;
-		box.m_HalfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
-		box.m_Size = box.m_HalfSize * 2.0f;
-		entity.AddComponent<Box2D>(box);
-	}
-
-	void Physics2DSystem::Serialize(json& j, Entity entity, const Rigidbody2D& rb)
-	{
-		json angularDamping = { "AngularDamping", rb.m_AngularDamping };
-		json linearDamping = { "LinearDamping", rb.m_LinearDamping };
-		json mass = { "Mass", rb.m_Mass };
-		json velocity = CMath::Serialize("Velocity", rb.m_Velocity);
-		json continousCollision = { "ContinousCollision", rb.m_ContinuousCollision };
-		json fixedRotation = { "FixedRotation", rb.m_FixedRotation };
-		int size = j["Components"].size();
-		j["Components"][size] = {
-			{"Rigidbody2D", {
-				{"Entity", entity.GetID()},
-				angularDamping,
-				linearDamping,
-				mass,
-				velocity,
-				continousCollision,
-				fixedRotation
-			}}
-		};
-	}
-
-	void Physics2DSystem::DeserializeRigidbody2D(json& j, Entity entity)
-	{
-		Rigidbody2D rb;
-		rb.m_AngularDamping = j["Rigidbody2D"]["AngularDamping"];
-		rb.m_LinearDamping = j["Rigidbody2D"]["LinearDamping"];
-		rb.m_Mass = j["Rigidbody2D"]["Mass"];
-		rb.m_Velocity = CMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
-		rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
-		rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
-		entity.AddComponent<Rigidbody2D>(rb);
+		void DeserializeRigidbody2D(json& j, Entity entity)
+		{
+			Rigidbody2D rb;
+			rb.m_AngularDamping = j["Rigidbody2D"]["AngularDamping"];
+			rb.m_LinearDamping = j["Rigidbody2D"]["LinearDamping"];
+			rb.m_Mass = j["Rigidbody2D"]["Mass"];
+			rb.m_Velocity = CMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
+			rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
+			rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
+			entity.AddComponent<Rigidbody2D>(rb);
+		}
 	}
 }

@@ -9,7 +9,7 @@ namespace Cocoa
 {
 	namespace SceneHeirarchyWindow
 	{
-		static void DoTreeNode(int& index, const Transform& transform);
+		static void DoTreeNode(int& index, const TransformData& transform);
 		static Scene* s_CurrentScene = nullptr;
 
 		void SetScene(Scene* scene)
@@ -33,7 +33,7 @@ namespace Cocoa
 			ImGui::End();
 		}
 
-		static void DoTreeNode(int& index, const Transform& transform)
+		static void DoTreeNode(int& index, const TransformData& transform)
 		{
 			//static bool isDark = true;
 			//std::string str = transform.m_Name;

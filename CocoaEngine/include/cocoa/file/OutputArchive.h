@@ -1,6 +1,7 @@
 #pragma once
 #include "externalLibs.h"
 
+#include "cocoa/components/Transform.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/physics2d/Physics2DSystem.h"
 #include "cocoa/util/Log.h"
@@ -30,9 +31,9 @@ namespace Cocoa
 		{
 			entt::type_info info = entt::type_info<T>();
 
-			if (info.id() == entt::type_info<Transform>().id())
+			if (info.id() == entt::type_info<TransformData>().id())
 			{
-				const Transform* transform = reinterpret_cast<const Transform*>(&component);
+				const TransformData* transform = reinterpret_cast<const TransformData*>(&component);
 				Transform::Serialize(m_Json, entity, *transform);
 			} 
 			else if (info.id() == entt::type_info<SpriteRenderer>().id())

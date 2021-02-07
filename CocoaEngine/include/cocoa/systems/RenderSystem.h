@@ -4,7 +4,6 @@
 
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/renderer/Camera.h"
-#include "cocoa/systems/System.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/renderer/RenderBatch.h"
@@ -18,8 +17,8 @@ namespace Cocoa
 		COCOA void Init(Scene* scene);
 		COCOA void Destroy();
 
-		COCOA void AddEntity(const Transform& transform, const FontRenderer& fontRenderer);
-		COCOA void AddEntity(const Transform& transform, const SpriteRenderer& spr);
+		COCOA void AddEntity(const TransformData& transform, const FontRenderer& fontRenderer);
+		COCOA void AddEntity(const TransformData& transform, const SpriteRenderer& spr);
 		COCOA void Render(Scene* scene);
 		COCOA const Framebuffer& GetMainFramebuffer();
 

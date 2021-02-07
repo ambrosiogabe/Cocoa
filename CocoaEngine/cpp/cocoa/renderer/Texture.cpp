@@ -3,8 +3,6 @@
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/util/JsonExtended.h"
-#include "cocoa/physics2d/Physics2D.h"
-#include "cocoa/physics2d/Physics2DSystem.h"
 #include "cocoa/core/AssetManager.h"
 
 #include <stb_image.h>

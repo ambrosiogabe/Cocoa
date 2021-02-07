@@ -3,7 +3,6 @@
 #include "externalLibs.h"
 
 #include "cocoa/scenes/Scene.h"
-#include "cocoa/systems/System.h"
 #include "cocoa/events/KeyEvent.h"
 #include "cocoa/events/MouseEvent.h"
 

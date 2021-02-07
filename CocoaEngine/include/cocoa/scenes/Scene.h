@@ -1,18 +1,19 @@
 #pragma once
 #include "externalLibs.h"
+#include "cocoa/core/Core.h"
 
 #include "cocoa/file/CPath.h"
-#include "cocoa/systems/System.h"
 #include "cocoa/scenes/SceneInitializer.h"
 #include "cocoa/renderer/PickingTexture.h"
-#include "cocoa/core/Handle.h"
 #include "cocoa/renderer/Shader.h"
+#include "cocoa/core/Handle.h"
+#include "cocoa/events/Event.h"
 
 #include <entt/entt.hpp>
 
 namespace Cocoa
 {
-	class SceneInitializer;
+	class Camera;
 	class Entity;
 	class COCOA Scene
 	{
@@ -32,13 +33,13 @@ namespace Cocoa
 		void Load(const CPath& filename);
 		void LoadScriptsOnly(const CPath& filename);
 		void Reset();
+		void OnEvent(const Event& e);
 
 		Entity CreateEntity();
 		Entity DuplicateEntity(Entity entity);
 		Entity GetEntity(uint32 id);
 
 		inline Camera* GetCamera() { return m_Camera; }
-		inline const std::vector<std::unique_ptr<System>>& GetSystems() { return m_Systems; }
 		inline entt::registry& GetRegistry() { return m_Registry; }
 
 		// TODO: TEMPORARY GET BETTER SYSTEM THAN THESE!!!
@@ -56,7 +57,6 @@ namespace Cocoa
 		Handle<Shader> m_DefaultShader;
 
 		bool m_IsPlaying;
-		std::vector<std::unique_ptr<System>> m_Systems;
 
 		entt::registry m_Registry;
 		json m_SaveDataJson;

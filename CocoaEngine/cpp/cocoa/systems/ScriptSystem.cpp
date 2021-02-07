@@ -33,8 +33,8 @@ namespace Cocoa
 		static void LoadScriptStub(json&, Entity) {}
 		static void ImGuiStub(Entity) {}
 		static void UpdateScriptStub(float, Scene*) {}
-		static void EditorUpdateScriptStub(float, Scene*) { Log::Info("STUB UPDATE;"); }
-		static void AddComponentFromStringStub(std::string, entt::entity, entt::registry&) {}
+		static void EditorUpdateScriptStub(float, Scene*) {}
+		static void AddComponentFromStringStub(std::string, entt::entity, entt::registry&) { Log::Warning("Adding component from STUB"); }
 
 		static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
 		{

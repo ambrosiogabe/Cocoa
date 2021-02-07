@@ -1,5 +1,6 @@
 #pragma once
 #include "externalLibs.h"
+#include "cocoa/core/Core.h"
 
 #include "cocoa/components/Transform.h"
 #include "cocoa/util/Log.h"
@@ -15,7 +16,7 @@ namespace Cocoa
 		glm::mat4& GetViewMatrix();
 		glm::mat4& GetOrthoView();
 
-		Transform& GetTransform() { return m_Transform; }
+		TransformData& GetTransform() { return m_Transform; }
 		const glm::vec3& CameraForward() const { return m_CameraForward; }
 		const glm::vec3& CameraUp() const { return m_CameraUp; }
 		const glm::vec3& CameraRight() const { return m_CameraRight; }
@@ -41,7 +42,7 @@ namespace Cocoa
 		// Projection/View matrices for ortho and perspective
 		glm::mat4 m_ProjectionMatrix, m_ViewMatrix, m_InverseProjection, m_OrthoProjection, m_OrthoView, m_OrthoInverseProjection, m_OrthoInverseView;
 
-		Transform m_Transform;
+		TransformData m_Transform;
 		glm::vec3 m_CameraForward, m_CameraUp, m_CameraRight;
 
 		float m_Fov = 45.0f;

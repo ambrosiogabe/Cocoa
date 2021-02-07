@@ -211,13 +211,7 @@ namespace Cocoa
 		{
 			if (CocoaEditor::IsProjectLoaded())
 			{
-				const auto& systems = scene->GetSystems();
-
-				for (const auto& system : systems)
-				{
-					system->OnEvent(e);
-				}
-
+				scene->OnEvent(e);
 				// Order matters here. We want to do the top most layer to the bottom most so that events are blocked
 				// if needed
 				// TODO: Come up with better solution then if checks constantly. (Maybe abstract this into another function?)
@@ -269,7 +263,6 @@ namespace Cocoa
 		Cocoa::IFileDialog::Init();
 		Cocoa::IFile::Init();
 		Cocoa::ProjectWizard::Init();
-		Cocoa::Physics2D::Init();
 		Cocoa::Input::Init();
 
 		// Application Initialization

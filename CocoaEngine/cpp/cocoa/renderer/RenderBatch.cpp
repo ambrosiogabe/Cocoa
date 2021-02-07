@@ -11,7 +11,7 @@ namespace Cocoa
 	namespace RenderBatch
 	{
 		// Forward declarations
-		static void LoadVertexProperties(RenderBatchData& data, const Transform& transform, const SpriteRenderer& spr);
+		static void LoadVertexProperties(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr);
 		static void LoadVertexProperties(RenderBatchData& data, const glm::vec3& position,
 			const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords,
 			float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = -1);
@@ -101,7 +101,7 @@ namespace Cocoa
 			glEnableVertexAttribArray(4);
 		}
 
-		void Add(RenderBatchData& data, const Transform& transform, const SpriteRenderer& spr)
+		void Add(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr)
 		{
 			data.NumSprites++;
 
@@ -119,7 +119,7 @@ namespace Cocoa
 			LoadVertexProperties(data, transform, spr);
 		}
 
-		void Add(RenderBatchData& data, const Transform& transform, const FontRenderer& fontRenderer)
+		void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer)
 		{
 			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
 			Handle<Texture> tex = font.m_FontTexture;
@@ -144,19 +144,19 @@ namespace Cocoa
 				}
 			}
 
-			Entity res = Entity::FromComponent<Transform>(transform);
+			Entity res = Entity::FromComponent<TransformData>(transform);
 			uint32 entityId = res.GetID();
 
 			const std::string& str = fontRenderer.text;
-			int x = transform.m_Position.x;
-			int y = transform.m_Position.y;
+			int x = transform.Position.x;
+			int y = transform.Position.y;
 			int strLength = str.size();
 			for (int i = 0; i < strLength; i++)
 			{
 				data.NumSprites++;
 				const CharInfo& charInfo = font.GetCharacterInfo(str[i]);
-				float scaleX = transform.m_Scale.x * fontRenderer.fontSize;
-				float scaleY = transform.m_Scale.y * fontRenderer.fontSize;
+				float scaleX = transform.Scale.x * fontRenderer.fontSize;
+				float scaleY = transform.Scale.y * fontRenderer.fontSize;
 				float x0 = x + (charInfo.bearingX * scaleX);
 				float y0 = y + charInfo.bearingY * scaleY;
 				float x1 = x + (charInfo.bearingX * scaleX) + (charInfo.chScaleX * scaleX);
@@ -180,7 +180,7 @@ namespace Cocoa
 
 				LoadVertexProperties(data, vertices, texCoords, fontRenderer.m_Color, texId, entityId);
 
-				x += charInfo.advance * fontRenderer.fontSize * transform.m_Scale.x;
+				x += charInfo.advance * fontRenderer.fontSize * transform.Scale.x;
 			}
 		}
 
@@ -252,13 +252,13 @@ namespace Cocoa
 			LoadVertexProperties(data, vec3Pos, scale, size, &texCoords[0], rotation, vec4Color, texId);
 		}
 
-		void LoadVertexProperties(RenderBatchData& data, const Transform& transform, const SpriteRenderer& spr)
+		void LoadVertexProperties(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr)
 		{
 			glm::vec4 color = spr.m_Color;
 			const Sprite& sprite = spr.m_Sprite;
 			const glm::vec2* texCoords = spr.m_Sprite.m_TexCoords;
 			glm::vec2 quadSize{ sprite.m_Width, sprite.m_Height };
-			float rotation = transform.m_EulerRotation.z;
+			float rotation = transform.EulerRotation.z;
 
 			int texId = 0;
 			if (!sprite.m_Texture.IsNull())
@@ -273,8 +273,8 @@ namespace Cocoa
 				}
 			}
 
-			Entity res = Entity::FromComponent<Transform>(transform);
-			LoadVertexProperties(data, transform.m_Position, transform.m_Scale, quadSize, texCoords, rotation, color, texId, res.GetID());
+			Entity res = Entity::FromComponent<TransformData>(transform);
+			LoadVertexProperties(data, transform.Position, transform.Scale, quadSize, texCoords, rotation, color, texId, res.GetID());
 		}
 
 		void LoadVertexProperties(RenderBatchData& data, const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords,

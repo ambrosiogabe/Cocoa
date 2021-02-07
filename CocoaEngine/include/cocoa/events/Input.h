@@ -1,10 +1,9 @@
 #pragma once
 #include "externalLibs.h"
-#include "cocoa/renderer/Camera.h"
 
 namespace Cocoa
 {
-
+	class Camera;
 	class Scene;
 
 	class COCOA Input

@@ -4,8 +4,6 @@
 
 #include "cocoa/scenes/SceneInitializer.h"
 
-#include "cocoa/systems/System.h"
-
 namespace Cocoa
 {
 	class Scene;
@@ -14,7 +12,7 @@ namespace Cocoa
 	public:
 		LevelEditorSceneInitializer() {}
 
-		virtual void Init(Scene* scene, std::vector<std::unique_ptr<System>>& systems) override;
+		virtual void Init(Scene* scene) override;
 		virtual void Start(Scene* scene) override;
 	};
 }

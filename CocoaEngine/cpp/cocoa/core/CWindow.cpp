@@ -2,6 +2,7 @@
 #include "cocoa/core/Core.h"
 
 #include "cocoa/core/CWindow.h"
+#include "cocoa/util/Log.h"
 
 namespace Cocoa
 {

@@ -1,6 +1,7 @@
 #include "externalLibs.h"
 
 #include "cocoa/renderer/DebugDraw.h"
+#include "cocoa/renderer/Camera.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"

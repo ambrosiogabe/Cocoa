@@ -1,6 +1,7 @@
 #include "cocoa/file/IFileDialog.h"
-#include "cocoa/core/Application.h"
 #include "cocoa/file/IFile.h"
+#include "cocoa/core/Application.h"
+#include "cocoa/util/Log.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>

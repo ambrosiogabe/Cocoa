@@ -42,8 +42,8 @@ namespace Cocoa
 
         COCOA void Clear(RenderBatchData& data);
         COCOA void Start(RenderBatchData& data);
-        COCOA void Add(RenderBatchData& data, const Transform& transform, const SpriteRenderer& spr);
-        COCOA void Add(RenderBatchData& data, const Transform& transform, const FontRenderer& fontRenderer);
+        COCOA void Add(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr);
+        COCOA void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer);
         COCOA void Add(RenderBatchData& data, const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
         COCOA void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color);
         COCOA void Add(RenderBatchData& data, Handle<Texture> textureHandle, const glm::vec2& size, const glm::vec2& position,

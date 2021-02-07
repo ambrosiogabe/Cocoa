@@ -3,6 +3,8 @@
 
 #include "cocoa/events/Input.h"
 #include "cocoa/core/Application.h"
+#include "cocoa/renderer/Camera.h"
+#include "cocoa/scenes/Scene.h"
 
 namespace Cocoa
 {

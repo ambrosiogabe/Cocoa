@@ -1,7 +1,6 @@
 #pragma once
 #include "externalLibs.h"
 
-#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/core/Handle.h"

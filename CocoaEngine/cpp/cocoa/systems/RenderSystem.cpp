@@ -61,7 +61,7 @@ namespace Cocoa
 			m_Shader = shader;
 		}
 
-		void AddEntity(const Transform& transform, const SpriteRenderer& spr)
+		void AddEntity(const TransformData& transform, const SpriteRenderer& spr)
 		{
 			const Sprite& sprite = spr.m_Sprite;
 			bool wasAdded = false;
@@ -90,7 +90,7 @@ namespace Cocoa
 			}
 		}
 
-		void AddEntity(const Transform& transform, const FontRenderer& fontRenderer)
+		void AddEntity(const TransformData& transform, const FontRenderer& fontRenderer)
 		{
 			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
 			bool wasAdded = false;
@@ -121,12 +121,12 @@ namespace Cocoa
 
 		void Render(Scene* scene)
 		{
-			scene->GetRegistry().group<SpriteRenderer>(entt::get<Transform>).each([](auto entity, auto& spr, auto& transform)
+			scene->GetRegistry().group<SpriteRenderer>(entt::get<TransformData>).each([](auto entity, auto& spr, auto& transform)
 				{
 					AddEntity(transform, spr);
 				});
 
-			scene->GetRegistry().group<FontRenderer>(entt::get<Transform>).each([](auto entity, auto& fontRenderer, auto& transform)
+			scene->GetRegistry().group<FontRenderer>(entt::get<TransformData>).each([](auto entity, auto& fontRenderer, auto& transform)
 				{
 					AddEntity(transform, fontRenderer);
 				});

@@ -27,7 +27,7 @@ namespace Cocoa
 		// =====================================================================
 		// Basic components
 		// =====================================================================
-		static void ImGuiTransform(Transform& transform);
+		static void ImGuiTransform(TransformData& transform);
 
 		// =====================================================================
 		// Renderer components
@@ -64,7 +64,7 @@ namespace Cocoa
 
 			for (auto& entity : ActiveEntities)
 			{
-				doTransform &= entity.HasComponent<Transform>();
+				doTransform &= entity.HasComponent<TransformData>();
 				doSpriteRenderer &= entity.HasComponent<SpriteRenderer>();
 				doFontRenderer &= entity.HasComponent<FontRenderer>();
 				doRigidbody2D &= entity.HasComponent<Rigidbody2D>();
@@ -74,7 +74,7 @@ namespace Cocoa
 			}
 
 			if (doTransform)
-				ImGuiTransform(ActiveEntities[0].GetComponent<Transform>());
+				ImGuiTransform(ActiveEntities[0].GetComponent<TransformData>());
 			if (doSpriteRenderer)
 				ImGuiSpriteRenderer(ActiveEntities[0].GetComponent<SpriteRenderer>());
 			if (doFontRenderer)
@@ -171,15 +171,15 @@ namespace Cocoa
 		// =====================================================================
 		// Basic components
 		// =====================================================================
-		static void ImGuiTransform(Transform& transform)
+		static void ImGuiTransform(TransformData& transform)
 		{
 			static bool collapsingHeaderOpen = true;
 			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragFloat3("Position: ", transform.m_Position);
-				CImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
-				CImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
+				CImGui::UndoableDragFloat3("Position: ", transform.Position);
+				CImGui::UndoableDragFloat3("Scale: ", transform.Scale);
+				CImGui::UndoableDragFloat3("Rotation: ", transform.EulerRotation);
 				CImGui::EndCollapsingHeaderGroup();
 			}
 		}
@@ -321,8 +321,8 @@ namespace Cocoa
 				CImGui::EndCollapsingHeaderGroup();
 
 				// Draw box highlight
-				const Transform& transform = ActiveEntities[0].GetComponent<Transform>();
-				DebugDraw::AddBox2D(CMath::Vector2From3(transform.m_Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.m_Scale), transform.m_EulerRotation.z);
+				const TransformData& transform = ActiveEntities[0].GetComponent<TransformData>();
+				DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
 			}
 		}
 
