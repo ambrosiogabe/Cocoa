@@ -45,7 +45,8 @@ namespace Cocoa
 		Input::SetScene(this);
 		Entity::SetScene(this);
 
-		m_Systems.emplace_back(std::make_unique<RenderSystem>("Render System", this));
+		RenderSystem::Init(this);
+
 		m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System", this));
 		m_SceneInitializer->Init(this, m_Systems);
 	}
@@ -94,11 +95,12 @@ namespace Cocoa
 		{
 			system->Render();
 		}
+		RenderSystem::Render(this);
 
 		m_PickingTexture.DisableWriting();
 		glEnable(GL_BLEND);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, RenderSystem::s_MainFramebuffer.GetId());
+		glBindFramebuffer(GL_FRAMEBUFFER, RenderSystem::GetMainFramebuffer().GetId());
 
 		glViewport(0, 0, 3840, 2160);
 		glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
@@ -111,6 +113,7 @@ namespace Cocoa
 		{
 			system->Render();
 		}
+		RenderSystem::Render(this);
 
 		DebugDraw::DrawTopBatches();
 	}
@@ -165,7 +168,20 @@ namespace Cocoa
 	void Scene::Stop()
 	{
 		m_IsPlaying = false;
+	}
+
+	void Scene::Destroy()
+	{
+		AssetManager::Clear();
+		auto view = m_Registry.view<Transform>();
+		m_Registry.destroy(view.begin(), view.end());
+
+		RenderSystem::Destroy();
 		Physics2D::Get()->Destroy();
+		ScriptSystem::FreeScriptLibrary();
+
+		m_Systems.clear();
+		delete m_Camera;
 	}
 
 	void Scene::Save(const CPath& filename)
@@ -189,14 +205,7 @@ namespace Cocoa
 
 	void Scene::Reset()
 	{
-		AssetManager::Clear();
-		auto view = m_Registry.view<Transform>();
-		m_Registry.destroy(view.begin(), view.end());
-
-		ScriptSystem::FreeScriptLibrary();
-
-		m_Systems.clear();
-		delete m_Camera;
+		Destroy();
 		Init();
 	}
 

@@ -6,6 +6,7 @@
 #include "cocoa/renderer/RenderBatch.h"
 #include "cocoa/renderer/DebugSprite.h"
 #include "cocoa/core/Handle.h"
+#include "cocoa/util/DynamicArray.h"
 
 namespace Cocoa
 {
@@ -31,7 +32,7 @@ namespace Cocoa
 		static void AddLinesToBatches();
 
 	private:
-		static std::vector<std::shared_ptr<RenderBatch>> s_Batches;
+		//static DynamicArrayData<RenderBatch> s_Batches;
 		static std::vector<Line2D> s_Lines;
 		static std::vector<DebugSprite> s_Sprites;
 		static int s_TexSlots[16];

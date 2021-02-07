@@ -13,41 +13,21 @@
 
 namespace Cocoa
 {
-	class COCOA RenderSystem : public System
+	namespace RenderSystem
 	{
-	public:
-		RenderSystem(const char* name, Scene* scene)
-			: System(name, scene)
-		{
-			m_Camera = m_Scene->GetCamera();
-		}
+		COCOA void Init(Scene* scene);
+		COCOA void Destroy();
 
-		void AddEntity(const Transform& transform, const FontRenderer& fontRenderer);
-		void AddEntity(const Transform& transform, const SpriteRenderer& spr);
-		virtual void Render() override;
-		virtual void Start() override;
+		COCOA void AddEntity(const Transform& transform, const FontRenderer& fontRenderer);
+		COCOA void AddEntity(const Transform& transform, const SpriteRenderer& spr);
+		COCOA void Render(Scene* scene);
+		COCOA const Framebuffer& GetMainFramebuffer();
 
-		Camera& GetCamera() const { return *m_Camera; }
-
-		static void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer);
-		static void DeserializeSpriteRenderer(json& json, Entity entity);
-		static void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer);
-		static void DeserializeFontRenderer(json& json, Entity entity);
-		static void BindShader(Handle<Shader> shader) { s_Shader = shader; }
-		static void UploadUniform1ui(const char* name, uint32 val);
-		static void Init();
-
-	public:
-		int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-		const int MAX_BATCH_SIZE = 1000;
-
-		static Framebuffer s_MainFramebuffer;
-
-	private:
-		static Handle<Shader> s_SpriteShader;
-		static Handle<Shader> s_FontShader;
-		static Handle<Shader> s_Shader;
-		std::vector<std::shared_ptr<RenderBatch>> m_Batches;
-		Camera* m_Camera;
+		COCOA void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer);
+		COCOA void DeserializeSpriteRenderer(json& json, Entity entity);
+		COCOA void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer);
+		COCOA void DeserializeFontRenderer(json& json, Entity entity);
+		COCOA void BindShader(Handle<Shader> shader);
+		COCOA void UploadUniform1ui(const char* name, uint32 val);
 	};
 }

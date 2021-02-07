@@ -271,7 +271,6 @@ namespace Cocoa
 		Cocoa::ProjectWizard::Init();
 		Cocoa::Physics2D::Init();
 		Cocoa::Input::Init();
-		Cocoa::RenderSystem::Init();
 
 		// Application Initialization
 		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());

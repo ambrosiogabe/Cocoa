@@ -8,7 +8,7 @@
 namespace Cocoa
 {
 	// TODO: Major memory leak in here, fix that...
-	std::vector<std::shared_ptr<RenderBatch>> DebugDraw::s_Batches = std::vector<std::shared_ptr<RenderBatch>>();
+	//DynamicArrayData<RenderBatch> DebugDraw::s_Batches = DynamicArray::Create<RenderBatch>();
 	std::vector<Line2D> DebugDraw::s_Lines = std::vector<Line2D>();
 	std::vector<DebugSprite> DebugDraw::s_Sprites = std::vector<DebugSprite>();
 	int DebugDraw::s_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
@@ -44,14 +44,14 @@ namespace Cocoa
 		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
 		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
 
-		for (auto& batch : s_Batches)
-		{
-			if (!batch->BatchOnTop())
-			{
-				batch->Render();
-				batch->Clear();
-			}
-		}
+		//for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//{
+		//	if (!batch->BatchOnTop())
+		//	{
+		//		batch->Render();
+		//		batch->Clear();
+		//	}
+		//}
 
 		shaderRef.Unbind();
 	}
@@ -64,14 +64,14 @@ namespace Cocoa
 		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
 		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
 
-		for (auto& batch : s_Batches)
-		{
-			if (batch->BatchOnTop())
-			{
-				batch->Render();
-				batch->Clear();
-			}
-		}
+		//for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//{
+		//	if (batch->BatchOnTop())
+		//	{
+		//		batch->Render();
+		//		batch->Clear();
+		//	}
+		//}
 
 		shaderRef.Unbind();
 	}
@@ -155,57 +155,57 @@ namespace Cocoa
 
 	void DebugDraw::AddSpritesToBatches()
 	{
-		for (int i = (int)s_Sprites.size() - 1; i >= 0; i--)
-		{
-			DebugSprite sprite = s_Sprites[i];
-			bool wasAdded = false;
-			bool spriteOnTop = sprite.m_OnTop;
-			for (auto& batch : s_Batches)
-			{
-				if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
-				{
-					batch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-					wasAdded = true;
-					break;
-				}
-			}
+		//for (int i = (int)s_Sprites.size() - 1; i >= 0; i--)
+		//{
+		//	DebugSprite sprite = s_Sprites[i];
+		//	bool wasAdded = false;
+		//	bool spriteOnTop = sprite.m_OnTop;
+		//	for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//	{
+		//		if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
+		//		{
+		//			batch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+		//			wasAdded = true;
+		//			break;
+		//		}
+		//	}
 
-			if (!wasAdded)
-			{
-				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(s_MaxBatchSize, 0, spriteOnTop);
-				newBatch->Start();
-				newBatch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-				s_Batches.emplace_back(newBatch);
-				std::sort(s_Batches.begin(), s_Batches.end(), RenderBatch::Compare);
-			}
-		}
+		//	if (!wasAdded)
+		//	{
+		//		RenderBatch newBatch = RenderBatch(s_MaxBatchSize, 0, spriteOnTop);
+		//		newBatch.Start();
+		//		newBatch.Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
+		//		DynamicArray::Add<RenderBatch>(s_Batches, newBatch);
+		//		std::sort(DynamicArray::Begin<RenderBatch>(s_Batches), DynamicArray::End<RenderBatch>(s_Batches), RenderBatch::Compare);
+		//	}
+		//}
 	}
 
 	void DebugDraw::AddLinesToBatches()
 	{
-		for (Line2D line : s_Lines)
-		{
-			bool wasAdded = false;
-			bool lineOnTop = line.IsOnTop();
-			for (auto& batch : s_Batches)
-			{
-				if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
-				{
-					batch->Add(line.GetVerts(), line.GetColor());
-					wasAdded = true;
-					break;
-				}
-			}
+		//for (Line2D line : s_Lines)
+		//{
+		//	bool wasAdded = false;
+		//	bool lineOnTop = line.IsOnTop();
+		//	for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//	{
+		//		if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
+		//		{
+		//			batch->Add(line.GetVerts(), line.GetColor());
+		//			wasAdded = true;
+		//			break;
+		//		}
+		//	}
 
-			if (!wasAdded)
-			{
-				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(s_MaxBatchSize, 0, lineOnTop);
-				newBatch->Start();
-				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
-				s_Batches.emplace_back(newBatch);
-				std::sort(s_Batches.begin(), s_Batches.end(), RenderBatch::Compare);
-			}
-		}
+		//	if (!wasAdded)
+		//	{
+		//		RenderBatch newBatch = RenderBatch(s_MaxBatchSize, 0, lineOnTop);
+		//		newBatch.Start();
+		//		newBatch.Add(line.GetMin(), line.GetMax(), line.GetColor());;
+		//		DynamicArray::Add<RenderBatch>(s_Batches, newBatch);
+		//		std::sort(DynamicArray::Begin<RenderBatch>(s_Batches), DynamicArray::End<RenderBatch>(s_Batches), RenderBatch::Compare);
+		//	}
+		//}
 	}
 
 

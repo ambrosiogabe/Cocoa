@@ -215,7 +215,7 @@ namespace Cocoa
 			Input::SetGameViewMousePos(m_GameviewMousePos);
 
 			CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-			uint32 texId = RenderSystem::s_MainFramebuffer.m_Texture.GraphicsId;
+			uint32 texId = RenderSystem::GetMainFramebuffer().m_Texture.GraphicsId;
 			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
 			ImGui::End();

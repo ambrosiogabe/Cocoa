@@ -42,6 +42,7 @@ namespace Cocoa
 		Framebuffer() {}
 
 		void Init();
+		void Delete();
 
 		Framebuffer& AddAttachment(TextureSpecification textureSpecification);
 		Framebuffer& Generate();
@@ -55,6 +56,7 @@ namespace Cocoa
 		int m_Width = 0;
 		int m_Height = 0;
 		unsigned int m_ID = 0;
+		unsigned int m_RboID = 0;
 		Texture m_Texture;
 
 	private:

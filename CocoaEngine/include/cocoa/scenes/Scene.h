@@ -24,6 +24,7 @@ namespace Cocoa
 		void Update(float dt);
 		void EditorUpdate(float dt);
 		void Render();
+		void Destroy();
 
 		void Play();
 		void Stop();
