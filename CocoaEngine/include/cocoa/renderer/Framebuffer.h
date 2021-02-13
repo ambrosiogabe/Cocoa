@@ -2,65 +2,34 @@
 
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/core/Handle.h"
+#include "cocoa/util/DynamicArray.h"
 
 namespace Cocoa
 {
-	enum class TextureFormat
+	struct Framebuffer
 	{
-		None = 0,
+		uint32 Fbo = (uint32)-1;
+		int32 Width = 0;
+		int32 Height = 0;
 
-		// Color
-		RGBA8,
+		// Depth/Stencil attachment (optional)
+		uint32 Rbo = (uint32)-1;
+		ByteFormat DepthStencilFormat = ByteFormat::None;
+		bool IncludeDepthStencil = true;
 
-		// Depth/Stencil
-		DEPTH24STENCIL8
+		// Color attachments
+		std::vector<Texture> ColorAttachments; // TODO: All color attachments will be resized to match the framebuffer size (perhaps this should be changed in the future...?)
 	};
 
-	struct TextureSpecification
+	namespace NFramebuffer
 	{
-		TextureSpecification() = default;
-		TextureSpecification(TextureFormat format)
-			: m_TextureFormat(format) { }
+		COCOA void Delete(Framebuffer& framebuffer);
+		COCOA void Generate(Framebuffer& framebuffer);
 
-		TextureFormat m_TextureFormat;
-	};
+		COCOA const Texture& GetColorAttachment(const Framebuffer& framebuffer, int index);
+		COCOA void AddColorAttachment(Framebuffer& framebuffer, const Texture& textureSpec); // TODO: The order the attachments are added will be the index they get (change this in the future too...?)
 
-	struct FramebufferAttachment
-	{
-
-	};
-
-	class COCOA Framebuffer
-	{
-	public:
-		Framebuffer(int width, int height)
-			: m_Width(width), m_Height(height)
-		{
-			Init();
-		}
-
-		Framebuffer() {}
-
-		void Init();
-		void Delete();
-
-		Framebuffer& AddAttachment(TextureSpecification textureSpecification);
-		Framebuffer& Generate();
-
-		const Texture& GetTexture() const { return m_Texture; }
-		unsigned int GetId() const { return m_ID; }
-		int GetWidth() const { return m_Width; }
-		int GetHight() const { return m_Height; }
-
-	public:
-		int m_Width = 0;
-		int m_Height = 0;
-		unsigned int m_ID = 0;
-		unsigned int m_RboID = 0;
-		Texture m_Texture;
-
-	private:
-		std::vector<Handle<Texture>> m_ColorAttachments;
-		Handle<Texture> m_DepthAttachment;
+		COCOA void Bind(const Framebuffer& framebuffer);
+		COCOA void Unbind(const Framebuffer& framebuffer);
 	};
 }

@@ -10,11 +10,11 @@ namespace Cocoa
 	namespace SceneHeirarchyWindow
 	{
 		static void DoTreeNode(int& index, const TransformData& transform);
-		static Scene* s_CurrentScene = nullptr;
+		static SceneData* s_CurrentScene = nullptr;
 
-		void SetScene(Scene* scene)
+		void SetScene(SceneData& scene)
 		{
-			s_CurrentScene = scene;
+			s_CurrentScene = &scene;
 		}
 
 		void ImGui()

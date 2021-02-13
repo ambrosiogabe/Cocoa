@@ -17,8 +17,12 @@
 
 #include <imgui.h>
 
+#ifdef CopyFile
 #undef CopyFile;
+#endif 
+#ifdef DeleteFile 
 #undef DeleteFile;
+#endif
 
 namespace Cocoa
 {
@@ -39,19 +43,21 @@ namespace Cocoa
 		static CPath scriptDll;
 
 		// Forward Declarations
-		static bool HandleKeyPress(KeyPressedEvent& e, Scene* scene);
-		static bool HandleKeyRelease(KeyReleasedEvent& e, Scene* scene);
-		static bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, Scene* scene);
-		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, Scene* scene);
-		static bool HandleMouseScroll(MouseScrolledEvent& e, Scene* scene);
+		static bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene);
+		static bool HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene);
+		static bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene);
+		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene);
+		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
-		void Start(Scene* scene)
+		void Start(SceneData& scene)
 		{
-			tmpScriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModuleTmp.dll");
-			scriptDll = Settings::General::s_EngineExeDirectory + CPath("ScriptModule.dll");
-			auto view = scene->GetRegistry().view<TransformData>();
+			tmpScriptDll = Settings::General::s_EngineExeDirectory;
+			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
+			scriptDll = Settings::General::s_EngineExeDirectory;
+			NCPath::Join(scriptDll, NCPath::CreatePath("ScriptModule.dll"));
+			auto view = scene.Registry.view<TransformData>();
 			initImGui = false;
-			//for (Entity entity : view)
+			//for (CEntity entity : view)
 			//{
 				//Transform& transform = entity.GetComponent<Transform>();
 				//if (!transform.m_Previous.IsNull())
@@ -71,7 +77,7 @@ namespace Cocoa
 			//}
 		}
 
-		void EditorUpdate(Scene* scene, float dt)
+		void EditorUpdate(SceneData& scene, float dt)
 		{
 			if (!initImGui)
 			{
@@ -81,22 +87,22 @@ namespace Cocoa
 
 			if (IFile::IsFile(tmpScriptDll))
 			{
-				scene->Save(Settings::General::s_CurrentScene);
+				Scene::Save(scene, Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
 				ScriptSystem::FreeScriptLibrary();
 
 				IFile::DeleteFile(scriptDll);
-				IFile::CopyFile(tmpScriptDll, scriptDll.GetDirectory(-1), "ScriptModule");
+				IFile::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
 				ScriptSystem::Reload();
 				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
-				scene->LoadScriptsOnly(Settings::General::s_CurrentScene);
+				Scene::LoadScriptsOnly(scene, Settings::General::s_CurrentScene);
 
 				IFile::DeleteFile(tmpScriptDll);
 			}
 
 			if (m_IsDragging)
 			{
-				Camera* camera = scene->GetCamera();
+				Camera* camera = scene.SceneCamera;
 				glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				delta *= 0.8f;
@@ -106,8 +112,8 @@ namespace Cocoa
 			// Draw grid lines
 			if (Settings::Editor::DrawGrid)
 			{
-				TransformData& cameraTransform = scene->GetCamera()->GetTransform();
-				float cameraZoom = scene->GetCamera()->GetZoom();
+				TransformData& cameraTransform = scene.SceneCamera->GetTransform();
+				float cameraZoom = scene.SceneCamera->GetZoom();
 				int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
 				int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
 
@@ -143,7 +149,7 @@ namespace Cocoa
 			return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
 		}
 
-		void LevelEditorSystem::OnEvent(Scene* scene, Event& e)
+		void LevelEditorSystem::OnEvent(SceneData& scene, Event& e)
 		{
 			switch (e.GetType())
 			{
@@ -165,7 +171,7 @@ namespace Cocoa
 			}
 		}
 
-		bool HandleKeyPress(KeyPressedEvent& e, Scene* scene)
+		bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene)
 		{
 			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
 			{
@@ -186,16 +192,16 @@ namespace Cocoa
 
 				if (e.GetKeyCode() == COCOA_KEY_S)
 				{
-					scene->Save(Settings::General::s_CurrentScene);
+					Scene::Save(scene, Settings::General::s_CurrentScene);
 					EditorLayer::SaveProject();
 				}
 
 				if (e.GetKeyCode() == COCOA_KEY_D)
 				{
 					Entity activeEntity = InspectorWindow::GetActiveEntity();
-					if (!activeEntity.IsNull())
+					if (!NEntity::IsNull(activeEntity))
 					{
-						Entity duplicated = scene->DuplicateEntity(activeEntity);
+						Entity duplicated = Scene::DuplicateEntity(scene, activeEntity);
 						InspectorWindow::ClearAllEntities();
 						InspectorWindow::AddEntity(duplicated);
 					}
@@ -205,7 +211,7 @@ namespace Cocoa
 			return false;
 		}
 
-		bool HandleKeyRelease(KeyReleasedEvent& e, Scene* scene)
+		bool HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene)
 		{
 			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
 			{
@@ -215,12 +221,12 @@ namespace Cocoa
 			return false;
 		}
 
-		bool HandleMouseScroll(MouseScrolledEvent& e, Scene* scene)
+		bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene)
 		{
 			float yOffset = -e.GetYOffset();
 			if (yOffset != 0)
 			{
-				Camera* camera = scene->GetCamera();
+				Camera* camera = scene.SceneCamera;
 				//float speed = 500.0f * camera->GetZoom();
 				camera->SetZoom(camera->GetZoom() + (yOffset * 0.05f));
 			}
@@ -228,13 +234,13 @@ namespace Cocoa
 			return false;
 		}
 
-		bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, Scene* scene)
+		bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene)
 		{
 			static float speed = 500.0f;
 			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = true;
-				Camera* camera = scene->GetCamera();
+				Camera* camera = scene.SceneCamera;
 				m_OriginalCameraPos = camera->GetTransform().Position;
 				m_OriginalDragClickPos = CMath::Vector3From2(camera->ScreenToOrtho());
 				//m_DragClickOffset = CMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
@@ -243,7 +249,7 @@ namespace Cocoa
 			return false;
 		}
 
-		bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, Scene* scene)
+		bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene)
 		{
 			if (m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{

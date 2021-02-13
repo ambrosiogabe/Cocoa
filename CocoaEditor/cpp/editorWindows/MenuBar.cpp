@@ -50,12 +50,12 @@ namespace Cocoa
 		static bool CPathVectorGetter(void* data, int n, const char** out_text)
 		{
 			const std::vector<CPath>* v = (std::vector<CPath>*)data;
-			*out_text = v->at(n).Filename();
+			*out_text = NCPath::Filename(v->at(n));
 			return true;
 		}
 
 
-		void ImGui(Scene* scene)
+		void ImGui(SceneData& scene)
 		{
 			if (Settings::Editor::ShowSettingsWindow)
 			{
@@ -95,7 +95,7 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
 						{
-							EditorLayer::LoadProject(scene, CPath(result.filepath));
+							EditorLayer::LoadProject(scene, NCPath::CreatePath(result.filepath));
 						}
 					}
 
@@ -104,8 +104,8 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
-							Settings::General::s_CurrentScene = result.filepath;
-							scene->Save(result.filepath);
+							Settings::General::s_CurrentScene = NCPath::CreatePath(result.filepath);
+							Scene::Save(scene, Settings::General::s_CurrentScene);
 						}
 					}
 
@@ -136,8 +136,8 @@ namespace Cocoa
 				{
 					if (CImGui::MenuButton("Add Sprite Object"))
 					{
-						Entity entity = scene->CreateEntity();
-						entity.AddComponent<SpriteRenderer>();
+						Entity entity = NEntity::CreateEntity(&scene);
+						NEntity::AddComponent<SpriteRenderer>(entity);
 					}
 
 					ImGui::EndMenu();

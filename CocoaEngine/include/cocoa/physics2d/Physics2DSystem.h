@@ -5,19 +5,20 @@
 #include "cocoa/physics2d/Physics2DSystem.h"
 #include "cocoa/physics2d/PhysicsComponents.h"
 #include "cocoa/core/Entity.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
 	namespace Physics2DSystem
 	{
 		COCOA void Init(const glm::vec2& gravity);
-		COCOA void Destroy(Scene* scene);
+		COCOA void Destroy(SceneData& scene);
 
 		//COCOA Entity OverlapPoint(Scene* scene, const glm::vec2& point);
 		COCOA bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees);
 
 		COCOA void AddEntity(Entity entity);
-		COCOA void Update(Scene* scene, float dt);
+		COCOA void Update(SceneData& scene, float dt);
 
         // ----------------------------------------------------------------------------
         // Box2D Helpers

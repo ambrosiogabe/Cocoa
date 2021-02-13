@@ -45,7 +45,7 @@ namespace Cocoa
 		int m_NotifyFilters = 0;
 		bool m_IncludeSubdirectories = false;
 		std::string m_Filter = "";
-		CPath m_Path = "";
+		CPath m_Path = NCPath::CreatePath();
 
 	private:
 		bool m_EnableRaisingEvents = true;

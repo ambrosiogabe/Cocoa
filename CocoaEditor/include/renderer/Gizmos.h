@@ -6,6 +6,8 @@
 #include "cocoa/physics2d/PhysicsComponents.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/core/Handle.h"
+#include "cocoa/scenes/SceneData.h"
+#include "cocoa/events/Event.h"
 
 namespace Cocoa
 {
@@ -54,9 +56,9 @@ namespace Cocoa
 
     namespace GizmoSystem
     {
-        void EditorUpdate(Scene* scene, float dt);
+        void EditorUpdate(SceneData& scene, float dt);
         void ImGui();
-        void OnEvent(Scene* scene, Event& e);
-        void Start(Scene* scene);
+        void OnEvent(SceneData& scene, Event& e);
+        void Start(SceneData& scene);
     };
 }

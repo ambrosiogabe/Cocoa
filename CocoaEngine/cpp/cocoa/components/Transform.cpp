@@ -47,7 +47,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Transform", {
-					{"Entity", entity.GetID()},
+					{"Entity", NEntity::GetID(entity)},
 					position,
 					scale,
 					rotation
@@ -60,7 +60,7 @@ namespace Cocoa
 			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
 			transform.Scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
 			transform.EulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
-			entity.AddComponent<TransformData>(transform);
+			NEntity::AddComponent<TransformData>(entity, transform);
 		}
 	}
 }

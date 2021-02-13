@@ -45,10 +45,10 @@ namespace Cocoa
 		file << "#include <imgui.h>\n";
 		file << "#include <map>\n\n";
 		file << "#include \"ImGuiExtended.h\"\n";
-		file << "#include \"../" << m_FullFilepath.GetFilenameWithoutExt() << ".h\"\n\n";
+		file << "#include \"../" << NCPath::GetFilenameWithoutExt(m_FullFilepath) << ".h\"\n\n";
 
 		file << "namespace Cocoa\n{\n";
-		file << "\tnamespace Reflect" << GetFilenameAsClassName(m_FullFilepath.GetFilenameWithoutExt()) << " \n\t{\n";
+		file << "\tnamespace Reflect" << GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(m_FullFilepath)) << " \n\t{\n";
 
 		file << "\t\tbool initialized = false;\n\n";
 
@@ -681,6 +681,7 @@ namespace Cocoa
 		{
 			Log::Error("Error: Expected '%d' but instead got '%d'", type, m_CurrentIter->m_Type);
 			Log::Error("Line: %d, Column: %d", m_CurrentIter->m_Line, m_CurrentIter->m_Column);
+			// TODO: Create static error token to return a const ref to instead of returning unsafe reference to local variable
 			return GenerateErrorToken();
 		}
 

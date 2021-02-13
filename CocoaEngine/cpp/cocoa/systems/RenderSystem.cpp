@@ -15,7 +15,6 @@ namespace Cocoa
 	namespace RenderSystem
 	{
 		// Internal Variables
-		static Handle<Shader> m_Shader = Handle<Shader>();
 		static Handle<Shader> m_SpriteShader = Handle<Shader>();
 		static Handle<Shader> m_FontShader = Handle<Shader>();
 		static Framebuffer m_MainFramebuffer = Framebuffer();
@@ -23,42 +22,56 @@ namespace Cocoa
 		static int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		static const int MAX_BATCH_SIZE = 1000;
 
-		static DynamicArrayData<RenderBatchData> m_Batches;
+		static DynamicArray<RenderBatchData> m_Batches;
 		static Camera* m_Camera;
 
-		void Init(Scene* scene)
+		void Init(SceneData& scene)
 		{
-			m_Camera = scene->GetCamera();
-			m_MainFramebuffer = Framebuffer(3840, 2160);
-			m_Batches = DynamicArray::Create<RenderBatchData>(1);
-			m_SpriteShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl"), true);
-			m_FontShader = AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/FontRenderer.glsl"), true);
-			AssetManager::LoadShaderFromFile(CPath(Settings::General::s_EngineAssetsPath + "shaders/Picking.glsl"), true);
+			m_Camera = scene.SceneCamera;
+
+			if (m_MainFramebuffer.Fbo != (uint32)-1)
+			{
+				NFramebuffer::Delete(m_MainFramebuffer);
+			}
+
+			m_MainFramebuffer.Width = 3840;
+			m_MainFramebuffer.Height = 2160;
+			Texture color0;
+			color0.InternalFormat = ByteFormat::RGB;
+			color0.ExternalFormat = ByteFormat::RGB;
+			color0.MagFilter = FilterMode::Linear;
+			color0.MinFilter = FilterMode::Linear;
+			color0.WrapS = WrapMode::Repeat;
+			color0.WrapT = WrapMode::Repeat;
+			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color0);
+			Texture color1;
+			color1.InternalFormat = ByteFormat::R32UI;
+			color1.ExternalFormat = ByteFormat::RED_INTEGER;
+			m_MainFramebuffer.IncludeDepthStencil = false;
+			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color1);
+			NFramebuffer::Generate(m_MainFramebuffer);
+
+			m_Batches = NDynamicArray::Create<RenderBatchData>(1);
+			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(spriteShaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
+			m_SpriteShader = AssetManager::LoadShaderFromFile(spriteShaderPath, true);
+			CPath fontShaderPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(fontShaderPath, NCPath::CreatePath("shaders/FontRenderer.glsl"));
+			m_FontShader = AssetManager::LoadShaderFromFile(fontShaderPath, true);
+			CPath pickingShaderPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(pickingShaderPath, NCPath::CreatePath("shaders/Picking.glsl"));
+			AssetManager::LoadShaderFromFile(pickingShaderPath, true);
 		}
 
 		void Destroy()
 		{
-			m_MainFramebuffer.Delete();
+			NFramebuffer::Delete(m_MainFramebuffer);
 			for (int i = 0; i < m_Batches.m_NumElements; i++)
 			{
-				RenderBatchData& data = DynamicArray::Get<RenderBatchData>(m_Batches, i);
+				RenderBatchData& data = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
 				RenderBatch::Free(data);
 			}
-			DynamicArray::Free<RenderBatchData>(m_Batches);
-		}
-
-		void UploadUniform1ui(const char* name, uint32 val)
-		{
-			const Shader& shader = AssetManager::GetShader(m_Shader);
-			if (!shader.IsNull())
-			{
-				shader.UploadUInt(name, val);
-			}
-		}
-
-		void BindShader(Handle<Shader> shader)
-		{
-			m_Shader = shader;
+			NDynamicArray::Free<RenderBatchData>(m_Batches);
 		}
 
 		void AddEntity(const TransformData& transform, const SpriteRenderer& spr)
@@ -67,7 +80,7 @@ namespace Cocoa
 			bool wasAdded = false;
 			for (int i=0; i < m_Batches.m_NumElements; i++)
 			{
-				RenderBatchData& batch = DynamicArray::Get<RenderBatchData>(m_Batches, i);
+				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
 				if (RenderBatch::HasRoom(batch) && spr.m_ZIndex == batch.ZIndex && batch.BatchShader == m_SpriteShader)
 				{
 					Handle<Texture> tex = sprite.m_Texture;
@@ -85,8 +98,8 @@ namespace Cocoa
 				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, spr.m_ZIndex, m_SpriteShader);
 				RenderBatch::Start(newBatch);
 				RenderBatch::Add(newBatch, transform, spr);
-				DynamicArray::Add(m_Batches, newBatch);
-				std::sort(DynamicArray::Begin<RenderBatchData>(m_Batches), DynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
+				NDynamicArray::Add(m_Batches, newBatch);
+				std::sort(NDynamicArray::Begin<RenderBatchData>(m_Batches), NDynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
 			}
 		}
 
@@ -96,7 +109,7 @@ namespace Cocoa
 			bool wasAdded = false;
 			for (int i=0; i < m_Batches.m_NumElements; i++)
 			{
-				RenderBatchData& batch = DynamicArray::Get<RenderBatchData>(m_Batches, i);
+				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
 				if (RenderBatch::HasRoom(batch, fontRenderer) && fontRenderer.m_ZIndex == batch.ZIndex && batch.BatchShader == m_FontShader)
 				{
 					Handle<Texture> tex = font.m_FontTexture;
@@ -114,46 +127,32 @@ namespace Cocoa
 				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, fontRenderer.m_ZIndex, m_FontShader);
 				RenderBatch::Start(newBatch);
 				RenderBatch::Add(newBatch, transform, fontRenderer);
-				DynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
-				std::sort(DynamicArray::Begin<RenderBatchData>(m_Batches), DynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
+				NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+				std::sort(NDynamicArray::Begin<RenderBatchData>(m_Batches), NDynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
 			}
 		}
 
-		void Render(Scene* scene)
+		void Render(const SceneData& scene)
 		{
-			scene->GetRegistry().group<SpriteRenderer>(entt::get<TransformData>).each([](auto entity, auto& spr, auto& transform)
+			scene.Registry.group<const SpriteRenderer>(entt::get<const TransformData>).each([](auto entity, auto& spr, auto& transform)
 				{
 					AddEntity(transform, spr);
 				});
 
-			scene->GetRegistry().group<FontRenderer>(entt::get<TransformData>).each([](auto entity, auto& fontRenderer, auto& transform)
+			scene.Registry.group<const FontRenderer>(entt::get<const TransformData>).each([](auto entity, const auto& fontRenderer, const auto& transform)
 				{
 					AddEntity(transform, fontRenderer);
 				});
 
-			bool useShader = m_Shader.IsNull();
-			if (!useShader)
+			for (int i=0; i < m_Batches.m_NumElements; i++)
 			{
-				const Shader& shader = AssetManager::GetShader(m_Shader.m_AssetId);
-				Log::Assert(!shader.IsNull(), "Cannot render with a null shader");
+				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
+				Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
+				const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
 				shader.Bind();
 				shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
 				shader.UploadMat4("uView", m_Camera->GetOrthoView());
 				shader.UploadIntArray("uTextures[0]", 16, m_TexSlots);
-			}
-
-			for (int i=0; i < m_Batches.m_NumElements; i++)
-			{
-				RenderBatchData& batch = DynamicArray::Get<RenderBatchData>(m_Batches, i);
-				if (useShader)
-				{
-					Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
-					const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
-					shader.Bind();
-					shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
-					shader.UploadMat4("uView", m_Camera->GetOrthoView());
-					shader.UploadIntArray("uTextures[0]", 16, m_TexSlots);
-				}
 
 				RenderBatch::Render(batch);
 				RenderBatch::Clear(batch);
@@ -178,7 +177,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"SpriteRenderer", {
-					{"Entity", entity.GetID()},
+					{"Entity", NEntity::GetID(entity)},
 					assetId,
 					zIndex,
 					color
@@ -202,7 +201,7 @@ namespace Cocoa
 			{
 				spriteRenderer.m_ZIndex = j["SpriteRenderer"]["ZIndex"];
 			}
-			entity.AddComponent<SpriteRenderer>(spriteRenderer);
+			NEntity::AddComponent<SpriteRenderer>(entity, spriteRenderer);
 		}
 
 		void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
@@ -220,7 +219,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"FontRenderer", {
-					{"Entity", entity.GetID()},
+					{"Entity", NEntity::GetID(entity)},
 					assetId,
 					zIndex,
 					color,
@@ -256,7 +255,7 @@ namespace Cocoa
 			{
 				fontRenderer.fontSize = j["FontRenderer"]["FontSize"];
 			}
-			entity.AddComponent<FontRenderer>(fontRenderer);
+			NEntity::AddComponent<FontRenderer>(entity, fontRenderer);
 		}
 	}
 }

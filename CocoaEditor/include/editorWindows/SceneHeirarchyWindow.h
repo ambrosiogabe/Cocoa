@@ -2,13 +2,13 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/scenes/Scene.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
 	namespace SceneHeirarchyWindow
 	{
-		void SetScene(Scene* scene);
+		void SetScene(SceneData& scene);
 
 		void ImGui();
 	};

@@ -19,14 +19,26 @@ namespace Cocoa
 			{
 				m_EntityID = 0;
 			}
+
+			PixelInfo(uint32 id)
+			{
+				m_EntityID = id;
+			}
 		};
 
 	public:
+		PickingTexture() 
+		{
+			m_FBO = -1;
+			m_PickingTexture = -1;
+			m_DepthTexture = -1;
+		}
+
 		PickingTexture(uint32 windowWidth, uint32 windowHeight);
 		~PickingTexture();
 
-		void EnableWriting();
-		void DisableWriting();
+		void Bind() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
+		void Unbind() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
 		inline uint32 GetPickingTextureID() const { return m_PickingTexture; }
 
@@ -37,7 +49,7 @@ namespace Cocoa
 
 	private:
 		// TODO: Figure out some way to make a factory for framebuffers, then just use the factory to create framebuffer instead of custom like this
-		uint32 m_FBO;
+		uint32 m_FBO = -1;
 		uint32 m_PickingTexture;
 		uint32 m_DepthTexture;
 	};

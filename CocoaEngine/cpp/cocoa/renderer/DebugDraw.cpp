@@ -9,15 +9,15 @@
 namespace Cocoa
 {
 	// TODO: Major memory leak in here, fix that...
-	//DynamicArrayData<RenderBatch> DebugDraw::s_Batches = DynamicArray::Create<RenderBatch>();
+	//DynamicArray<RenderBatch> DebugDraw::s_Batches = NDynamicArray::Create<RenderBatch>();
 	std::vector<Line2D> DebugDraw::s_Lines = std::vector<Line2D>();
 	std::vector<DebugSprite> DebugDraw::s_Sprites = std::vector<DebugSprite>();
 	int DebugDraw::s_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 	Handle<Shader> DebugDraw::s_Shader = Handle<Shader>();
 	int DebugDraw::s_MaxBatchSize = 500;
-	Scene* DebugDraw::s_Scene = nullptr;
+	SceneData* DebugDraw::s_Scene = nullptr;
 
-	void DebugDraw::Init(Scene* scene)
+	void DebugDraw::Init(SceneData* scene)
 	{
 		s_Scene = scene;
 	}
@@ -27,7 +27,9 @@ namespace Cocoa
 		if (s_Shader.IsNull())
 		{
 			Log::Assert((s_Scene != nullptr), "DebugDraw's scene is nullptr. Did you forget to initialize DebugDraw when you changed scenes?");
-			s_Shader = AssetManager::LoadShaderFromFile(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
+			CPath shaderPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(shaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
+			s_Shader = AssetManager::LoadShaderFromFile(shaderPath);
 		}
 
 		RemoveDeadLines();
@@ -41,11 +43,11 @@ namespace Cocoa
 
 		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
 		shaderRef.Bind();
-		shaderRef.UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
-		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
+		shaderRef.UploadMat4("uProjection", s_Scene->SceneCamera->GetOrthoProjection());
+		shaderRef.UploadMat4("uView", s_Scene->SceneCamera->GetOrthoView());
 		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
 
-		//for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
 		//{
 		//	if (!batch->BatchOnTop())
 		//	{
@@ -61,11 +63,11 @@ namespace Cocoa
 	{
 		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
 		shaderRef.Bind();
-		shaderRef.UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
-		shaderRef.UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
+		shaderRef.UploadMat4("uProjection", s_Scene->SceneCamera->GetOrthoProjection());
+		shaderRef.UploadMat4("uView", s_Scene->SceneCamera->GetOrthoView());
 		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
 
-		//for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
 		//{
 		//	if (batch->BatchOnTop())
 		//	{
@@ -161,7 +163,7 @@ namespace Cocoa
 		//	DebugSprite sprite = s_Sprites[i];
 		//	bool wasAdded = false;
 		//	bool spriteOnTop = sprite.m_OnTop;
-		//	for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//	for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
 		//	{
 		//		if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
 		//		{
@@ -176,8 +178,8 @@ namespace Cocoa
 		//		RenderBatch newBatch = RenderBatch(s_MaxBatchSize, 0, spriteOnTop);
 		//		newBatch.Start();
 		//		newBatch.Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-		//		DynamicArray::Add<RenderBatch>(s_Batches, newBatch);
-		//		std::sort(DynamicArray::Begin<RenderBatch>(s_Batches), DynamicArray::End<RenderBatch>(s_Batches), RenderBatch::Compare);
+		//		NDynamicArray::Add<RenderBatch>(s_Batches, newBatch);
+		//		std::sort(NDynamicArray::Begin<RenderBatch>(s_Batches), NDynamicArray::End<RenderBatch>(s_Batches), RenderBatch::Compare);
 		//	}
 		//}
 	}
@@ -188,7 +190,7 @@ namespace Cocoa
 		//{
 		//	bool wasAdded = false;
 		//	bool lineOnTop = line.IsOnTop();
-		//	for (auto batch = DynamicArray::Begin<RenderBatch>(s_Batches); batch != DynamicArray::End<RenderBatch>(s_Batches); batch++)
+		//	for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
 		//	{
 		//		if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
 		//		{
@@ -203,8 +205,8 @@ namespace Cocoa
 		//		RenderBatch newBatch = RenderBatch(s_MaxBatchSize, 0, lineOnTop);
 		//		newBatch.Start();
 		//		newBatch.Add(line.GetMin(), line.GetMax(), line.GetColor());;
-		//		DynamicArray::Add<RenderBatch>(s_Batches, newBatch);
-		//		std::sort(DynamicArray::Begin<RenderBatch>(s_Batches), DynamicArray::End<RenderBatch>(s_Batches), RenderBatch::Compare);
+		//		NDynamicArray::Add<RenderBatch>(s_Batches, newBatch);
+		//		std::sort(NDynamicArray::Begin<RenderBatch>(s_Batches), NDynamicArray::End<RenderBatch>(s_Batches), RenderBatch::Compare);
 		//	}
 		//}
 	}

@@ -144,12 +144,12 @@ namespace Cocoa
 				}
 			}
 
-			Entity res = Entity::FromComponent<TransformData>(transform);
-			uint32 entityId = res.GetID();
+			Entity res = NEntity::FromComponent<TransformData>(transform);
+			uint32 entityId = NEntity::GetID(res);
 
 			const std::string& str = fontRenderer.text;
-			int x = transform.Position.x;
-			int y = transform.Position.y;
+			float x = transform.Position.x;
+			float y = transform.Position.y;
 			int strLength = str.size();
 			for (int i = 0; i < strLength; i++)
 			{
@@ -273,8 +273,8 @@ namespace Cocoa
 				}
 			}
 
-			Entity res = Entity::FromComponent<TransformData>(transform);
-			LoadVertexProperties(data, transform.Position, transform.Scale, quadSize, texCoords, rotation, color, texId, res.GetID());
+			Entity res = NEntity::FromComponent<TransformData>(transform);
+			LoadVertexProperties(data, transform.Position, transform.Scale, quadSize, texCoords, rotation, color, texId, NEntity::GetID(res));
 		}
 
 		void LoadVertexProperties(RenderBatchData& data, const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords,

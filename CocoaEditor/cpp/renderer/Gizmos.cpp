@@ -121,20 +121,20 @@ namespace Cocoa
 		static GizmoData Gizmos[6];
 
 		// Forward Declarations        
-		static bool HandleKeyPress(KeyPressedEvent& e, Scene* scene);
-		static bool HandleKeyRelease(KeyReleasedEvent& e, Scene* scene);
-		static bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, Scene* scene);
-		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, Scene* scene);
-		static bool HandleMouseScroll(MouseScrolledEvent& e, Scene* scene);
+		static bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene);
+		static bool HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene);
+		static bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene);
+		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene);
+		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
-		void Start(Scene* scene)
+		void Start(SceneData& scene)
 		{
-			Log::Assert(scene != nullptr, "Cannot initialize gizmo system with null scene.");
-
-			m_GizmoTexture = AssetManager::GetTexture(Settings::General::s_EngineAssetsPath + "images/gizmos.png");
+			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(gizmoTexPath, NCPath::CreatePath("images/gizmos.png"));
+			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
 			m_GizmoSpritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_GizmoTexture, 16, 40, 9, 0));
 
-			m_Camera = scene->GetCamera();
+			m_Camera = scene.SceneCamera;
 
 			float hzOffsetX = 15;
 			float hzOffsetY = -10;
@@ -169,13 +169,13 @@ namespace Cocoa
 			//ImGui::End();
 		}
 
-		void EditorUpdate(Scene* scene, float dt)
+		void EditorUpdate(SceneData& scene, float dt)
 		{
 			Entity activeEntity = InspectorWindow::GetActiveEntity();
-			if (!activeEntity.IsNull())
+			if (!NEntity::IsNull(activeEntity))
 			{
 				ImGui();
-				TransformData& entityTransform = activeEntity.GetComponent<TransformData>();
+				TransformData& entityTransform = NEntity::GetComponent<TransformData>(activeEntity);
 
 				if (m_MouseDragging && m_ActiveGizmo >= 0)
 				{
@@ -229,7 +229,7 @@ namespace Cocoa
 			}
 		}
 
-		void OnEvent(Scene* scene, Event& e)
+		void OnEvent(SceneData& scene, Event& e)
 		{
 			switch (e.GetType())
 			{
@@ -251,7 +251,7 @@ namespace Cocoa
 			}
 		}
 
-		bool GizmoSystem::HandleKeyPress(KeyPressedEvent& e, Scene* scene)
+		bool GizmoSystem::HandleKeyPress(KeyPressedEvent& e, SceneData& scene)
 		{
 			if (e.GetKeyCode() == COCOA_KEY_S)
 			{
@@ -264,41 +264,45 @@ namespace Cocoa
 			return false;
 		}
 
-		bool GizmoSystem::HandleKeyRelease(KeyReleasedEvent& e, Scene* scene)
+		bool GizmoSystem::HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene)
 		{
 
 			return false;
 		}
 
-		bool GizmoSystem::HandleMouseScroll(MouseScrolledEvent& e, Scene* scene)
+		bool GizmoSystem::HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene)
 		{
 
 			return false;
 		}
 
-		bool GizmoSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e, Scene* scene)
+		bool GizmoSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene)
 		{
 			if (!m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
-				Camera* camera = scene->GetCamera();
+				Camera* camera = scene.SceneCamera;
 				glm::vec2 mousePosWorld = camera->ScreenToOrtho();
 
 				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
-				const PickingTexture& pickingTexture = scene->m_PickingTexture;
-				PickingTexture::PixelInfo info = pickingTexture.ReadPixel((uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
+				//const PickingTexture& pickingTexture = scene.ScenePickingTexture;
+				//pickingTexture.Bind();
+				//PickingTexture::PixelInfo info = pickingTexture.ReadPixel((uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
+				//pickingTexture.Unbind();
+				
+				PickingTexture::PixelInfo info = PickingTexture::PixelInfo((uint32)-1);
 
-				Entity entity = scene->GetEntity(info.m_EntityID);
+				Entity entity = Scene::GetEntity(scene, info.m_EntityID);
 
 				Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();
 
 				m_OriginalDragClickPos = CMath::Vector3From2(mousePosWorld);
 				m_ActiveGizmo = -1;
 
-				if (!selectedEntity.IsNull())
+				if (!NEntity::IsNull(selectedEntity))
 				{
 					InspectorWindow::ClearAllEntities();
 					InspectorWindow::AddEntity(selectedEntity);
-					const TransformData& transform = selectedEntity.GetComponent<TransformData>();
+					const TransformData& transform = NEntity::GetComponent<TransformData>(selectedEntity);
 					m_ActiveGizmo = m_HotGizmo;
 					m_MouseDragging = true;
 					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.Position;
@@ -314,7 +318,7 @@ namespace Cocoa
 			return false;
 		}
 
-		bool GizmoSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e, Scene* scene)
+		bool GizmoSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene)
 		{
 			if (m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{

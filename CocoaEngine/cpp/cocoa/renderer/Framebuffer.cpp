@@ -7,61 +7,86 @@
 
 namespace Cocoa
 {
-	void Framebuffer::Init()
+	namespace NFramebuffer
 	{
-		glGenFramebuffers(1, &m_ID);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
-
-		// Create texture to render data to and attach it to framebuffer
-		m_Texture = {};
-		m_Texture.Width = m_Width;
-		m_Texture.Height = m_Height;
-		m_Texture.MinFilter = FilterMode::Linear;
-		m_Texture.MagFilter = FilterMode::Linear;
-		m_Texture.InternalFormat = ByteFormat::RGB;
-		TextureUtil::Generate(m_Texture);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture.GraphicsId, 0);
-
-		// Create renderbuffer to store depth_stencil info
-		glGenRenderbuffers(1, &m_RboID);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_RboID);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RboID);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		void Generate(Framebuffer& framebuffer)
 		{
-			Log::Assert(false, "Framebuffer is not complete.");
+			Log::Assert(framebuffer.Fbo == (uint32)-1, "Cannot generate framebuffer that has with Fbo id == (uint32)-1.");
+			Log::Assert(framebuffer.Rbo == (uint32)-1, "Cannot generate framebuffer that has with Rbo id == (uint32)-1.");
+
+			glGenFramebuffers(1, &framebuffer.Fbo);
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo);
+
+			// Create texture to render data to and attach it to framebuffer
+			for (int i = 0; i < framebuffer.ColorAttachments.size(); i++)
+			{
+				Texture& texture = framebuffer.ColorAttachments[i];
+				texture.Width = framebuffer.Width;
+				texture.Height = framebuffer.Height;
+				TextureUtil::Generate(texture);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture.GraphicsId, 0);
+			}
+
+			if (framebuffer.IncludeDepthStencil)
+			{
+				Log::Assert(framebuffer.DepthStencilFormat != ByteFormat::None, "Cannot add depth stencil information with no byte format.");
+
+				// Create renderbuffer to store depth_stencil info
+				glGenRenderbuffers(1, &framebuffer.Rbo);
+				glBindRenderbuffer(GL_RENDERBUFFER, framebuffer.Rbo);
+				uint32 glDepthFormat = TextureUtil::ToGl(framebuffer.DepthStencilFormat);
+				glRenderbufferStorage(GL_RENDERBUFFER, glDepthFormat, framebuffer.Width, framebuffer.Height);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, framebuffer.Rbo);
+			}
+
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			{
+				Log::Assert(false, "Framebuffer is not complete.");
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		GLenum error = glGetError();
-		if (error != GL_NO_ERROR)
+		void Delete(Framebuffer& framebuffer)
 		{
-			Log::Error("Error creating framebuffer (GL ERROR): 0x%x", error);
+			Log::Assert(framebuffer.Fbo != (uint32)-1, "Tried to delete invalid framebuffer.");
+			glDeleteFramebuffers(1, &framebuffer.Fbo);
+			framebuffer.Fbo = (uint32)-1;
+
+			for (int i = 0; i < framebuffer.ColorAttachments.size(); i++)
+			{
+				Texture& texture = framebuffer.ColorAttachments[i];
+				TextureUtil::Delete(texture);
+			}
+			framebuffer.ColorAttachments.clear();
+
+			if (framebuffer.IncludeDepthStencil)
+			{
+				Log::Assert(framebuffer.Rbo != (uint32)-1, "Tried to delete invalid renderbuffer.");
+				glDeleteRenderbuffers(1, &framebuffer.Rbo);
+				framebuffer.Rbo = (uint32)-1;
+			}
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
+		void AddColorAttachment(Framebuffer& framebuffer, const Texture& textureSpecification)
+		{
+			framebuffer.ColorAttachments.push_back(textureSpecification);
+		}
 
-	void Framebuffer::Delete()
-	{
-		glDeleteFramebuffers(1, &m_ID);
-		glDeleteRenderbuffers(1, &m_RboID);
-		glDeleteTextures(1, &m_Texture.GraphicsId);
-	}
+		const Texture& GetColorAttachment(const Framebuffer& framebuffer, int index)
+		{
+			return framebuffer.ColorAttachments.at(index);
+		}
 
-	Framebuffer& Framebuffer::AddAttachment(TextureSpecification textureSpecification)
-	{
-		//// Create texture to render data to and attach it to framebuffer
-		//Handle<Texture> texture = AssetManager::CreateInternalTexture(m_Width, m_Height);
-		//m_Texture = new Texture(m_Width, m_Height);
-		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture->GetId(), 0);
+		void Bind(const Framebuffer& framebuffer)
+		{
+			Log::Assert(framebuffer.Fbo != (uint32)-1, "Tried to bind invalid framebuffer.");
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo);
+		}
 
-		//// Create renderbuffer to store depth_stencil info
-		//unsigned int rboID;
-		//glGenRenderbuffers(1, &rboID);
-		//glBindRenderbuffer(GL_RENDERBUFFER, rboID);
-		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Width, m_Height);
-		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboID);
-		return *this;
+		void Unbind(const Framebuffer& framebuffer)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 	}
 }

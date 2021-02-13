@@ -20,9 +20,17 @@ namespace Cocoa
 	enum class ByteFormat
 	{
 		None=0,
+		RGBA,
 		RGBA8,
+
+		RGB,
 		RGB8,
-		RGB
+
+		R32UI,
+		RED_INTEGER,
+
+		// Depth/Stencil formats
+		DEPTH24_STENCIL8
 	};
 
 	struct COCOA Texture
@@ -37,8 +45,9 @@ namespace Cocoa
 		WrapMode WrapS = WrapMode::None;
 		WrapMode WrapT = WrapMode::None;
 		ByteFormat InternalFormat = ByteFormat::None;
+		ByteFormat ExternalFormat = ByteFormat::None;
 
-		CPath Path = "";
+		CPath Path = CPath();
 		bool IsDefault = false;
 	};
 
@@ -64,5 +73,9 @@ namespace Cocoa
 		COCOA void Generate(Texture& texture);
 
 		COCOA bool IsNull(const Texture& texture);
+
+		COCOA uint32 ToGl(ByteFormat format);
+		COCOA uint32 ToGl(WrapMode wrapMode);
+		COCOA uint32 ToGl(FilterMode filterMode);
 	};
 }

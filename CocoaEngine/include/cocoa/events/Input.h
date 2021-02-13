@@ -1,16 +1,16 @@
 #pragma once
 #include "externalLibs.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
 	class Camera;
-	class Scene;
 
 	class COCOA Input
 	{
 	public:
 		static void Init();
-		static void SetScene(Scene* scene);
+		static void SetScene(SceneData* scene);
 
 		static void KeyCallback(int key, int scancode, int action, int mods);
 		static void CursorCallback(double xpos, double ypos);
@@ -52,6 +52,6 @@ namespace Cocoa
 		static glm::vec2 s_GameViewSize;
 		static glm::vec2 s_GameViewMousePos;
 
-		static Scene* s_Scene;
+		static SceneData* s_Scene;
 	};
 }

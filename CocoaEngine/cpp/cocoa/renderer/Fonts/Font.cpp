@@ -9,7 +9,7 @@
 namespace Cocoa
 {
 	CharInfo Font::nullCharacter = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	Font Font::nullFont = {};
+	Font Font::nullFont = Font();
 
 	Font::Font()
 	{
@@ -21,16 +21,6 @@ namespace Cocoa
 	{
 		m_IsDefault = isDefault;
 		m_Path = CPath(resourcePath);
-	}
-
-	Font::~Font()
-	{
-		// We can't do this in the destructor, because when the vector resizes it might prematurely release this...
-		// So instead we have to manually declare when to release the memory (ha, RAII will save you from problems *eye roll*)
-		//if (m_CharacterMap)
-		//{
-		//	free(m_CharacterMap);
-		//}
 	}
 
 	void Font::Free()
@@ -82,7 +72,7 @@ namespace Cocoa
 		res["FontTextureId"] = m_FontTexture.m_AssetId;
 		res["GlyphRangeStart"] = m_GlyphRangeStart;
 		res["GlyphRangeEnd"] = m_GlyphRangeEnd;
-		res["Filepath"] = m_Path.Filepath();
+		res["Filepath"] = m_Path.Path.c_str();
 		return res;
 	}
 

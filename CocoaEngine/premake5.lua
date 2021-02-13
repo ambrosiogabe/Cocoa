@@ -17,7 +17,9 @@ project "CocoaEngine"
 	}
 
     disablewarnings { 
-        "4251" 
+        "4251",
+		"4131",
+		"4267"
     }
 
 	defines {

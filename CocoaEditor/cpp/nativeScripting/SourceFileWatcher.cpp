@@ -13,8 +13,8 @@ namespace Cocoa
 {
 	static void RunPremake();
 
-	static CPath rootDir = "";
-	static CPath projectPremakeLua = "";
+	static CPath rootDir = NCPath::CreatePath();
+	static CPath projectPremakeLua = NCPath::CreatePath();
 	static auto classes = std::vector<UClass>();
 	static bool fileModified = false;
 	static bool runningPremake = false;
@@ -32,12 +32,12 @@ namespace Cocoa
 
 	static bool IsHeaderFile(const CPath& file)
 	{
-		return strcmp(file.FileExt(), ".h") == 0 || strcmp(file.FileExt(), ".hpp") == 0;
+		return strcmp(NCPath::FileExt(file), ".h") == 0 || strcmp(NCPath::FileExt(file), ".hpp") == 0;
 	}
 
 	static bool IsReflectionHeaderFile(const CPath& file)
 	{
-		return strcmp(file.Filename(), "Reflection") == 0;
+		return strcmp(NCPath::Filename(file), "Reflection") == 0;
 	}
 
 	static void AddClassIfNotExist(UClass clazz)
@@ -101,14 +101,21 @@ namespace Cocoa
 
 	static void GenerateInitFiles()
 	{
-		IFile::CreateDirIfNotExists(rootDir + "generated");
-		CodeGenerators::GenerateInitFile(classes, rootDir + "generated" + "init.h");
-		IFile::WriteFile("#include \"init.h\"\n", rootDir + "generated" + "init.cpp");
+		CPath generatedDir = rootDir;
+		NCPath::Join(generatedDir, NCPath::CreatePath("generated"));
+		IFile::CreateDirIfNotExists(generatedDir);
+
+		CPath initH = generatedDir;
+		NCPath::Join(initH, NCPath::CreatePath("init.h"));
+		CPath initCpp = generatedDir;
+		NCPath::Join(initCpp, NCPath::CreatePath("init.pp"));
+		CodeGenerators::GenerateInitFile(classes, initH);
+		IFile::WriteFile("#include \"init.h\"\n", initCpp);
 	}
 
 	static bool ProcessFile(CPath& file, CPath generatedDirPath)
 	{
-		if (!IFile::IsFile(file) || file.Contains("generated") || IFile::IsHidden(file) || !IsHeaderFile(file))
+		if (!IFile::IsFile(file) || NCPath::Contains(file, "generated") || IFile::IsHidden(file) || !IsHeaderFile(file))
 		{
 			return false;
 		}
@@ -120,7 +127,9 @@ namespace Cocoa
 		fileParser.Parse();
 		MergeNewClasses(fileParser.GetClasses(), file);
 
-		CPath path = generatedDirPath + (file.GetFilenameWithoutExt() + "-generated.h");
+		std::string generatedHFilename = NCPath::GetFilenameWithoutExt(file) + "-generated.h";
+		CPath path = generatedDirPath;
+		NCPath::Join(path, NCPath::CreatePath(generatedHFilename));
 		IFile::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
 
 		GenerateInitFiles();
@@ -133,8 +142,9 @@ namespace Cocoa
 		if (!runningPremake)
 		{
 			runningPremake = true;
-			CPath pathToPremake = Settings::General::s_EngineExeDirectory + "premake5.exe";
-			std::string cmdArgs = "vs2019 --file=\"" + std::string(projectPremakeLua.Filepath()) + "\"";
+			CPath pathToPremake = Settings::General::s_EngineExeDirectory;
+			NCPath::Join(pathToPremake, NCPath::CreatePath("premake5.exe"));
+			std::string cmdArgs = "vs2019 --file=\"" + std::string(projectPremakeLua.Path.c_str()) + "\"";
 			IFile::RunProgram(pathToPremake, cmdArgs);
 			runningPremake = false;
 		}
@@ -142,8 +152,12 @@ namespace Cocoa
 
 	static void FileChanged(const CPath& file)
 	{
-		CPath generatedDirPath = file.GetDirectory(-1) + "generated";
-		if (ProcessFile(rootDir + CPath(file), rootDir + generatedDirPath))
+		CPath generatedDirPath = NCPath::CreatePath(NCPath::GetDirectory(file, -1) + "generated");
+		CPath filePath = generatedDirPath;
+		NCPath::Join(filePath, file);
+		CPath generatedFilePath = rootDir;
+		NCPath::Join(rootDir, generatedDirPath);
+		if (ProcessFile(filePath, generatedFilePath))
 		{
 			RunPremake();
 		}
@@ -158,7 +172,8 @@ namespace Cocoa
 		}
 
 		auto files = IFile::GetFilesInDir(directory);
-		CPath generatedDir = directory + "generated";
+		CPath generatedDir = directory;
+		NCPath::Join(generatedDir, NCPath::CreatePath("generated"));
 		for (auto file : files)
 		{
 			ProcessFile(file, generatedDir);
@@ -171,18 +186,19 @@ namespace Cocoa
 	{
 		if (!IFile::IsDirectory(m_RootDirectory))
 		{
-			Log::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Filepath());
+			Log::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Path.c_str());
 			return;
 		}
 		rootDir = m_RootDirectory;
-		Log::Log("Monitoring directory '%s'", IFile::GetAbsolutePath(m_RootDirectory.Filepath()).Filepath());
+		Log::Log("Monitoring directory '%s'", IFile::GetAbsolutePath(m_RootDirectory).Path.c_str());
 
-		projectPremakeLua = CPath(m_RootDirectory.GetDirectory(-1)) + "/premake5.lua";
+		projectPremakeLua = NCPath::CreatePath(NCPath::GetDirectory(m_RootDirectory, -1));
+		NCPath::Join(projectPremakeLua, NCPath::CreatePath("premake5.lua"));
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
 
 		Log::Log("Generating initial class information");
 		GenerateInitialClassInformation(m_RootDirectory);
-		Log::Log("Generating premake file %s", projectPremakeLua.Filepath());
+		Log::Log("Generating premake file %s", projectPremakeLua.Path.c_str());
 		RunPremake();
 
 		m_FileWatcher.m_Path = m_RootDirectory;

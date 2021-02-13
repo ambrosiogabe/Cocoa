@@ -2,10 +2,10 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
+#include "cocoa/scenes/SceneData.h"
+
 namespace Cocoa
 {
-	class Scene;
-
 	enum class AssetView
 	{
 		TextureBrowser,
@@ -17,6 +17,6 @@ namespace Cocoa
 
 	namespace AssetWindow
 	{
-		void ImGui(Scene* scene);
+		void ImGui(SceneData& scene);
 	};
 }

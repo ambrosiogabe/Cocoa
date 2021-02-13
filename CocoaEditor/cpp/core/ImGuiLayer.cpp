@@ -42,8 +42,8 @@ namespace Cocoa
 
 		// Forward Declarations
 		void HelpMarker(const char* desc);
-		void SetupDockspace(Scene* scene);
-		void RenderGameViewport(Scene* scene);
+		void SetupDockspace(SceneData& scene);
+		void RenderGameViewport(SceneData& scene);
 
 		ImVec4 From(const glm::vec4& vec4)
 		{
@@ -62,7 +62,7 @@ namespace Cocoa
 			// Setup dear imGui binding
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.Filepath());
+			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.Path.c_str());
 
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -98,7 +98,7 @@ namespace Cocoa
 			LoadStyle(Settings::General::s_EditorStyleData);
 		}
 
-		void OnEvent(Scene* scene, Event& e)
+		void OnEvent(SceneData& scene, Event& e)
 		{
 			if (m_BlockEvents)
 			{
@@ -109,7 +109,7 @@ namespace Cocoa
 			}
 		}
 
-		void BeginFrame(Scene* scene)
+		void BeginFrame(SceneData& scene)
 		{
 			// Start ImGui frame
 			ImGui_ImplOpenGL3_NewFrame();
@@ -152,7 +152,7 @@ namespace Cocoa
 			glfwMakeContextCurrent(backupCurrentContext);
 		}
 
-		void RenderGameViewport(Scene* scene)
+		void RenderGameViewport(SceneData& scene)
 		{
 			static bool open = true;
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
@@ -165,8 +165,10 @@ namespace Cocoa
 				{
 					if (!isPlaying)
 					{
-						scene->Save(Settings::General::s_EngineAssetsPath + "tmp.jade");
-						scene->Play();
+						CPath tmpPath = Settings::General::s_EngineAssetsPath;
+						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
+						Scene::Save(scene, tmpPath);
+						Scene::Play(scene);
 						isPlaying = true;
 					}
 					ImGui::EndMenu();
@@ -175,8 +177,10 @@ namespace Cocoa
 				{
 					if (isPlaying)
 					{
-						scene->Stop();
-						scene->Load(Settings::General::s_EngineAssetsPath + "tmp.jade");
+						Scene::Stop(scene);
+						CPath tmpPath = Settings::General::s_EngineAssetsPath;
+						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
+						Scene::Load(scene, tmpPath);
 						isPlaying = false;
 					}
 					ImGui::EndMenu();
@@ -214,8 +218,7 @@ namespace Cocoa
 			m_GameviewMousePos.y = mousePos.y;
 			Input::SetGameViewMousePos(m_GameviewMousePos);
 
-			CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-			uint32 texId = RenderSystem::GetMainFramebuffer().m_Texture.GraphicsId;
+			uint32 texId = NFramebuffer::GetColorAttachment(RenderSystem::GetMainFramebuffer(), 0).GraphicsId;
 			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
 
 			ImGui::End();
@@ -224,7 +227,7 @@ namespace Cocoa
 			m_BlockEvents = m_GameviewMousePos.x < 0 || m_GameviewMousePos.x > aspectWidth || m_GameviewMousePos.y < 0 || m_GameviewMousePos.y > aspectHeight;
 		}
 
-		void SetupDockspace(Scene* scene)
+		void SetupDockspace(SceneData& scene)
 		{
 			static bool p_open = true;
 			static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;

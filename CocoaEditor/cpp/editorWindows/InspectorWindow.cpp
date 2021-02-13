@@ -62,31 +62,31 @@ namespace Cocoa
 			bool doBox2D = true;
 			bool doCircle = true;
 
-			for (auto& entity : ActiveEntities)
+			for (auto& entity: ActiveEntities)
 			{
-				doTransform &= entity.HasComponent<TransformData>();
-				doSpriteRenderer &= entity.HasComponent<SpriteRenderer>();
-				doFontRenderer &= entity.HasComponent<FontRenderer>();
-				doRigidbody2D &= entity.HasComponent<Rigidbody2D>();
-				doAABB &= entity.HasComponent<AABB>();
-				doBox2D &= entity.HasComponent<Box2D>();
-				doCircle &= entity.HasComponent<Circle>();
+				doTransform &= NEntity::HasComponent<TransformData>(entity);
+				doSpriteRenderer &= NEntity::HasComponent<SpriteRenderer>(entity);
+				doFontRenderer &= NEntity::HasComponent<FontRenderer>(entity);
+				doRigidbody2D &= NEntity::HasComponent<Rigidbody2D>(entity);
+				doAABB &= NEntity::HasComponent<AABB>(entity);
+				doBox2D &= NEntity::HasComponent<Box2D>(entity);
+				doCircle &= NEntity::HasComponent<Circle>(entity);
 			}
 
 			if (doTransform)
-				ImGuiTransform(ActiveEntities[0].GetComponent<TransformData>());
+				ImGuiTransform(NEntity::GetComponent<TransformData>(ActiveEntities[0]));
 			if (doSpriteRenderer)
-				ImGuiSpriteRenderer(ActiveEntities[0].GetComponent<SpriteRenderer>());
+				ImGuiSpriteRenderer(NEntity::GetComponent<SpriteRenderer>(ActiveEntities[0]));
 			if (doFontRenderer)
-				ImGuiFontRenderer(ActiveEntities[0].GetComponent<FontRenderer>());
+				ImGuiFontRenderer(NEntity::GetComponent<FontRenderer>(ActiveEntities[0]));
 			if (doRigidbody2D)
-				ImGuiRigidbody2D(ActiveEntities[0].GetComponent<Rigidbody2D>());
+				ImGuiRigidbody2D(NEntity::GetComponent<Rigidbody2D>(ActiveEntities[0]));
 			if (doBox2D)
-				ImGuiBox2D(ActiveEntities[0].GetComponent<Box2D>());
+				ImGuiBox2D(NEntity::GetComponent<Box2D>(ActiveEntities[0]));
 			if (doAABB)
-				ImGuiAABB(ActiveEntities[0].GetComponent<AABB>());
+				ImGuiAABB(NEntity::GetComponent<AABB>(ActiveEntities[0]));
 			if (doCircle)
-				ImGuiCircle(ActiveEntities[0].GetComponent<Circle>());
+				ImGuiCircle(NEntity::GetComponent<Circle>(ActiveEntities[0]));
 			ScriptSystem::ImGui(ActiveEntities[0]);
 
 			ImGuiAddComponentButton();
@@ -114,7 +114,7 @@ namespace Cocoa
 		Entity GetActiveEntity()
 		{
 			if (ActiveEntities.size() == 0)
-				return Entity::Null;
+				return NEntity::CreateNull();
 			return ActiveEntities[0];
 		}
 
@@ -146,23 +146,23 @@ namespace Cocoa
 				switch (itemPressed)
 				{
 				case 0:
-					activeEntity.AddComponent<SpriteRenderer>();
+					NEntity::AddComponent<SpriteRenderer>(activeEntity);
 					break;
 				case 1:
-					activeEntity.AddComponent<FontRenderer>();
+					NEntity::AddComponent<FontRenderer>(activeEntity);
 					break;
 				case 2:
-					activeEntity.AddComponent<Rigidbody2D>();
+					NEntity::AddComponent<Rigidbody2D>(activeEntity);
 					break;
 				case 3:
-					activeEntity.AddComponent<Box2D>();
+					NEntity::AddComponent<Box2D>(activeEntity);
 					break;
 				case 4:
-					activeEntity.AddComponent<Circle>();
+					NEntity::AddComponent<Circle>(activeEntity);
 					break;
 				default:
-					Log::Info("Adding component %s from inspector tp %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.GetRawEntity()));
-					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.GetRawEntity(), activeEntity.GetRegistry());
+					Log::Info("Adding component %s from inspector to %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
+					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.Handle, activeEntity.Scene->Registry);
 					break;
 				}
 			}
@@ -200,8 +200,8 @@ namespace Cocoa
 				if (spr.m_Sprite.m_Texture)
 				{
 					const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.m_AssetId);
-					CImGui::InputText("##SpriteRendererTexture", (char*)tex.Path.Filename(),
-						tex.Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+					CImGui::InputText("##SpriteRendererTexture", (char*)NCPath::Filename(tex.Path),
+						NCPath::FilenameSize(tex.Path), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
@@ -243,8 +243,8 @@ namespace Cocoa
 				if (fontRenderer.m_Font)
 				{
 					const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
-					CImGui::InputText("##FontRendererTexture", (char*)font.m_Path.Filename(),
-						font.m_Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
+					CImGui::InputText("##FontRendererTexture", (char*)NCPath::Filename(font.m_Path),
+						NCPath::FilenameSize(font.m_Path), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
@@ -321,7 +321,7 @@ namespace Cocoa
 				CImGui::EndCollapsingHeaderGroup();
 
 				// Draw box highlight
-				const TransformData& transform = ActiveEntities[0].GetComponent<TransformData>();
+				const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
 				DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
 			}
 		}

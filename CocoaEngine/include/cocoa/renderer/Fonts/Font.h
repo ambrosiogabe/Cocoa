@@ -11,7 +11,6 @@ namespace Cocoa
 	public:
 		Font(CPath& resourcePath, bool isDefault = false);
 		Font();
-		~Font();
 
 		const CharInfo& GetCharacterInfo(int codepoint) const;
 		void GenerateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);

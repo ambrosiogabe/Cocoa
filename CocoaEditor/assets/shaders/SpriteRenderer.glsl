@@ -28,7 +28,8 @@ void main()
 
 #type fragment
 #version 330 core
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out uint entityID;
 
 in vec3 fPos;
 in vec4 fColor;
@@ -169,6 +170,7 @@ void main()
     } else {
         color = fColor;
     }
+    entityID = fEntityID;
     
     if (fEntityID == uActiveEntityID) {
         float alphaAverage = 0.0;

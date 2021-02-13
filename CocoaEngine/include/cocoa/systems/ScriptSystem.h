@@ -4,6 +4,7 @@
 
 #include "cocoa/scenes/Scene.h"
 #include "cocoa/core/Entity.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
@@ -13,16 +14,16 @@ namespace Cocoa
     typedef void (*SaveScriptFn)(json&);
     typedef void (*LoadScriptFn)(json&, Entity);
     typedef void (*ImGuiFn)(Entity);
-    typedef void (*UpdateScriptFn)(float, Scene*);
-    typedef void (*EditorUpdateScriptFn)(float, Scene*);
+    typedef void (*UpdateScriptFn)(float, SceneData*);
+    typedef void (*EditorUpdateScriptFn)(float, SceneData*);
     typedef void (*AddComponentFromStringFn)(std::string, entt::entity, entt::registry&);
 
     namespace ScriptSystem
     {
         COCOA void Start();
         // TODO: Update these to const pointers, no reason to pass a non-const pointer here
-        COCOA void Update(Scene* scene, float dt);
-        COCOA void EditorUpdate(Scene* scene, float dt);
+        COCOA void Update(SceneData& scene, float dt);
+        COCOA void EditorUpdate(SceneData& scene, float dt);
 
         COCOA void ImGui(Entity entity);
         COCOA void InitImGui(void* context);

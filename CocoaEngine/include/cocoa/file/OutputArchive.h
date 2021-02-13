@@ -34,32 +34,32 @@ namespace Cocoa
 			if (info.id() == entt::type_info<TransformData>().id())
 			{
 				const TransformData* transform = reinterpret_cast<const TransformData*>(&component);
-				Transform::Serialize(m_Json, entity, *transform);
+				Transform::Serialize(m_Json, NEntity::CreateEntity(entity), *transform);
 			} 
 			else if (info.id() == entt::type_info<SpriteRenderer>().id())
 			{
 				const SpriteRenderer* renderer = reinterpret_cast<const SpriteRenderer*>(&component);
-				RenderSystem::Serialize(m_Json, entity, *renderer);
+				RenderSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *renderer);
 			}
 			else if (info.id() == entt::type_info<FontRenderer>().id())
 			{
 				const FontRenderer* fontRenderer = reinterpret_cast<const FontRenderer*>(&component);
-				RenderSystem::Serialize(m_Json, entity, *fontRenderer);
+				RenderSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *fontRenderer);
 			}
 			else if (info.id() == entt::type_info<Box2D>().id())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
-				Physics2DSystem::Serialize(m_Json, entity, *box2D);
+				Physics2DSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *box2D);
 			}
 			else if (info.id() == entt::type_info<Rigidbody2D>().id())
 			{
 				const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
-				Physics2DSystem::Serialize(m_Json, entity, *rb);
+				Physics2DSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *rb);
 			}
 			else if (info.id() == entt::type_info<AABB>().id())
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
-				Physics2DSystem::Serialize(m_Json, entity, *box);
+				Physics2DSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *box);
 			}
 			else
 			{

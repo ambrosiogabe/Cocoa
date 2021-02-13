@@ -13,7 +13,7 @@ namespace Cocoa
 	{
 		const Texture NullTexture = {};
 
-		static uint32 ToGl(WrapMode wrapMode)
+		uint32 ToGl(WrapMode wrapMode)
 		{
 			switch (wrapMode)
 			{
@@ -28,7 +28,7 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
-		static uint32 ToGl(FilterMode filterMode)
+		uint32 ToGl(FilterMode filterMode)
 		{
 			switch (filterMode)
 			{
@@ -45,7 +45,7 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
-		static uint32 ToGlInternal(ByteFormat format)
+		uint32 ToGl(ByteFormat format)
 		{
 			switch (format)
 			{
@@ -53,31 +53,20 @@ namespace Cocoa
 				return GL_RGBA8;
 			case ByteFormat::RGB8:
 				return GL_RGB8;
-			case ByteFormat::RGB:
-				return GL_RGB;
-			case ByteFormat::None:
-				return GL_NONE;
-			default:
-				Log::Warning("Unknown glInternalFormat '%d'", format);
-			}
-
-			return GL_NONE;
-		}
-
-		static uint32 ToGlExternal(ByteFormat format)
-		{
-			switch (format)
-			{
-			case ByteFormat::RGBA8:
+			case ByteFormat::RGBA:
 				return GL_RGBA;
-			case ByteFormat::RGB8:
-				return GL_RGB;
 			case ByteFormat::RGB:
 				return GL_RGB;
+			case ByteFormat::R32UI:
+				return GL_R32UI;
+			case ByteFormat::RED_INTEGER:
+				return GL_RED_INTEGER;
+			case ByteFormat::DEPTH24_STENCIL8:
+				return GL_DEPTH24_STENCIL8;
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glExternalFormat '%d'", format);
+				Log::Warning("Unknown glByteFormat '%d'", format);
 			}
 
 			return GL_NONE;
@@ -107,21 +96,23 @@ namespace Cocoa
 		{
 			int channels;
 
-			unsigned char* pixels = stbi_load(path.Filepath(), &texture.Width, &texture.Height, &channels, 0);
-			Log::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Filepath(), stbi_failure_reason());
+			unsigned char* pixels = stbi_load(path.Path.c_str(), &texture.Width, &texture.Height, &channels, 0);
+			Log::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Path.c_str(), stbi_failure_reason());
 
 			int bytesPerPixel = channels;
 			if (bytesPerPixel == 4)
 			{
 				texture.InternalFormat = ByteFormat::RGBA8;
+				texture.ExternalFormat = ByteFormat::RGBA;
 			}
 			else if (bytesPerPixel == 3)
 			{
 				texture.InternalFormat = ByteFormat::RGB8;
+				texture.ExternalFormat = ByteFormat::RGB;
 			}
 			else
 			{
-				Log::Warning("Unknown number of channels '%d' in image '%s'.", path.Filepath(), channels);
+				Log::Warning("Unknown number of channels '%d' in image '%s'.", path.Path.c_str(), channels);
 				return;
 			}
 
@@ -130,9 +121,9 @@ namespace Cocoa
 
 			BindTextureParameters(texture);
 
-			uint32 internalFormat = ToGlInternal(texture.InternalFormat);
-			uint32 externalFormat = ToGlExternal(texture.InternalFormat);
-			Log::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Filepath());
+			uint32 internalFormat = ToGl(texture.InternalFormat);
+			uint32 externalFormat = ToGl(texture.ExternalFormat);
+			Log::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Path.c_str());
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
 
 			stbi_image_free(pixels);
@@ -141,13 +132,14 @@ namespace Cocoa
 		void Generate(Texture& texture)
 		{
 			Log::Assert(texture.InternalFormat != ByteFormat::None, "Cannot generate texture without internal format.");
+			Log::Assert(texture.ExternalFormat != ByteFormat::None, "Cannot generate texture without external format.");
 			glGenTextures(1, &texture.GraphicsId);
 			glBindTexture(GL_TEXTURE_2D, texture.GraphicsId);
 
 			BindTextureParameters(texture);
 
-			uint32 internalFormat = ToGlInternal(texture.InternalFormat);
-			uint32 externalFormat = ToGlExternal(texture.InternalFormat);
+			uint32 internalFormat = ToGl(texture.InternalFormat);
+			uint32 externalFormat = ToGl(texture.ExternalFormat);
 
 			// Here the GL_UNSIGNED_BYTE does nothing since we are just allocating space
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, nullptr);
@@ -177,7 +169,7 @@ namespace Cocoa
 		json Serialize(const Texture& texture)
 		{
 			return {
-				{"Filepath", texture.Path.Filepath() },
+				{"Filepath", texture.Path.Path.c_str() },
 				{"MagFilter", (int)texture.MagFilter },
 				{"MinFilter", (int)texture.MinFilter },
 				{"WrapS", (int)texture.WrapS},

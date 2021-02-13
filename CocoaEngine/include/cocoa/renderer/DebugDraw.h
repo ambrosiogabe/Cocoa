@@ -7,6 +7,7 @@
 #include "cocoa/renderer/DebugSprite.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/util/DynamicArray.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
@@ -23,7 +24,7 @@ namespace Cocoa
 			glm::vec3 tint = { 1.0f, 1.0f, 1.0f }, glm::vec2 texCoordMin = { 0.0f, 1.0f }, glm::vec2 texCoordMax = { 1.0f, 0.0f }, float rotation = 0.0f,
 			int lifetime = 1, bool onTop = true);
 
-		static void Init(Scene* scene);
+		static void Init(SceneData* scene);
 
 	private:
 		static void RemoveDeadSprites();
@@ -32,12 +33,12 @@ namespace Cocoa
 		static void AddLinesToBatches();
 
 	private:
-		//static DynamicArrayData<RenderBatch> s_Batches;
+		//static DynamicArray<RenderBatch> s_Batches;
 		static std::vector<Line2D> s_Lines;
 		static std::vector<DebugSprite> s_Sprites;
 		static int s_TexSlots[16];
 		static Handle<Shader> s_Shader;
 		static int s_MaxBatchSize;
-		static Scene* s_Scene;
+		static SceneData* s_Scene;
 	};
 }

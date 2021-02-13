@@ -14,7 +14,9 @@ project "CocoaEditor"
     }
 
     disablewarnings { 
-        "4251" 
+        "4251",
+        "4131",
+        "4267"
     }
 
     includedirs {
@@ -43,7 +45,8 @@ project "CocoaEditor"
     }
 
     defines {
-        "ENTT_API_IMPORT"
+        "ENTT_API_IMPORT",
+        "_CRT_SECURE_NO_WARNINGS"
     }
 
     filter { "system:windows", "configurations:Debug" }

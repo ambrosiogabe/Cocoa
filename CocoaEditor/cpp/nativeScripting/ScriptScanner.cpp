@@ -15,7 +15,7 @@ namespace Cocoa
 
 	std::vector<Token> ScriptScanner::ScanTokens()
 	{
-		Log::Log("Scanning file '%s'", m_Filepath.Filepath());
+		Log::Log("Scanning file '%s'", m_Filepath.Path.c_str());
 		auto tokens = std::vector<Token>();
 
 		m_Cursor = 0;

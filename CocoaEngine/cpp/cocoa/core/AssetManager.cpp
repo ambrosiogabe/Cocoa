@@ -49,7 +49,7 @@ namespace Cocoa
 		Handle<Shader> shader = GetShader(path);
 		if (!shader.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Filepath());
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
 			return shader;
 		}
 
@@ -60,7 +60,7 @@ namespace Cocoa
 		if (index == -1)
 		{
 			index = s_Shaders.size();
-			s_Shaders.emplace_back(Shader{ absPath.Filepath(), isDefault });
+			s_Shaders.emplace_back(Shader{ absPath, isDefault });
 		}
 		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 		else
@@ -69,7 +69,7 @@ namespace Cocoa
 			Log::Assert(s_Shaders[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
 			if (s_Shaders[index].IsNull())
 			{
-				s_Shaders[index] = { absPath.Filepath(), isDefault };
+				s_Shaders[index] = { absPath, isDefault };
 			}
 			else
 			{
@@ -78,7 +78,7 @@ namespace Cocoa
 		}
 
 		Shader& newShader = s_Shaders.at(index);
-		newShader.Compile(newShader.GetPath().Filepath());
+		newShader.Compile(newShader.GetPath().Path.c_str());
 		return Handle<Shader>(index);
 	}
 
@@ -115,7 +115,7 @@ namespace Cocoa
 		Handle<Texture> textureHandle = GetTexture(texture.Path);
 		if (!textureHandle.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Filepath());
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Path.c_str());
 			return textureHandle;
 		}
 
@@ -146,7 +146,7 @@ namespace Cocoa
 			}
 		}
 
-		return Handle<Font>(index);
+		return Handle<Texture>(index);
 	}
 
 	Handle<Texture> AssetManager::LoadTextureFromFile(Texture& texture, const CPath& path, int id)
@@ -154,7 +154,7 @@ namespace Cocoa
 		Handle<Texture> textureHandle = GetTexture(path);
 		if (!textureHandle.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Filepath());
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
 			return textureHandle;
 		}
 
@@ -204,7 +204,7 @@ namespace Cocoa
 		{
 			if (font.m_Path == path)
 			{
-				return Handle<Texture>(i);
+				return Handle<Font>(i);
 			}
 			i++;
 		}
@@ -217,7 +217,7 @@ namespace Cocoa
 		Handle<Font> font = GetFont(path);
 		if (!font.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'.", path.Filepath());
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", path.Path.c_str());
 			return font;
 		}
 
@@ -255,7 +255,7 @@ namespace Cocoa
 		Handle<Font> font = GetFont(fontFile);
 		if (!font.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Filepath());
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Path.c_str());
 			return font;
 		}
 
@@ -352,10 +352,10 @@ namespace Cocoa
 				uint32 resourceId = -1;
 				JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
 
-				CPath path = "";
+				CPath path = NCPath::CreatePath();
 				if (assetJson.contains("Filepath"))
 				{
-					path = CPath(assetJson["Filepath"], false);
+					path = NCPath::CreatePath(assetJson["Filepath"], false);
 				}
 
 				if (resourceId >= 0)

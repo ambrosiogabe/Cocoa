@@ -21,12 +21,13 @@ namespace Cocoa
 			m_PhysicsTime = 0.0f;
 		}
 
-		void Destroy(Scene* scene)
+		void Destroy(SceneData& scene)
 		{
-			auto view = scene->GetRegistry().view<Rigidbody2D>();
-			for (Entity entity : view)
+			auto view = scene.Registry.view<Rigidbody2D>();
+			for (entt::entity rawEntity : view)
 			{
-				Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
+				Entity entity = { rawEntity, &scene };
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 
 				// Manually destroy all bodies, in case the physics system would like
 				// to use this world again
@@ -46,10 +47,10 @@ namespace Cocoa
 
 		void AddEntity(Entity entity)
 		{
-			if (entity.HasComponent<TransformData, Rigidbody2D>())
+			if (NEntity::HasComponent<TransformData, Rigidbody2D>(entity))
 			{
-				TransformData& transform = entity.GetComponent<TransformData>();
-				Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
+				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 
 				b2BodyDef bodyDef;
 				bodyDef.position.Set(transform.Position.x, transform.Position.y);
@@ -76,24 +77,24 @@ namespace Cocoa
 				rb.m_RawRigidbody = body;
 
 				b2PolygonShape shape;
-				if (entity.HasComponent<Box2D>())
+				if (NEntity::HasComponent<Box2D>(entity))
 				{
-					Box2D& box = entity.GetComponent<Box2D>();
+					Box2D& box = NEntity::GetComponent<Box2D>(entity);
 					shape.SetAsBox(box.m_HalfSize.x * transform.Scale.x, box.m_HalfSize.y * transform.Scale.y);
 					b2Vec2 pos = bodyDef.position;
 					bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.Scale.x, pos.y - box.m_HalfSize.y * transform.Scale.y);
 				}
-				else if (entity.HasComponent<Circle>())
+				else if (NEntity::HasComponent<Circle>(entity))
 				{
 					// TODO: IMPLEMENT ME
-					Circle& circle = entity.GetComponent<Circle>();
+					Circle& circle = NEntity::GetComponent<Circle>(entity);
 				}
 
 				body->CreateFixture(&shape, rb.m_Mass);
 			}
 		}
 
-		void Update(Scene* scene, float dt)
+		void Update(SceneData& scene, float dt)
 		{
 			m_PhysicsTime += dt;
 			while (m_PhysicsTime > 0.0f)
@@ -102,11 +103,12 @@ namespace Cocoa
 				m_PhysicsTime -= Settings::Physics2D::s_Timestep;
 			}
 
-			auto view = scene->GetRegistry().view<TransformData, Rigidbody2D>();
-			for (Entity entity : view)
+			auto view = scene.Registry.view<TransformData, Rigidbody2D>();
+			for (entt::entity rawEntity : view)
 			{
-				TransformData& transform = entity.GetComponent<TransformData>();
-				Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
+				Entity entity = { rawEntity, &scene };
+				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
 				b2Vec2 position = body->GetPosition();
 				transform.Position.x = position.x;
@@ -122,7 +124,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"AABB", {
-					{"Entity", entity.GetID()},
+					{"Entity", NEntity::GetID(entity)},
 					halfSize,
 					offset
 				}}
@@ -135,7 +137,7 @@ namespace Cocoa
 			box.m_HalfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
 			box.m_Size = box.m_HalfSize * 2.0f;
 			box.m_Offset = CMath::DeserializeVec2(j["AABB"]["Offset"]);
-			entity.AddComponent<AABB>(box);
+			NEntity::AddComponent<AABB>(entity, box);
 		}
 
 		void Serialize(json& j, Entity entity, const Box2D& box)
@@ -144,7 +146,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Box2D", {
-					{"Entity", entity.GetID()},
+					{"Entity", NEntity::GetID(entity)},
 					halfSize,
 				}}
 			};
@@ -155,7 +157,7 @@ namespace Cocoa
 			Box2D box;
 			box.m_HalfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
 			box.m_Size = box.m_HalfSize * 2.0f;
-			entity.AddComponent<Box2D>(box);
+			NEntity::AddComponent<Box2D>(entity, box);
 		}
 
 		void Serialize(json& j, Entity entity, const Rigidbody2D& rb)
@@ -169,7 +171,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Rigidbody2D", {
-					{"Entity", entity.GetID()},
+					{"Entity", NEntity::GetID(entity)},
 					angularDamping,
 					linearDamping,
 					mass,
@@ -189,7 +191,7 @@ namespace Cocoa
 			rb.m_Velocity = CMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
 			rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
 			rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
-			entity.AddComponent<Rigidbody2D>(rb);
+			NEntity::AddComponent<Rigidbody2D>(entity, rb);
 		}
 	}
 }

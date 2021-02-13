@@ -8,62 +8,34 @@
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/events/Event.h"
+#include "cocoa/scenes/SceneData.h"
+#include "cocoa/core/Entity.h"
 
 #include <entt/entt.hpp>
 
 namespace Cocoa
 {
-	class Camera;
-	class Entity;
-	class COCOA Scene
+	namespace Scene
 	{
-	public:
-		Scene(SceneInitializer* sceneInitializer);
+		COCOA SceneData Create(SceneInitializer* sceneInitializer);
 
-		void Init();
-		void Start();
-		void Update(float dt);
-		void EditorUpdate(float dt);
-		void Render();
-		void Destroy();
+		COCOA void Init(SceneData& data);
+		COCOA void Start(SceneData& data);
+		COCOA void Update(SceneData& data, float dt);
+		COCOA void EditorUpdate(SceneData& data, float dt);
+		COCOA void OnEvent(SceneData& data, const Event& e);
+		COCOA void Render(SceneData& data);
+		COCOA void Destroy(SceneData& data);
 
-		void Play();
-		void Stop();
-		void Save(const CPath& filename);
-		void Load(const CPath& filename);
-		void LoadScriptsOnly(const CPath& filename);
-		void Reset();
-		void OnEvent(const Event& e);
+		COCOA void Play(SceneData& data);
+		COCOA void Stop(SceneData& data);
+		COCOA void Save(SceneData& data, const CPath& filename);
+		COCOA void Load(SceneData& data, const CPath& filename);
+		COCOA void LoadScriptsOnly(SceneData& data, const CPath& filename);
+		COCOA void Reset(SceneData& data);
 
-		Entity CreateEntity();
-		Entity DuplicateEntity(Entity entity);
-		Entity GetEntity(uint32 id);
-
-		inline Camera* GetCamera() { return m_Camera; }
-		inline entt::registry& GetRegistry() { return m_Registry; }
-
-		// TODO: TEMPORARY GET BETTER SYSTEM THAN THESE!!!
-		inline json& GetSaveDataJson() { return m_SaveDataJson; }
-		inline bool IsPlaying() { return m_IsPlaying; }
-
-	public:
-		PickingTexture m_PickingTexture;
-
-	protected:
-		void LoadDefaultAssets();
-
-	protected:
-		Handle<Shader> m_PickingShader;
-		Handle<Shader> m_DefaultShader;
-
-		bool m_IsPlaying;
-
-		entt::registry m_Registry;
-		json m_SaveDataJson;
-
-		Camera* m_Camera;
-		SceneInitializer* m_SceneInitializer;
-
-		friend class Entity;
+		COCOA Entity CreateEntity(SceneData& data);
+		COCOA Entity DuplicateEntity(SceneData& data, Entity entity);
+		COCOA Entity GetEntity(SceneData& data, uint32 id);
 	};
 }

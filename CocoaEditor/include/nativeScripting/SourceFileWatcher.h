@@ -12,7 +12,7 @@ namespace Cocoa
 	{
 	public:
 		SourceFileWatcher() 
-			: m_RootDirectory("") {}
+			: m_RootDirectory(NCPath::CreatePath()) {}
 		SourceFileWatcher(CPath path);
 		~SourceFileWatcher() { m_FileWatcher.Stop(); }
 

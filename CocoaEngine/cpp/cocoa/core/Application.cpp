@@ -8,10 +8,10 @@
 namespace Cocoa
 {
 	// Stub methods
-	static void AppOnUpdate(Scene* scene, float dt) { }
-	static void AppOnAttach(Scene* scene) { }
-	static void AppOnRender(Scene* scene) { }
-	static void AppOnEvent(Scene* scene, Event& e) { }
+	static void AppOnUpdate(SceneData& scene, float dt) { }
+	static void AppOnAttach(SceneData& scene) { }
+	static void AppOnRender(SceneData& scene) { }
+	static void AppOnEvent(SceneData& scene, Event& e) { }
 
 	Application::Application()
 	{
@@ -21,8 +21,6 @@ namespace Cocoa
 		Log::Info("Initializing GLAD functions in DLL.");
 		m_Window = CWindow::Create(1920, 1080, title);
 		s_Instance = this;
-
-		m_Framebuffer = new Framebuffer(3840, 2160);
 
 		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 	}
@@ -79,24 +77,23 @@ namespace Cocoa
 		m_AppData.AppOnEvent(m_CurrentScene, e);
 	}
 
-	Framebuffer* Application::GetFramebuffer() const
-	{
-		return m_Framebuffer;
-	}
-
 	void Application::ChangeScene(SceneInitializer* sceneInitializer)
 	{
-		if (m_CurrentScene != nullptr)
+		if (m_CurrentScene.CurrentSceneInitializer != nullptr)
 		{
-			delete m_CurrentScene;
+			delete m_CurrentScene.CurrentSceneInitializer;
 		}
 
-		this->m_CurrentScene = new Scene(sceneInitializer);
-		this->m_CurrentScene->Init();
-		this->m_CurrentScene->Start();
+		if (m_CurrentScene.SceneCamera != nullptr)
+		{
+			delete m_CurrentScene.SceneCamera;
+		}
+
+		m_CurrentScene = Scene::Create(sceneInitializer);
+		Scene::Init(m_CurrentScene);
+		Scene::Start(m_CurrentScene);
 		
-		Entity::SetScene(this->m_CurrentScene);
-		DebugDraw::Init(this->m_CurrentScene);
+		DebugDraw::Init(&m_CurrentScene);
 	}
 
 	void Application::Stop()

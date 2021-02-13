@@ -3,16 +3,16 @@
 #include "externalLibs.h"
 
 #include "cocoa/scenes/SceneInitializer.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
-	class Scene;
 	class LevelEditorSceneInitializer : public SceneInitializer
 	{
 	public:
 		LevelEditorSceneInitializer() {}
 
-		virtual void Init(Scene* scene) override;
-		virtual void Start(Scene* scene) override;
+		virtual void Init(SceneData& scene) override;
+		virtual void Start(SceneData& scene) override;
 	};
 }

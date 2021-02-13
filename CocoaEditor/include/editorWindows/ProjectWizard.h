@@ -3,14 +3,15 @@
 #include "externalLibs.h"
 
 #include "cocoa/renderer/Texture.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
 	namespace ProjectWizard
 	{
 		void Init();
-		void ImGui(Scene* scene);
+		void ImGui(SceneData& scene);
 
-		void CreateProjectImGui(Scene* scene, bool& windowOpen);
+		void CreateProjectImGui(SceneData& scene, bool& windowOpen);
 	};
 }

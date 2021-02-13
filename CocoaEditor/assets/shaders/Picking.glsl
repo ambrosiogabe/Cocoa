@@ -32,7 +32,7 @@ in float fTexSlot;
 
 uniform sampler2D uTextures[16];
 
-out uint FragColor;
+layout(location = 0) out uint FragColor;
 
 void main() 
 {
@@ -87,8 +87,9 @@ void main()
             break;
     }
 
-	if (texColor.a < 0.5) {
-        discard;
+	if (texColor.a < 0.2) {
+        FragColor = 32U;
+    } else  {
+        FragColor = 32U;//fEntityID;
     }
-    FragColor = fEntityID;
 }

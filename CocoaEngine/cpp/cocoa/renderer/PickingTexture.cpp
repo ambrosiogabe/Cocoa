@@ -14,9 +14,12 @@ namespace Cocoa
 
 	PickingTexture::~PickingTexture()
 	{
-		glDeleteTextures(1, &m_PickingTexture);
-		glDeleteTextures(1, &m_DepthTexture);
-		glDeleteFramebuffers(1, &m_FBO);
+		if (m_PickingTexture != -1)
+		{
+			glDeleteTextures(1, &m_PickingTexture);
+			glDeleteTextures(1, &m_DepthTexture);
+			glDeleteFramebuffers(1, &m_FBO);
+		}
 	}
 
 	bool PickingTexture::Init(uint32 windowWidth, uint32 windowHeight)
@@ -36,18 +39,6 @@ namespace Cocoa
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, windowWidth, windowHeight, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, NULL);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_PickingTexture, 0);
 
-		// Create the texture object for the depth buffer
-		glEnable(GL_TEXTURE_2D);
-		glGenTextures(1, &m_DepthTexture);
-		glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
-
-		// Disable reading to avoid problems with older GPU's
-		glReadBuffer(GL_NONE);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
 		// Verify that the FBO is correct
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -65,49 +56,30 @@ namespace Cocoa
 			return false;
 		}
 
-		GLenum error;
-		while ((error = glGetError()) != GL_NO_ERROR)
-		{
-			Log::Error("Error creating framebuffer (GL ERROR): 0x%x", error);
-			return false;
-		}
-
 		// Restore the default framebuffer 
-		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		return true;
 	}
 
-	void PickingTexture::EnableWriting()
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO);
-	}
-
-	void PickingTexture::DisableWriting()
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	}
-
 	PickingTexture::PixelInfo PickingTexture::ReadPixel(uint32 x, uint32 y) const
 	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO);
 		glReadBuffer(GL_COLOR_ATTACHMENT0);
 
-		PixelInfo pixel;
-		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
-		if (pixel.m_EntityID < 1)
+		uint32 pixel;
+		glReadPixels(1, 1, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
+		if (pixel < 1)
 		{
-			pixel.m_EntityID = std::numeric_limits<uint32>::max();
+			pixel = std::numeric_limits<uint32>::max();
 		}
 		else
 		{
-			pixel.m_EntityID--;
+			pixel--;
 		}
 
-		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-		return pixel;
+		return PixelInfo(pixel);
 	}
 }

@@ -7,6 +7,9 @@
 #include "cocoa/events/Input.h"
 #include "cocoa/core/AssetManager.h"
 
+#include "cocoa/util/DynamicArray.h"
+#include "cocoa/util/Log.h"
+
 #include <Windows.h>
 
 extern Cocoa::Application* Cocoa::CreateApplication();

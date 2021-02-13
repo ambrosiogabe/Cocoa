@@ -7,16 +7,16 @@ namespace Cocoa
         // =======================================================================
         // General Settings
         // =======================================================================
-        CPath General::s_ImGuiConfigPath = "default.ini";
-        CPath General::s_EngineAssetsPath = "assets";
-        CPath General::s_EngineExeDirectory = "";
-        CPath General::s_EngineSourceDirectory = "";
-        CPath General::s_CurrentScene = "New Scene.cocoa";
-        CPath General::s_CurrentProject = "New Project.cprj";
-        CPath General::s_StylesDirectory = "assets\\styles";
-        CPath General::s_WorkingDirectory = "";
-        CPath General::s_EditorSaveData = "EditorSaveData.json";
-        CPath General::s_EditorStyleData = "EditorStyle.json";
+        CPath General::s_ImGuiConfigPath = NCPath::CreatePath("default.ini");
+        CPath General::s_EngineAssetsPath = NCPath::CreatePath("assets");
+        CPath General::s_EngineExeDirectory = NCPath::CreatePath();
+        CPath General::s_EngineSourceDirectory = NCPath::CreatePath();
+        CPath General::s_CurrentScene = NCPath::CreatePath("New Scene.cocoa");
+        CPath General::s_CurrentProject = NCPath::CreatePath("New Project.cprj");
+        CPath General::s_StylesDirectory = NCPath::CreatePath("assets\\styles");
+        CPath General::s_WorkingDirectory = NCPath::CreatePath();
+        CPath General::s_EditorSaveData = NCPath::CreatePath("EditorSaveData.json");
+        CPath General::s_EditorStyleData = NCPath::CreatePath("EditorStyle.json");
 
         // =======================================================================
         // Physics Settings

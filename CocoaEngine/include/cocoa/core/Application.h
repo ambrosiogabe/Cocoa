@@ -5,16 +5,16 @@
 #include "cocoa/core/CWindow.h"
 #include "cocoa/events/Event.h"
 #include "cocoa/events/WindowEvent.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
-	class Scene;
 	class SceneInitializer;
 
-	typedef void (*AppOnUpdateFn)(Scene* scene, float dt);
-	typedef void (*AppOnAttachFn)(Scene* scene);
-	typedef void (*AppOnRenderFn)(Scene* scene);
-	typedef void (*AppOnEventFn)(Scene* scene, Event& e);
+	typedef void (*AppOnUpdateFn)(SceneData& scene, float dt);
+	typedef void (*AppOnAttachFn)(SceneData& scene);
+	typedef void (*AppOnRenderFn)(SceneData& scene);
+	typedef void (*AppOnEventFn)(SceneData& scene, Event& e);
 
 	struct ApplicationData
 	{
@@ -38,7 +38,6 @@ namespace Cocoa
 
 		virtual void OnEvent(Event& e);
 
-		Framebuffer* GetFramebuffer() const;
 		void ChangeScene(SceneInitializer* scene);
 		CWindow* GetWindow() const;
 
@@ -58,8 +57,7 @@ namespace Cocoa
 		float m_LastFrameTime = 0;
 
 	protected:
-		Framebuffer* m_Framebuffer = nullptr;
-		Scene* m_CurrentScene = nullptr;
+		SceneData m_CurrentScene;
 		CWindow* m_Window;
 		ApplicationData m_AppData;
 	};

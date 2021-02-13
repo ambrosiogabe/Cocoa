@@ -24,7 +24,7 @@ namespace Cocoa
 		
 		static bool mCreatingProject = false;
 		static char mTmpFilename[256];
-		static CPath mNewProjectPath = "";
+		static CPath mNewProjectPath = NCPath::CreatePath();
 
 		void Init()
 		{
@@ -35,7 +35,7 @@ namespace Cocoa
 			mJadeLogo.MinFilter = FilterMode::Linear;
 			mJadeLogo.WrapS = WrapMode::Repeat;
 			mJadeLogo.WrapT = WrapMode::Repeat;
-			TextureUtil::Generate(mJadeLogo, CPath("assets/jadeLogo.png"));
+			TextureUtil::Generate(mJadeLogo, NCPath::CreatePath("assets/jadeLogo.png"));
 
 			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.Width / 2.0f);
 			mTexturePos.y = mIdealSize.y / 10.0f;
@@ -45,7 +45,7 @@ namespace Cocoa
 			mOpenProjectButtonPos = mCreateProjectButtonPos + glm::vec2(0.0f, mButtonSize.y) + glm::vec2(0.0f, mPadding.y);
 		}
 
-		void ImGui(Scene* scene)
+		void ImGui(SceneData& scene)
 		{
 			static bool open = true;
 			if (mVersionPos.x < 0 && mVersionPos.y < 0)
@@ -62,7 +62,7 @@ namespace Cocoa
 			ImGui::Begin("Create or Open Project", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
 			ImGui::SetCursorPos(ImVec2(mTexturePos.x, mTexturePos.y));
-			ImGui::Image(reinterpret_cast<void*>(mJadeLogo.GraphicsId), ImVec2(mJadeLogo.Width, mJadeLogo.Height));
+			ImGui::Image((void*)(mJadeLogo.GraphicsId), ImVec2((float)mJadeLogo.Width, (float)mJadeLogo.Height));
 			ImGui::SetCursorPos(ImVec2(mVersionPos.x, mVersionPos.y));
 			ImGui::Text("Version 1.0 Alpha");
 
@@ -78,7 +78,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (IFileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
-					if (!EditorLayer::LoadProject(scene, CPath(res.filepath)))
+					if (!EditorLayer::LoadProject(scene, NCPath::CreatePath(res.filepath)))
 					{
 						Log::Warning("Unable to load project: %s", res.filepath.c_str());
 					}
@@ -94,14 +94,14 @@ namespace Cocoa
 		}
 
 
-		void CreateProjectImGui(Scene* scene, bool& windowOpen)
+		void CreateProjectImGui(SceneData& scene, bool& windowOpen)
 		{
 			ImGui::Begin("Create New Project", &windowOpen);
 
 			ImGui::LabelText("##tmp_projectname", "Project Name:");
 			ImGui::InputText("##tmp_filename", mTmpFilename, 256);
 			ImGui::LabelText("##tmp_projectdir", "Project Directory:");
-			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.Filepath());
+			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.Path.c_str());
 			ImGui::SameLine();
 
 			if (CImGui::Button("Choose Directory"))
@@ -109,7 +109,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (IFileDialog::GetOpenFolderName(".", res))
 				{
-					mNewProjectPath = res.filepath;
+					mNewProjectPath = NCPath::CreatePath(res.filepath);
 				}
 			}
 

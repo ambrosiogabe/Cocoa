@@ -32,8 +32,8 @@ namespace Cocoa
 		static void SaveScriptStub(json&) {}
 		static void LoadScriptStub(json&, Entity) {}
 		static void ImGuiStub(Entity) {}
-		static void UpdateScriptStub(float, Scene*) {}
-		static void EditorUpdateScriptStub(float, Scene*) {}
+		static void UpdateScriptStub(float, SceneData*) {}
+		static void EditorUpdateScriptStub(float, SceneData*) {}
 		static void AddComponentFromStringStub(std::string, entt::entity, entt::registry&) { Log::Warning("Adding component from STUB"); }
 
 		static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
@@ -52,19 +52,19 @@ namespace Cocoa
 			Reload();
 		}
 
-		void Update(Scene* scene, float dt)
+		void Update(SceneData& scene, float dt)
 		{
 			if (m_UpdateScripts)
 			{
-				m_UpdateScripts(dt, scene);
+				m_UpdateScripts(dt, &scene);
 			}
 		}
 
-		void EditorUpdate(Scene* scene, float dt)
+		void EditorUpdate(SceneData& scene, float dt)
 		{
 			if (m_EditorUpdateScripts)
 			{
-				m_EditorUpdateScripts(dt, scene);
+				m_EditorUpdateScripts(dt, &scene);
 			}
 		}
 
@@ -75,10 +75,11 @@ namespace Cocoa
 				if (!FreeScriptLibrary()) return;
 			}
 
-			CPath scriptDllPath = Settings::General::s_EngineExeDirectory + CPath("ScriptModule.dll");
+			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
+			NCPath::Join(scriptDllPath, NCPath::CreatePath("ScriptModule.dll"));
 			if (IFile::IsFile(scriptDllPath))
 			{
-				m_Module = LoadLibraryA(scriptDllPath.Filepath());
+				m_Module = LoadLibraryA(scriptDllPath.Path.c_str());
 
 				if (m_Module)
 				{
