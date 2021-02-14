@@ -84,11 +84,6 @@ namespace Cocoa
 			delete m_CurrentScene.CurrentSceneInitializer;
 		}
 
-		if (m_CurrentScene.SceneCamera != nullptr)
-		{
-			delete m_CurrentScene.SceneCamera;
-		}
-
 		m_CurrentScene = Scene::Create(sceneInitializer);
 		Scene::Init(m_CurrentScene);
 		Scene::Start(m_CurrentScene);

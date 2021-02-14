@@ -29,7 +29,7 @@ namespace Cocoa
 			data.BatchShader = shader;
 			data.ZIndex = zIndex;
 			data.MaxBatchSize = maxBatchSize;
-			data.VertexBufferBase = (Vertex*)malloc(sizeof(Vertex) *data.MaxBatchSize * 4);
+			data.VertexBufferBase = (Vertex*)malloc(sizeof(Vertex) * data.MaxBatchSize * 4);
 			data.VertexStackPointer = &data.VertexBufferBase[0];
 			data.Indices = (uint32*)malloc(sizeof(uint32) * data.MaxBatchSize * 6);
 

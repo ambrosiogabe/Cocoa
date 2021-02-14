@@ -39,9 +39,9 @@ namespace Cocoa
 			return data;
 		}
 
-		void Render(const GizmoData& data, Camera* camera)
+		void Render(const GizmoData& data, const Camera& camera)
 		{
-			float cameraZoom = camera->GetZoom() * 2;
+			float cameraZoom = camera.Zoom * 2;
 			if (data.Active)
 			{
 				DebugDraw::AddSprite(data.TextureAssetId, data.HalfSize * 2.0f * cameraZoom, CMath::Vector2From3(data.Position), data.Tint, data.TexCoordMin, data.TexCoordMax, data.SpriteRotation);
@@ -52,9 +52,9 @@ namespace Cocoa
 			}
 		}
 
-		void GizmoManipulateTranslate(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, Camera* camera)
+		void GizmoManipulateTranslate(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, const Camera& camera)
 		{
-			glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
+			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 			glm::vec3 newPos;
 
@@ -74,14 +74,14 @@ namespace Cocoa
 			CommandHistory::AddCommand(new ChangeVec3Command(transform.Position, newPos));
 		}
 
-		void GizmoManipulateRotate(const GizmoData& data, TransformData& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, Camera* camera)
+		void GizmoManipulateRotate(const GizmoData& data, TransformData& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, const Camera& camera)
 		{
 
 		}
 
-		void GizmoManipulateScale(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, Camera* camera)
+		void GizmoManipulateScale(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, const Camera& camera)
 		{
-			glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
+			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 			float dragSpeed = 0.2f;
 			glm::vec3 delta = glm::vec3(dragSpeed) * startToMouse;
@@ -135,7 +135,7 @@ namespace Cocoa
 			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
 			m_GizmoSpritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_GizmoTexture, 16, 40, 9, 0));
 
-			m_Camera = scene.SceneCamera;
+			m_Camera = &scene.SceneCamera;
 
 			float hzOffsetX = 15;
 			float hzOffsetY = -10;
@@ -184,13 +184,13 @@ namespace Cocoa
 					switch (m_Mode)
 					{
 					case GizmoMode::Translate:
-						Gizmo::GizmoManipulateTranslate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
+						Gizmo::GizmoManipulateTranslate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, *m_Camera);
 						break;
 					case GizmoMode::Rotate:
-						Gizmo::GizmoManipulateRotate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, m_Camera);
+						Gizmo::GizmoManipulateRotate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, *m_Camera);
 						break;
 					case GizmoMode::Scale:
-						Gizmo::GizmoManipulateScale(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_OriginalScale, m_Camera);
+						Gizmo::GizmoManipulateScale(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_OriginalScale, *m_Camera);
 						break;
 					}
 				}
@@ -203,12 +203,12 @@ namespace Cocoa
 					end = 6;
 				}
 
-				glm::vec2 mousePosWorld = m_Camera->ScreenToOrtho();
+				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(*m_Camera);
 				bool anyHot = false;
 				for (int i = start; i < end; i++)
 				{
 					GizmoData& gizmo = Gizmos[i];
-					float cameraZoom = m_Camera->GetZoom() * 2;
+					float cameraZoom = m_Camera->Zoom * 2;
 					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = gizmo.Position + CMath::Vector3From2(gizmo.Box2D.m_Offset) * cameraZoom;
 					if (!m_MouseDragging && Physics2DSystem::PointInBox(mousePosWorld, gizmo.Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
@@ -221,7 +221,7 @@ namespace Cocoa
 					{
 						gizmo.Active = false;
 					}
-					Gizmo::Render(gizmo, m_Camera);
+					Gizmo::Render(gizmo, *m_Camera);
 				}
 				if (!anyHot)
 				{
@@ -281,8 +281,8 @@ namespace Cocoa
 		{
 			if (!m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
-				Camera* camera = scene.SceneCamera;
-				glm::vec2 mousePosWorld = camera->ScreenToOrtho();
+				const Camera& camera = scene.SceneCamera;
+				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
 
 				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
 				const Framebuffer& mainFramebuffer = RenderSystem::GetMainFramebuffer();

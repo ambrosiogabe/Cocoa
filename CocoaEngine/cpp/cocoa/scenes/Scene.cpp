@@ -24,8 +24,6 @@ namespace Cocoa
 		{
 			SceneData data;
 			data.CurrentSceneInitializer = sceneInitializer;
-
-			data.SceneCamera = nullptr;
 			data.IsPlaying = false;
 
 			data.Registry = entt::registry();
@@ -37,7 +35,7 @@ namespace Cocoa
 			LoadDefaultAssets();
 
 			glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
-			data.SceneCamera = new Camera(cameraPos);
+			data.SceneCamera = NCamera::CreateCamera(cameraPos);
 
 			Input::SetScene(&data);
 			NEntity::SetScene(&data);
@@ -58,11 +56,13 @@ namespace Cocoa
 		{
 			Physics2DSystem::Update(data, dt);
 			ScriptSystem::Update(data, dt);
+			NCamera::Update(data.SceneCamera);
 		}
 
 		void EditorUpdate(SceneData& data, float dt)
 		{
 			ScriptSystem::EditorUpdate(data, dt);
+			NCamera::Update(data.SceneCamera);
 		}
 
 		void OnEvent(SceneData& data, const Event& e)
@@ -95,8 +95,6 @@ namespace Cocoa
 			RenderSystem::Destroy();
 			Physics2DSystem::Destroy(data);
 			ScriptSystem::FreeScriptLibrary();
-
-			delete data.SceneCamera;
 		}
 
 		void Play(SceneData& data)

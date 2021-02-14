@@ -82,7 +82,7 @@ namespace Cocoa
 		float currentX = MouseX() - s_GameViewPos.x;
 		currentX = (currentX / s_GameViewSize.x) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
-		tmp = s_Scene->SceneCamera->GetOrthoInverseView() * s_Scene->SceneCamera->GetOrthoInverseProjection() * tmp;
+		tmp = s_Scene->SceneCamera.InverseView * s_Scene->SceneCamera.InverseProjection * tmp;
 
 		return tmp.x;
 	}
@@ -92,18 +92,18 @@ namespace Cocoa
 		float currentY = s_GameViewPos.y - MouseY();
 		currentY = (currentY / s_GameViewSize.y) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
-		tmp = s_Scene->SceneCamera->GetOrthoInverseView() * s_Scene->SceneCamera->GetOrthoInverseProjection() * tmp;
+		tmp = s_Scene->SceneCamera.InverseView * s_Scene->SceneCamera.InverseProjection * tmp;
 
 		return tmp.y;
 	}
 
-	glm::vec2 Input::ScreenToOrtho(Camera* camera)
+	glm::vec2 Input::ScreenToOrtho(const Camera& camera)
 	{
 		glm::vec4 tmp{ s_GameViewMousePos.x, s_GameViewMousePos.y, 0, 1 };
 
 		tmp.x = (tmp.x / s_GameViewSize.x) * 2.0f - 1.0f;
 		tmp.y = -((tmp.y / s_GameViewSize.y) * 2.0f - 1.0f);
-		tmp = camera->GetOrthoInverseView() * camera->GetOrthoInverseProjection() * tmp;
+		tmp = camera.InverseView * camera.InverseProjection * tmp;
 
 		return glm::vec2{ tmp.x, tmp.y };
 	}

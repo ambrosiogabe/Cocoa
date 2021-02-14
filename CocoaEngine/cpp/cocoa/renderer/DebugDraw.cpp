@@ -43,8 +43,8 @@ namespace Cocoa
 
 		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
 		NShader::Bind(shaderRef);
-		NShader::UploadMat4(shaderRef, "uProjection", s_Scene->SceneCamera->GetOrthoProjection());
-		NShader::UploadMat4(shaderRef, "uView", s_Scene->SceneCamera->GetOrthoView());
+		NShader::UploadMat4(shaderRef, "uProjection", s_Scene->SceneCamera.ProjectionMatrix);
+		NShader::UploadMat4(shaderRef, "uView", s_Scene->SceneCamera.ViewMatrix);
 		NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, s_TexSlots);
 
 		//for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
@@ -63,8 +63,8 @@ namespace Cocoa
 	{
 		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
 		NShader::Bind(shaderRef);
-		NShader::UploadMat4(shaderRef, "uProjection", s_Scene->SceneCamera->GetOrthoProjection());
-		NShader::UploadMat4(shaderRef, "uView", s_Scene->SceneCamera->GetOrthoView());
+		NShader::UploadMat4(shaderRef, "uProjection", s_Scene->SceneCamera.ProjectionMatrix);
+		NShader::UploadMat4(shaderRef, "uView", s_Scene->SceneCamera.ViewMatrix);
 		NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, s_TexSlots);
 
 		//for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)

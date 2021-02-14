@@ -27,7 +27,7 @@ namespace Cocoa
 
 		void Init(SceneData& scene)
 		{
-			m_Camera = scene.SceneCamera;
+			m_Camera = &scene.SceneCamera;
 
 			if (m_MainFramebuffer.Fbo != (uint32)-1)
 			{
@@ -150,8 +150,8 @@ namespace Cocoa
 				Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
 				const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
 				NShader::Bind(shader);
-				NShader::UploadMat4(shader, "uProjection", m_Camera->GetOrthoProjection());
-				NShader::UploadMat4(shader, "uView", m_Camera->GetOrthoView());
+				NShader::UploadMat4(shader, "uProjection", m_Camera->ProjectionMatrix);
+				NShader::UploadMat4(shader, "uView", m_Camera->ViewMatrix);
 				NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
 
 				RenderBatch::Render(batch);

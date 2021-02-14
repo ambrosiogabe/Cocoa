@@ -102,18 +102,18 @@ namespace Cocoa
 
 			if (m_IsDragging)
 			{
-				Camera* camera = scene.SceneCamera;
-				glm::vec3 mousePosWorld = CMath::Vector3From2(camera->ScreenToOrtho());
+				Camera& camera = scene.SceneCamera;
+				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				delta *= 0.8f;
-				camera->GetTransform().Position = m_OriginalCameraPos + delta;
+				camera.Transform.Position = m_OriginalCameraPos + delta;
 			}
 
 			// Draw grid lines
 			if (Settings::Editor::DrawGrid)
 			{
-				TransformData& cameraTransform = scene.SceneCamera->GetTransform();
-				float cameraZoom = scene.SceneCamera->GetZoom();
+				TransformData& cameraTransform = scene.SceneCamera.Transform;
+				float cameraZoom = scene.SceneCamera.Zoom;
 				int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
 				int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
 
@@ -226,9 +226,10 @@ namespace Cocoa
 			float yOffset = -e.GetYOffset();
 			if (yOffset != 0)
 			{
-				Camera* camera = scene.SceneCamera;
+				Camera& camera = scene.SceneCamera;
 				//float speed = 500.0f * camera->GetZoom();
-				camera->SetZoom(camera->GetZoom() + (yOffset * 0.05f));
+				camera.Zoom = camera.Zoom + (yOffset * 0.05f);
+				NCamera::AdjustPerspective(camera);
 			}
 
 			return false;
@@ -240,9 +241,9 @@ namespace Cocoa
 			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = true;
-				Camera* camera = scene.SceneCamera;
-				m_OriginalCameraPos = camera->GetTransform().Position;
-				m_OriginalDragClickPos = CMath::Vector3From2(camera->ScreenToOrtho());
+				const Camera& camera = scene.SceneCamera;
+				m_OriginalCameraPos = camera.Transform.Position;
+				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 				//m_DragClickOffset = CMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
 			}
 

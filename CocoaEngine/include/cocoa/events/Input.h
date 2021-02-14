@@ -1,11 +1,10 @@
 #pragma once
 #include "externalLibs.h"
 #include "cocoa/scenes/SceneData.h"
+#include "cocoa/renderer/Camera.h"
 
 namespace Cocoa
 {
-	class Camera;
-
 	class COCOA Input
 	{
 	public:
@@ -28,7 +27,7 @@ namespace Cocoa
 
 		static float OrthoMouseX();
 		static float OrthoMouseY();
-		static glm::vec2 ScreenToOrtho(Camera* camera);
+		static glm::vec2 ScreenToOrtho(const Camera& camera);
 		static glm::vec2 NormalizedMousePos();
 
 		static void SetGameViewPos(const glm::vec2& position);
