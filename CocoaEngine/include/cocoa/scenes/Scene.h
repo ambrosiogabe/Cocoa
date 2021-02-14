@@ -4,7 +4,6 @@
 
 #include "cocoa/file/CPath.h"
 #include "cocoa/scenes/SceneInitializer.h"
-#include "cocoa/renderer/PickingTexture.h"
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/events/Event.h"

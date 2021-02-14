@@ -1,5 +1,4 @@
 #pragma once
-#include "cocoa/renderer/PickingTexture.h"
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Handle.h"
 
@@ -9,9 +8,6 @@ namespace Cocoa
 	class SceneInitializer;
 	struct SceneData
 	{
-		Handle<Shader> ScenePickingShader;
-		Handle<Shader> SceneDefaultShader;
-
 		bool IsPlaying;
 
 		entt::registry Registry;
