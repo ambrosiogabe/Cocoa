@@ -6,11 +6,11 @@
 
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/core/AssetManager.h"

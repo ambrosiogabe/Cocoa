@@ -41,7 +41,7 @@ namespace Cocoa
 			NEntity::SetScene(&data);
 
 			RenderSystem::Init(data);
-			Physics2DSystem::Init({ 0, -10.0f });
+			Physics2D::Init({ 0, -10.0f });
 
 			data.CurrentSceneInitializer->Init(data);
 		}
@@ -54,7 +54,7 @@ namespace Cocoa
 
 		void Update(SceneData& data, float dt)
 		{
-			Physics2DSystem::Update(data, dt);
+			Physics2D::Update(data, dt);
 			ScriptSystem::Update(data, dt);
 			NCamera::Update(data.SceneCamera);
 		}
@@ -93,7 +93,7 @@ namespace Cocoa
 			data.Registry.destroy(view.begin(), view.end());
 
 			RenderSystem::Destroy();
-			Physics2DSystem::Destroy(data);
+			Physics2D::Destroy(data);
 			ScriptSystem::FreeScriptLibrary();
 		}
 
@@ -103,7 +103,7 @@ namespace Cocoa
 			auto view = data.Registry.view<TransformData>();
 			for (auto entity : view)
 			{
-				Physics2DSystem::AddEntity(Entity{entity, &data});
+				Physics2D::AddEntity(Entity{entity, &data});
 			}
 		}
 
@@ -176,17 +176,17 @@ namespace Cocoa
 				else if (it.key() == "Rigidbody2D")
 				{
 					Entity entity = FindOrCreateEntity(component["Rigidbody2D"]["Entity"], data, data.Registry);
-					Physics2DSystem::DeserializeRigidbody2D(component, entity);
+					Physics2D::DeserializeRigidbody2D(component, entity);
 				}
 				else if (it.key() == "Box2D")
 				{
 					Entity entity = FindOrCreateEntity(component["Box2D"]["Entity"], data, data.Registry);
-					Physics2DSystem::DeserializeBox2D(component, entity);
+					Physics2D::DeserializeBox2D(component, entity);
 				}
 				else if (it.key() == "AABB")
 				{
 					Entity entity = FindOrCreateEntity(component["AABB"]["Entity"], data, data.Registry);
-					Physics2DSystem::DeserializeAABB(component, entity);
+					Physics2D::DeserializeAABB(component, entity);
 				}
 				else
 				{

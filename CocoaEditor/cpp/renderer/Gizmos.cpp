@@ -2,7 +2,7 @@
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/InspectorWindow.h"
 
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/renderer/Camera.h"
 #include "cocoa/core/Application.h"
@@ -211,7 +211,7 @@ namespace Cocoa
 					float cameraZoom = m_Camera->Zoom * 2;
 					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = gizmo.Position + CMath::Vector3From2(gizmo.Box2D.m_Offset) * cameraZoom;
-					if (!m_MouseDragging && Physics2DSystem::PointInBox(mousePosWorld, gizmo.Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
+					if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
 					{
 						gizmo.Active = true;
 						m_HotGizmo = i;

@@ -1,4 +1,4 @@
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/core/Application.h"
@@ -7,7 +7,7 @@
 
 namespace Cocoa
 {
-	namespace Physics2DSystem
+	namespace Physics2D
 	{
 		// Internal Variables
 		static b2Vec2 m_Gravity;

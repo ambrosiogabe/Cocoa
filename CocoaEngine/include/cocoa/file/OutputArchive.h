@@ -3,7 +3,7 @@
 
 #include "cocoa/components/Transform.h"
 #include "cocoa/systems/RenderSystem.h"
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/util/Log.h"
 
 #include <nlohmann/json.hpp>
@@ -49,17 +49,17 @@ namespace Cocoa
 			else if (info.id() == entt::type_info<Box2D>().id())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
-				Physics2DSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *box2D);
+				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box2D);
 			}
 			else if (info.id() == entt::type_info<Rigidbody2D>().id())
 			{
 				const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
-				Physics2DSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *rb);
+				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *rb);
 			}
 			else if (info.id() == entt::type_info<AABB>().id())
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
-				Physics2DSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *box);
+				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box);
 			}
 			else
 			{
