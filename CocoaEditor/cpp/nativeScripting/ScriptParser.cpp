@@ -227,7 +227,7 @@ namespace Cocoa
 		"			auto typeName = debugNames.find(any.type().id())->second;\n"
 		"			json compJson;\n"
 		"			compJson[typeName] = {};\n"
-		"			compJson[typeName][\"Entity\"] = entity.GetID();\n"
+		"			compJson[typeName][\"Entity\"] = NEntity::GetID(entity);\n"
 		"\n"
 		"			for (auto data : typeData.data())\n"
 		"			{\n"
@@ -255,7 +255,7 @@ namespace Cocoa
 		"\n";
 
 		// Save Scripts function
-		file << "\t\tvoid SaveScripts(json& j, entt::registry& registry)\n";
+		file << "\t\tvoid SaveScripts(json& j, entt::registry& registry, SceneData* sceneData)\n";
 		file << "\t\t{\n";
 
 		for (auto uclass : m_Classes)
@@ -267,7 +267,7 @@ namespace Cocoa
 			file << "\t\t\t\t{\n";
 			file << "\t\t\t\t\tauto comp = registry.get<" << uclass.m_ClassName.c_str() << ">(entity);\n";
 			file << "\t\t\t\t\tentt::meta_any any = { comp };\n";
-			file << "\t\t\t\t\tSaveScript(any, j, Entity(entity));\n";
+			file << "\t\t\t\t\tSaveScript(any, j, Entity{ entity, sceneData });\n";
 			file << "\t\t\t\t}\n";
 
 			file << "\t\t\t}\n";
@@ -307,7 +307,7 @@ namespace Cocoa
 		file << "\t\tvoid TryLoad(json& j, Entity entity, entt::registry& registry)\n";
 		file << "\t\t{\n";
 		file << "\t\t\tjson::iterator it = j.begin();\n";
-		file << "\t\t\tentt::entity e = entity.GetRawEntity();\n";
+		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e))\n";
 		file << "\t\t\t{\n";
 		file << "\t\t\t\te = registry.create(e);\n";
@@ -369,7 +369,7 @@ namespace Cocoa
 		// ImGui function
 		file << "\t\tvoid ImGui(Entity entity, entt::registry& registry)\n";
 		file << "\t\t{\n";
-		file << "\t\t\tentt::entity e = entity.GetRawEntity();\n";
+		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e)) return;\n";
 
 		i = 0;

@@ -96,7 +96,7 @@ namespace Cocoa
 			source << "\t\t}\n\n";
 
 			// Generate UpdateScripts function
-			source << "\t\textern \"C\" COCOA_SCRIPT void UpdateScripts(float dt, Scene* scene)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void UpdateScripts(float dt)\n";
 			source << "\t\t{\n";
 			for (auto clazz : classes)
 			{
@@ -113,7 +113,7 @@ namespace Cocoa
 
 			// Generate EditorUpdateScripts function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void EditorUpdateScripts(float dt, Scene* scene)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void EditorUpdateScripts(float dt)\n";
 			source << "\t\t{\n";
 			for (auto clazz : classes)
 			{
@@ -130,7 +130,7 @@ namespace Cocoa
 
 			// Generate SaveScript function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void SaveScripts(json& j)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void SaveScripts(json& j, SceneData* sceneData)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Saving scripts\");\n";
 			numVisited = 0;
@@ -139,7 +139,7 @@ namespace Cocoa
 				if (!visitedSourceFile(clazz))
 				{
 					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
-					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registry);\n";
+					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registry, sceneData);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
 					numVisited++;
@@ -268,8 +268,8 @@ namespace Cocoa
 		   "		\"**.hpp\",\n";
 			
 			CPath engineSource = NCPath::CreatePath(Settings::General::s_EngineSourceDirectory.Path.c_str(), true);
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEditor/include/gui/**.h\"\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/include/gui/**.h\"\n";
 			
 			stream << ""
 		   "	}\n"
@@ -281,16 +281,16 @@ namespace Cocoa
 		   "	includedirs {\n"
 		   "		\"%{prj.name}/scripts\",\n";
 
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/include\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/glmVendor\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/enttVendor/single_include\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/glad/include\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/imguiVendor\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/box2DVendor/include\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/nlohmann-json/single_include\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEngine/vendor/GLFW/include\",\n";
-			stream << "\t\t\"" << engineSource.Path.c_str() << "/CocoaEditor/include/gui\"\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/glmVendor\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/enttVendor/single_include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/glad/include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/imguiVendor\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/box2DVendor/include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/nlohmann-json/single_include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/GLFW/include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/include/gui\"\n";
 			
 			stream << ""
 		   "	}\n"
@@ -302,8 +302,8 @@ namespace Cocoa
 			CPath engineExeDir = NCPath::CreatePath(Settings::General::s_EngineExeDirectory.Path.c_str(), true);
 			CPath engineDllDir = NCPath::CreatePath(NCPath::GetDirectory(Settings::General::s_EngineExeDirectory, -1), true);
 			NCPath::Join(engineDllDir, NCPath::CreatePath("CocoaEngine"));
-			stream << "\t\t\"" << engineDllDir.Path.c_str() << "/CocoaEngine.lib\",\n";
-			stream << "\t\t\"" << engineExeDir.Path.c_str() << "/ImGui.lib\"\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineDllDir).c_str() << "/CocoaEngine.lib\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineExeDir).c_str() << "/ImGui.lib\"\n";
 			
 			stream << ""
 		   "	}\n"
@@ -320,7 +320,7 @@ namespace Cocoa
 		   "\n"
 		   "	postbuildcommands {\n";
 
-			stream << "\t\t\"copy /y \\\"$(SolutionDir)bin\\\\ScriptModule\\\\ScriptModule.dll\\\" \\\"" << engineExeDir.Path.c_str() << "/ScriptModuleTmp.dll\\\"\"\n";
+			stream << "\t\t\"copy /y \\\"$(SolutionDir)bin\\\\ScriptModule\\\\ScriptModule.dll\\\" \\\"" << NCPath::LinuxStyle(engineExeDir).c_str() << "/ScriptModuleTmp.dll\\\"\"\n";
 				
 			stream << ""
 		   "	}\n"

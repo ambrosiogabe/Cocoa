@@ -221,6 +221,22 @@ namespace Cocoa
 			return path.Path.find(pathSegment) != std::string::npos;
 		}
 
+		std::string LinuxStyle(const CPath& path)
+		{
+			std::string res = path.Path;
+			int stringLength = (int)res.size();
+			for (int i=0; i < stringLength; i++)
+			{
+				char c = res[i];
+				if (c == WIN_SEPARATOR)
+				{
+					res[i] = '/';
+				}
+			}
+
+			return res;
+		}
+
 		// Internal functions
 		static bool IsSeparator(char c)
 		{

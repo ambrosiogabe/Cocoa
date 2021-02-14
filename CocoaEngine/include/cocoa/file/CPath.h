@@ -30,6 +30,8 @@ namespace Cocoa
 
 		COCOA void Join(CPath& pathToJoin, const CPath& other);
 		COCOA bool Contains(const CPath& path, const char* pathSegment);
+
+		COCOA std::string LinuxStyle(const CPath& path);
 	};
 
 	COCOA bool operator==(const CPath& a, const CPath& b);
