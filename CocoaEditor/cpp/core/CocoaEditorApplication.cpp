@@ -283,7 +283,6 @@ namespace Cocoa
 
 		// Engine initialization
 		Cocoa::AssetManager::Init(0);
-		Cocoa::IFileDialog::Init();
 		Cocoa::IFile::Init();
 		Cocoa::ProjectWizard::Init();
 		Cocoa::Input::Init();
@@ -298,7 +297,6 @@ namespace Cocoa
 	void CocoaEditor::Shutdown()
 	{
 		// Engine shutdown sequence
-		Cocoa::IFileDialog::Destroy();
 		Cocoa::IFile::Destroy();
 	}
 

@@ -7,7 +7,7 @@
 
 #include "cocoa/core/Entity.h"
 #include "cocoa/core/Application.h"
-#include "cocoa/file/IFileDialog.h"
+#include "cocoa/file/FileDialog.h"
 #include "cocoa/file/IFile.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
@@ -93,7 +93,7 @@ namespace Cocoa
 					if (CImGui::MenuButton("Open Project"))
 					{
 						FileDialogResult result{};
-						if (IFileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
+						if (FileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
 						{
 							EditorLayer::LoadProject(scene, NCPath::CreatePath(result.filepath));
 						}
@@ -102,7 +102,7 @@ namespace Cocoa
 					if (CImGui::MenuButton("Save Scene As"))
 					{
 						FileDialogResult result{};
-						if (IFileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+						if (FileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
 							Settings::General::s_CurrentScene = NCPath::CreatePath(result.filepath);
 							Scene::Save(scene, Settings::General::s_CurrentScene);

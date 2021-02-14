@@ -6,7 +6,7 @@
 #include "cocoa/core/CWindow.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/file/IFile.h"
-#include "cocoa/file/IFileDialog.h"
+#include "cocoa/file/FileDialog.h"
 
 namespace Cocoa
 {
@@ -76,7 +76,7 @@ namespace Cocoa
 			if (CImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", mButtonSize) && !mCreatingProject)
 			{
 				FileDialogResult res;
-				if (IFileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
+				if (FileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
 					if (!EditorLayer::LoadProject(scene, NCPath::CreatePath(res.filepath)))
 					{
@@ -107,7 +107,7 @@ namespace Cocoa
 			if (CImGui::Button("Choose Directory"))
 			{
 				FileDialogResult res;
-				if (IFileDialog::GetOpenFolderName(".", res))
+				if (FileDialog::GetOpenFolderName(".", res))
 				{
 					mNewProjectPath = NCPath::CreatePath(res.filepath);
 				}

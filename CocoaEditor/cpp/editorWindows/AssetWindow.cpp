@@ -6,7 +6,7 @@
 
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/file/IFile.h"
-#include "cocoa/file/IFileDialog.h"
+#include "cocoa/file/FileDialog.h"
 #include "cocoa/file/CPath.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Application.h"
@@ -137,7 +137,7 @@ namespace Cocoa
 			{
 				std::string initialPath;
 				FileDialogResult result;
-				if (IFileDialog::GetOpenFileName(initialPath, result))
+				if (FileDialog::GetOpenFileName(initialPath, result))
 				{
 					Texture texSpec;
 					texSpec.IsDefault = false;
@@ -197,7 +197,7 @@ namespace Cocoa
 				if (CImGui::Button("Select Font File", { 0, 0 }, false))
 				{
 					FileDialogResult result;
-					if (IFileDialog::GetOpenFileName(fontPath, result))
+					if (FileDialog::GetOpenFileName(fontPath, result))
 					{
 						fontPath = result.filepath;
 					}

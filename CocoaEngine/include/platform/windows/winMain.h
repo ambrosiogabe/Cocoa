@@ -3,7 +3,7 @@
 #include "cocoa/core/Application.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/file/IFile.h"
-#include "cocoa/file/IFileDialog.h"
+#include "cocoa/file/FileDialog.h"
 #include "cocoa/events/Input.h"
 #include "cocoa/core/AssetManager.h"
 
