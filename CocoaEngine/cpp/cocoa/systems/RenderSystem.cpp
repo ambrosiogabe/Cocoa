@@ -149,10 +149,10 @@ namespace Cocoa
 				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
 				Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
 				const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
-				shader.Bind();
-				shader.UploadMat4("uProjection", m_Camera->GetOrthoProjection());
-				shader.UploadMat4("uView", m_Camera->GetOrthoView());
-				shader.UploadIntArray("uTextures[0]", 16, m_TexSlots);
+				NShader::Bind(shader);
+				NShader::UploadMat4(shader, "uProjection", m_Camera->GetOrthoProjection());
+				NShader::UploadMat4(shader, "uView", m_Camera->GetOrthoView());
+				NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
 
 				RenderBatch::Render(batch);
 				RenderBatch::Clear(batch);

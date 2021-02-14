@@ -181,5 +181,19 @@ namespace Cocoa
 				val > 1 ? 1 :
 				val;
 		}
+
+		uint32 HashString(const char* str)
+		{
+			uint32 hash = 2166136261u;
+			int length = strlen(str);
+
+			for (int i = 0; i < length; i++)
+			{
+				hash ^= str[i];
+				hash *= 16777619;
+			}
+
+			return hash;
+		}
 	}
 }

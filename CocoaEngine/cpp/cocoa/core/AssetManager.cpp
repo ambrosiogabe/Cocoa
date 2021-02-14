@@ -26,7 +26,7 @@ namespace Cocoa
 			return s_Shaders[resourceId];
 		}
 
-		return Shader::nullShader;
+		return NShader::CreateShader();
 	}
 
 	Handle<Shader> AssetManager::GetShader(const CPath& path)
@@ -34,7 +34,7 @@ namespace Cocoa
 		int i = 0;
 		for (auto& shader : s_Shaders)
 		{
-			if (shader.GetPath() == path)
+			if (shader.Filepath == path)
 			{
 				return Handle<Shader>(i);
 			}
@@ -60,16 +60,16 @@ namespace Cocoa
 		if (index == -1)
 		{
 			index = s_Shaders.size();
-			s_Shaders.emplace_back(Shader{ absPath, isDefault });
+			s_Shaders.emplace_back(NShader::CreateShader(absPath, isDefault));
 		}
 		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 		else
 		{
 			Log::Assert(index < s_Shaders.size(), "Id must be smaller then shader size.");
-			Log::Assert(s_Shaders[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
-			if (s_Shaders[index].IsNull())
+			Log::Assert(NShader::IsNull(s_Shaders[index]), "Texture slot must be free to place a texture at the specified id.");
+			if (NShader::IsNull(s_Shaders[index]))
 			{
-				s_Shaders[index] = { absPath, isDefault };
+				s_Shaders[index] = NShader::CreateShader(absPath, isDefault);
 			}
 			else
 			{
@@ -77,8 +77,6 @@ namespace Cocoa
 			}
 		}
 
-		Shader& newShader = s_Shaders.at(index);
-		newShader.Compile(newShader.GetPath().Path.c_str());
 		return Handle<Shader>(index);
 	}
 
@@ -385,8 +383,9 @@ namespace Cocoa
 		// Delete all shaders on clear
 		for (auto& shader : s_Shaders)
 		{
-			shader.Delete();
+			NShader::Delete(shader);
 		}
+		NShader::ClearAllShaderVariables();
 		s_Shaders.clear();
 	}
 }

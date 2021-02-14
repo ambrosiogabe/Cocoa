@@ -42,10 +42,10 @@ namespace Cocoa
 		AddSpritesToBatches();
 
 		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
-		shaderRef.Bind();
-		shaderRef.UploadMat4("uProjection", s_Scene->SceneCamera->GetOrthoProjection());
-		shaderRef.UploadMat4("uView", s_Scene->SceneCamera->GetOrthoView());
-		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
+		NShader::Bind(shaderRef);
+		NShader::UploadMat4(shaderRef, "uProjection", s_Scene->SceneCamera->GetOrthoProjection());
+		NShader::UploadMat4(shaderRef, "uView", s_Scene->SceneCamera->GetOrthoView());
+		NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, s_TexSlots);
 
 		//for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
 		//{
@@ -56,16 +56,16 @@ namespace Cocoa
 		//	}
 		//}
 
-		shaderRef.Unbind();
+		NShader::Unbind(shaderRef);
 	}
 
 	void DebugDraw::DrawTopBatches()
 	{
 		const Shader& shaderRef = AssetManager::GetShader(s_Shader.m_AssetId);
-		shaderRef.Bind();
-		shaderRef.UploadMat4("uProjection", s_Scene->SceneCamera->GetOrthoProjection());
-		shaderRef.UploadMat4("uView", s_Scene->SceneCamera->GetOrthoView());
-		shaderRef.UploadIntArray("uTextures[0]", 16, s_TexSlots);
+		NShader::Bind(shaderRef);
+		NShader::UploadMat4(shaderRef, "uProjection", s_Scene->SceneCamera->GetOrthoProjection());
+		NShader::UploadMat4(shaderRef, "uView", s_Scene->SceneCamera->GetOrthoView());
+		NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, s_TexSlots);
 
 		//for (auto batch = NDynamicArray::Begin<RenderBatch>(s_Batches); batch != NDynamicArray::End<RenderBatch>(s_Batches); batch++)
 		//{
@@ -76,7 +76,7 @@ namespace Cocoa
 		//	}
 		//}
 
-		shaderRef.Unbind();
+		NShader::Unbind(shaderRef);
 	}
 
 	// ===================================================================================================================

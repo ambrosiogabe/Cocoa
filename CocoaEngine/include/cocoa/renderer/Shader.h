@@ -6,42 +6,36 @@ typedef unsigned int GLuint;
 
 namespace Cocoa
 {
-	class COCOA Shader
+	struct Shader
 	{
-	public:
-		Shader();
-		Shader(const CPath& resourceName, bool isDefault=false);
+		uint32 ProgramId;
+		int StartIndex; // This is the start index in the global shader variables vector
+		bool IsDefault;
+		CPath Filepath;
+	};
 
-		void Compile(const char* filepath);
-		void Bind() const;
-		void Unbind() const;
-		void Delete();
+	namespace NShader
+	{
+		COCOA Shader CreateShader();
+		COCOA Shader CreateShader(const CPath& resourceName, bool isDefault=false);
 
-		void UploadVec4(const char* varName, const glm::vec4& vec4) const;
-		void UploadVec3(const char* varName, const glm::vec3& vec3) const;
-		void UploadVec2(const char* varName, const glm::vec2& vec2) const;
-		void UploadFloat(const char* varName, float value) const;
-		void UploadInt(const char* varName, int value) const;
-		void UploadIntArray(const char* varName, int size, int* array) const;
-		void UploadUInt(const char* varName, uint32 value) const;
+		COCOA Shader Compile(const CPath& filepath, bool isDefault=false);
+		COCOA void Bind(const Shader& shader);
+		COCOA void Unbind(const Shader& shader);
+		COCOA void Delete(Shader& shader);
 
-		void UploadMat4(const char* varName, const glm::mat4& mat4) const;
-		void UploadMat3(const char* varName, const glm::mat3& mat3) const;
+		COCOA void UploadVec4(const Shader& shader, const char* varName, const glm::vec4& vec4);
+		COCOA void UploadVec3(const Shader& shader, const char* varName, const glm::vec3& vec3);
+		COCOA void UploadVec2(const Shader& shader, const char* varName, const glm::vec2& vec2);
+		COCOA void UploadFloat(const Shader& shader, const char* varName, float value);
+		COCOA void UploadInt(const Shader& shader, const char* varName, int value);
+		COCOA void UploadIntArray(const Shader& shader, const char* varName, int size, const int* array);
+		COCOA void UploadUInt(const Shader& shader, const char* varName, uint32 value);
 
-		const CPath& GetPath() const { return m_Path; }
-		bool IsNull() const { return m_ShaderProgram == -1; }
+		COCOA void UploadMat4(const Shader& shader, const char* varName, const glm::mat4& mat4);
+		COCOA void UploadMat3(const Shader& shader, const char* varName, const glm::mat3& mat3);
 
-	public:
-		static Shader nullShader;
-
-	private:
-		GLuint GetVariableLocation(const char* varName) const;
-
-	private:
-		CPath m_Path;
-		int m_ShaderProgram;
-		bool m_IsDefault;
-
-		std::unordered_map<std::string, GLuint> m_Variables;
+		COCOA bool IsNull(const Shader& shader);
+		COCOA void ClearAllShaderVariables();
 	};
 }
