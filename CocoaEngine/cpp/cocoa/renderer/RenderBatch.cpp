@@ -318,7 +318,7 @@ namespace Cocoa
 				data.VertexStackPointer->color = glm::vec4(color);
 				data.VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
 				data.VertexStackPointer->texId = (float)texId;
-				data.VertexStackPointer->entityId = (entityId + 1);
+				data.VertexStackPointer->entityId = entityId;
 
 				data.VertexStackPointer++;
 			}
@@ -333,7 +333,7 @@ namespace Cocoa
 				data.VertexStackPointer->color = glm::vec4(color);
 				data.VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
 				data.VertexStackPointer->texId = (float)texId;
-				data.VertexStackPointer->entityId = (entityId + 1);
+				data.VertexStackPointer->entityId = entityId;
 
 				data.VertexStackPointer++;
 			}

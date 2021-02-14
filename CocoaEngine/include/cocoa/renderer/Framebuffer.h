@@ -28,6 +28,8 @@ namespace Cocoa
 
 		COCOA const Texture& GetColorAttachment(const Framebuffer& framebuffer, int index);
 		COCOA void AddColorAttachment(Framebuffer& framebuffer, const Texture& textureSpec); // TODO: The order the attachments are added will be the index they get (change this in the future too...?)
+		COCOA void ClearColorAttachmentUint32(const Framebuffer& framebuffer, int colorAttachment, uint32 clearColor);
+		COCOA uint32 ReadPixelUint32(const Framebuffer& framebuffer, int colorAttachment, int x, int y);
 
 		COCOA void Bind(const Framebuffer& framebuffer);
 		COCOA void Unbind(const Framebuffer& framebuffer);

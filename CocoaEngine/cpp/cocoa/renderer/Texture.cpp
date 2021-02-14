@@ -72,6 +72,56 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
+		uint32 ToGlDataType(ByteFormat format)
+		{
+			switch (format)
+			{
+			case ByteFormat::RGBA8:
+				return GL_FLOAT;
+			case ByteFormat::RGB8:
+				return GL_FLOAT;
+			case ByteFormat::RGBA:
+				return GL_FLOAT;
+			case ByteFormat::RGB:
+				return GL_FLOAT;
+			case ByteFormat::R32UI:
+				return GL_UNSIGNED_INT;
+			case ByteFormat::RED_INTEGER:
+				return GL_UNSIGNED_INT;
+			case ByteFormat::None:
+				return GL_NONE;
+			default:
+				Log::Warning("Unknown glByteFormat '%d'", format);
+			}
+
+			return GL_NONE;
+		}
+
+		bool ByteFormatIsInt(ByteFormat format)
+		{
+			switch (format)
+			{
+			case ByteFormat::RGBA8:
+				return false;
+			case ByteFormat::RGB8:
+				return false;
+			case ByteFormat::RGBA:
+				return false;
+			case ByteFormat::RGB:
+				return false;
+			case ByteFormat::R32UI:
+				return true;
+			case ByteFormat::RED_INTEGER:
+				return true;
+			case ByteFormat::None:
+				return GL_NONE;
+			default:
+				Log::Warning("Unknown glByteFormat '%d'", format);
+			}
+
+			return false;
+		}
+
 		static void BindTextureParameters(const Texture& texture)
 		{
 			if (texture.WrapS != WrapMode::None)

@@ -77,5 +77,7 @@ namespace Cocoa
 		COCOA uint32 ToGl(ByteFormat format);
 		COCOA uint32 ToGl(WrapMode wrapMode);
 		COCOA uint32 ToGl(FilterMode filterMode);
+		COCOA uint32 ToGlDataType(ByteFormat format);
+		COCOA bool ByteFormatIsInt(ByteFormat format);
 	};
 }

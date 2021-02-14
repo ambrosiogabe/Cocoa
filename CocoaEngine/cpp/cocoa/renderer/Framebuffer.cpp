@@ -17,6 +17,13 @@ namespace Cocoa
 			glGenFramebuffers(1, &framebuffer.Fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo);
 
+			if (framebuffer.ColorAttachments.size() > 1)
+			{
+				Log::Assert(framebuffer.ColorAttachments.size() < 8, "Too many framebuffer attachments. Only 8 attachments supported.");
+				static GLenum colorBufferAttachments[8] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
+				glDrawBuffers(framebuffer.ColorAttachments.size(), colorBufferAttachments);
+			}
+
 			// Create texture to render data to and attach it to framebuffer
 			for (int i = 0; i < framebuffer.ColorAttachments.size(); i++)
 			{
@@ -76,6 +83,45 @@ namespace Cocoa
 		const Texture& GetColorAttachment(const Framebuffer& framebuffer, int index)
 		{
 			return framebuffer.ColorAttachments.at(index);
+		}
+
+		void ClearColorAttachmentUint32(const Framebuffer& framebuffer, int colorAttachment, uint32 clearColor)
+		{
+			Log::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
+			const Texture& texture = framebuffer.ColorAttachments[colorAttachment];
+			Log::Assert(TextureUtil::ByteFormatIsInt(texture.InternalFormat) && TextureUtil::ByteFormatIsInt(texture.ExternalFormat), "Cannot clear non-uint texture as if it were a uint texture.");
+
+			uint32 externalFormat = TextureUtil::ToGl(texture.ExternalFormat);
+			uint32 formatType = TextureUtil::ToGlDataType(texture.ExternalFormat);
+			glClearTexImage(texture.GraphicsId, 0, externalFormat, formatType, &clearColor);
+		}
+
+		uint32 ReadPixelUint32(const Framebuffer& framebuffer, int colorAttachment, int x, int y)
+		{
+			Log::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
+			const Texture& texture = framebuffer.ColorAttachments[colorAttachment];
+			Log::Assert(TextureUtil::ByteFormatIsInt(texture.InternalFormat) && TextureUtil::ByteFormatIsInt(texture.ExternalFormat), "Cannot read non-uint texture as if it were a uint texture.");
+			
+			// If we are requesting an out of bounds pixel, return max uint32 which should be a good flag I guess
+			// TODO: Create clearColor member variable in color attachments and return that instead here
+			if (x < 0 || y < 0 || x >= framebuffer.ColorAttachments[colorAttachment].Width || y >= framebuffer.ColorAttachments[colorAttachment].Height)
+			{
+				return (uint32)-1;
+			}
+			
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo);
+			glReadBuffer(GL_COLOR_ATTACHMENT0 + colorAttachment);
+
+			// 128 bits should be big enough for 1 pixel of any format
+			// TODO: Come up with generic way to get any type of pixel data
+			static uint32 pixel;
+			uint32 externalFormat = TextureUtil::ToGl(texture.ExternalFormat);
+			uint32 formatType = TextureUtil::ToGlDataType(texture.ExternalFormat);
+			glReadPixels(x, y, 1, 1, externalFormat, formatType, &pixel);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			return pixel;
 		}
 
 		void Bind(const Framebuffer& framebuffer)

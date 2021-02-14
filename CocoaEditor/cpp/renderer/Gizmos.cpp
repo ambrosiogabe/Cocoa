@@ -12,6 +12,7 @@
 #include "cocoa/core/Entity.h"
 #include "cocoa/commands/ICommand.h"
 #include "cocoa/core/AssetManager.h"
+#include "cocoa/systems/RenderSystem.h"
 
 namespace Cocoa
 {
@@ -284,15 +285,10 @@ namespace Cocoa
 				glm::vec2 mousePosWorld = camera->ScreenToOrtho();
 
 				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
-				//const PickingTexture& pickingTexture = scene.ScenePickingTexture;
-				//pickingTexture.Bind();
-				//PickingTexture::PixelInfo info = pickingTexture.ReadPixel((uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
-				//pickingTexture.Unbind();
-				
-				PickingTexture::PixelInfo info = PickingTexture::PixelInfo((uint32)-1);
+				const Framebuffer& mainFramebuffer = RenderSystem::GetMainFramebuffer();
+				uint32 pixel = NFramebuffer::ReadPixelUint32(mainFramebuffer, 1, (uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
 
-				Entity entity = Scene::GetEntity(scene, info.m_EntityID);
-
+				Entity entity = Scene::GetEntity(scene, pixel);
 				Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();
 
 				m_OriginalDragClickPos = CMath::Vector3From2(mousePosWorld);

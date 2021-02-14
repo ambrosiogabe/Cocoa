@@ -78,6 +78,7 @@ namespace Cocoa
 			glViewport(0, 0, 3840, 2160);
 			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
+			NFramebuffer::ClearColorAttachmentUint32(RenderSystem::GetMainFramebuffer(), 1, (uint32)-1);
 			//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
 
 			DebugDraw::DrawBottomBatches();
