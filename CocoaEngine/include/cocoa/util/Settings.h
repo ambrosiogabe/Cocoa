@@ -6,28 +6,26 @@ namespace Cocoa
 {
 	namespace Settings
 	{
-		class COCOA General
+		namespace General
 		{
-		public:
-			static CPath s_ImGuiConfigPath;
-			static CPath s_EngineAssetsPath;
-			static CPath s_EngineExeDirectory;
-			static CPath s_EngineSourceDirectory;
-			static CPath s_WorkingDirectory;
-			static CPath s_CurrentProject;
-			static CPath s_StylesDirectory;
-			static CPath s_CurrentScene;
-			static CPath s_EditorSaveData;
-			static CPath s_EditorStyleData;
-			static CPath s_EditorStyle;
+			extern COCOA CPath s_ImGuiConfigPath;
+			extern COCOA CPath s_EngineAssetsPath;
+			extern COCOA CPath s_EngineExeDirectory;
+			extern COCOA CPath s_EngineSourceDirectory;
+			extern COCOA CPath s_WorkingDirectory;
+			extern COCOA CPath s_CurrentProject;
+			extern COCOA CPath s_StylesDirectory;
+			extern COCOA CPath s_CurrentScene;
+			extern COCOA CPath s_EditorSaveData;
+			extern COCOA CPath s_EditorStyleData;
+			extern COCOA CPath s_EditorStyle;
 		};
 
-		class COCOA Physics2D
+		namespace Physics2D
 		{
-		public:
-			static int s_VelocityIterations;
-			static int s_PositionIterations;
-			static float s_Timestep;
+			extern COCOA int s_VelocityIterations;
+			extern COCOA int s_PositionIterations;
+			extern COCOA float s_Timestep;
 		};
 	}
 }
