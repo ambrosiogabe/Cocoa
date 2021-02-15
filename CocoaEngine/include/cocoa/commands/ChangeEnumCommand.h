@@ -1,7 +1,5 @@
 #pragma once
-
 #include "cocoa/commands/ICommand.h"
-#include "cocoa/components/components.h"
 
 namespace Cocoa
 {

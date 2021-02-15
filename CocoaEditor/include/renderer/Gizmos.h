@@ -2,8 +2,8 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/components/components.h"
 #include "cocoa/physics2d/PhysicsComponents.h"
+#include "cocoa/components/Sprite.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/scenes/SceneData.h"

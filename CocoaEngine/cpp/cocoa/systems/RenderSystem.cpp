@@ -3,7 +3,7 @@
 #include "cocoa/util/Log.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/core/Application.h"
-#include "cocoa/components/components.h"
+#include "cocoa/core/AssetManager.h"
 #include "cocoa/commands/ICommand.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/DynamicArray.h"

@@ -21,7 +21,6 @@ namespace Cocoa
     namespace ScriptSystem
     {
         COCOA void Start();
-        // TODO: Update these to const pointers, no reason to pass a non-const pointer here
         COCOA void Update(SceneData& scene, float dt);
         COCOA void EditorUpdate(SceneData& scene, float dt);
 

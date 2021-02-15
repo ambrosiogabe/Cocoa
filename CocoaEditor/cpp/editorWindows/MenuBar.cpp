@@ -9,7 +9,7 @@
 #include "cocoa/core/Application.h"
 #include "cocoa/file/FileDialog.h"
 #include "cocoa/file/File.h"
-#include "cocoa/components/components.h"
+#include "cocoa/components/SpriteRenderer.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/util/Settings.h"
 

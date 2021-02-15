@@ -1,7 +1,6 @@
 #include "externalLibs.h"
 
 #include "cocoa/systems/RenderSystem.h"
-#include "cocoa/components/components.h"
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"

@@ -6,13 +6,14 @@
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/renderer/Camera.h"
 #include "cocoa/core/Application.h"
+#include "cocoa/core/AssetManager.h"
 #include "cocoa/core/Core.h"
+#include "cocoa/core/Entity.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
-#include "cocoa/core/Entity.h"
 #include "cocoa/commands/ICommand.h"
-#include "cocoa/core/AssetManager.h"
 #include "cocoa/systems/RenderSystem.h"
+#include "cocoa/components/Spritesheet.h"
 
 namespace Cocoa
 {
@@ -106,7 +107,7 @@ namespace Cocoa
 	{
 		// Internal Variables
 		static Handle<Texture> m_GizmoTexture = {};
-		static std::unique_ptr<Spritesheet> m_GizmoSpritesheet = nullptr;
+		static Spritesheet m_GizmoSpritesheet;
 
 		static bool m_MouseDragging = false;
 		static int m_ActiveGizmo = -1;
@@ -133,7 +134,7 @@ namespace Cocoa
 			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(gizmoTexPath, NCPath::CreatePath("images/gizmos.png"));
 			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
-			m_GizmoSpritesheet = std::unique_ptr<Spritesheet>(new Spritesheet(m_GizmoTexture, 16, 40, 9, 0));
+			m_GizmoSpritesheet = NSpritesheet::CreateSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
 
 			m_Camera = &scene.SceneCamera;
 
@@ -143,14 +144,14 @@ namespace Cocoa
 			float squareOffsetY = 15;
 			float vtOffsetX = -8;
 			float vtOffsetY = 12;
-			Gizmos[0] = Gizmo::CreateGizmo(m_GizmoSpritesheet->GetSprite(1), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-			Gizmos[1] = Gizmo::CreateGizmo(m_GizmoSpritesheet->GetSprite(4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-			Gizmos[2] = Gizmo::CreateGizmo(m_GizmoSpritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+			Gizmos[0] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 1), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+			Gizmos[1] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+			Gizmos[2] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 			Gizmos[2].Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
 
-			Gizmos[3] = Gizmo::CreateGizmo(m_GizmoSpritesheet->GetSprite(2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-			Gizmos[4] = Gizmo::CreateGizmo(m_GizmoSpritesheet->GetSprite(5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-			Gizmos[5] = Gizmo::CreateGizmo(m_GizmoSpritesheet->GetSprite(0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+			Gizmos[3] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+			Gizmos[4] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+			Gizmos[5] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 		}
 
 		void GizmoSystem::ImGui()

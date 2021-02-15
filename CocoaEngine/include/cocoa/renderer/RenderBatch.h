@@ -1,7 +1,8 @@
 #pragma once
 #include "externalLibs.h"
-#include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/Texture.h"

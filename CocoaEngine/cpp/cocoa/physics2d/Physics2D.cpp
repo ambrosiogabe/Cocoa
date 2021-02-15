@@ -1,5 +1,4 @@
 #include "cocoa/physics2d/Physics2D.h"
-#include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"

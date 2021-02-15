@@ -4,7 +4,8 @@
 
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/renderer/Camera.h"
-#include "cocoa/components/components.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/renderer/RenderBatch.h"
 #include "cocoa/util/Settings.h"

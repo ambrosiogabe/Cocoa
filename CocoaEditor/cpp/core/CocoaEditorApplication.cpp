@@ -11,6 +11,7 @@
 #include "cocoa/file/File.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/systems/RenderSystem.h"
+#include "cocoa/core/AssetManager.h"
 
 #include <glad/glad.h>
 #include <nlohmann/json.hpp>

@@ -1,8 +1,6 @@
 #pragma once
 #include "externalLibs.h"
-
 #include "cocoa/commands/ICommand.h"
-#include "cocoa/components/components.h"
 
 namespace Cocoa
 {

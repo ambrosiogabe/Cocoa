@@ -1,5 +1,4 @@
 #pragma once
-// TODO: Rename this file to font, restructure project to be *functional*
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
