@@ -8,7 +8,7 @@
 #include "cocoa/core/Entity.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/file/FileDialog.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/util/Settings.h"
@@ -39,7 +39,7 @@ namespace Cocoa
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
 			ImGui::Begin("Styles", &Settings::Editor::ShowStyleSelect);
-			std::vector<CPath> styles = IFile::GetFilesInDir(Settings::General::s_StylesDirectory);
+			std::vector<CPath> styles = File::GetFilesInDir(Settings::General::s_StylesDirectory);
 			if (ImGui::ListBox("Styles", &Settings::Editor::SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
 				ImGuiLayer::LoadStyle(styles[Settings::Editor::SelectedStyle]);
@@ -136,7 +136,7 @@ namespace Cocoa
 				{
 					if (CImGui::MenuButton("Add Sprite Object"))
 					{
-						Entity entity = NEntity::CreateEntity(&scene);
+						Entity entity = Scene::CreateEntity(scene);
 						NEntity::AddComponent<SpriteRenderer>(entity);
 					}
 

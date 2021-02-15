@@ -7,7 +7,7 @@
 #include "util/Settings.h"
 
 #include "cocoa/core/Application.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/file/CPath.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/JsonExtended.h"
@@ -283,7 +283,7 @@ namespace Cocoa
 
 		void LoadStyle(const CPath& filepath)
 		{
-			File* styleData = IFile::OpenFile(filepath);
+			FileHandle* styleData = File::OpenFile(filepath);
 			if (styleData->m_Data.size() > 0)
 			{
 				json j = json::parse(styleData->m_Data);
@@ -352,9 +352,9 @@ namespace Cocoa
 						}
 					}
 				};
-				IFile::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
+				File::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
 			}
-			IFile::CloseFile(styleData);
+			File::CloseFile(styleData);
 
 			ImGuiStyle* style = &ImGui::GetStyle();
 

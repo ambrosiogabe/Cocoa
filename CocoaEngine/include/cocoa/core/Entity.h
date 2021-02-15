@@ -17,7 +17,6 @@ namespace Cocoa
 
 	namespace NEntity
 	{
-		COCOA Entity CreateEntity(SceneData* scene);
 		COCOA Entity CreateEntity(entt::entity raw);
 		COCOA void SetScene(SceneData* scene);
 		COCOA SceneData* GetScene();

@@ -5,7 +5,7 @@
 #include "util/Settings.h"
 
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/file/FileDialog.h"
 #include "cocoa/file/CPath.h"
 #include "cocoa/util/Settings.h"
@@ -244,7 +244,7 @@ namespace Cocoa
 		{
 			CPath scenesPath = Settings::General::s_WorkingDirectory;
 			NCPath::Join(scenesPath, NCPath::CreatePath("scenes"));
-			auto sceneFiles = IFile::GetFilesInDir(scenesPath);
+			auto sceneFiles = File::GetFilesInDir(scenesPath);
 			int sceneCount = 0;
 			for (auto scenePath : sceneFiles)
 			{
@@ -276,7 +276,7 @@ namespace Cocoa
 		{
 			CPath scriptsPath = Settings::General::s_WorkingDirectory;
 			NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
-			auto scriptFiles = IFile::GetFilesInDir(scriptsPath);
+			auto scriptFiles = File::GetFilesInDir(scriptsPath);
 			int scriptCount = 0;
 			for (auto script : scriptFiles)
 			{
@@ -295,7 +295,7 @@ namespace Cocoa
 				snprintf(&newScriptName[13], 32 - 13, "%d", scriptCount);
 				std::string scriptName = newScriptName;
 
-				CPath cocoaDir = IFile::GetSpecialAppFolder();
+				CPath cocoaDir = File::GetSpecialAppFolder();
 				NCPath::Join(cocoaDir, NCPath::CreatePath("CocoaEngine"));
 				CPath defaultScriptCpp = cocoaDir;
 				NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
@@ -305,8 +305,8 @@ namespace Cocoa
 				CPath scriptsPath = Settings::General::s_WorkingDirectory;
 				NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
 
-				IFile::CopyFile(defaultScriptCpp, scriptsPath, newScriptName);
-				IFile::CopyFile(defaultScriptH, scriptsPath, newScriptName);
+				File::CopyFile(defaultScriptCpp, scriptsPath, newScriptName);
+				File::CopyFile(defaultScriptH, scriptsPath, newScriptName);
 			}
 		}
 	}

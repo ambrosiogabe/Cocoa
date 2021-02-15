@@ -1,6 +1,6 @@
 #include "nativeScripting/ScriptScanner.h"
 
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/Log.h"
 
 namespace Cocoa
@@ -8,9 +8,9 @@ namespace Cocoa
 	ScriptScanner::ScriptScanner(const CPath& filepath)
 		: m_Filepath(filepath)
 	{
-		File* fileHandle = IFile::OpenFile(filepath);
+		FileHandle* fileHandle = File::OpenFile(filepath);
 		m_FileContents = fileHandle->m_Data;
-		IFile::CloseFile(fileHandle);
+		File::CloseFile(fileHandle);
 	}
 
 	std::vector<Token> ScriptScanner::ScanTokens()

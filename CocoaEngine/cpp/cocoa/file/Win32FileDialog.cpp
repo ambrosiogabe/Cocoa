@@ -1,7 +1,6 @@
 // This file is only built on windows systems
 #ifdef _WIN32
 #include "cocoa/file/FileDialog.h"
-#include "cocoa/file/IFile.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/Log.h"
 

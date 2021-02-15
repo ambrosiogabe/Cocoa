@@ -1,7 +1,7 @@
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/renderer/Texture.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/JsonExtended.h"
 
 namespace Cocoa
@@ -53,7 +53,7 @@ namespace Cocoa
 			return shader;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(path);
+		CPath absPath = File::GetAbsolutePath(path);
 		int index = id;
 
 		// If id is -1, we don't care where you place the texture so long as it gets loaded
@@ -117,7 +117,7 @@ namespace Cocoa
 			return textureHandle;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(texture.Path);
+		CPath absPath = File::GetAbsolutePath(texture.Path);
 		int index = id;
 
 		// Make sure to generate texture *before* pushing back since we are pushing back a copy
@@ -156,7 +156,7 @@ namespace Cocoa
 			return textureHandle;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(path);
+		CPath absPath = File::GetAbsolutePath(path);
 		int index = id;
 		texture.Path = path;
 		TextureUtil::Generate(texture, path);
@@ -219,7 +219,7 @@ namespace Cocoa
 			return font;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(path);
+		CPath absPath = File::GetAbsolutePath(path);
 		int index = id;
 
 		// If id is -1, we don't care where you place the font so long as it gets loaded
@@ -257,7 +257,7 @@ namespace Cocoa
 			return font;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(fontFile);
+		CPath absPath = File::GetAbsolutePath(fontFile);
 		int index = s_Fonts.size();
 
 		s_Fonts.push_back(Font{ absPath, false });

@@ -5,7 +5,6 @@
 
 #include "cocoa/core/CWindow.h"
 #include "cocoa/core/Application.h"
-#include "cocoa/file/IFile.h"
 #include "cocoa/file/FileDialog.h"
 
 namespace Cocoa

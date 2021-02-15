@@ -1,5 +1,5 @@
 #pragma once
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/renderer/fonts/DataStructures.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/renderer/Texture.h"

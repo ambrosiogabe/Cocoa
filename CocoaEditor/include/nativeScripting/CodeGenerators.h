@@ -4,7 +4,7 @@
 
 #include "nativeScripting/ScriptParser.h"
 
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/util/Settings.h"
 
@@ -235,7 +235,7 @@ namespace Cocoa
 			source << "\t}\n";
 			source << "}\n";
 
-			IFile::WriteFile(source.str().c_str(), filepath);
+			File::WriteFile(source.str().c_str(), filepath);
 		}
 
 		void GeneratePremakeFile(const CPath& filepath)
@@ -339,7 +339,7 @@ namespace Cocoa
 		   "		runtime \"Release\"\n"
 		   "		optimize \"on\"\n";
 
-			IFile::WriteFile(stream.str().c_str(), filepath);
+			File::WriteFile(stream.str().c_str(), filepath);
 		}
 	};
 }

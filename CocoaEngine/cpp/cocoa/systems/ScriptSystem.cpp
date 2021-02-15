@@ -1,5 +1,5 @@
 #include "cocoa/systems/ScriptSystem.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/Settings.h"
 
 #ifdef _WIN32
@@ -77,7 +77,7 @@ namespace Cocoa
 
 			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
 			NCPath::Join(scriptDllPath, NCPath::CreatePath("ScriptModule.dll"));
-			if (IFile::IsFile(scriptDllPath))
+			if (File::IsFile(scriptDllPath))
 			{
 				m_Module = LoadLibraryA(scriptDllPath.Path.c_str());
 

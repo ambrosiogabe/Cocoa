@@ -13,7 +13,7 @@
 #include "cocoa/renderer/Camera.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 
 #include <imgui.h>
 
@@ -85,19 +85,19 @@ namespace Cocoa
 				initImGui = true;
 			}
 
-			if (IFile::IsFile(tmpScriptDll))
+			if (File::IsFile(tmpScriptDll))
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
 				ScriptSystem::FreeScriptLibrary();
 
-				IFile::DeleteFile(scriptDll);
-				IFile::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
+				File::DeleteFile(scriptDll);
+				File::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
 				ScriptSystem::Reload();
 				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
 				Scene::LoadScriptsOnly(scene, Settings::General::s_CurrentScene);
 
-				IFile::DeleteFile(tmpScriptDll);
+				File::DeleteFile(tmpScriptDll);
 			}
 
 			if (m_IsDragging)

@@ -1,6 +1,6 @@
 #include "cocoa/file/CPath.h"
 #include "cocoa/util/Log.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 
 namespace Cocoa
 {
@@ -25,12 +25,6 @@ namespace Cocoa
 		CPath CreatePath(const std::string& rawPath, bool forceLinuxStylePath)
 		{
 			CPath path;
-			// TODO: Is this needed?
-			//if (forceLinuxStylePath)
-			//{
-			//	m_PathSeparator = '/';
-			//}
-
 			Init(path, rawPath.c_str(), (int)rawPath.size());
 			return path;
 		}
@@ -38,11 +32,6 @@ namespace Cocoa
 		CPath CreatePath(const char* rawPath, bool forceLinuxStylePath)
 		{
 			CPath path;
-			//if (forceLinuxStylePath)
-			//{
-			//	m_PathSeparator = '/';
-			//}
-
 			int pathSize = 0;
 			if (rawPath != nullptr)
 			{
@@ -55,37 +44,6 @@ namespace Cocoa
 			Init(path, rawPath, pathSize);
 			return path;
 		}
-
-		//CPath CPath::operator+(std::string other) const
-		//{
-		//	CPath copy = CPath(*this);
-		//	copy.Join(CPath(other));
-		//	return copy;
-		//}
-
-		//CPath CPath::operator+(const char* other) const
-		//{
-		//	CPath copy = CPath(*this);
-		//	copy.Join(CPath(other));
-		//	return copy;
-		//}
-
-		//CPath CPath::operator+(const CPath& other) const
-		//{
-		//	CPath copy = CPath(*this);
-		//	copy.Join(other);
-		//	return copy;
-		//}
-
-		//void CPath::operator+=(const CPath& other)
-		//{
-		//	this->Join(other);
-		//}
-
-		//char CPath::operator[](int index) const
-		//{
-		//	return m_Filepath[index];
-		//}
 
 		int FilenameSize(const CPath& path)
 		{
@@ -158,7 +116,7 @@ namespace Cocoa
 						if (level < 0)
 						{
 							endCopy = &path.Path[i];
-							if (IFile::IsFile(path) && endCopy == &path.Path[path.FilenameOffset])
+							if (File::IsFile(path) && endCopy == &path.Path[path.FilenameOffset])
 							{
 								// If we reach the beginning of the string then set the end of the copy to the string beginning
 								// so that nothing is copied
@@ -314,8 +272,8 @@ namespace Cocoa
 			return false;
 		}
 
-		CPath tmp1 = IFile::GetAbsolutePath(a);
-		CPath tmp2 = IFile::GetAbsolutePath(b);
+		CPath tmp1 = File::GetAbsolutePath(a);
+		CPath tmp2 = File::GetAbsolutePath(b);
 		return strcmp(tmp1.Path.c_str(), tmp2.Path.c_str()) == 0;
 	}
 }

@@ -1,7 +1,7 @@
 #include "cocoa/scenes/Scene.h"
 
 #include "cocoa/file/OutputArchive.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
@@ -128,7 +128,7 @@ namespace Cocoa
 
 			ScriptSystem::SaveScripts(data.SaveDataJson);
 
-			IFile::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
+			File::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
 		}
 
 		void Load(SceneData& data, const CPath& filename)
@@ -137,7 +137,7 @@ namespace Cocoa
 			Log::Info("Loading scene %s", filename.Path.c_str());
 
 			Settings::General::s_CurrentScene = filename;
-			File* file = IFile::OpenFile(filename);
+			FileHandle* file = File::OpenFile(filename);
 			if (file->m_Data.size() <= 0)
 			{
 				return;
@@ -195,12 +195,12 @@ namespace Cocoa
 				}
 			}
 
-			IFile::CloseFile(file);
+			File::CloseFile(file);
 		}
 
 		void LoadScriptsOnly(SceneData& data, const CPath& filename)
 		{
-			File* file = IFile::OpenFile(filename);
+			FileHandle* file = File::OpenFile(filename);
 			if (file->m_Data.size() <= 0)
 			{
 				return;
@@ -220,7 +220,7 @@ namespace Cocoa
 				}
 			}
 
-			IFile::CloseFile(file);
+			File::CloseFile(file);
 		}
 
 		void Reset(SceneData& data)
@@ -233,7 +233,8 @@ namespace Cocoa
 		{
 			entt::entity e = data.Registry.create();
 			Entity entity = Entity{e, &data};
-			NEntity::AddComponent<TransformData>(entity);
+			TransformData defaultTransform = Transform::CreateTransform();
+			NEntity::AddComponent<TransformData>(entity, defaultTransform);
 			return entity;
 		}
 

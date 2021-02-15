@@ -8,7 +8,7 @@
 #include "nativeScripting/SourceFileWatcher.h"
 #include "renderer/Gizmos.h"
 
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/systems/RenderSystem.h"
 
@@ -35,8 +35,8 @@ namespace Cocoa
 
 		void Init()
 		{
-			Settings::General::s_EngineExeDirectory = NCPath::CreatePath(NCPath::GetDirectory(IFile::GetExecutableDirectory(), -1));
-			Settings::General::s_EngineSourceDirectory = NCPath::CreatePath(NCPath::GetDirectory(IFile::GetExecutableDirectory(), -4));
+			Settings::General::s_EngineExeDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -1));
+			Settings::General::s_EngineSourceDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -4));
 			Log::Info("%s", Settings::General::s_EngineExeDirectory.Path.c_str());
 		}
 
@@ -55,16 +55,16 @@ namespace Cocoa
 				{"WorkingDirectory", Settings::General::s_WorkingDirectory.Path.c_str() }
 			};
 
-			IFile::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
+			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
 			CPath assetsPath = projectPath;
 			NCPath::Join(assetsPath, NCPath::CreatePath("assets"));
-			IFile::CreateDirIfNotExists(assetsPath);
+			File::CreateDirIfNotExists(assetsPath);
 			CPath scriptsPath = projectPath;
 			NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
-			IFile::CreateDirIfNotExists(scriptsPath);
+			File::CreateDirIfNotExists(scriptsPath);
 			CPath scenesPath = projectPath;
 			NCPath::Join(scenesPath, NCPath::CreatePath("scenes"));
-			IFile::CreateDirIfNotExists(scenesPath);
+			File::CreateDirIfNotExists(scenesPath);
 
 			CocoaEditor* application = (CocoaEditor*)Application::Get();
 			Scene::Reset(scene);
@@ -88,12 +88,12 @@ namespace Cocoa
 				{"ImGuiConfig", Settings::General::s_ImGuiConfigPath.Path.c_str()}
 			};
 
-			IFile::WriteFile(saveData.dump(4).c_str(), Settings::General::s_EditorSaveData);
+			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_EditorSaveData);
 		}
 
 		bool LoadEditorData(SceneData& scene, const CPath& path)
 		{
-			File* editorData = IFile::OpenFile(path);
+			FileHandle* editorData = File::OpenFile(path);
 			if (editorData->m_Data.size() > 0)
 			{
 				json j = json::parse(editorData->m_Data);
@@ -112,7 +112,7 @@ namespace Cocoa
 					LoadProject(scene, NCPath::CreatePath(j["ProjectPath"], false));
 				}
 			}
-			IFile::CloseFile(editorData);
+			File::CloseFile(editorData);
 
 			return true;
 		}
@@ -125,7 +125,7 @@ namespace Cocoa
 				{"WorkingDirectory", NCPath::GetDirectory(Settings::General::s_CurrentProject, -1) }
 			};
 
-			IFile::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
+			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
 
 			SaveEditorData();
 		}
@@ -133,7 +133,7 @@ namespace Cocoa
 		bool LoadProject(SceneData& scene, const CPath& path)
 		{
 			Settings::General::s_CurrentProject = path;
-			File* projectData = IFile::OpenFile(Settings::General::s_CurrentProject);
+			FileHandle* projectData = File::OpenFile(Settings::General::s_CurrentProject);
 			if (projectData->m_Data.size() > 0)
 			{
 				json j = json::parse(projectData->m_Data);
@@ -163,15 +163,15 @@ namespace Cocoa
 		void OnAttach(SceneData& scene)
 		{
 			// Set the assets path as CWD (which should be where the exe is currently located)
-			Settings::General::s_EngineAssetsPath = IFile::GetCwd();
+			Settings::General::s_EngineAssetsPath = File::GetCwd();
 			NCPath::Join(Settings::General::s_EngineAssetsPath, NCPath::CreatePath("assets"));
 			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(Settings::General::s_ImGuiConfigPath, NCPath::CreatePath("default.ini"));
 
 			// Create application store data if it does not exist
-			CPath cocoaEngine = IFile::GetSpecialAppFolder();
+			CPath cocoaEngine = File::GetSpecialAppFolder();
 			NCPath::Join(cocoaEngine, NCPath::CreatePath("CocoaEngine"));
-			IFile::CreateDirIfNotExists(cocoaEngine);
+			File::CreateDirIfNotExists(cocoaEngine);
 
 			CPath editorSaveData = cocoaEngine;
 			NCPath::Join(editorSaveData, Settings::General::s_EditorSaveData);
@@ -187,8 +187,8 @@ namespace Cocoa
 			CPath defaultScriptCpp = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("defaultCodeFiles"));
 			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
-			IFile::CopyFile(defaultScriptH, cocoaEngine, "DefaultScript");
-			IFile::CopyFile(defaultScriptCpp, cocoaEngine, "DefaultScript");
+			File::CopyFile(defaultScriptH, cocoaEngine, "DefaultScript");
+			File::CopyFile(defaultScriptCpp, cocoaEngine, "DefaultScript");
 
 			LoadEditorData(scene, Settings::General::s_EditorSaveData);
 		}
@@ -283,7 +283,6 @@ namespace Cocoa
 
 		// Engine initialization
 		Cocoa::AssetManager::Init(0);
-		Cocoa::IFile::Init();
 		Cocoa::ProjectWizard::Init();
 		Cocoa::Input::Init();
 
@@ -296,8 +295,10 @@ namespace Cocoa
 
 	void CocoaEditor::Shutdown()
 	{
-		// Engine shutdown sequence
-		Cocoa::IFile::Destroy();
+		// Engine shutdown sequence... Well maybe we'll add more here at another time
+		// maybe not because at this point the OS should reclaim all resources. But this
+		// would be a good place to put in saving anything that wasn't saved already
+		// TODO: Try to save temporary files just in case the engine shutdown prematurely
 	}
 
 	void CocoaEditor::BeginFrame()
