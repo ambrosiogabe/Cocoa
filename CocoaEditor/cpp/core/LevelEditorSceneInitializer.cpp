@@ -14,11 +14,18 @@ namespace Cocoa
 	void LevelEditorSceneInitializer::Init(SceneData& scene)
 	{
 		InspectorWindow::ClearAllEntities();
+		GizmoSystem::Init(scene);
+		LevelEditorSystem::Init(scene);
 	}
 
 	void LevelEditorSceneInitializer::Start(SceneData& scene)
 	{
-		GizmoSystem::Start(scene);
-		LevelEditorSystem::Start(scene);
+
+	}
+
+	void LevelEditorSceneInitializer::Destroy(SceneData& scene)
+	{
+		GizmoSystem::Destroy(scene);
+		LevelEditorSystem::Destroy(scene);
 	}
 }

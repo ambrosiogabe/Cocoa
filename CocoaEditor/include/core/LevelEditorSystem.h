@@ -12,7 +12,8 @@ namespace Cocoa
 	namespace LevelEditorSystem
 	{
 		void EditorUpdate(SceneData& scene, float dt);
-		void Start(SceneData& scene);
+		void Init(SceneData& scene);
 		void OnEvent(SceneData& scene, Event& e);
+		void Destroy(SceneData& scene);
 	};
 }

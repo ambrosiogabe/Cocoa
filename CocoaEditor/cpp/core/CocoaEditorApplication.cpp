@@ -12,6 +12,7 @@
 #include "cocoa/util/Settings.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/core/AssetManager.h"
+#include "cocoa/core/Memory.h"
 
 #include <glad/glad.h>
 #include <nlohmann/json.hpp>
@@ -68,7 +69,8 @@ namespace Cocoa
 			File::CreateDirIfNotExists(scenesPath);
 
 			CocoaEditor* application = (CocoaEditor*)Application::Get();
-			Scene::Reset(scene);
+			Scene::FreeResources(scene);
+			Scene::Init(scene);
 			Scene::Save(scene, Settings::General::s_CurrentScene);
 			m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(scriptsPath);
 			SaveEditorData();
@@ -95,7 +97,7 @@ namespace Cocoa
 		bool LoadEditorData(SceneData& scene, const CPath& path)
 		{
 			FileHandle* editorData = File::OpenFile(path);
-			if (editorData->m_Data.size() > 0)
+			if (editorData->m_Size > 0)
 			{
 				json j = json::parse(editorData->m_Data);
 				if (!j["EditorStyle"].is_null())
@@ -135,7 +137,8 @@ namespace Cocoa
 		{
 			Settings::General::s_CurrentProject = path;
 			FileHandle* projectData = File::OpenFile(Settings::General::s_CurrentProject);
-			if (projectData->m_Data.size() > 0)
+			bool isLoaded = false;
+			if (projectData->m_Size > 0)
 			{
 				json j = json::parse(projectData->m_Data);
 				if (!j["CurrentScene"].is_null())
@@ -154,11 +157,12 @@ namespace Cocoa
 					NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
 					m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(scriptsPath);
 					static_cast<CocoaEditor*>(Application::Get())->SetProjectLoaded();
-					return true;
+					isLoaded = true;
 				}
 			}
 
-			return false;
+			File::CloseFile(projectData);
+			return isLoaded;
 		}
 
 		void OnAttach(SceneData& scene)
@@ -275,6 +279,9 @@ namespace Cocoa
 
 	void CocoaEditor::Init()
 	{
+		// This won't really do anything in release builds
+		Cocoa::Memory::Init();
+
 		// Initialize GLAD here, so that it works in DLL and exe
 		Log::Info("Initializing GLAD functions in exe.");
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -300,6 +307,15 @@ namespace Cocoa
 		// maybe not because at this point the OS should reclaim all resources. But this
 		// would be a good place to put in saving anything that wasn't saved already
 		// TODO: Try to save temporary files just in case the engine shutdown prematurely
+
+#if _COCOA_DEBUG
+		// In debug builds free all the memory to make sure there are no leaks
+		AssetManager::Clear();
+		Scene::FreeResources(m_CurrentScene);
+#endif
+		
+		// This won't really do anything in release builds
+		Cocoa::Memory::Destroy();
 	}
 
 	void CocoaEditor::BeginFrame()

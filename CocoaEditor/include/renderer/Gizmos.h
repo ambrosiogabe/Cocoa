@@ -59,6 +59,7 @@ namespace Cocoa
         void EditorUpdate(SceneData& scene, float dt);
         void ImGui();
         void OnEvent(SceneData& scene, Event& e);
-        void Start(SceneData& scene);
+        void Init(SceneData& scene);
+        void Destroy(SceneData& scene);
     };
 }

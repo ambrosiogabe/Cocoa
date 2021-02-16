@@ -129,7 +129,7 @@ namespace Cocoa
 		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene);
 		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
-		void Start(SceneData& scene)
+		void Init(SceneData& scene)
 		{
 			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(gizmoTexPath, NCPath::CreatePath("images/gizmos.png"));
@@ -152,6 +152,11 @@ namespace Cocoa
 			Gizmos[3] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
 			Gizmos[4] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
 			Gizmos[5] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+		}
+
+		void Destroy(SceneData& data)
+		{
+
 		}
 
 		void GizmoSystem::ImGui()

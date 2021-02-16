@@ -49,7 +49,7 @@ namespace Cocoa
 		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene);
 		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
-		void Start(SceneData& scene)
+		void Init(SceneData& scene)
 		{
 			tmpScriptDll = Settings::General::s_EngineExeDirectory;
 			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
@@ -57,24 +57,11 @@ namespace Cocoa
 			NCPath::Join(scriptDll, NCPath::CreatePath("ScriptModule.dll"));
 			auto view = scene.Registry.view<TransformData>();
 			initImGui = false;
-			//for (CEntity entity : view)
-			//{
-				//Transform& transform = entity.GetComponent<Transform>();
-				//if (!transform.m_Previous.IsNull())
-				//{
-				//	Transform& prevTransform = transform.m_Previous.GetComponent<Transform>();
-				//	prevTransform.m_Next = entity;
+		}
 
-				//	if (!transform.m_Parent.IsNull())
-				//	{
-				//		Transform& parentTransform = transform.m_Parent.GetComponent<Transform>();
-				//		if (!transform.m_First.IsNull())
-				//		{
-				//			parentTransform.m_First = entity;
-				//		}
-				//	}
-				//}
-			//}
+		void Destroy(SceneData& scene)
+		{
+
 		}
 
 		void EditorUpdate(SceneData& scene, float dt)

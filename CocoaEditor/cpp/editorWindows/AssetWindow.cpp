@@ -261,8 +261,8 @@ namespace Cocoa
 			if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
-				Scene::Reset(scene);
-				char newSceneTitle[32] = "New Scene (";
+				Scene::FreeResources(scene);
+				static char newSceneTitle[32] = "New Scene (";
 				snprintf(&newSceneTitle[11], 32 - 11, "%d).cocoa", sceneCount);
 				Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory;
 				NCPath::Join(Settings::General::s_CurrentScene, NCPath::CreatePath("scenes" + std::string(newSceneTitle)));

@@ -284,7 +284,7 @@ namespace Cocoa
 		void LoadStyle(const CPath& filepath)
 		{
 			FileHandle* styleData = File::OpenFile(filepath);
-			if (styleData->m_Data.size() > 0)
+			if (styleData->m_Size > 0)
 			{
 				json j = json::parse(styleData->m_Data);
 				if (j.contains("Colors"))
