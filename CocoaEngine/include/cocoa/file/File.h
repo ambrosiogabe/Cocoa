@@ -7,7 +7,7 @@ namespace Cocoa
 	struct FileHandle
 	{
 		const char* m_Filename = nullptr;
-		std::string m_Data = "";
+		char* m_Data = nullptr;
 		uint32 m_Size = 0;
 		bool m_Open = false;
 	};

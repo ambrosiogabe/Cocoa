@@ -1,6 +1,7 @@
 #pragma once
 #include "externalLibs.h"
 #include "cocoa/util/Log.h"
+#include "cocoa/core/Memory.h"
 
 namespace Cocoa
 {
@@ -20,7 +21,7 @@ namespace Cocoa
 			if (data.m_NumElements + numElementsToAdd > data.m_MaxSize)
 			{
 				data.m_MaxSize = (data.m_NumElements + numElementsToAdd) * 2;
-				data.m_Data = (T*)realloc(data.m_Data, sizeof(T) * data.m_MaxSize);
+				data.m_Data = (T*)ReallocMem(data.m_Data, sizeof(T) * data.m_MaxSize);
 			}
 		}
 	}
@@ -38,7 +39,7 @@ namespace Cocoa
 				size = 1;
 			}
 
-			data.m_Data = (T*)malloc(sizeof(T) * size);
+			data.m_Data = (T*)AllocMem(sizeof(T) * size);
 			data.m_NumElements = 0;
 			data.m_MaxSize = size;
 			return data;
@@ -49,7 +50,7 @@ namespace Cocoa
 		{
 			if (data.m_Data && data.m_MaxSize > 0)
 			{
-				free(data.m_Data);
+				FreeMem(data.m_Data);
 				data.m_Data = nullptr;
 			}
 		}
@@ -101,7 +102,7 @@ namespace Cocoa
 			if (data.m_NumElements < (data.m_MaxSize / 2))
 			{
 				data.m_MaxSize /= 2;
-				data.m_Data = (T*)realloc(data.m_Data, sizeof(T) * data.m_MaxSize);
+				data.m_Data = (T*)ReallocMem(data.m_Data, sizeof(T) * data.m_MaxSize);
 			}
 		}
 

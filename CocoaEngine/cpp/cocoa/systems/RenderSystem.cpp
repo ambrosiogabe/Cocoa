@@ -36,6 +36,7 @@ namespace Cocoa
 
 			m_MainFramebuffer.Width = 3840;
 			m_MainFramebuffer.Height = 2160;
+			m_MainFramebuffer.IncludeDepthStencil = false;
 			Texture color0;
 			color0.InternalFormat = ByteFormat::RGB;
 			color0.ExternalFormat = ByteFormat::RGB;
@@ -47,7 +48,6 @@ namespace Cocoa
 			Texture color1;
 			color1.InternalFormat = ByteFormat::R32UI;
 			color1.ExternalFormat = ByteFormat::RED_INTEGER;
-			m_MainFramebuffer.IncludeDepthStencil = false;
 			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color1);
 			NFramebuffer::Generate(m_MainFramebuffer);
 

@@ -2,8 +2,9 @@
 
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/util/Log.h"
-#include "cocoa/core/Core.h"
 #include "cocoa/util/CMath.h"
+#include "cocoa/core/Core.h"
+#include "cocoa/core/Memory.h"
 
 namespace Cocoa
 {
@@ -144,7 +145,7 @@ namespace Cocoa
 			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxCharLength);
 			if (numUniforms > 0 && maxCharLength > 0)
 			{
-				char* charBuffer = (char*)malloc(sizeof(char) * maxCharLength);
+				char* charBuffer = (char*)AllocMem(sizeof(char) * maxCharLength);
 
 				for (int i = 0; i < numUniforms; i++)
 				{
@@ -160,7 +161,7 @@ namespace Cocoa
 					});
 				}
 
-				free(charBuffer);
+				FreeMem(charBuffer);
 			}
 
 			// Always detach shaders after a successful link.

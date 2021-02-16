@@ -1,6 +1,7 @@
 #include "cocoa/renderer/Fonts/FontUtil.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Log.h"
+#include "cocoa/core/Memory.h"
 
 #include "stb/stb_image_write.h"
 
@@ -74,7 +75,7 @@ namespace Cocoa
 			int bitmapHeight = characterHeight + padding * 2;
 			float scaleX = (float)width / (float)characterWidth;
 			float scaleY = (float)height / (float)characterHeight;
-			unsigned char* sdfBitmap = (unsigned char*)malloc(sizeof(unsigned char) * bitmapHeight * bitmapWidth);
+			unsigned char* sdfBitmap = (unsigned char*)AllocMem(sizeof(unsigned char) * bitmapHeight * bitmapWidth);
 			Log::Assert(sdfBitmap != nullptr, "Ran out of memory. Could not allocate memory to generate a font.");
 
 			for (int y = -padding; y < bitmapHeight - padding; y++)
@@ -171,7 +172,7 @@ namespace Cocoa
 			int x = 0;
 			int y = 0;
 
-			SdfBitmapContainer* sdfBitmaps = (SdfBitmapContainer*)malloc(sizeof(SdfBitmapContainer) * (characterMapSize - glyphOffset));
+			SdfBitmapContainer* sdfBitmaps = (SdfBitmapContainer*)AllocMem(sizeof(SdfBitmapContainer) * (characterMapSize - glyphOffset));
 			// Just to be safe, use up to cores - 2
 			const auto processorCount = CMath::Max(std::thread::hardware_concurrency() - 2, 1);
 			int segmentSize = ('z' + 1) / processorCount;
@@ -229,7 +230,7 @@ namespace Cocoa
 
 			// Write all the image data to the final sdf
 			int bitmapLength = sdfWidth * sdfHeight * 4;
-			uint8* finalSdf = (uint8*)malloc(sizeof(uint8) * bitmapLength);
+			uint8* finalSdf = (uint8*)AllocMem(sizeof(uint8) * bitmapLength);
 			Log::Assert(finalSdf != nullptr, "Out of memory. Could not allocate memory to generate font.");
 			memset(finalSdf, 0, bitmapLength);
 			int endBitmap = bitmapLength + 1;
@@ -279,14 +280,14 @@ namespace Cocoa
 					}
 				}
 
-				free(sdf.bitmap);
+				FreeMem(sdf.bitmap);
 			}
 
 			Log::Info("Writing png for font at '%s'\n", outputFile.Path.c_str());
 			stbi_write_png(outputFile.Path.c_str(), sdfWidth, sdfHeight, 4, finalSdf, sdfWidth * 4);
 
-			free(sdfBitmaps);
-			free(finalSdf);
+			FreeMem(sdfBitmaps);
+			FreeMem(finalSdf);
 			FT_Done_Face(font);
 			FT_Done_FreeType(ft);
 		}

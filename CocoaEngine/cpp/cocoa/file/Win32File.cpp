@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include "cocoa/file/File.h"
 #include "cocoa/util/Log.h"
+#include "cocoa/core/Memory.h"
 
 #include <direct.h>
 #include <shobjidl_core.h>
@@ -23,23 +24,41 @@ namespace Cocoa
 	{
 		FileHandle* OpenFile(const CPath& filename)
 		{
-			FileHandle* file = new FileHandle();
+			FileHandle* file = (FileHandle*)AllocMem(sizeof(FileHandle));
 			file->m_Filename = filename.Path.c_str();
 
-			std::ifstream inputStream(filename.Path.c_str());
-
-			if (inputStream.is_open())
+			FILE* filePointer;
+			filePointer = fopen(file->m_Filename, "rb");
+			if (filePointer)
 			{
-				inputStream.seekg(0, std::ios::end);
-				file->m_Size = (uint32)inputStream.tellg();
-				file->m_Data.reserve(file->m_Size);
-				inputStream.seekg(0, std::ios::beg);
+				fseek(filePointer, 0, SEEK_END);
+				file->m_Size = ftell(filePointer);
+				rewind(filePointer);
+				
+				file->m_Data = (char*)AllocMem(sizeof(char) * (file->m_Size + 1));
+				if (!file->m_Data)
+				{
+					fclose(filePointer);
+					Log::Warning("Memory allocation failed.");
+					return file;
+				}
 
-				file->m_Data.assign((std::istreambuf_iterator<char>(inputStream)), std::istreambuf_iterator<char>());
+				int elementsRead = fread(file->m_Data, file->m_Size, 1, filePointer);
+				if (elementsRead != 1)
+				{
+					fclose(filePointer);
+					FreeMem(file->m_Data);
+					file->m_Data = nullptr;
+					Log::Warning("Failed to read file properly.");
+					return file;
+				}
+
+				file->m_Data[file->m_Size] = '\0';
+				fclose(filePointer);
 			}
 			else
 			{
-				file->m_Data = "";
+				file->m_Data = nullptr;
 				file->m_Open = false;
 				file->m_Size = 0;
 			}
@@ -49,7 +68,24 @@ namespace Cocoa
 
 		void CloseFile(FileHandle* file)
 		{
-			delete file;
+			if (file)
+			{
+				if (file->m_Data)
+				{
+					FreeMem(file->m_Data);
+					file->m_Data = nullptr;
+				}
+				else
+				{
+					Log::Warning("Tried to free invalid file.");
+				}
+				FreeMem(file);
+				file = nullptr;
+			}
+			else
+			{
+				Log::Warning("Tried to free invalid file.");
+			}
 		}
 
 		bool WriteFile(const char* data, const CPath& filename)
@@ -104,10 +140,10 @@ namespace Cocoa
 			PWSTR pszPath;
 			if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pszPath)))
 			{
-				char* tmp = new char[256];
+				char* tmp = (char*)AllocMem(sizeof(char) * 256);
 				wcstombs(tmp, pszPath, 256);
 				CPath result = NCPath::CreatePath(tmp);
-				delete[] tmp;
+				FreeMem(tmp);
 				return result;
 			}
 
@@ -209,10 +245,10 @@ namespace Cocoa
 		CPath GetAbsolutePath(const CPath& path)
 		{
 			int bufferLength = GetFullPathNameA(path.Path.c_str(), 0, NULL, NULL);
-			char* buffer = new char[bufferLength];
+			char* buffer = (char*)AllocMem(sizeof(char) * bufferLength);
 			GetFullPathNameA(path.Path.c_str(), bufferLength, buffer, NULL);
 			CPath result = NCPath::CreatePath(buffer);
-			delete[] buffer;
+			FreeMem(buffer);
 			return result;
 		}
 

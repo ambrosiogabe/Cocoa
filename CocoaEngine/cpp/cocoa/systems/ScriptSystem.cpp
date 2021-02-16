@@ -47,7 +47,7 @@ namespace Cocoa
 			return func;
 		}
 
-		void Start()
+		void Init()
 		{
 			Reload();
 		}

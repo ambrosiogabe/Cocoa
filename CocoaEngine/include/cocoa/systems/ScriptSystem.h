@@ -20,7 +20,7 @@ namespace Cocoa
 
     namespace ScriptSystem
     {
-        COCOA void Start();
+        COCOA void Init();
         COCOA void Update(SceneData& scene, float dt);
         COCOA void EditorUpdate(SceneData& scene, float dt);
 

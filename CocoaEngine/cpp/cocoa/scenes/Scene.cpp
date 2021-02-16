@@ -42,13 +42,13 @@ namespace Cocoa
 
 			RenderSystem::Init(data);
 			Physics2D::Init({ 0, -10.0f });
+			ScriptSystem::Init();
 
 			data.CurrentSceneInitializer->Init(data);
 		}
 
 		void Start(SceneData& data)
 		{
-			ScriptSystem::Start();
 			data.CurrentSceneInitializer->Start(data);
 		}
 
@@ -86,7 +86,7 @@ namespace Cocoa
 			DebugDraw::DrawTopBatches();
 		}
 
-		void Destroy(SceneData& data)
+		void FreeResources(SceneData& data)
 		{
 			AssetManager::Clear();
 			auto view = data.Registry.view<TransformData>();
@@ -95,6 +95,8 @@ namespace Cocoa
 			RenderSystem::Destroy();
 			Physics2D::Destroy(data);
 			ScriptSystem::FreeScriptLibrary();
+
+			data.CurrentSceneInitializer->Destroy(data);
 		}
 
 		void Play(SceneData& data)
@@ -133,17 +135,17 @@ namespace Cocoa
 
 		void Load(SceneData& data, const CPath& filename)
 		{
-			Reset(data);
+			FreeResources(data);
 			Log::Info("Loading scene %s", filename.Path.c_str());
 
 			Settings::General::s_CurrentScene = filename;
 			FileHandle* file = File::OpenFile(filename);
-			if (file->m_Data.size() <= 0)
+			if (file->m_Size <= 0)
 			{
 				return;
 			}
 
-			Start(data);
+			Init(data);
 
 			json j = json::parse(file->m_Data);
 
@@ -195,13 +197,14 @@ namespace Cocoa
 				}
 			}
 
+			j = {};
 			File::CloseFile(file);
 		}
 
 		void LoadScriptsOnly(SceneData& data, const CPath& filename)
 		{
 			FileHandle* file = File::OpenFile(filename);
-			if (file->m_Data.size() <= 0)
+			if (file->m_Size <= 0)
 			{
 				return;
 			}
@@ -220,13 +223,8 @@ namespace Cocoa
 				}
 			}
 
+			j = {};
 			File::CloseFile(file);
-		}
-
-		void Reset(SceneData& data)
-		{
-			Destroy(data);
-			Init(data);
 		}
 
 		Entity CreateEntity(SceneData& data)

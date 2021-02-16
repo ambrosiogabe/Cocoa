@@ -82,6 +82,7 @@ namespace Cocoa
 		if (m_CurrentScene.CurrentSceneInitializer != nullptr)
 		{
 			delete m_CurrentScene.CurrentSceneInitializer;
+			Scene::FreeResources(m_CurrentScene);
 		}
 
 		m_CurrentScene = Scene::Create(sceneInitializer);

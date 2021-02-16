@@ -24,14 +24,13 @@ namespace Cocoa
 		COCOA void EditorUpdate(SceneData& data, float dt);
 		COCOA void OnEvent(SceneData& data, const Event& e);
 		COCOA void Render(SceneData& data);
-		COCOA void Destroy(SceneData& data);
+		COCOA void FreeResources(SceneData& data);
 
 		COCOA void Play(SceneData& data);
 		COCOA void Stop(SceneData& data);
 		COCOA void Save(SceneData& data, const CPath& filename);
 		COCOA void Load(SceneData& data, const CPath& filename);
 		COCOA void LoadScriptsOnly(SceneData& data, const CPath& filename);
-		COCOA void Reset(SceneData& data);
 
 		COCOA Entity CreateEntity(SceneData& data);
 		COCOA Entity DuplicateEntity(SceneData& data, Entity entity);

@@ -4,6 +4,7 @@
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
+#include "cocoa/core/Memory.h"
 
 namespace Cocoa
 {
@@ -28,9 +29,9 @@ namespace Cocoa
 			data.BatchShader = shader;
 			data.ZIndex = zIndex;
 			data.MaxBatchSize = maxBatchSize;
-			data.VertexBufferBase = (Vertex*)malloc(sizeof(Vertex) * data.MaxBatchSize * 4);
+			data.VertexBufferBase = (Vertex*)AllocMem(sizeof(Vertex) * data.MaxBatchSize * 4);
 			data.VertexStackPointer = &data.VertexBufferBase[0];
-			data.Indices = (uint32*)malloc(sizeof(uint32) * data.MaxBatchSize * 6);
+			data.Indices = (uint32*)AllocMem(sizeof(uint32) * data.MaxBatchSize * 6);
 
 			for (int i = 0; i < data.Textures.size(); i++)
 			{
@@ -49,13 +50,13 @@ namespace Cocoa
 		{
 			if (data.VertexBufferBase)
 			{
-				free(data.VertexBufferBase);
+				FreeMem(data.VertexBufferBase);
 				data.VertexBufferBase = nullptr;
 			}
 
 			if (data.Indices)
 			{
-				free(data.Indices);
+				FreeMem(data.Indices);
 				data.Indices = nullptr;
 			}
 
@@ -64,6 +65,10 @@ namespace Cocoa
 				glDeleteBuffers(1, &data.VAO);
 				glDeleteBuffers(1, &data.VBO);
 				glDeleteBuffers(1, &data.EBO);
+			}
+			else
+			{
+				Log::Warning("Destroyed render batch, but it did not have any valid vao, vbo, or ebo");
 			}
 		}
 

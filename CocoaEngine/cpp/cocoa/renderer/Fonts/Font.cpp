@@ -1,6 +1,7 @@
 #include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/fonts/FontUtil.h"
 #include "cocoa/core/AssetManager.h"
+#include "cocoa/core/Memory.h"
 #include "cocoa/util/JsonExtended.h"
 
 #include <stb/stb_image.h>
@@ -25,7 +26,7 @@ namespace Cocoa
 
 	void Font::Free()
 	{
-		free(m_CharacterMap);
+		FreeMem(m_CharacterMap);
 	}
 
 	const CharInfo& Font::GetCharacterInfo(int codepoint) const
@@ -44,7 +45,7 @@ namespace Cocoa
 	{
 		m_GlyphRangeStart = glyphRangeStart;
 		m_GlyphRangeEnd = glyphRangeEnd;
-		m_CharacterMap = (CharInfo*)malloc(sizeof(CharInfo) * (glyphRangeEnd - glyphRangeStart));
+		m_CharacterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * (glyphRangeEnd - glyphRangeStart));
 		m_CharacterMapSize = glyphRangeEnd - glyphRangeStart;
 		FontUtil::CreateSdfFontTexture(fontFile, fontSize, m_CharacterMap, (glyphRangeEnd - glyphRangeStart), outputFile, padding, upscaleResolution, glyphRangeStart);
 	}
@@ -80,7 +81,7 @@ namespace Cocoa
 	{
 		JsonExtended::AssignIfNotNull(j, "CharacterMapSize", m_CharacterMapSize);
 
-		m_CharacterMap = (CharInfo*)malloc(sizeof(CharInfo) * m_CharacterMapSize);
+		m_CharacterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * m_CharacterMapSize);
 		for (int i = 0; i < m_CharacterMapSize; i++)
 		{
 			float ux0, uy0, ux1, uy1, advance, bearingX, bearingY, chScaleX, chScaleY;
