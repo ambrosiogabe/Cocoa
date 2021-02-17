@@ -29,11 +29,7 @@ namespace Cocoa
 		{
 			m_Camera = &scene.SceneCamera;
 
-			if (m_MainFramebuffer.Fbo != (uint32)-1)
-			{
-				NFramebuffer::Delete(m_MainFramebuffer);
-			}
-
+			Log::Assert(m_MainFramebuffer.Fbo == (uint32)-1, "Tried to initialize render system twice.");
 			m_MainFramebuffer.Width = 3840;
 			m_MainFramebuffer.Height = 2160;
 			m_MainFramebuffer.IncludeDepthStencil = false;
@@ -52,6 +48,7 @@ namespace Cocoa
 			NFramebuffer::Generate(m_MainFramebuffer);
 
 			m_Batches = NDynamicArray::Create<RenderBatchData>(1);
+
 			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(spriteShaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
 			m_SpriteShader = AssetManager::LoadShaderFromFile(spriteShaderPath, true);

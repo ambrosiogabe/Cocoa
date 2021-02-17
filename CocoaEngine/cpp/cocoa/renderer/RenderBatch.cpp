@@ -30,7 +30,7 @@ namespace Cocoa
 			data.ZIndex = zIndex;
 			data.MaxBatchSize = maxBatchSize;
 			data.VertexBufferBase = (Vertex*)AllocMem(sizeof(Vertex) * data.MaxBatchSize * 4);
-			data.VertexStackPointer = &data.VertexBufferBase[0];
+			data.VertexStackPointer = data.VertexBufferBase;
 			data.Indices = (uint32*)AllocMem(sizeof(uint32) * data.MaxBatchSize * 6);
 
 			for (int i = 0; i < data.Textures.size(); i++)
@@ -53,18 +53,26 @@ namespace Cocoa
 				FreeMem(data.VertexBufferBase);
 				data.VertexBufferBase = nullptr;
 			}
+			else
+			{
+				Log::Warning("Failed to free render batches vertex data, invalid pointer.");
+			}
 
 			if (data.Indices)
 			{
 				FreeMem(data.Indices);
 				data.Indices = nullptr;
 			}
+			else
+			{
+				Log::Warning("Failed to free render batches indices, invalid pointer.");
+			}
 
 			if (data.VAO != -1)
 			{
-				glDeleteBuffers(1, &data.VAO);
 				glDeleteBuffers(1, &data.VBO);
 				glDeleteBuffers(1, &data.EBO);
+				glDeleteVertexArrays(1, &data.VAO);
 			}
 			else
 			{

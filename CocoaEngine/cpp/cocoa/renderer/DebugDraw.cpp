@@ -30,7 +30,7 @@ namespace Cocoa
 			Log::Assert((s_Scene != nullptr), "DebugDraw's scene is nullptr. Did you forget to initialize DebugDraw when you changed scenes?");
 			CPath shaderPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(shaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
-			s_Shader = AssetManager::LoadShaderFromFile(shaderPath);
+			s_Shader = AssetManager::GetShader(shaderPath);
 		}
 
 		RemoveDeadLines();
