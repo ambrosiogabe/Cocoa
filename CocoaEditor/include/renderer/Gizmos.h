@@ -39,7 +39,7 @@ namespace Cocoa
 
         GizmoType Type;
         Box2D Box2D;
-        uint32 TextureAssetId;
+        Handle<Texture> TextureAssetId;
         float SpriteRotation;
         bool Active;
     };

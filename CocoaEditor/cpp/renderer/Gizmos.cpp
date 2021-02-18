@@ -34,7 +34,7 @@ namespace Cocoa
 			data.SpriteRotation = spriteRotation;
 			data.TexCoordMin = sprite.m_TexCoords[0];
 			data.TexCoordMax = sprite.m_TexCoords[2];
-			data.TextureAssetId = sprite.m_Texture.m_AssetId;
+			data.TextureAssetId = sprite.m_Texture;
 			data.Tint = darkTint;
 			data.Type = type;
 			return data;

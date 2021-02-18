@@ -8,8 +8,8 @@
 
 namespace Cocoa
 {
-	namespace Settings
-	{
+    namespace Settings
+    {
         namespace Editor
         {
             // Which windows are open (of the windows that can be closed)
@@ -60,5 +60,5 @@ namespace Cocoa
             extern float s_GrabRounding;
             extern float s_TabRounding;
         };
-	}
+    }
 }

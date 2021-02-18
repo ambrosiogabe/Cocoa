@@ -37,8 +37,6 @@ namespace Cocoa
 		void Stop();
 
 		virtual void OnEvent(Event& e);
-
-		void ChangeScene(SceneInitializer* scene);
 		CWindow* GetWindow() const;
 
 		static Application* Get();

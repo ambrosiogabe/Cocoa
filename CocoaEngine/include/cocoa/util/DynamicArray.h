@@ -59,7 +59,7 @@ namespace Cocoa
 		void Add(DynamicArray<T>& data, const T& element)
 		{
 			NDynamicArrayPrivate::CheckResize<T>(data, 1);
-			data.m_Data[data.m_NumElements] = T(element);
+			data.m_Data[data.m_NumElements] = element;
 			data.m_NumElements++;
 		}
 

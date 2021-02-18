@@ -77,21 +77,6 @@ namespace Cocoa
 		m_AppData.AppOnEvent(m_CurrentScene, e);
 	}
 
-	void Application::ChangeScene(SceneInitializer* sceneInitializer)
-	{
-		if (m_CurrentScene.CurrentSceneInitializer != nullptr)
-		{
-			delete m_CurrentScene.CurrentSceneInitializer;
-			Scene::FreeResources(m_CurrentScene);
-		}
-
-		m_CurrentScene = Scene::Create(sceneInitializer);
-		Scene::Init(m_CurrentScene);
-		Scene::Start(m_CurrentScene);
-		
-		DebugDraw::Init(&m_CurrentScene);
-	}
-
 	void Application::Stop()
 	{
 		m_Running = false;

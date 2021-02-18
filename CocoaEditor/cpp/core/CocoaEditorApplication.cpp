@@ -298,7 +298,10 @@ namespace Cocoa
 		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());
 		Cocoa::EditorLayer::Init();
 
-		ChangeScene(new LevelEditorSceneInitializer());
+		m_CurrentScene = Scene::Create(new LevelEditorSceneInitializer());
+		Scene::Init(m_CurrentScene);
+		Scene::Start(m_CurrentScene);
+		DebugDraw::Init();
 	}
 
 	void CocoaEditor::Shutdown()
@@ -310,7 +313,7 @@ namespace Cocoa
 
 #if _COCOA_DEBUG
 		// In debug builds free all the memory to make sure there are no leaks
-		AssetManager::Clear();
+		DebugDraw::Destroy();
 		Scene::FreeResources(m_CurrentScene);
 #endif
 		

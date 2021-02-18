@@ -81,9 +81,9 @@ namespace Cocoa
 			NFramebuffer::ClearColorAttachmentUint32(RenderSystem::GetMainFramebuffer(), 1, (uint32)-1);
 			//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
 
-			DebugDraw::DrawBottomBatches();
+			DebugDraw::DrawBottomBatches(data.SceneCamera);
 			RenderSystem::Render(data);
-			DebugDraw::DrawTopBatches();
+			DebugDraw::DrawTopBatches(data.SceneCamera);
 		}
 
 		void FreeResources(SceneData& data)

@@ -114,10 +114,10 @@ namespace Cocoa
 				{
 					float x = (i * gridWidth) + firstX + (gridWidth / 2.0f);
 					float y = (i * gridHeight) + firstY + (gridHeight / 2.0f);
-					glm::vec2 from(x, firstY - gridHeight);
-					glm::vec2 to(x, firstY + 1080 + gridWidth);
-					glm::vec3 color(0.2f, 0.2f, 0.2f);
-					DebugDraw::AddLine2D(from, to, 1.0f, color);
+					glm::vec2 from = glm::vec2{x, firstY - gridHeight};
+					glm::vec2 to = glm::vec2{x, firstY + 1080 + gridWidth};
+					glm::vec3 color = glm::vec3{0.2f, 0.2f, 0.2f};
+					DebugDraw::AddLine2D(from, to, 1.0f, color, 1, false);
 
 					if (i <= xLinesNeeded)
 					{

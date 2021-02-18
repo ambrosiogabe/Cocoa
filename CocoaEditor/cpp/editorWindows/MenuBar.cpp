@@ -20,11 +20,7 @@ namespace Cocoa
 		// Internal variables
 		static bool m_CreatingProject = false;
 		static glm::vec2 m_DefaultPopupSize = { 900, 600 };
-
-		// Forward declarations
-		static void SettingsWindow();
-		static void StylesWindow();
-		static bool CPathVectorGetter(void* data, int n, const char** out_text);
+		static bool mShowSettings = true;
 
 		static void SettingsWindow()
 		{
@@ -33,6 +29,13 @@ namespace Cocoa
 			CImGui::UndoableDragInt2("Grid Size: ", Settings::Editor::GridSize);
 			ImGui::Checkbox("Draw Grid: ", &Settings::Editor::DrawGrid);
 			ImGui::End();
+		}
+
+		static bool CPathVectorGetter(void* data, int n, const char** out_text)
+		{
+			const std::vector<CPath>* v = (std::vector<CPath>*)data;
+			*out_text = NCPath::Filename(v->at(n));
+			return true;
 		}
 
 		static void StylesWindow()
@@ -46,14 +49,6 @@ namespace Cocoa
 			}
 			ImGui::End();
 		}
-
-		static bool CPathVectorGetter(void* data, int n, const char** out_text)
-		{
-			const std::vector<CPath>* v = (std::vector<CPath>*)data;
-			*out_text = NCPath::Filename(v->at(n));
-			return true;
-		}
-
 
 		void ImGui(SceneData& scene)
 		{

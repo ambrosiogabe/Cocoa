@@ -6,8 +6,12 @@
 
 #include <thread>
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
+
+#undef CopyFile
+#undef DeleteFile
+#undef CreateFile
 
 namespace Cocoa
 {

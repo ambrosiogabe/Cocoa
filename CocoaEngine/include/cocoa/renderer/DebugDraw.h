@@ -1,44 +1,48 @@
 #pragma once
 #include "externalLibs.h"
 
-#include "cocoa/renderer/Line2D.h"
-#include "cocoa/renderer/Shader.h"
-#include "cocoa/renderer/RenderBatch.h"
-#include "cocoa/renderer/DebugSprite.h"
-#include "cocoa/core/Handle.h"
-#include "cocoa/util/DynamicArray.h"
 #include "cocoa/scenes/SceneData.h"
+#include "cocoa/core/Handle.h"
+#include "cocoa/renderer/Texture.h"
+#include "cocoa/renderer/Camera.h"
 
 namespace Cocoa
 {
-	class COCOA DebugDraw
+	namespace DebugDraw
 	{
-	public:
-		static void BeginFrame();
-		static void DrawBottomBatches();
-		static void DrawTopBatches();
+		COCOA void Init();
+		COCOA void Destroy();
 
-		static void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth = 1.2f, glm::vec3 color = { 0.0f, 1.0f, 0.0f }, int lifetime = 1, bool onTop = true);
-		static void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation = 0.0f, float strokeWidth = 1.2f, glm::vec3 color = { 0.0f, 1.0f, 0.0f }, int lifetime = 1, bool onTop = true);
-		static void AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position,
-			glm::vec3 tint = { 1.0f, 1.0f, 1.0f }, glm::vec2 texCoordMin = { 0.0f, 1.0f }, glm::vec2 texCoordMax = { 1.0f, 0.0f }, float rotation = 0.0f,
-			int lifetime = 1, bool onTop = true);
+		COCOA void BeginFrame();
+		COCOA void DrawBottomBatches(const Camera& camera);
+		COCOA void DrawTopBatches(const Camera& camera);
 
-		static void Init(SceneData* scene);
+		COCOA void AddLine2D(
+			glm::vec2& from, 
+			glm::vec2& to, 
+			float strokeWidth = 1.2f, 
+			glm::vec3 color = { 0.0f, 1.0f, 0.0f }, 
+			int lifetime = 1, 
+			bool onTop = true);
 
-	private:
-		static void RemoveDeadSprites();
-		static void RemoveDeadLines();
-		static void AddSpritesToBatches();
-		static void AddLinesToBatches();
+		COCOA void AddBox2D(
+			glm::vec2& center, 
+			glm::vec2& dimensions, 
+			float rotation = 0.0f, 
+			float strokeWidth = 1.2f, 
+			glm::vec3 color = { 0.0f, 1.0f, 0.0f }, 
+			int lifetime = 1, 
+			bool onTop = true);
 
-	private:
-		//static DynamicArray<RenderBatch> s_Batches;
-		static std::vector<Line2D> s_Lines;
-		static std::vector<DebugSprite> s_Sprites;
-		static int s_TexSlots[16];
-		static Handle<Shader> s_Shader;
-		static int s_MaxBatchSize;
-		static SceneData* s_Scene;
+		COCOA void AddSprite(
+			Handle<Texture> spriteTexture, 
+			glm::vec2 size, 
+			glm::vec2 position,
+			glm::vec3 tint = { 1.0f, 1.0f, 1.0f }, 
+			glm::vec2 texCoordMin = { 0.0f, 1.0f }, 
+			glm::vec2 texCoordMax = { 1.0f, 0.0f }, 
+			float rotation = 0.0f,
+			int lifetime = 1, 
+			bool onTop = true);
 	};
 }

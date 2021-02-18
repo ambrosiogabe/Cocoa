@@ -5,6 +5,8 @@
 #include "nativeScripting/SourceFileWatcher.h"
 
 #include "cocoa/components/Transform.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
 #include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/components/Transform.h"
