@@ -13,8 +13,11 @@ build.bat
 
 These commands will clone the repository into your directory, update the submodules (this step takes awhile because of all the code). 
 
-After that, simply double click the VisualStudio solution file that was (hopefully) generated, and then once it opens press F5 to run. If all this works properly, you should
-be presented with a window saying to create a project or open a Cocoa project.
+After that, simply double click the VisualStudio solution file that was (hopefully) generated, and then once it opens press F5 to run. This will compile *almost* all the projects, unfortunately I can't get FreeType to build in order ***yet***. So, for now, the build will fail the first time, then just right-click the ```freetype``` project in the right-hand panel in visual studio and click ```build```. 
+
+![BuildFreetype.png](img/buildFreetype.png)
+
+If all this works properly, you should be able to press F5 once again and then be presented with a window saying to create a project or open a Cocoa project.
 
 ***NOTE***: This only works with VisualStudio 2019 right now, I will add support for more versions and more editor hopefully in the near future.
 
