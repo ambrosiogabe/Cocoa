@@ -15,7 +15,9 @@ namespace Cocoa
 			// Grid stuff
 			bool SnapToGrid = false;
 			bool DrawGrid = false;
-			glm::ivec2 GridSize = { 32, 32 };
+			glm::vec2 GridSize = { 32.0f, 32.0f };
+			glm::vec3 GridColor = { 0.1f, 0.1f, 0.1f };
+			float GridStrokeWidth = 1.0f;
 
 			// Selected Style
 			int SelectedStyle = 0;

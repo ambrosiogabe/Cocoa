@@ -20,7 +20,9 @@ namespace Cocoa
             // Grid stuff
             extern bool SnapToGrid;
             extern bool DrawGrid;
-            extern glm::ivec2 GridSize;
+            extern glm::vec2 GridSize;
+            extern glm::vec3 GridColor;
+            extern float GridStrokeWidth;
 
             // Selected style
             extern int SelectedStyle;

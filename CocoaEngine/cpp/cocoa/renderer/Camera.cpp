@@ -9,6 +9,8 @@ namespace Cocoa
 		{
 			Camera res;
 			res.Transform = Transform::CreateTransform(position, glm::vec3(1.0f), glm::vec3(0.0f));
+			// TODO: Make this customizable
+			res.ProjectionSize = { 1920.0f, 1080.0f };
 			AdjustPerspective(res);
 			return res;
 		}

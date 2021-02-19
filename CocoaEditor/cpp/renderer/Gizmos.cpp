@@ -144,14 +144,14 @@ namespace Cocoa
 			float squareOffsetY = 15;
 			float vtOffsetX = -8;
 			float vtOffsetY = 12;
-			Gizmos[0] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 1), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-			Gizmos[1] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-			Gizmos[2] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
-			Gizmos[2].Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
-
-			Gizmos[3] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-			Gizmos[4] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+			Gizmos[3] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 1), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+			Gizmos[4] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
 			Gizmos[5] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+			Gizmos[5].Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
+
+			Gizmos[0] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
+			Gizmos[1] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
+			Gizmos[2] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
 		}
 
 		void Destroy(SceneData& data)

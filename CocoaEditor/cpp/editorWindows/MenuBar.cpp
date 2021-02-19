@@ -26,7 +26,9 @@ namespace Cocoa
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
 			ImGui::Begin("Settings", &Settings::Editor::ShowSettingsWindow);
-			CImGui::UndoableDragInt2("Grid Size: ", Settings::Editor::GridSize);
+			CImGui::UndoableDragFloat2("Grid Size: ", Settings::Editor::GridSize);
+			CImGui::UndoableColorEdit3("Grid Color: ", Settings::Editor::GridColor);
+			CImGui::UndoableDragFloat("Grid Stroke Width: ", Settings::Editor::GridStrokeWidth);
 			ImGui::Checkbox("Draw Grid: ", &Settings::Editor::DrawGrid);
 			ImGui::End();
 		}

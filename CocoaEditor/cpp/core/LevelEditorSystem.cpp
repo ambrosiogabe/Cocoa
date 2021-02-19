@@ -101,30 +101,35 @@ namespace Cocoa
 			{
 				TransformData& cameraTransform = scene.SceneCamera.Transform;
 				float cameraZoom = scene.SceneCamera.Zoom;
-				int gridWidth = Settings::Editor::GridSize.x;// *cameraZoom;
-				int gridHeight = Settings::Editor::GridSize.y;// *cameraZoom;
+				float gridWidth = Settings::Editor::GridSize.x;
+				float gridHeight = Settings::Editor::GridSize.y;
+				float projectionWidth = scene.SceneCamera.ProjectionSize.x;
+				float projectionHeight = scene.SceneCamera.ProjectionSize.y;
 
-				float firstX = (float)(((int)(cameraTransform.Position.x - cameraZoom * 1920.0f / 2.0f) / gridWidth) - 1) * (float)gridWidth;
-				float firstY = (float)(((int)(cameraTransform.Position.y - cameraZoom * 1080.0f / 2.0f) / gridHeight) - 1) * (float)gridHeight;
+				float firstX = (float)(((int)(cameraTransform.Position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
+				float firstY = (float)(((int)(cameraTransform.Position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
 
-				int yLinesNeeded = (int)((cameraZoom * 1920 + gridWidth) / gridWidth);
-				int xLinesNeeded = (int)((cameraZoom * 1080 + gridHeight) / gridHeight);
+				int yLinesNeeded = (int)((cameraZoom * projectionWidth + gridWidth) / gridWidth);
+				int xLinesNeeded = (int)((cameraZoom * projectionHeight + gridHeight) / gridHeight);
 
 				for (int i = 0; i < yLinesNeeded; i++)
 				{
 					float x = (i * gridWidth) + firstX + (gridWidth / 2.0f);
 					float y = (i * gridHeight) + firstY + (gridHeight / 2.0f);
-					glm::vec2 from = glm::vec2{x, firstY - gridHeight};
-					glm::vec2 to = glm::vec2{x, firstY + 1080 + gridWidth};
-					glm::vec3 color = glm::vec3{0.2f, 0.2f, 0.2f};
-					DebugDraw::AddLine2D(from, to, 1.0f, color, 1, false);
+
+					float y0 = firstY - gridHeight;
+					float y1 = firstY + projectionHeight + gridHeight;
+					glm::vec2 from(x, y0);
+					glm::vec2 to(x, y1);
+					DebugDraw::AddLine2D(from, to, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
 
 					if (i <= xLinesNeeded)
 					{
-						glm::vec2 from2(firstX - gridWidth, y);
-						glm::vec2 to2(firstX + 1920 + gridHeight, y);
-						glm::vec3 color2(0.2f, 0.2f, 0.2f);
-						DebugDraw::AddLine2D(from2, to2, 1.0f, color2, 1, false);
+						float x0 = firstX - gridWidth;
+						float x1 = firstX + projectionWidth + gridWidth;
+						glm::vec2 from2(x0, y);
+						glm::vec2 to2(x1, y);
+						DebugDraw::AddLine2D(from2, to2, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
 					}
 				}
 			}
