@@ -1,313 +1,304 @@
 #include "cocoa/scenes/Scene.h"
 
 #include "cocoa/file/OutputArchive.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/scenes/SceneInitializer.h"
+#include "cocoa/core/AssetManager.h"
+#include "cocoa/renderer/DebugDraw.h"
 
 #include <nlohmann/json.hpp>
 
 namespace Cocoa
 {
-	Scene::Scene(SceneInitializer* sceneInitializer)
+	namespace Scene
 	{
-		m_SceneInitializer = sceneInitializer;
+		// Forward Declarations
+		static void LoadDefaultAssets();
+		static Entity FindOrCreateEntity(int id, SceneData& scene, entt::registry& registry);
 
-		m_ShowDemoWindow = false;
-		m_Camera = nullptr;
-		m_IsPlaying = false;
-
-		m_Registry = entt::registry();
-		m_Systems = std::vector<std::unique_ptr<System>>();
-	}
-
-	Entity Scene::CreateEntity()
-	{
-		entt::entity e = m_Registry.create();
-		Entity entity = Entity(e, this);
-		entity.AddComponent<Transform>();
-		return entity;
-	}
-
-	void Scene::Init()
-	{
-		LoadDefaultAssets();
-
-		glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
-		m_Camera = new Camera(cameraPos);
-
-		Physics2D::SetScene(this);
-		Input::SetScene(this);
-		Entity::SetScene(this);
-
-		m_Systems.emplace_back(std::make_unique<RenderSystem>("Render System", this));
-		m_Systems.emplace_back(std::make_unique<Physics2DSystem>("Physics2D System", this));
-		m_Systems.emplace_back(std::make_unique<ScriptSystem>("Script System", this));
-		m_SceneInitializer->Init(this, m_Systems);
-	}
-
-	void Scene::Start()
-	{
-		for (const auto& system : m_Systems)
+		SceneData Create(SceneInitializer* sceneInitializer)
 		{
-			system->Start();
-		}
-	}
+			SceneData data;
+			data.CurrentSceneInitializer = sceneInitializer;
+			data.IsPlaying = false;
 
-	void Scene::Update(float dt)
-	{
-		Physics2D::Get()->Update(dt);
-		for (const auto& system : m_Systems)
-		{
-			system->Update(dt);
-		}
-	}
-
-	void Scene::EditorUpdate(float dt)
-	{
-		for (const auto& system : m_Systems)
-		{
-			system->EditorUpdate(dt);
-		}
-	}
-
-	void Scene::Render()
-	{
-		for (const auto& system : m_Systems)
-		{
-			system->Render();
-		}
-	}
-
-	Entity Scene::DuplicateEntity(Entity entity)
-	{
-		entt::entity newEntEntity = m_Registry.create();
-		Entity newEntity = Entity(newEntEntity, this);
-		if (entity.HasComponent<Transform>())
-		{
-			newEntity.AddComponent<Transform>(entity.GetComponent<Transform>());
+			data.Registry = entt::registry();
+			return data;
 		}
 
-		if (entity.HasComponent<SpriteRenderer>())
+		void Init(SceneData& data)
 		{
-			newEntity.AddComponent<SpriteRenderer>(entity.GetComponent<SpriteRenderer>());
+			LoadDefaultAssets();
+
+			glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
+			data.SceneCamera = NCamera::CreateCamera(cameraPos);
+
+			Input::SetScene(&data);
+			NEntity::SetScene(&data);
+
+			RenderSystem::Init(data);
+			Physics2D::Init({ 0, -10.0f });
+			ScriptSystem::Init();
+
+			data.CurrentSceneInitializer->Init(data);
 		}
 
-		if (entity.HasComponent<Rigidbody2D>())
+		void Start(SceneData& data)
 		{
-			newEntity.AddComponent<Rigidbody2D>(entity.GetComponent<Rigidbody2D>());
+			data.CurrentSceneInitializer->Start(data);
 		}
 
-		if (entity.HasComponent<Box2D>())
+		void Update(SceneData& data, float dt)
 		{
-			newEntity.AddComponent<Box2D>(entity.GetComponent<Box2D>());
+			Physics2D::Update(data, dt);
+			ScriptSystem::Update(data, dt);
+			NCamera::Update(data.SceneCamera);
 		}
 
-		return newEntity;
-	}
-
-	Entity Scene::GetEntity(uint32 id)
-	{
-		entt::entity entity = entt::null;
-		if (id < std::numeric_limits<uint32>::max())
+		void EditorUpdate(SceneData& data, float dt)
 		{
-			entity = entt::entity(id);
+			ScriptSystem::EditorUpdate(data, dt);
+			NCamera::Update(data.SceneCamera);
 		}
-		return Entity(entity, this);
-	}
 
-	void Scene::Play()
-	{
-		m_IsPlaying = true;
-		auto view = m_Registry.view<Transform>();
-		for (auto entity : view)
+		void OnEvent(SceneData& data, const Event& e)
 		{
-			Physics2D::Get()->AddEntity(entity);
+			// TODO: If you have systems that require events, place them in here
 		}
-	}
 
-	void Scene::Stop()
-	{
-		m_IsPlaying = false;
-		Physics2D::Get()->Destroy();
-	}
-
-	void Scene::Save(const CPath& filename)
-	{
-		Log::Info("Saving scene for %s", filename.Filepath());
-		m_SaveDataJson = {
-			{"Size", 0},
-			{"Components", {}},
-			{"Project", Settings::General::s_CurrentProject.Filepath()},
-			{"Assets", AssetManager::Serialize()}
-		};
-
-		OutputArchive output(m_SaveDataJson);
-		entt::snapshot{ m_Registry }
-			.entities(output)
-			.component<Transform, Rigidbody2D, Box2D, SpriteRenderer, AABB>(output);
-
-		for (const auto& system : m_Systems)
+		void Render(SceneData& data)
 		{
-			if (strcmp(system.get()->GetName(), "Script System") == 0)
+			NFramebuffer::Bind(RenderSystem::GetMainFramebuffer());
+
+			glEnable(GL_BLEND);
+			glViewport(0, 0, 3840, 2160);
+			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			NFramebuffer::ClearColorAttachmentUint32(RenderSystem::GetMainFramebuffer(), 1, (uint32)-1);
+			//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
+
+			DebugDraw::DrawBottomBatches(data.SceneCamera);
+			RenderSystem::Render(data);
+			DebugDraw::DrawTopBatches(data.SceneCamera);
+		}
+
+		void FreeResources(SceneData& data)
+		{
+			AssetManager::Clear();
+			auto view = data.Registry.view<TransformData>();
+			data.Registry.destroy(view.begin(), view.end());
+
+			RenderSystem::Destroy();
+			Physics2D::Destroy(data);
+			ScriptSystem::FreeScriptLibrary();
+
+			data.CurrentSceneInitializer->Destroy(data);
+		}
+
+		void Play(SceneData& data)
+		{
+			data.IsPlaying = true;
+			auto view = data.Registry.view<TransformData>();
+			for (auto entity : view)
 			{
-				ScriptSystem* scriptSystem = (ScriptSystem*)system.get();
-				scriptSystem->SaveScripts(m_SaveDataJson);
-				break;
+				Physics2D::AddEntity(Entity{entity, &data});
 			}
 		}
 
-		IFile::WriteFile(m_SaveDataJson.dump(4).c_str(), filename);
-	}
-
-	void Scene::Reset()
-	{
-		AssetManager::Clear();
-		auto view = m_Registry.view<Transform>();
-		m_Registry.destroy(view.begin(), view.end());
-
-		for (auto& system : m_Systems)
+		void Stop(SceneData& data)
 		{
-			if (strcmp(system->GetName(), "Script System") == 0)
-			{
-				ScriptSystem* scriptSystem = (ScriptSystem*)system.get();
-				scriptSystem->FreeScriptLibrary();
-				break;
-			}
+			data.IsPlaying = false;
 		}
 
-		m_Systems.clear();
-		delete m_Camera;
-		Init();
-	}
-
-	void Scene::LoadDefaultAssets()
-	{
-		auto asset = AssetManager::LoadTextureFromFile(Settings::General::s_EngineAssetsPath + "images/gizmos.png", true);
-	}
-
-	static Entity FindOrCreateEntity(int id, Scene* scene, entt::registry& registry)
-	{
-		Entity entity;
-		if (registry.valid(entt::entity(id)))
+		void Save(SceneData& data, const CPath& filename)
 		{
-			entity = Entity(entt::entity(id), scene);
-		}
-		else
-		{
-			entity = Entity(registry.create(entt::entity(id)), scene);
+			Log::Info("Saving scene for %s", filename.Path.c_str());
+			data.SaveDataJson = {
+				{"Components", {}},
+				{"Project", Settings::General::s_CurrentProject.Path.c_str()},
+				{"Assets", AssetManager::Serialize()}
+			};
+
+			OutputArchive output(data.SaveDataJson);
+			entt::snapshot{ data.Registry }
+				.entities(output)
+				.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB>(output);
+
+			ScriptSystem::SaveScripts(data.SaveDataJson);
+
+			File::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
 		}
 
-		return entity;
-	}
-
-	void Scene::Load(const CPath& filename)
-	{
-		Reset();
-		Log::Info("Loading scene %s", filename.Filepath());
-
-		Settings::General::s_CurrentScene = filename;
-		File* file = IFile::OpenFile(filename);
-		if (file->m_Data.size() <= 0)
+		void Load(SceneData& data, const CPath& filename)
 		{
-			return;
+			FreeResources(data);
+			Log::Info("Loading scene %s", filename.Path.c_str());
+
+			Settings::General::s_CurrentScene = filename;
+			FileHandle* file = File::OpenFile(filename);
+			if (file->m_Size <= 0)
+			{
+				return;
+			}
+
+			Init(data);
+
+			json j = json::parse(file->m_Data);
+
+			if (j.contains("Assets"))
+			{
+				AssetManager::LoadTexturesFrom(j["Assets"]);
+				AssetManager::LoadFontsFrom(j["Assets"]);
+			}
+
+			int size = !j.contains("Components") ? 0 : j["Components"].size();
+			for (int i = 0; i < size; i++)
+			{
+				json::iterator it = j["Components"][i].begin();
+				json component = j["Components"][i];
+				if (it.key() == "SpriteRenderer")
+				{
+					Entity entity = FindOrCreateEntity(component["SpriteRenderer"]["Entity"], data, data.Registry);
+					RenderSystem::DeserializeSpriteRenderer(component, entity);
+				}
+				else if (it.key() == "FontRenderer")
+				{
+					Entity entity = FindOrCreateEntity(component["FontRenderer"]["Entity"], data, data.Registry);
+					RenderSystem::DeserializeFontRenderer(component, entity);
+				}
+				else if (it.key() == "Transform")
+				{
+					Entity entity = FindOrCreateEntity(component["Transform"]["Entity"], data, data.Registry);
+					Transform::Deserialize(component, entity);
+				}
+				else if (it.key() == "Rigidbody2D")
+				{
+					Entity entity = FindOrCreateEntity(component["Rigidbody2D"]["Entity"], data, data.Registry);
+					Physics2D::DeserializeRigidbody2D(component, entity);
+				}
+				else if (it.key() == "Box2D")
+				{
+					Entity entity = FindOrCreateEntity(component["Box2D"]["Entity"], data, data.Registry);
+					Physics2D::DeserializeBox2D(component, entity);
+				}
+				else if (it.key() == "AABB")
+				{
+					Entity entity = FindOrCreateEntity(component["AABB"]["Entity"], data, data.Registry);
+					Physics2D::DeserializeAABB(component, entity);
+				}
+				else
+				{
+					Entity entity = FindOrCreateEntity(component.front()["Entity"], data, data.Registry);
+					ScriptSystem::Deserialize(component, entity);
+				}
+			}
+
+			j = {};
+			File::CloseFile(file);
 		}
 
-		ScriptSystem* scriptSystem = nullptr;
-		for (auto& system : m_Systems)
+		void LoadScriptsOnly(SceneData& data, const CPath& filename)
 		{
-			system->Start();
-			if (strcmp(system->GetName(), "Script System") == 0)
+			FileHandle* file = File::OpenFile(filename);
+			if (file->m_Size <= 0)
 			{
-				scriptSystem = (ScriptSystem*)system.get();
+				return;
 			}
+
+			Log::Info("Loading scripts only for %s", filename.Path.c_str());
+			json j = json::parse(file->m_Data);
+			int size = !j.contains("Components") ? 0 : j["Components"].size();
+			for (int i = 0; i < size; i++)
+			{
+				json::iterator it = j["Components"][i].begin();
+				json component = j["Components"][i];
+				if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB")
+				{
+					Entity entity = FindOrCreateEntity(component.front()["Entity"], data, data.Registry);
+					ScriptSystem::Deserialize(component, entity);
+				}
+			}
+
+			j = {};
+			File::CloseFile(file);
 		}
 
-		std::unordered_map<uint32, uint32> resourceIdMap{};
-		json j = json::parse(file->m_Data);
-
-		if (!j["Assets"].is_null())
+		Entity CreateEntity(SceneData& data)
 		{
-			resourceIdMap = AssetManager::LoadFrom(j["Assets"]);
+			entt::entity e = data.Registry.create();
+			Entity entity = Entity{e, &data};
+			TransformData defaultTransform = Transform::CreateTransform();
+			NEntity::AddComponent<TransformData>(entity, defaultTransform);
+			return entity;
 		}
 
-		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
-		for (int i=0; i < size; i++)
+		Entity DuplicateEntity(SceneData& data, Entity entity)
 		{
-			json::iterator it = j["Components"][i].begin();
-			json component = j["Components"][i];
-			if (it.key() == "SpriteRenderer")
+			entt::entity newEntEntity = data.Registry.create();
+			Entity newEntity = Entity{newEntEntity, &data};
+			if (NEntity::HasComponent<TransformData>(entity))
 			{
-				Entity entity = FindOrCreateEntity(component["SpriteRenderer"]["Entity"], this, m_Registry);
-				const json& originalId = component["SpriteRenderer"]["AssetId"];
-				if (!originalId.is_null() && (uint32)originalId != std::numeric_limits<uint32>::max())
-					component["SpriteRenderer"]["AssetId"] = resourceIdMap[(uint32)originalId];
-				RenderSystem::Deserialize(component, entity);
+				NEntity::AddComponent<TransformData>(newEntity, NEntity::GetComponent<TransformData>(entity));
 			}
-			else if (it.key() == "Transform")
+
+			if (NEntity::HasComponent<SpriteRenderer>(entity))
 			{
-				Entity entity = FindOrCreateEntity(component["Transform"]["Entity"], this, m_Registry);
-				Transform::Deserialize(component, entity);
+				NEntity::AddComponent<SpriteRenderer>(newEntity, NEntity::GetComponent<SpriteRenderer>(entity));
 			}
-			else if (it.key() == "Rigidbody2D")
+
+			if (NEntity::HasComponent<Rigidbody2D>(entity))
 			{
-				Entity entity = FindOrCreateEntity(component["Rigidbody2D"]["Entity"], this, m_Registry);
-				Physics2DSystem::DeserializeRigidbody2D(component, entity);
+				NEntity::AddComponent<Rigidbody2D>(newEntity, NEntity::GetComponent<Rigidbody2D>(entity));
 			}
-			else if (it.key() == "Box2D")
+
+			if (NEntity::HasComponent<Box2D>(entity))
 			{
-				Entity entity = FindOrCreateEntity(component["Box2D"]["Entity"], this, m_Registry);
-				Physics2DSystem::DeserializeBox2D(component, entity);
+				NEntity::AddComponent<Box2D>(newEntity, NEntity::GetComponent<Box2D>(entity));
 			}
-			else if (it.key() == "AABB")
+
+			return newEntity;
+		}
+
+		Entity Scene::GetEntity(SceneData& data, uint32 id)
+		{
+			entt::entity entity = entt::null;
+			if (id < std::numeric_limits<uint32>::max())
 			{
-				Entity entity = FindOrCreateEntity(component["AABB"]["Entity"], this, m_Registry);
-				Physics2DSystem::DeserializeAABB(component, entity);
+				entity = entt::entity(id);
+			}
+			return Entity{entity, &data};
+		}
+
+		static void LoadDefaultAssets()
+		{
+			Texture gizmoSpec;
+			gizmoSpec.MagFilter = FilterMode::Linear;
+			gizmoSpec.MinFilter = FilterMode::Linear;
+			gizmoSpec.WrapS = WrapMode::Repeat;
+			gizmoSpec.WrapT = WrapMode::Repeat;
+			gizmoSpec.IsDefault = true;
+			CPath gizmoPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(gizmoPath, NCPath::CreatePath("images/gizmos.png"));
+			auto asset = AssetManager::LoadTextureFromFile(gizmoSpec, gizmoPath);
+		}
+
+		static Entity FindOrCreateEntity(int id, SceneData& scene, entt::registry& registry)
+		{
+			Entity entity;
+			if (registry.valid(entt::entity(id)))
+			{
+				entity = Entity{entt::entity(id), &scene};
 			}
 			else
 			{
-				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
-				scriptSystem->Deserialize(component, entity);
+				entity = Entity{registry.create(entt::entity(id)), &scene};
 			}
+
+			return entity;
 		}
-
-		IFile::CloseFile(file);
-	}
-
-	void Scene::LoadScriptsOnly(const CPath& filename)
-	{
-		File* file = IFile::OpenFile(filename);
-		if (file->m_Data.size() <= 0)
-		{
-			return;
-		}
-
-		ScriptSystem* scriptSystem = nullptr;
-		for (auto& system : m_Systems)
-		{
-			if (strcmp(system->GetName(), "Script System") == 0)
-			{
-				scriptSystem = (ScriptSystem*)system.get();
-			}
-		}
-
-		Log::Info("Loading scripts only for %s", filename.Filepath());
-		json j = json::parse(file->m_Data);
-		int size = j["Size"].is_null() || j["Components"].is_null() ? 0 : j["Size"];
-		for (int i = 0; i < size; i++)
-		{
-			json::iterator it = j["Components"][i].begin();
-			json component = j["Components"][i];
-			if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB")
-			{
-				Entity entity = FindOrCreateEntity(component.front()["Entity"], this, m_Registry);
-				scriptSystem->Deserialize(component, entity);
-			}
-		}
-
-		IFile::CloseFile(file);
 	}
 }

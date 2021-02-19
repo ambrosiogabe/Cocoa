@@ -1,199 +1,196 @@
-#include "externalLibs.h"
-
 #include "cocoa/physics2d/Physics2D.h"
-#include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
-#include "cocoa/physics2d/rigidbody/CollisionDetector2D.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
 
 namespace Cocoa
 {
-	AABB Physics2D::GetBoundingBoxForPixels(uint8* pixels, int width, int height, int channels)
+	namespace Physics2D
 	{
-		AABB result = Physics2DSystem::AABBFrom(glm::vec2{ 0, 0 }, glm::vec2{ width, height }, glm::vec2{ 0, 0 });
+		// Internal Variables
+		static b2Vec2 m_Gravity;
+		static b2World* m_World;
+		static float m_PhysicsTime;
 
-		if (channels == 4)
+		void Init(const glm::vec2& gravity)
 		{
-			// Initialize minimum to the texture size, and max to 0
-			int minX = width, minY = height;
-			int maxX = 0, maxY = 0;
-
-			uint8* pixelOffset = pixels;
-			for (int y = 0; y < height; y++)
-			{
-				for (int x = 0; x < width; x++)
-				{
-					uint8 alpha = pixelOffset[3];
-					// If we find non-transparent pixel, update the box bounds if required
-					if (alpha > 10)
-					{
-						if (minX > x) minX = x;
-						if (maxX < x) maxX = x;
-
-						if (minY > y) minY = y;
-						if (maxY < y) maxY = y;
-					}
-
-					pixelOffset += channels;
-				}
-			}
-
-			// Prevent off by one error
-			maxX++;
-			maxY++;
-
-			glm::vec2 center = { width / 2.0f, height / 2.0f };
-			glm::vec2 subCenter = { maxX - ((maxX - minX) / 2.0f), maxY - ((maxY - minY) / 2.0f) };
-
-			glm::vec2 offset = subCenter - center;
-			offset.y *= -1;
-			result = Physics2DSystem::AABBFrom(glm::vec2{ minX, minY }, glm::vec2{ maxX, maxY }, offset);
+			m_Gravity = { gravity.x, gravity.y };
+			m_World = new b2World{ m_Gravity };
+			m_PhysicsTime = 0.0f;
 		}
 
-		return result;
-	}
-
-	Entity Physics2D::OverlapPoint(const glm::vec2& point)
-	{
-		Physics2D* physics = Get();
-		auto group = physics->m_Scene->GetRegistry().group<AABB>(entt::get<Transform>);
-		for (Entity entity : group)
+		void Destroy(SceneData& scene)
 		{
-			auto& aabb = entity.GetComponent<AABB>();
-			auto& transform = entity.GetComponent<Transform>();
-			if (CollisionDetector2D::PointInAABB(point, aabb))
+			auto view = scene.Registry.view<Rigidbody2D>();
+			for (entt::entity rawEntity : view)
 			{
-				return entity;
+				Entity entity = { rawEntity, &scene };
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+
+				// Manually destroy all bodies, in case the physics system would like
+				// to use this world again
+				m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+				rb.m_RawRigidbody = nullptr;
 			}
-		};
+			delete m_World;
+		}
 
-		return Entity::Null;
-	}
-
-	bool Physics2D::PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
-	{
-		Physics2D* physics = Get();
-		b2PolygonShape shape;
-		shape.SetAsBox(halfSize.x, halfSize.y);
-		b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(CMath::ToRadians(rotationDegrees)));
-		return shape.TestPoint(transform, b2Vec2(point.x, point.y));
-	}
-
-	void Physics2D::AddEntity(Entity entity)
-	{
-		if (entity.HasComponent<Transform, Rigidbody2D>())
+		bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
 		{
-			Transform& transform = entity.GetComponent<Transform>();
-			Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
-
-			b2BodyDef bodyDef;
-			bodyDef.position.Set(transform.m_Position.x, transform.m_Position.y);
-			bodyDef.angle = CMath::ToRadians(transform.m_EulerRotation.z);
-			bodyDef.angularDamping = rb.m_AngularDamping;
-			bodyDef.linearDamping = rb.m_LinearDamping;
-			bodyDef.fixedRotation = rb.m_FixedRotation;
-			bodyDef.bullet = rb.m_ContinuousCollision;
-
-			if (rb.m_BodyType == BodyType2D::Dynamic)
-			{
-				bodyDef.type = b2BodyType::b2_dynamicBody;
-			}
-			else if (rb.m_BodyType == BodyType2D::Static)
-			{
-				bodyDef.type = b2BodyType::b2_staticBody;
-			}
-			else
-			{
-				bodyDef.type = b2BodyType::b2_kinematicBody;
-			}
-
-			b2Body* body = m_World.CreateBody(&bodyDef);
-			rb.m_RawRigidbody = body;
-
 			b2PolygonShape shape;
-			if (entity.HasComponent<Box2D>())
+			shape.SetAsBox(halfSize.x, halfSize.y);
+			b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(CMath::ToRadians(rotationDegrees)));
+			return shape.TestPoint(transform, b2Vec2(point.x, point.y));
+		}
+
+		void AddEntity(Entity entity)
+		{
+			if (NEntity::HasComponent<TransformData, Rigidbody2D>(entity))
 			{
-				Box2D& box = entity.GetComponent<Box2D>();
-				shape.SetAsBox(box.m_HalfSize.x * transform.m_Scale.x, box.m_HalfSize.y * transform.m_Scale.y);
-				b2Vec2 pos = bodyDef.position;
-				bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.m_Scale.x, pos.y - box.m_HalfSize.y * transform.m_Scale.y);
+				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+
+				b2BodyDef bodyDef;
+				bodyDef.position.Set(transform.Position.x, transform.Position.y);
+				bodyDef.angle = CMath::ToRadians(transform.EulerRotation.z);
+				bodyDef.angularDamping = rb.m_AngularDamping;
+				bodyDef.linearDamping = rb.m_LinearDamping;
+				bodyDef.fixedRotation = rb.m_FixedRotation;
+				bodyDef.bullet = rb.m_ContinuousCollision;
+
+				if (rb.m_BodyType == BodyType2D::Dynamic)
+				{
+					bodyDef.type = b2BodyType::b2_dynamicBody;
+				}
+				else if (rb.m_BodyType == BodyType2D::Static)
+				{
+					bodyDef.type = b2BodyType::b2_staticBody;
+				}
+				else
+				{
+					bodyDef.type = b2BodyType::b2_kinematicBody;
+				}
+
+				b2Body* body = m_World->CreateBody(&bodyDef);
+				rb.m_RawRigidbody = body;
+
+				b2PolygonShape shape;
+				if (NEntity::HasComponent<Box2D>(entity))
+				{
+					Box2D& box = NEntity::GetComponent<Box2D>(entity);
+					shape.SetAsBox(box.m_HalfSize.x * transform.Scale.x, box.m_HalfSize.y * transform.Scale.y);
+					b2Vec2 pos = bodyDef.position;
+					bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.Scale.x, pos.y - box.m_HalfSize.y * transform.Scale.y);
+				}
+				else if (NEntity::HasComponent<Circle>(entity))
+				{
+					// TODO: IMPLEMENT ME
+					Circle& circle = NEntity::GetComponent<Circle>(entity);
+				}
+
+				body->CreateFixture(&shape, rb.m_Mass);
 			}
-			else if (entity.HasComponent<Circle>())
+		}
+
+		void Update(SceneData& scene, float dt)
+		{
+			m_PhysicsTime += dt;
+			while (m_PhysicsTime > 0.0f)
 			{
-				// TODO: IMPLEMENT ME
-				Circle& circle = entity.GetComponent<Circle>();
+				m_World->Step(Settings::Physics2D::s_Timestep, Settings::Physics2D::s_VelocityIterations, Settings::Physics2D::s_PositionIterations);
+				m_PhysicsTime -= Settings::Physics2D::s_Timestep;
 			}
 
-			body->CreateFixture(&shape, rb.m_Mass);
+			auto view = scene.Registry.view<TransformData, Rigidbody2D>();
+			for (entt::entity rawEntity : view)
+			{
+				Entity entity = { rawEntity, &scene };
+				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
+				b2Vec2 position = body->GetPosition();
+				transform.Position.x = position.x;
+				transform.Position.y = position.y;
+				transform.EulerRotation.z = CMath::ToDegrees(body->GetAngle());
+			}
 		}
-	}
 
-	void Physics2D::Update(float dt)
-	{
-		m_PhysicsTime += dt;
-		while (m_PhysicsTime > 0.0f)
+		void Serialize(json& j, Entity entity, const AABB& box)
 		{
-			m_World.Step(Settings::Physics2D::s_Timestep, Settings::Physics2D::s_VelocityIterations, Settings::Physics2D::s_PositionIterations);
-			m_PhysicsTime -= Settings::Physics2D::s_Timestep;
+			json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
+			json offset = CMath::Serialize("Offset", box.m_Offset);
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"AABB", {
+					{"Entity", NEntity::GetID(entity)},
+					halfSize,
+					offset
+				}}
+			};
 		}
 
-		auto view = m_Scene->GetRegistry().view<Transform, Rigidbody2D>();
-		for (Entity entity : view)
+		void DeserializeAABB(json& j, Entity entity)
 		{
-			Transform& transform = entity.GetComponent<Transform>();
-			Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
-			b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
-			b2Vec2 position = body->GetPosition();
-			transform.m_Position.x = position.x;
-			transform.m_Position.y = position.y;
-			transform.m_EulerRotation.z = CMath::ToDegrees(body->GetAngle());
+			AABB box;
+			box.m_HalfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
+			box.m_Size = box.m_HalfSize * 2.0f;
+			box.m_Offset = CMath::DeserializeVec2(j["AABB"]["Offset"]);
+			NEntity::AddComponent<AABB>(entity, box);
 		}
-	}
 
-	void Physics2D::Destroy()
-	{
-		auto view =  m_Scene->GetRegistry().view<Rigidbody2D>();// m_Registry.view<Rigidbody2D>();
-		for (Entity entity : view)
+		void Serialize(json& j, Entity entity, const Box2D& box)
 		{
-			Rigidbody2D& rb = entity.GetComponent<Rigidbody2D>();
-
-			// Manually destroy all bodies, in case the physics system would like
-			// to use this world again
-			m_World.DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
-			rb.m_RawRigidbody = nullptr;
+			json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"Box2D", {
+					{"Entity", NEntity::GetID(entity)},
+					halfSize,
+				}}
+			};
 		}
-	}
 
-	// -------------------------------------------------------------------------
-	// Should be called once at beginning of engine initialization
-	// -------------------------------------------------------------------------
-	std::unique_ptr<Physics2D> Physics2D::s_Instance = nullptr;
-	void Physics2D::Init()
-	{
-		if (s_Instance == nullptr)
+		void DeserializeBox2D(json& j, Entity entity)
 		{
-			s_Instance = std::make_unique<Physics2D>(nullptr);
+			Box2D box;
+			box.m_HalfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
+			box.m_Size = box.m_HalfSize * 2.0f;
+			NEntity::AddComponent<Box2D>(entity, box);
 		}
-		else
+
+		void Serialize(json& j, Entity entity, const Rigidbody2D& rb)
 		{
-			Log::Error("Tried to reinitialize Physics2D.");
+			json angularDamping = { "AngularDamping", rb.m_AngularDamping };
+			json linearDamping = { "LinearDamping", rb.m_LinearDamping };
+			json mass = { "Mass", rb.m_Mass };
+			json velocity = CMath::Serialize("Velocity", rb.m_Velocity);
+			json continousCollision = { "ContinousCollision", rb.m_ContinuousCollision };
+			json fixedRotation = { "FixedRotation", rb.m_FixedRotation };
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"Rigidbody2D", {
+					{"Entity", NEntity::GetID(entity)},
+					angularDamping,
+					linearDamping,
+					mass,
+					velocity,
+					continousCollision,
+					fixedRotation
+				}}
+			};
+		}
+
+		void DeserializeRigidbody2D(json& j, Entity entity)
+		{
+			Rigidbody2D rb;
+			rb.m_AngularDamping = j["Rigidbody2D"]["AngularDamping"];
+			rb.m_LinearDamping = j["Rigidbody2D"]["LinearDamping"];
+			rb.m_Mass = j["Rigidbody2D"]["Mass"];
+			rb.m_Velocity = CMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
+			rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
+			rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
+			NEntity::AddComponent<Rigidbody2D>(entity, rb);
 		}
 	}
-
-	void Physics2D::SetScene(Scene* scene)
-	{
-		s_Instance->m_Scene = scene;
-	}
-
-	Physics2D* Physics2D::Get()
-	{
-		Log::Assert(s_Instance != nullptr, "Physics2D was never initialized.");
-
-		return s_Instance.get();
-	}
-
-	Physics2D::Physics2D(Scene* scene) 
-		: m_Scene(scene) {}
 }

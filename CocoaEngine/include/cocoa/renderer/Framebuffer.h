@@ -1,29 +1,37 @@
 #pragma once
 
 #include "cocoa/renderer/Texture.h"
+#include "cocoa/core/Handle.h"
+#include "cocoa/util/DynamicArray.h"
 
 namespace Cocoa
 {
-	class COCOA Framebuffer
+	struct Framebuffer
 	{
-	public:
-		Framebuffer(int width, int height)
-			: m_Width(width), m_Height(height)
-		{
-			Init();
-		}
+		uint32 Fbo = (uint32)-1;
+		int32 Width = 0;
+		int32 Height = 0;
 
-		void Init();
+		// Depth/Stencil attachment (optional)
+		uint32 Rbo = (uint32)-1;
+		ByteFormat DepthStencilFormat = ByteFormat::None;
+		bool IncludeDepthStencil = true;
 
-		Texture* GetTexture() const { return m_Texture; }
-		unsigned int GetId() const { return m_ID; }
-		int GetWidth() const { return m_Width; }
-		int GetHight() const { return m_Height; }
+		// Color attachments
+		std::vector<Texture> ColorAttachments; // TODO: All color attachments will be resized to match the framebuffer size (perhaps this should be changed in the future...?)
+	};
 
-	private:
-		int m_Width = 0;
-		int m_Height = 0;
-		unsigned int m_ID = 0;
-		Texture* m_Texture = nullptr;
+	namespace NFramebuffer
+	{
+		COCOA void Delete(Framebuffer& framebuffer);
+		COCOA void Generate(Framebuffer& framebuffer);
+
+		COCOA const Texture& GetColorAttachment(const Framebuffer& framebuffer, int index);
+		COCOA void AddColorAttachment(Framebuffer& framebuffer, const Texture& textureSpec); // TODO: The order the attachments are added will be the index they get (change this in the future too...?)
+		COCOA void ClearColorAttachmentUint32(const Framebuffer& framebuffer, int colorAttachment, uint32 clearColor);
+		COCOA uint32 ReadPixelUint32(const Framebuffer& framebuffer, int colorAttachment, int x, int y);
+
+		COCOA void Bind(const Framebuffer& framebuffer);
+		COCOA void Unbind(const Framebuffer& framebuffer);
 	};
 }

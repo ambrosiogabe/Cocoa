@@ -16,18 +16,18 @@ namespace Cocoa
 #ifdef _WIN32
 	void FileSystemWatcher::StartThread()
 	{
-		if (m_Path == nullptr || m_Path.Size() == 0)
+		if (NCPath::Size(m_Path) == 0)
 		{
 			return;
 		}
 
-		HANDLE dirHandle = CreateFileA(m_Path.Filepath(), GENERIC_READ | FILE_LIST_DIRECTORY,
+		HANDLE dirHandle = CreateFileA(m_Path.Path.c_str(), GENERIC_READ | FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
 			NULL);
 		if (dirHandle == INVALID_HANDLE_VALUE)
 		{
-			Log::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Filepath());
+			Log::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Path.c_str());
 			return;
 		}
 
@@ -83,7 +83,7 @@ namespace Cocoa
 		pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 		if (pollingOverlap.hEvent == NULL)
 		{
-			Log::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Filepath());
+			Log::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Path.c_str());
 			return;
 		}
 
@@ -109,8 +109,6 @@ namespace Cocoa
 			DWORD event = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
 			offset = 0;
 			int rename = 0;
-			char oldName[MAX_PATH];
-			char newName[MAX_PATH];
 
 			if (event == WAIT_OBJECT_0 + 1)
 			{
@@ -128,19 +126,19 @@ namespace Cocoa
 				case FILE_ACTION_ADDED:
 					if (m_OnCreated != nullptr)
 					{
-						m_OnCreated(CPath(filename));
+						m_OnCreated(NCPath::CreatePath(filename));
 					}
 					break;
 				case FILE_ACTION_REMOVED:
 					if (m_OnDeleted != nullptr)
 					{
-						m_OnDeleted(CPath(filename));
+						m_OnDeleted(NCPath::CreatePath(filename));
 					}
 					break;
 				case FILE_ACTION_MODIFIED:
 					if (m_OnChanged != nullptr)
 					{
-						m_OnChanged(CPath(filename));
+						m_OnChanged(NCPath::CreatePath(filename));
 					}
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
@@ -149,11 +147,11 @@ namespace Cocoa
 				case FILE_ACTION_RENAMED_NEW_NAME:
 					if (m_OnRenamed != nullptr)
 					{
-						m_OnRenamed(CPath(filename));
+						m_OnRenamed(NCPath::CreatePath(filename));
 					}
 					break;
 				default:
-					Log::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Filepath());
+					Log::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Path.c_str());
 					break;
 				}
 

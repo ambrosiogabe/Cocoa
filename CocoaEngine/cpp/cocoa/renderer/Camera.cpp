@@ -1,65 +1,61 @@
 #include "cocoa/renderer/Camera.h"
-#include "cocoa/core/Application.h"
 #include "cocoa/events/Input.h"
 
-namespace Cocoa {
-    Camera::Camera(glm::vec3& position) {
-        this->m_Transform = Transform(position, glm::vec3(1.0f), glm::vec3(0.0f));
-        this->m_CameraForward = glm::vec3();
-        this->m_CameraUp = glm::vec3();
-        this->m_CameraRight = glm::vec3();
+namespace Cocoa
+{
+	namespace NCamera
+	{
+		Camera CreateCamera(glm::vec3& position)
+		{
+			Camera res;
+			res.Transform = Transform::CreateTransform(position, glm::vec3(1.0f), glm::vec3(0.0f));
+			// TODO: Make this customizable
+			res.ProjectionSize = { 1920.0f, 1080.0f };
+			AdjustPerspective(res);
+			return res;
+		}
 
-        this->m_InverseProjection = glm::mat4();
-        this->m_OrthoInverseProjection = glm::mat4();
-        this->m_OrthoView = glm::mat4();
-        this->m_OrthoInverseView = glm::mat4();
+		void Update(Camera& camera)
+		{
+			AdjustPerspective(camera);
+			CalculateOrthoViewMatrix(camera);
+		}
 
-        this->AdjustPerspective();
-    }
+		void AdjustPerspective(Camera& camera)
+		{
+			camera.ProjectionMatrix = glm::ortho(-1920.0f * camera.Zoom / 2.0f, 1920.0f * camera.Zoom / 2.0f, -1080.0f * camera.Zoom / 2.0f, 1080.0f * camera.Zoom / 2.0f, 0.5f, 100.0f);
+			camera.InverseProjection = glm::inverse(camera.ProjectionMatrix);
+		}
 
-    void Camera::AdjustPerspective() {
-        this->CalculateAspect();
+		void CalculateViewMatrix(Camera& camera)
+		{
+			glm::vec3 cameraForward;
+			cameraForward.x = glm::cos(glm::radians(camera.Transform.EulerRotation.y)) * glm::cos(glm::radians(camera.Transform.EulerRotation.x));
+			cameraForward.y = glm::sin(glm::radians(camera.Transform.EulerRotation.x));
+			cameraForward.z = glm::sin(glm::radians(camera.Transform.EulerRotation.y)) * glm::cos(glm::radians(camera.Transform.EulerRotation.x));
+			cameraForward = glm::normalize(cameraForward);
 
-        this->m_ProjectionMatrix = glm::perspective(m_Fov, m_Aspect, 0.5f, 10000.0f);
-        this->m_OrthoProjection = glm::ortho(-1920.0f * m_Zoom / 2.0f, 1920.0f * m_Zoom / 2.0f, -1080.0f * m_Zoom / 2.0f, 1080.0f * m_Zoom / 2.0f, 0.5f, 100.0f);
+			glm::vec3 cameraRight = glm::cross(cameraForward, glm::vec3(1, 0, 0));
+			glm::vec3 cameraUp = glm::cross(cameraRight, cameraForward);
 
-        this->m_InverseProjection = glm::inverse(m_ProjectionMatrix);
-        this->m_OrthoInverseProjection = glm::inverse(m_OrthoProjection);
-    }
+			glm::vec3 front = glm::vec3(camera.Transform.Position.x, camera.Transform.Position.y, camera.Transform.Position.z) + cameraForward;
 
-    glm::mat4& Camera::GetViewMatrix() {
-        this->m_CameraForward.x = glm::cos(glm::radians(m_Transform.m_EulerRotation.y)) * glm::cos(glm::radians(m_Transform.m_EulerRotation.x));
-        this->m_CameraForward.y = glm::sin(glm::radians(m_Transform.m_EulerRotation.x));
-        this->m_CameraForward.z = glm::sin(glm::radians(m_Transform.m_EulerRotation.y)) * glm::cos(glm::radians(m_Transform.m_EulerRotation.x));
-        this->m_CameraForward = glm::normalize(m_CameraForward);
+			camera.ViewMatrix = glm::lookAt(camera.Transform.Position, front, cameraUp);
+			camera.InverseView = glm::inverse(camera.ViewMatrix);
+		}
 
-        this->m_CameraRight = glm::cross(m_CameraUp, glm::vec3(0, 1, 0));
-        this->m_CameraUp = glm::cross(m_CameraRight, m_CameraForward);
+		void CalculateOrthoViewMatrix(Camera& camera)
+		{
+			glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(camera.Transform.Position.x, camera.Transform.Position.y, 0.0f);
+			glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
 
-        glm::vec3 front = glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, m_Transform.m_Position.z) + m_CameraForward;
+			camera.ViewMatrix = glm::lookAt(glm::vec3(camera.Transform.Position.x, camera.Transform.Position.y, 20), cameraFront, cameraUp);
+			camera.InverseView = glm::inverse(camera.ViewMatrix);
+		}
 
-        m_ViewMatrix = glm::lookAt(m_Transform.m_Position, front, m_CameraUp);
-        return m_ViewMatrix;
-    }
-
-    glm::mat4& Camera::GetOrthoView() {
-        glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 0.0f);
-        glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
-        glm::normalize(cameraUp);
-
-        this->m_OrthoView = glm::lookAt(glm::vec3(m_Transform.m_Position.x, m_Transform.m_Position.y, 20), cameraFront, cameraUp);
-        this->m_OrthoInverseView = glm::inverse(m_OrthoView);
-
-        return this->m_OrthoView;
-    }
-
-    void Camera::CalculateAspect() {
-        // TODO: actually make this calculate window's current aspect
-        this->m_Aspect = Application::Get()->GetWindow()->GetTargetAspectRatio();
-    }
-
-    glm::vec2 Camera::ScreenToOrtho()
-    {
-        return Input::ScreenToOrtho(this);
-    }
+		glm::vec2 ScreenToOrtho(const Camera& camera)
+		{
+			return Input::ScreenToOrtho(camera);
+		}
+	}
 }

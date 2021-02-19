@@ -2,63 +2,36 @@
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "cocoa/systems/System.h"
 #include "cocoa/scenes/Scene.h"
 #include "cocoa/core/Entity.h"
+#include "cocoa/scenes/SceneData.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#include <libloaderapi.h>
-#endif
-
-class ImGuiContext;
 namespace Cocoa
 {
     typedef void (*DeleteScriptFn)();
     typedef void (*InitScriptsFn)();
-    typedef void (*InitImGuiFn)(ImGuiContext*);
+    typedef void (*InitImGuiFn)(void*);
     typedef void (*SaveScriptFn)(json&);
     typedef void (*LoadScriptFn)(json&, Entity);
     typedef void (*ImGuiFn)(Entity);
-    typedef void (*UpdateScriptFn)(float, Scene*);
-    typedef void (*EditorUpdateScriptFn)(float, Scene*);
+    typedef void (*UpdateScriptFn)(float, SceneData*);
+    typedef void (*EditorUpdateScriptFn)(float, SceneData*);
     typedef void (*AddComponentFromStringFn)(std::string, entt::entity, entt::registry&);
 
-    class COCOA ScriptSystem : public System
+    namespace ScriptSystem
     {
-    public:
-        ScriptSystem(const char* name, Scene* scene)
-            : System(name, scene)
-        {
-            m_Module = NULL;
-        }
-        ~ScriptSystem();
+        COCOA void Init();
+        COCOA void Update(SceneData& scene, float dt);
+        COCOA void EditorUpdate(SceneData& scene, float dt);
 
-        virtual void Start() override;
-        virtual void Update(float dt) override;
-        virtual void EditorUpdate(float dt) override;
-        void ImGui(Entity entity);
-        void Reload();
-        void SaveScripts(json& j);
-        void Deserialize(json& j, Entity entity);
+        COCOA void ImGui(Entity entity);
+        COCOA void InitImGui(void* context);
 
-        bool FreeScriptLibrary();
-        void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry);
+        COCOA void Reload();
+        COCOA void SaveScripts(json& j);
+        COCOA void Deserialize(json& j, Entity entity);
 
-    public:
-        InitImGuiFn m_InitImGui = nullptr;
-
-    private:
-        SaveScriptFn m_SaveScripts = nullptr;
-        LoadScriptFn m_LoadScript = nullptr;
-        DeleteScriptFn m_DeleteScripts = nullptr;
-        UpdateScriptFn m_UpdateScripts = nullptr;
-        InitScriptsFn m_InitScripts = nullptr;
-        EditorUpdateScriptFn m_EditorUpdateScripts = nullptr;
-        AddComponentFromStringFn m_AddComponentFromString = nullptr;
-        ImGuiFn m_ImGui = nullptr;
-
-        bool m_IsLoaded = false;
-        HMODULE m_Module;
+        COCOA bool FreeScriptLibrary();
+        COCOA void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry);
     };
 }

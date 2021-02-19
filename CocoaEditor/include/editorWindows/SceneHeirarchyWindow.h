@@ -1,19 +1,15 @@
 #pragma once
-#include "cocoa/scenes/Scene.h"
+#include "cocoa/core/Core.h"
+#include "externalLibs.h"
+
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
-	class SceneHeirarchyWindow
+	namespace SceneHeirarchyWindow
 	{
-	public:
-		static void SetScene(Scene* scene);
+		void SetScene(SceneData& scene);
 
-		static void ImGui();
-
-	private:
-		static void DoTreeNode(int& index, const Transform& transform);
-
-	private:
-		static Scene* s_CurrentScene;
+		void ImGui();
 	};
 }

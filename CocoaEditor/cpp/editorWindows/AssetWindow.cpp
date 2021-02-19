@@ -1,180 +1,313 @@
-#include "EditorWindows/AssetWindow.h"
-#include "Gui/ImGuiExtended.h"
-#include "FontAwesome.h"
-#include "Util/Settings.h"
-#include "CocoaEditorApplication.h"
+#include "editorWindows/AssetWindow.h"
+#include "core/CocoaEditorApplication.h"
+#include "gui/FontAwesome.h"
+#include "gui/ImGuiExtended.h"
+#include "util/Settings.h"
 
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/file/IFile.h"
-#include "cocoa/file/IFileDialog.h"
+#include "cocoa/file/File.h"
+#include "cocoa/file/FileDialog.h"
 #include "cocoa/file/CPath.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/scenes/Scene.h"
+#include "cocoa/renderer/fonts/FontUtil.h"
 
 namespace Cocoa
 {
-	AssetWindow::AssetWindow(Scene* scene) 
-		: m_Scene(scene) {}
-
-	void AssetWindow::ImGui()
+	namespace AssetWindow
 	{
-		ImGui::Begin("Assets");
-		ShowMenuBar();
+		// Internal Variables
+		static glm::vec2 m_ButtonSize{ 128, 128 };
+		static AssetView m_CurrentView = AssetView::TextureBrowser;
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBgActive));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Text));
-		ImGui::PushStyleColor(ImGuiCol_TextDisabled, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+		// Forward declarations
+		static void ShowMenuBar();
+		static void ShowTextureBrowser();
+		static void ShowSceneBrowser(SceneData& scene);
+		static void ShowScriptBrowser();
+		static void ShowFontBrowser();
+		static bool IconButton(const char* icon, const char* label, const glm::vec2& size);
+		static bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size);
 
-		switch (m_CurrentView) 
+		void ImGui(SceneData& scene)
 		{
-		case AssetView::TextureBrowser:
-			ShowTextureBrowser();
-			break;
-		case AssetView::SceneBrowser:
-			ShowSceneBrowser();
-			break;
-		case AssetView::ScriptBrowser:
-			ShowScriptBrowser();
-			break;
-		default:
-			Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
-			break;
-		}
+			ImGui::Begin("Assets");
+			ShowMenuBar();
 
-		ImGui::PopStyleColor(4);
-		ImGui::End();
-	}
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBgActive));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_Text));
+			ImGui::PushStyleColor(ImGuiCol_TextDisabled, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
 
-	void AssetWindow::ShowMenuBar()
-	{
-		ImGui::BeginGroup();
-
-		std::array<const char*, (int)AssetView::Length> assetViews = { "TextureBrowser", "SceneBrowser", "ScriptBrowser" };
-		CImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
-		ImGui::EndGroup();
-		ImGui::Separator();
-	}
-
-	bool AssetWindow::IconButton(const char* icon, const char* label, const glm::vec2& size)
-	{
-		ImGui::BeginGroup();
-		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-		bool res = ImGui::Button(icon, ImVec2(size.x, size.y));
-		ImGui::PopFont();
-		
-		ImVec2 textSize = ImGui::CalcTextSize(label);
-		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(size.x / 2.0f, 0.0f) -  ImVec2(textSize.x / 2.0f, 0.0f));
-		ImGui::Text(label);
-		ImGui::EndGroup();
-		return res;
-	}
-
-	bool AssetWindow::ImageButton(Texture* texture, const char* label, const glm::vec2& size)
-	{
-		ImGui::BeginGroup();
-		ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-		bool res = CImGui::ImageButton(*texture, size);
-		ImGui::PopFont();
-
-		ImVec2 textSize = ImGui::CalcTextSize(label);
-		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(size.x / 2.0f, 0.0f) - ImVec2(textSize.x / 2.0f, 0.0f));
-		ImGui::Text(label);
-		ImGui::EndGroup();
-		return res;
-	}
-
-	void AssetWindow::ShowTextureBrowser()
-	{
-		std::vector<std::shared_ptr<Texture>> textures = AssetManager::GetAllAssets<Texture>(AssetManager::GetScene());
-		for (auto tex : textures)
-		{
-			if (tex->IsDefault())
+			switch (m_CurrentView)
 			{
-				continue;
+			case AssetView::TextureBrowser:
+				ShowTextureBrowser();
+				break;
+			case AssetView::SceneBrowser:
+				ShowSceneBrowser(scene);
+				break;
+			case AssetView::ScriptBrowser:
+				ShowScriptBrowser();
+				break;
+			case AssetView::FontBrowser:
+				ShowFontBrowser();
+				break;
+			default:
+				Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
+				break;
 			}
 
-			int texResourceId = tex->GetResourceId();
-			ImGui::PushID(texResourceId);
-			if (ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize))
-			{
-				//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
-			}
-
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-			{
-				ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
-				ImageButton(tex.get(), tex->GetFilepath().Filename(), m_ButtonSize);
-				ImGui::EndDragDropSource();
-			}
-			ImGui::SameLine();
-
-			ImGui::PopID();
+			ImGui::PopStyleColor(4);
+			ImGui::End();
 		}
 
-		if (IconButton(ICON_FA_PLUS, "Add Texture", m_ButtonSize))
+		static void ShowMenuBar()
 		{
-			std::string initialPath;
-			FileDialogResult result;
-			if (IFileDialog::GetOpenFileName(initialPath, result))
+			ImGui::BeginGroup();
+
+			std::array<const char*, (int)AssetView::Length> assetViews = { "Texture Browser", "Scene Browser", "Script Browser", "Font Browser" };
+			CImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
+			ImGui::EndGroup();
+			ImGui::Separator();
+		}
+
+		static bool IconButton(const char* icon, const char* label, const glm::vec2& size)
+		{
+			ImGui::BeginGroup();
+			ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
+			bool res = ImGui::Button(icon, ImVec2(size.x, size.y));
+			ImGui::PopFont();
+
+			ImVec2 textSize = ImGui::CalcTextSize(label);
+			ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(size.x / 2.0f, 0.0f) - ImVec2(textSize.x / 2.0f, 0.0f));
+			ImGui::Text(label);
+			ImGui::EndGroup();
+			return res;
+		}
+
+		static bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size)
+		{
+			ImGui::BeginGroup();
+			ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
+			float texRatio = (float)texture.Width / (float)texture.Height;
+			glm::vec2 adjustedSize = { size.x * texRatio, size.y };
+			bool res = CImGui::ImageButton(texture, adjustedSize);
+			ImGui::PopFont();
+
+			ImVec2 textSize = ImGui::CalcTextSize(label);
+			ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(size.x / 2.0f, 0.0f) - ImVec2(textSize.x / 2.0f, 0.0f));
+			ImGui::Text(label);
+			ImGui::EndGroup();
+			return res;
+		}
+
+		static void ShowTextureBrowser()
+		{
+			const std::vector<Texture>& textures = AssetManager::GetAllTextures();
+			int i = -1;
+			for (auto& tex : textures)
 			{
-				AssetManager::LoadTextureFromFile(CPath(result.filepath));
+				i++;
+				if (tex.IsDefault || TextureUtil::IsNull(tex))
+				{
+					continue;
+				}
+
+				int texResourceId = i;
+				ImGui::PushID(texResourceId);
+				if (ImageButton(tex, NCPath::Filename(tex.Path), m_ButtonSize))
+				{
+					//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
+				}
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+					ImageButton(tex, NCPath::Filename(tex.Path), m_ButtonSize);
+					ImGui::EndDragDropSource();
+				}
+				ImGui::SameLine();
+
+				ImGui::PopID();
+			}
+
+			if (IconButton(ICON_FA_PLUS, "Add Texture", m_ButtonSize))
+			{
+				std::string initialPath;
+				FileDialogResult result;
+				if (FileDialog::GetOpenFileName(initialPath, result))
+				{
+					Texture texSpec;
+					texSpec.IsDefault = false;
+					texSpec.MagFilter = FilterMode::Nearest;
+					texSpec.MinFilter = FilterMode::Nearest;
+					texSpec.WrapS = WrapMode::Repeat;
+					texSpec.WrapT = WrapMode::Repeat;
+					AssetManager::LoadTextureFromFile(texSpec, NCPath::CreatePath(result.filepath));
+				}
 			}
 		}
-	}
 
-	void AssetWindow::ShowSceneBrowser()
-	{
-		auto sceneFiles = IFile::GetFilesInDir(Settings::General::s_WorkingDirectory + "scenes");
-		int sceneCount = 0;
-		for (auto scene : sceneFiles)
+		static void ShowFontBrowser()
 		{
-			ImGui::PushID(sceneCount++);
-			if (IconButton(ICON_FA_FILE, scene.Filename(), m_ButtonSize))
+			const std::vector<Font>& fonts = AssetManager::GetAllFonts();
+			int i = -1;
+			for (auto& font : fonts)
 			{
-				m_Scene->Save(Settings::General::s_CurrentScene);
-				m_Scene->Load(scene);
+				i++;
+				if (font.IsDefault())
+				{
+					continue;
+				}
+
+				int fontResourceId = i;
+				ImGui::PushID(fontResourceId);
+				const Texture& fontTexture = AssetManager::GetTexture(font.m_FontTexture.m_AssetId);
+
+				if (ImageButton(fontTexture, NCPath::Filename(font.m_Path), m_ButtonSize))
+				{
+					//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
+				}
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					ImGui::SetDragDropPayload("FONT_HANDLE_ID", &fontResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+					ImageButton(fontTexture, NCPath::Filename(font.m_Path), m_ButtonSize);
+					ImGui::EndDragDropSource();
+				}
+				ImGui::SameLine();
+
+				ImGui::PopID();
 			}
-			ImGui::SameLine();
-			ImGui::PopID();
-		}
 
-		if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
-		{
-			m_Scene->Save(Settings::General::s_CurrentScene);
-			m_Scene->Reset();
-			char newSceneTitle[32] = "New Scene (";
-			snprintf(&newSceneTitle[11], 32 - 11, "%d).cocoa", sceneCount);
-			Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory + "scenes" + std::string(newSceneTitle);
-			m_Scene->Save(Settings::General::s_CurrentScene);
-			CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
-			editor->GetEditorLayer()->SaveProject();
-		}
-	}
-
-	void AssetWindow::ShowScriptBrowser()
-	{
-		auto scriptFiles = IFile::GetFilesInDir(Settings::General::s_WorkingDirectory + "scripts");
-		int scriptCount = 0;
-		for (auto script : scriptFiles)
-		{
-			ImGui::PushID(scriptCount++);
-			if (IconButton(ICON_FA_FILE, script.Filename(), m_ButtonSize))
+			if (IconButton(ICON_FA_PLUS, "Add Font", m_ButtonSize))
 			{
-				Log::Warning("TODO: Create a way to load a script in visual studio.");
+				ImGui::OpenPopup("FontCreator");
 			}
-			ImGui::SameLine();
-			ImGui::PopID();
+
+			if (ImGui::BeginPopup("FontCreator", ImGuiWindowFlags_NoDocking))
+			{
+				//const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096
+				static std::string fontPath;
+
+				CImGui::ReadonlyText("Font File: ", fontPath);
+				ImGui::SameLine();
+				if (CImGui::Button("Select Font File", { 0, 0 }, false))
+				{
+					FileDialogResult result;
+					if (FileDialog::GetOpenFileName(fontPath, result))
+					{
+						fontPath = result.filepath;
+					}
+					else
+					{
+						Log::Warning("Unable to get file name for font.");
+					}
+				}
+
+				static int fontSize = 32;
+				CImGui::UndoableDragInt("Font Size: ", fontSize);
+
+				CPath assetsDir = Settings::General::s_WorkingDirectory;
+				NCPath::Join(assetsDir, NCPath::CreatePath("assets"));
+
+				CPath outputTexture = assetsDir;
+				std::string outputTextureFilename = NCPath::GetFilenameWithoutExt(NCPath::CreatePath(fontPath)) + ".png";
+				NCPath::Join(outputTexture, NCPath::CreatePath(outputTextureFilename));
+
+				// Advanced stuff...
+				static int glyphRangeStart = 0;
+				CImGui::UndoableDragInt("Glyph Range Start: ", glyphRangeStart);
+
+				static int glyphRangeEnd = 'z' + 1;
+				CImGui::UndoableDragInt("Glyph Range End: ", glyphRangeEnd);
+
+				static int padding = 5;
+				CImGui::UndoableDragInt("Padding: ", padding);
+
+				static int upscaleResolution = 4096;
+				CImGui::UndoableDragInt("Upscale Resolution: ", upscaleResolution);
+
+				ImGui::NewLine();
+				if (CImGui::Button("Generate Font", { 0, 0 }, false))
+				{
+					AssetManager::LoadFontFromTtfFile(NCPath::CreatePath(fontPath), fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
 		}
 
-		if (IconButton(ICON_FA_PLUS, "DefaultScript", m_ButtonSize))
+		static void ShowSceneBrowser(SceneData& scene)
 		{
-			char newScriptName[32] = "DefaultScript";
-			snprintf(&newScriptName[13], 32 - 13, "%d", scriptCount);
-			std::string scriptName = newScriptName;
-			IFile::CopyFile(IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.cpp", CPath(Settings::General::s_CurrentProject.GetDirectory(-1)) + "scripts", newScriptName);
-			IFile::CopyFile(IFile::GetSpecialAppFolder() + "CocoaEngine" + "DefaultScript.h", CPath(Settings::General::s_CurrentProject.GetDirectory(-1)) + "scripts", newScriptName);
+			CPath scenesPath = Settings::General::s_WorkingDirectory;
+			NCPath::Join(scenesPath, NCPath::CreatePath("scenes"));
+			auto sceneFiles = File::GetFilesInDir(scenesPath);
+			int sceneCount = 0;
+			for (auto scenePath : sceneFiles)
+			{
+				ImGui::PushID(sceneCount++);
+				if (IconButton(ICON_FA_FILE, NCPath::Filename(scenePath), m_ButtonSize))
+				{
+					Scene::Save(scene, Settings::General::s_CurrentScene);
+					Scene::Load(scene, scenePath);
+				}
+				ImGui::SameLine();
+				ImGui::PopID();
+			}
+
+			if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
+			{
+				Scene::Save(scene, Settings::General::s_CurrentScene);
+				Scene::FreeResources(scene);
+				static char newSceneTitle[32] = "New Scene (";
+				snprintf(&newSceneTitle[11], 32 - 11, "%d).cocoa", sceneCount);
+				Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory;
+				NCPath::Join(Settings::General::s_CurrentScene, NCPath::CreatePath("scenes" + std::string(newSceneTitle)));
+				Scene::Save(scene, Settings::General::s_CurrentScene);
+				CocoaEditor* editor = static_cast<CocoaEditor*>(Application::Get());
+				EditorLayer::SaveProject();
+			}
+		}
+
+		static void ShowScriptBrowser()
+		{
+			CPath scriptsPath = Settings::General::s_WorkingDirectory;
+			NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
+			auto scriptFiles = File::GetFilesInDir(scriptsPath);
+			int scriptCount = 0;
+			for (auto script : scriptFiles)
+			{
+				ImGui::PushID(scriptCount++);
+				if (IconButton(ICON_FA_FILE, NCPath::Filename(script), m_ButtonSize))
+				{
+					Log::Warning("TODO: Create a way to load a script in visual studio.");
+				}
+				ImGui::SameLine();
+				ImGui::PopID();
+			}
+
+			if (IconButton(ICON_FA_PLUS, "DefaultScript", m_ButtonSize))
+			{
+				char newScriptName[32] = "DefaultScript";
+				snprintf(&newScriptName[13], 32 - 13, "%d", scriptCount);
+				std::string scriptName = newScriptName;
+
+				CPath cocoaDir = File::GetSpecialAppFolder();
+				NCPath::Join(cocoaDir, NCPath::CreatePath("CocoaEngine"));
+				CPath defaultScriptCpp = cocoaDir;
+				NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
+				CPath defaultScriptH = cocoaDir;
+				NCPath::Join(defaultScriptH, NCPath::CreatePath("DefaultScript.h"));
+
+				CPath scriptsPath = Settings::General::s_WorkingDirectory;
+				NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
+
+				File::CopyFile(defaultScriptCpp, scriptsPath, newScriptName);
+				File::CopyFile(defaultScriptH, scriptsPath, newScriptName);
+			}
 		}
 	}
 }

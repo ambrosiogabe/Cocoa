@@ -13,6 +13,16 @@
 #endif
 
 #ifdef _WIN32
+    #ifdef _COCOA_DLL
+        #define C_EXTERN extern "C"
+    #else 
+        #define C_EXTERN extern "C"
+    #endif
+#else 
+    #define C_EXTERN
+#endif
+
+#ifdef _WIN32
     #ifdef _COCOA_SCRIPT_DLL
         #define COCOA_SCRIPT __declspec(dllexport)
     #else 

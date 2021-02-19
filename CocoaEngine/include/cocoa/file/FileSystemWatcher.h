@@ -6,8 +6,12 @@
 
 #include <thread>
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
+
+#undef CopyFile
+#undef DeleteFile
+#undef CreateFile
 
 namespace Cocoa
 {
@@ -45,7 +49,7 @@ namespace Cocoa
 		int m_NotifyFilters = 0;
 		bool m_IncludeSubdirectories = false;
 		std::string m_Filter = "";
-		CPath m_Path = "";
+		CPath m_Path = NCPath::CreatePath();
 
 	private:
 		bool m_EnableRaisingEvents = true;

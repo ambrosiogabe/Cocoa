@@ -28,7 +28,8 @@ void main()
 
 #type fragment
 #version 330 core
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out uint entityID;
 
 in vec3 fPos;
 in vec4 fColor;
@@ -92,36 +93,69 @@ void main()
             break;
         case 5:
             texColor = texture(uTextures[5], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[5], fTexCoords + offsets[i]).a;
+            }
             break;
         case 6:
             texColor = texture(uTextures[6], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[6], fTexCoords + offsets[i]).a;
+            }
             break;
         case 7:
             texColor = texture(uTextures[7], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[7], fTexCoords + offsets[i]).a;
+            }
             break;
         case 8:
             texColor = texture(uTextures[8], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[8], fTexCoords + offsets[i]).a;
+            }
             break;
         case 9:
             texColor = texture(uTextures[9], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[9], fTexCoords + offsets[i]).a;
+            }
             break;
         case 10:
             texColor = texture(uTextures[10], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[10], fTexCoords + offsets[i]).a;
+            }
             break;
         case 11:
             texColor = texture(uTextures[11], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[11], fTexCoords + offsets[i]).a;
+            }
             break;
         case 12:
             texColor = texture(uTextures[12], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[12], fTexCoords + offsets[i]).a;
+            }
             break;
         case 13:
             texColor = texture(uTextures[13], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[13], fTexCoords + offsets[i]).a;
+            }
             break;
         case 14:
             texColor = texture(uTextures[14], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[14], fTexCoords + offsets[i]).a;
+            }
             break;
         case 15:
             texColor = texture(uTextures[15], fTexCoords);
+            for (int i=0; i < 9; i++) {
+                sampleTex[i] = texture(uTextures[15], fTexCoords + offsets[i]).a;
+            }
             break;
     }
 
@@ -136,17 +170,19 @@ void main()
     } else {
         color = fColor;
     }
+    entityID = fEntityID;
     
-    if (fEntityID == uActiveEntityID) {
-        float alphaAverage = 0.0;
-        for (int i=0; i < 9; i++) {
-            alphaAverage += sampleTex[i] * kernel[i];
-        }
-
-        if (alphaAverage < 0.5 && fTexSlot > 0) {
-            color = vec4(1, 1, 0, texColor.a);
-        } else if (fTexSlot == 0) {
-            color = fColor;
-        }
-    }
+    // TODO Fix this at some point...
+    //if (fEntityID == uActiveEntityID) {
+    //    float alphaAverage = 0.0;
+    //    for (int i=0; i < 9; i++) {
+    //        alphaAverage += sampleTex[i] * kernel[i];
+    //    }
+    //
+    //    if (alphaAverage < 0.5 && fTexSlot > 0) {
+    //        color = vec4(1, 1, 0, texColor.a);
+    //    } else if (fTexSlot == 0) {
+    //        color = fColor;
+    //    }
+    //}
 }

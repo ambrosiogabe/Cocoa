@@ -1,8 +1,12 @@
 #pragma once
 #include "externalLibs.h"
-#include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
-#include "cocoa/renderer/TextureHandle.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
+#include "cocoa/core/Handle.h"
+#include "cocoa/renderer/fonts/Font.h"
+#include "cocoa/renderer/Texture.h"
+#include "cocoa/renderer/Shader.h"
 
 namespace Cocoa
 {
@@ -15,66 +19,44 @@ namespace Cocoa
         uint32 entityId;
     };
 
-    class COCOA RenderBatch
+    struct RenderBatchData
     {
-    public:
-        RenderBatch(int maxBatchSize, int zIndex, bool batchOnTop=false);
+        Handle<Shader> BatchShader;
+        Vertex* VertexBufferBase;
+        Vertex* VertexStackPointer;
+        uint32* Indices;
+        std::array<Handle<Texture>, 16> Textures;
 
-        void Clear();
-        void Start();
-        void Add(const Transform& transform, const SpriteRenderer& spr);
-        void Add(const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
-        void Add(const glm::vec2* vertices, const glm::vec3& color);
-        void Add(TextureHandle textureHandle, const glm::vec2& size, const glm::vec2& position, 
+        uint32 VAO, VBO, EBO;
+        int16 ZIndex = 0;
+        uint16 NumSprites = 0;
+        uint16 NumTextures = 0;
+
+        int MaxBatchSize;
+        bool BatchOnTop;
+    };
+
+    namespace RenderBatch
+    {
+        COCOA RenderBatchData CreateRenderBatch(int maxBatchSize, int zIndex, Handle<Shader> shader, bool batchOnTop=false);
+        COCOA void Free(RenderBatchData& data);
+
+        COCOA void Clear(RenderBatchData& data);
+        COCOA void Start(RenderBatchData& data);
+        COCOA void Add(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr);
+        COCOA void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer);
+        COCOA void Add(RenderBatchData& data, const glm::vec2& min, const glm::vec2& max, const glm::vec3& color);
+        COCOA void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color);
+        COCOA void Add(RenderBatchData& data, Handle<Texture> textureHandle, const glm::vec2& size, const glm::vec2& position,
             const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation);
-        void Render();
+        COCOA void Render(RenderBatchData& data);
 
-        inline bool BatchOnTop() { return m_BatchOnTop; }
-        inline bool HasRoom() { return m_NumSprites < m_MaxBatchSize; }
-        inline int NumSprites() { return m_NumSprites; }
+        COCOA bool HasRoom(const RenderBatchData& data);
+        COCOA bool HasRoom(const RenderBatchData& data, const FontRenderer& fontRenderer);
+        COCOA bool HasTextureRoom(const RenderBatchData& data);
 
-        inline bool HasTextureRoom() { return m_NumTextures < m_Textures.size(); }
-        inline int ZIndex() { return m_ZIndex; }
+        COCOA bool Compare(const RenderBatchData& b1, const RenderBatchData& b2);
 
-        static bool Compare(const std::shared_ptr<RenderBatch>& b1, const std::shared_ptr<RenderBatch>& b2);
-
-        bool const HasTexture(TextureHandle resourceId)
-        {
-            for (int i = 0; i < m_NumTextures; i++)
-            {
-                if (m_Textures[i] == resourceId)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-    private:
-        void LoadVertexProperties(const Transform& transform, const SpriteRenderer& spr);
-        void LoadVertexProperties(const glm::vec3& position, 
-            const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords, 
-            float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = -1);
-        void LoadVertexProperties(const glm::vec2* vertices, const glm::vec2* texCoords, const glm::vec4& color, int texId, 
-            uint32 entityId = -1);
-
-        void LoadEmptyVertexProperties();
-
-        void LoadElementIndices(int index);
-        void GenerateIndices();
-
-    private:
-        Vertex* m_VertexBufferBase;
-        Vertex* m_VertexStackPointer;
-        uint32* m_Indices;
-        std::array<TextureHandle, 16> m_Textures;
-
-        uint32 m_VAO, m_VBO, m_EBO;
-        int16 m_ZIndex = 0;
-        uint16 m_NumSprites = 0;
-        uint16 m_NumTextures = 0;
-
-        int m_MaxBatchSize;
-        bool m_BatchOnTop;
+        COCOA bool HasTexture(const RenderBatchData& data, Handle<Texture> resourceId);
     };
 }

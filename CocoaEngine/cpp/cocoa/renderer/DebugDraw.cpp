@@ -1,198 +1,248 @@
-#include "externalLibs.h"
-
 #include "cocoa/renderer/DebugDraw.h"
-#include "cocoa/core/Application.h"
-#include "cocoa/util/CMath.h"
+
+#include "cocoa/util/DynamicArray.h"
 #include "cocoa/util/Settings.h"
+#include "cocoa/util/CMath.h"
+#include "cocoa/renderer/RenderBatch.h"
+#include "cocoa/renderer/Line2D.h"
+#include "cocoa/renderer/DebugSprite.h"
+#include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
 {
-	std::vector<std::shared_ptr<RenderBatch>> DebugDraw::s_Batches = std::vector<std::shared_ptr<RenderBatch>>();
-	std::vector<Line2D> DebugDraw::s_Lines = std::vector<Line2D>();
-	std::vector<DebugSprite> DebugDraw::s_Sprites = std::vector<DebugSprite>();
-	int DebugDraw::s_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-	Shader* DebugDraw::s_Shader = nullptr;
-	int DebugDraw::s_MaxBatchSize = 500;
-	Scene* DebugDraw::s_Scene = nullptr;
-
-	void DebugDraw::Init(Scene* scene)
+	namespace DebugDraw
 	{
-		s_Scene = scene;
-	}
+		// Internal Variables
+		static DynamicArray<RenderBatchData> m_Batches;
+		static DynamicArray<Line2D> m_Lines;
+		static DynamicArray<DebugSprite> m_Sprites;
+		static Handle<Shader> m_Shader;
 
-	void DebugDraw::BeginFrame()
-	{
-		if (s_Shader == nullptr)
+		static const int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+		static const int m_MaxBatchSize = 500;
+
+		// Forward Declarations
+		static void RemoveDeadSprites();
+		static void RemoveDeadLines();
+		static void AddSpritesToBatches();
+		static void AddLinesToBatches();
+
+		void Init()
 		{
-			Log::Assert((s_Scene != nullptr), "DebugDraw's scene is nullptr. Did you forget to initialize DebugDraw when you changed scenes?");
-			s_Shader = new Shader(Settings::General::s_EngineAssetsPath + "shaders/SpriteRenderer.glsl");
+			m_Batches = NDynamicArray::Create<RenderBatchData>();
+			m_Lines = NDynamicArray::Create<Line2D>();
+			m_Sprites = NDynamicArray::Create<DebugSprite>();
+			m_Shader = Handle<Shader>();
 		}
 
-		RemoveDeadLines();
-		RemoveDeadSprites();
-	}
-
-	void DebugDraw::DrawBottomBatches()
-	{
-		AddLinesToBatches();
-		AddSpritesToBatches();
-
-		s_Shader->Bind();
-		s_Shader->UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
-		s_Shader->UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
-		s_Shader->UploadIntArray("uTextures", 16, s_TexSlots);
-
-		for (auto& batch : s_Batches)
+		void Destroy()
 		{
-			if (!batch->BatchOnTop())
+			for (int i = 0; i < m_Batches.m_NumElements; i++)
 			{
-				batch->Render();
-				batch->Clear();
+				RenderBatch::Free(m_Batches.m_Data[i]);
 			}
+			NDynamicArray::Free<RenderBatchData>(m_Batches);
+			NDynamicArray::Free<Line2D>(m_Lines);
+			NDynamicArray::Free<DebugSprite>(m_Sprites);
 		}
 
-		s_Shader->Unbind();
-	}
-
-	void DebugDraw::DrawTopBatches()
-	{
-		s_Shader->Bind();
-		s_Shader->UploadMat4("uProjection", s_Scene->GetCamera()->GetOrthoProjection());
-		s_Shader->UploadMat4("uView", s_Scene->GetCamera()->GetOrthoView());
-		s_Shader->UploadIntArray("uTextures", 16, s_TexSlots);
-
-		for (auto& batch : s_Batches)
+		void BeginFrame()
 		{
-			if (batch->BatchOnTop())
+			if (m_Shader.IsNull())
 			{
-				batch->Render();
-				batch->Clear();
+				CPath shaderPath = Settings::General::s_EngineAssetsPath;
+				NCPath::Join(shaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
+				m_Shader = AssetManager::GetShader(shaderPath);
 			}
+
+			RemoveDeadLines();
+			RemoveDeadSprites();
 		}
 
-		s_Shader->Unbind();
-	}
-
-	// ===================================================================================================================
-	// Draw Primitive Methods
-	// ===================================================================================================================
-	void DebugDraw::AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
-	{
-		s_Lines.push_back(Line2D(from, to, color, strokeWidth, lifetime, onTop));
-	}
-
-	void DebugDraw::AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
-	{
-		glm::vec2 min = center - (dimensions / 2.0f);
-		glm::vec2 max = center + (dimensions / 2.0f);
-
-		std::array<glm::vec2, 4> vertices = {
-			glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
-			glm::vec2(max.x, min.y), glm::vec2(max.x, max.y)
-		};
-
-		if (!CMath::Compare(rotation, 0.0f))
+		void DrawBottomBatches(const Camera& camera)
 		{
-			for (auto& vec : vertices)
+			AddLinesToBatches();
+			AddSpritesToBatches();
+
+			const Shader& shaderRef = AssetManager::GetShader(m_Shader.m_AssetId);
+			NShader::Bind(shaderRef);
+			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
+			NShader::UploadMat4(shaderRef, "uView", camera.ViewMatrix);
+			NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, m_TexSlots);
+
+			for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
 			{
-				CMath::Rotate(vec, rotation, center);
-			}
-		}
-
-		AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime, onTop);
-		AddLine2D(vertices[1], vertices[3], strokeWidth, color, lifetime, onTop);
-		AddLine2D(vertices[3], vertices[2], strokeWidth, color, lifetime, onTop);
-		AddLine2D(vertices[2], vertices[0], strokeWidth, color, lifetime, onTop);
-	}
-
-	void DebugDraw::AddSprite(uint32 textureAssetId, glm::vec2 size, glm::vec2 position, glm::vec3 tint,
-		glm::vec2 texCoordMin, glm::vec2 texCoordMax, float rotation, int lifetime, bool onTop)
-	{
-		s_Sprites.push_back({ textureAssetId, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
-	}
-
-
-	// ===================================================================================================================
-	// Private methods
-	// ===================================================================================================================
-	void DebugDraw::RemoveDeadSprites()
-	{
-		for (int i = 0; i < s_Sprites.size(); i++)
-		{
-			if (s_Sprites[i].BeginFrame() <= 0)
-			{
-				s_Sprites.erase(s_Sprites.begin() + i);
-				i--;
-			}
-		}
-	}
-
-	void DebugDraw::RemoveDeadLines()
-	{
-		for (int i = 0; i < s_Lines.size(); i++)
-		{
-			if (s_Lines[i].BeginFrame() <= 0)
-			{
-				s_Lines.erase(s_Lines.begin() + i);
-				i--;
-			}
-		}
-	}
-
-	void DebugDraw::AddSpritesToBatches()
-	{
-		for (int i = (int)s_Sprites.size() - 1; i >= 0; i--)
-		{
-			DebugSprite sprite = s_Sprites[i];
-			bool wasAdded = false;
-			bool spriteOnTop = sprite.m_OnTop;
-			for (auto& batch : s_Batches)
-			{
-				if (batch->HasRoom() && (batch->HasTexture(sprite.m_TextureAssetId) || batch->HasTextureRoom()) && (spriteOnTop == batch->BatchOnTop()))
+				if (!batch->BatchOnTop)
 				{
-					batch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-					wasAdded = true;
-					break;
+					RenderBatch::Render(*batch);
+					RenderBatch::Clear(*batch);
 				}
 			}
 
-			if (!wasAdded)
-			{
-				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(s_MaxBatchSize, 0, spriteOnTop);
-				newBatch->Start();
-				newBatch->Add(sprite.m_TextureAssetId, sprite.m_Size, sprite.m_Position, sprite.m_Tint, sprite.m_TexCoordMin, sprite.m_TexCoordMax, sprite.m_Rotation);
-				s_Batches.emplace_back(newBatch);
-				std::sort(s_Batches.begin(), s_Batches.end(), RenderBatch::Compare);
-			}
+			NShader::Unbind(shaderRef);
 		}
-	}
 
-	void DebugDraw::AddLinesToBatches()
-	{
-		for (Line2D line : s_Lines)
+		void DrawTopBatches(const Camera& camera)
 		{
-			bool wasAdded = false;
-			bool lineOnTop = line.IsOnTop();
-			for (auto& batch : s_Batches)
+			const Shader& shaderRef = AssetManager::GetShader(m_Shader.m_AssetId);
+			NShader::Bind(shaderRef);
+			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
+			NShader::UploadMat4(shaderRef, "uView", camera.ViewMatrix);
+			NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, m_TexSlots);
+
+			for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
 			{
-				if (batch->HasRoom() && (lineOnTop == batch->BatchOnTop()))
+				if (batch->BatchOnTop)
 				{
-					batch->Add(line.GetVerts(), line.GetColor());
-					wasAdded = true;
-					break;
+					RenderBatch::Render(*batch);
+					RenderBatch::Clear(*batch);
 				}
 			}
 
-			if (!wasAdded)
+			NShader::Unbind(shaderRef);
+		}
+
+		// ===================================================================================================================
+		// Draw Primitive Methods
+		// ===================================================================================================================
+		void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
+		{
+			NDynamicArray::Add<Line2D>(m_Lines, NLine2D::Create(from, to, color, strokeWidth, lifetime, onTop));
+		}
+
+		void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
+		{
+			glm::vec2 min = center - (dimensions / 2.0f);
+			glm::vec2 max = center + (dimensions / 2.0f);
+
+			std::array<glm::vec2, 4> vertices = {
+				glm::vec2(min.x, min.y), glm::vec2(min.x, max.y),
+				glm::vec2(max.x, min.y), glm::vec2(max.x, max.y)
+			};
+
+			if (!CMath::Compare(rotation, 0.0f))
 			{
-				std::shared_ptr<RenderBatch> newBatch = std::make_shared<RenderBatch>(s_MaxBatchSize, 0, lineOnTop);
-				newBatch->Start();
-				newBatch->Add(line.GetMin(), line.GetMax(), line.GetColor());;
-				s_Batches.emplace_back(newBatch);
-				std::sort(s_Batches.begin(), s_Batches.end(), RenderBatch::Compare);
+				for (auto& vec : vertices)
+				{
+					CMath::Rotate(vec, rotation, center);
+				}
+			}
+
+			AddLine2D(vertices[0], vertices[1], strokeWidth, color, lifetime, onTop);
+			AddLine2D(vertices[1], vertices[3], strokeWidth, color, lifetime, onTop);
+			AddLine2D(vertices[3], vertices[2], strokeWidth, color, lifetime, onTop);
+			AddLine2D(vertices[2], vertices[0], strokeWidth, color, lifetime, onTop);
+		}
+
+		void AddSprite(
+			Handle<Texture> spriteTexture,
+			glm::vec2 size,
+			glm::vec2 position,
+			glm::vec3 tint,
+			glm::vec2 texCoordMin,
+			glm::vec2 texCoordMax,
+			float rotation,
+			int lifetime,
+			bool onTop)
+		{
+			NDynamicArray::Add<DebugSprite>(m_Sprites, DebugSprite{ spriteTexture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
+		}
+
+
+		// ===================================================================================================================
+		// Private methods
+		// ===================================================================================================================
+		static void RemoveDeadSprites()
+		{
+			int index = 0;
+			while (index < m_Sprites.m_NumElements)
+			{
+				DebugSprite& spriteIter = m_Sprites.m_Data[index];
+				spriteIter.Lifetime--;
+				if (spriteIter.Lifetime <= 0)
+				{
+					// TODO: Triple check this logic
+					NDynamicArray::Remove<DebugSprite>(m_Sprites, index);
+				}
+				else
+				{
+					index++;
+				}
+			}
+		}
+
+		static void RemoveDeadLines()
+		{
+			auto index = 0;
+			while (index != m_Lines.m_NumElements)
+			{
+				Line2D& lineIter = m_Lines.m_Data[index];
+				lineIter.Lifetime--;
+				if (lineIter.Lifetime <= 0)
+				{
+					NDynamicArray::Remove<Line2D>(m_Lines, index);
+				}
+				else
+				{
+					index++;
+				}
+			}
+		}
+
+		static void AddSpritesToBatches()
+		{
+			for (int i = 0; i < m_Sprites.m_NumElements; i++)
+			{
+				const DebugSprite& sprite = m_Sprites.m_Data[i];
+				bool wasAdded = false;
+				bool spriteOnTop = sprite.OnTop;
+				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+				{
+					if (RenderBatch::HasRoom(*batch) && spriteOnTop == batch->BatchOnTop)
+					{
+						if (!sprite.SpriteTexture || RenderBatch::HasTexture(*batch, sprite.SpriteTexture) || RenderBatch::HasTextureRoom(*batch))
+						{
+							RenderBatch::Add(*batch, sprite.SpriteTexture, sprite.Size, sprite.Position, sprite.Tint, sprite.TexCoordMin, sprite.TexCoordMax, sprite.Rotation);
+							wasAdded = true;
+							break;
+						}
+					}
+				}
+
+				if (!wasAdded)
+				{
+					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, spriteOnTop);
+					RenderBatch::Start(newBatch);
+					RenderBatch::Add(newBatch, sprite.SpriteTexture, sprite.Size, sprite.Position, sprite.Tint, sprite.TexCoordMin, sprite.TexCoordMax, sprite.Rotation);
+					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+				}
+			}
+		}
+
+		static void AddLinesToBatches()
+		{
+			for (auto line = NDynamicArray::Begin<Line2D>(m_Lines); line != NDynamicArray::End<Line2D>(m_Lines); line++)
+			{
+				bool wasAdded = false;
+				bool lineOnTop = line->OnTop;
+				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+				{
+					if (RenderBatch::HasRoom(*batch) && (lineOnTop == batch->BatchOnTop))
+					{
+						RenderBatch::Add(*batch, line->Verts, line->Color);
+						wasAdded = true;
+						break;
+					}
+				}
+
+				if (!wasAdded)
+				{
+					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, lineOnTop);
+					RenderBatch::Start(newBatch);
+					RenderBatch::Add(newBatch, line->Verts, line->Color);
+					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+				}
 			}
 		}
 	}
-
-
 }

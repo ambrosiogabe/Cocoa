@@ -1,322 +1,279 @@
 #include "cocoa/file/CPath.h"
 #include "cocoa/util/Log.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 
 namespace Cocoa
 {
+	namespace NCPath
+	{
+		// Internal Variables
+		static char WIN_SEPARATOR = '\\';
+		static char UNIX_SEPARATOR = '/';
 #ifdef _WIN32
-	char CPath::PATH_SEPARATOR = Win32CPath::GetPathSeparator();
+		static char PATH_SEPARATOR = WIN_SEPARATOR;
 #endif
 
-	CPath::CPath(std::string path, bool forceLinuxStylePath)
-	{
-		m_PathSeparator = CPath::PATH_SEPARATOR;
-		if (forceLinuxStylePath)
+		// Forward Declarations
+		static bool IsSeparator(char c);
+		static void Init(CPath& outPath, const char* path, int pathSize);
+
+		CPath CreatePath(bool forceLinuxStylePath)
 		{
-			m_PathSeparator = '/';
+			return CPath{ "", 0, 0 };
 		}
 
-		Init(path.c_str(), (int)path.size());
-	}
-
-	CPath::CPath(const char* path, bool forceLinuxStylePath)
-	{
-		m_PathSeparator = CPath::PATH_SEPARATOR;
-		if (forceLinuxStylePath)
+		CPath CreatePath(const std::string& rawPath, bool forceLinuxStylePath)
 		{
-			m_PathSeparator = '/';
+			CPath path;
+			Init(path, rawPath.c_str(), (int)rawPath.size());
+			return path;
 		}
 
-		int pathSize = 0;
-		if (path != nullptr)
+		CPath CreatePath(const char* rawPath, bool forceLinuxStylePath)
 		{
-			for (const char* iter = path; *iter != '\0'; iter++)
+			CPath path;
+			int pathSize = 0;
+			if (rawPath != nullptr)
 			{
-				pathSize++;
-			}
-		}
-
-		Init(path, pathSize);
-	}
-
-	CPath::CPath(const CPath& other)
-	{
-		m_PathSeparator = other.m_PathSeparator;
-		m_Filepath = other.m_Filepath;
-		m_FilenameOffset = other.m_FilenameOffset;
-		m_FileExtOffset = other.m_FileExtOffset;
-	}
-
-	void CPath::Init(const char* path, int pathSize)
-	{
-		if (pathSize == 0)
-		{
-			m_Filepath = "";
-			m_FileExtOffset = 0;
-			m_FilenameOffset = 0;
-			return;
-		}
-
-		char* sanitizedPath = new char[pathSize];
-		int lastPathSeparator = -1;
-		int stringIndex = 0;
-		int pathIndex = 0;
-		int lastDot = -1;
-
-		const char* iterEnd = path + pathSize;
-		for (const char* iter = path; iter != iterEnd; iter++)
-		{
-			char c = *iter;
-			if (c == '.' && stringIndex > 0 && sanitizedPath[stringIndex - 1] != '.')
-			{
-				lastDot = pathIndex;
-			}
-			else if (c == '.' && stringIndex > 0 && sanitizedPath[stringIndex - 1] == '.')
-			{
-				// We have a double dot ..
-				// If .. is at the end of the path or .. is followed by a path separator '/'
-				if (stringIndex == pathSize - 1 || (stringIndex + 1 < pathSize && IsSeparator(path[stringIndex + 1])))
+				for (const char* iter = rawPath; *iter != '\0'; iter++)
 				{
-					lastDot = -1;
+					pathSize++;
 				}
-				else
+			}
+
+			Init(path, rawPath, pathSize);
+			return path;
+		}
+
+		int FilenameSize(const CPath& path)
+		{
+			return (int)(path.Path.size() - path.FilenameOffset);
+		}
+
+		int FileExtSize(const CPath& path)
+		{
+			return (int)(path.Path.size() - path.FileExtOffset);
+		}
+
+		int Size(const CPath& path)
+		{
+			return (int)path.Path.size();
+		}
+
+		const char* Filename(const CPath& path)
+		{
+			return &path.Path[path.FilenameOffset];
+		}
+
+		const char* Filepath(const CPath& path)
+		{
+			return path.Path.c_str();
+		}
+
+		const char* FileExt(const CPath& path)
+		{
+			return &path.Path[path.FileExtOffset];
+		}
+
+		/*
+		 *  Gets the directory at 'level' of the path. For example given the directory:
+		 *
+		 *   0  1   2        3           4   Undefined
+		 *  'C:/dev/Projects/SomeProject/Src/Somefile.txt'
+		 *   -5 -4  -3       -2          -1  Undefined
+		 *
+		 *  The levels are listed above and below the path respectively
+		 *  So, to get a directory one path level above the current directory, you would simply say:
+		 *  GetDirectory(-2);
+		 */
+		std::string GetDirectory(const CPath& path, int level)
+		{
+			const char* startCopy = path.Path.c_str();
+			const char* endCopy = path.Path.c_str();
+			if (level < 0)
+			{
+
+				for (int i = (int)(path.Path.size() - 1); i >= 0; i--)
+				{
+					if (IsSeparator(path.Path[i]))
+					{
+						level++;
+						if (level >= 0)
+						{
+							endCopy = &path.Path[i];
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				for (int i = 0; i < path.Path.size(); i++)
+				{
+					if (IsSeparator(path.Path[i]))
+					{
+						level--;
+						if (level < 0)
+						{
+							endCopy = &path.Path[i];
+							if (File::IsFile(path) && endCopy == &path.Path[path.FilenameOffset])
+							{
+								// If we reach the beginning of the string then set the end of the copy to the string beginning
+								// so that nothing is copied
+								endCopy = path.Path.c_str();
+							}
+							break;
+						}
+					}
+				}
+			}
+
+			return std::string(startCopy, endCopy);
+		}
+
+		std::string GetFilenameWithoutExt(const CPath& path)
+		{
+			return path.Path.substr(path.FilenameOffset, FilenameSize(path) - FileExtSize(path));
+		}
+
+		void Join(CPath& pathToJoin, const CPath& other)
+		{
+			int newLength = (int)(other.Path.size() + pathToJoin.Path.size());
+			bool needSeparator = false;
+			bool takeAwaySeparator = false;
+			if (!IsSeparator(other.Path[0]) && pathToJoin.Path.size() > 0 && !IsSeparator(pathToJoin.Path[pathToJoin.Path.size() - 1]))
+			{
+				needSeparator = true;
+				newLength++;
+			}
+			else if (IsSeparator(other.Path[0]) && pathToJoin.Path.size() > 0 && IsSeparator(pathToJoin.Path[pathToJoin.Path.size() - 1]))
+			{
+				takeAwaySeparator = true;
+				newLength--;
+			}
+
+			if (!needSeparator && !takeAwaySeparator)
+			{
+				// If only one of the paths has a separator at the end or beginning, just str combine
+				// and return
+				pathToJoin.Path += other.Path;
+				return;
+			}
+
+			if (needSeparator)
+			{
+				pathToJoin.Path += PATH_SEPARATOR;
+				pathToJoin.Path += other.Path;
+			}
+			else if (takeAwaySeparator)
+			{
+				pathToJoin.Path += (other.Path.c_str() + 1);
+			}
+
+			pathToJoin.FilenameOffset = pathToJoin.Path.size() - (other.Path.size() - other.FilenameOffset);
+			pathToJoin.FileExtOffset = pathToJoin.Path.size() - (other.Path.size() - other.FileExtOffset);
+		}
+
+		bool Contains(const CPath& path, const char* pathSegment)
+		{
+			return path.Path.find(pathSegment) != std::string::npos;
+		}
+
+		std::string LinuxStyle(const CPath& path)
+		{
+			std::string res = path.Path;
+			int stringLength = (int)res.size();
+			for (int i=0; i < stringLength; i++)
+			{
+				char c = res[i];
+				if (c == WIN_SEPARATOR)
+				{
+					res[i] = '/';
+				}
+			}
+
+			return res;
+		}
+
+		// Internal functions
+		static bool IsSeparator(char c)
+		{
+			return (c == WIN_SEPARATOR || c == UNIX_SEPARATOR);
+		}
+
+		static void Init(CPath& outPath, const char* path, int pathSize)
+		{
+			// TODO: Should be enough characters for any valid path... Maybe make this platform dependent in the future
+			static char pathBuffer[260];
+
+			if (pathSize == 0)
+			{
+				outPath.Path = "";
+				outPath.FileExtOffset = 0;
+				outPath.FilenameOffset = 0;
+				return;
+			}
+
+			int lastPathSeparator = -1;
+			int stringIndex = 0;
+			int pathIndex = 0;
+			int lastDot = -1;
+
+			const char* iterEnd = path + pathSize;
+			for (const char* iter = path; iter != iterEnd; iter++)
+			{
+				char c = *iter;
+				if (c == '.' && stringIndex > 0 && pathBuffer[stringIndex - 1] != '.')
 				{
 					lastDot = pathIndex;
 				}
+				else if (c == '.' && stringIndex > 0 && pathBuffer[stringIndex - 1] == '.')
+				{
+					// We have a double dot ..
+					// If .. is at the end of the path or .. is followed by a path separator '/'
+					if (stringIndex == pathSize - 1 || (stringIndex + 1 < pathSize && IsSeparator(path[stringIndex + 1])))
+					{
+						lastDot = -1;
+					}
+					else
+					{
+						lastDot = pathIndex;
+					}
+				}
+
+				if (IsSeparator(c) && (stringIndex == 0 || stringIndex == 1 || !IsSeparator(pathBuffer[stringIndex - 1])))
+				{
+					pathBuffer[pathIndex] = PATH_SEPARATOR;
+					lastPathSeparator = pathIndex;
+					pathIndex++;
+				}
+				else if (!IsSeparator(c))
+				{
+					pathBuffer[pathIndex] = c;
+					pathIndex++;
+				}
+
+				stringIndex++;
 			}
+			pathBuffer[pathIndex] = '\0';
 
-			if (IsSeparator(c) && (stringIndex == 0 || stringIndex == 1 || !IsSeparator(sanitizedPath[stringIndex - 1])))
-			{
-				sanitizedPath[pathIndex] = m_PathSeparator;
-				lastPathSeparator = pathIndex;
-				pathIndex++;
-			}
-			else if (!IsSeparator(c))
-			{
-				sanitizedPath[pathIndex] = c;
-				pathIndex++;
-			}
-
-			stringIndex++;
+			outPath.Path = std::string(pathBuffer, pathIndex);
+			outPath.FilenameOffset = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
+				? lastPathSeparator + 1 : pathIndex;
+			outPath.FileExtOffset = (lastDot == -1 || lastDot < lastPathSeparator || lastPathSeparator == lastDot - 1)
+				? pathIndex : lastDot;
 		}
-
-		m_Filepath = std::string(sanitizedPath, pathIndex);
-		m_FilenameOffset = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
-			? lastPathSeparator + 1 : pathIndex;
-		m_FileExtOffset = (lastDot == -1 || lastDot < lastPathSeparator || lastPathSeparator == lastDot - 1)
-			? pathIndex : lastDot;
-
-		delete[] sanitizedPath;
 	}
 
-	CPath::CPath(CPath&& other) noexcept
-		: m_Filepath(std::move(other.m_Filepath))
+	bool operator==(const CPath& a, const CPath& b)
 	{
-		m_PathSeparator = other.m_PathSeparator;
-		m_FilenameOffset = other.m_FilenameOffset;
-		m_FileExtOffset = other.m_FileExtOffset;
-	}
-
-	CPath& CPath::operator=(CPath&& other) noexcept
-	{
-		if (this != &other)
-		{
-			// Free the existing resource
-
-			// Copy the data pointers from other to here
-			m_PathSeparator = other.m_PathSeparator;
-			m_Filepath = std::move(other.m_Filepath);
-			m_FileExtOffset = other.m_FileExtOffset;
-			m_FilenameOffset = other.m_FilenameOffset;
-
-			// Release the data pointers from source, so destructor does not free multiple times
-		}
-
-		return *this;
-	}
-
-	CPath& CPath::operator=(const CPath& other)
-	{
-		if (&other != this)
-		{
-			m_PathSeparator = other.m_PathSeparator;
-			m_Filepath = other.m_Filepath;
-			m_FilenameOffset = other.m_FilenameOffset;
-			m_FileExtOffset = other.m_FileExtOffset;
-		}
-
-		return *this;
-	}
-
-	CPath& CPath::operator=(CPath& other)
-	{
-		if (&other != this)
-		{
-			m_PathSeparator = other.m_PathSeparator;
-			m_Filepath = other.m_Filepath;
-			m_FilenameOffset = other.m_FilenameOffset;
-			m_FileExtOffset = other.m_FileExtOffset;
-		}
-
-		return *this;
-	}
-
-	CPath::~CPath()
-	{
-	}
-
-	CPath CPath::operator+(std::string other) const
-	{
-		CPath copy = CPath(*this);
-		copy.Join(CPath(other));
-		return copy;
-	}
-
-	CPath CPath::operator+(const char* other) const
-	{
-		CPath copy = CPath(*this);
-		copy.Join(CPath(other));
-		return copy;
-	}
-
-	CPath CPath::operator+(const CPath& other) const
-	{
-		CPath copy = CPath(*this);
-		copy.Join(other);
-		return copy;
-	}
-
-	void CPath::operator+=(const CPath& other)
-	{
-		this->Join(other);
-	}
-
-	bool CPath::operator==(const CPath& other) const
-	{
-		if (m_Filepath.size() == 0 || other.m_Filepath.size() == 0)
+		if (a.Path.size() == 0 || b.Path.size() == 0)
 		{
 			return false;
 		}
 
-		CPath tmp1 = IFile::GetAbsolutePath(other);
-		CPath tmp2 = IFile::GetAbsolutePath(*this);
-		return strcmp(tmp1.m_Filepath.c_str(), tmp2.m_Filepath.c_str()) == 0;
-	}
-
-	char CPath::operator[](int index) const
-	{
-		return m_Filepath[index];
-	}
-
-	bool CPath::Contains(const char* pathSegment) const
-	{
-		return m_Filepath.find(pathSegment) != std::string::npos;
-	}
-
-	void CPath::Join(const CPath& other)
-	{
-		int newLength = (int)(other.m_Filepath.size() + m_Filepath.size());
-		bool needSeparator = false;
-		bool takeAwaySeparator = false;
-		if (!IsSeparator(other.m_Filepath[0]) && m_Filepath.size() > 0 && !IsSeparator(m_Filepath[m_Filepath.size() - 1]))
-		{
-			needSeparator = true;
-			newLength++;
-		}
-		else if (IsSeparator(other.m_Filepath[0]) && m_Filepath.size() > 0 && IsSeparator(m_Filepath[m_Filepath.size() - 1]))
-		{
-			takeAwaySeparator = true;
-			newLength--;
-		}
-
-		if (!needSeparator && !takeAwaySeparator)
-		{
-			// If only one of the paths has a separator at the end or beginning, just str combine
-			// and return
-			this->m_Filepath += other.m_Filepath;
-			return;
-		}
-
-		if (needSeparator)
-		{
-			this->m_Filepath += m_PathSeparator;
-			this->m_Filepath += other.m_Filepath;
-		}
-		else if (takeAwaySeparator)
-		{
-			this->m_Filepath += (other.m_Filepath.c_str() + 1);
-		}
-
-		m_FilenameOffset = m_Filepath.size() - (other.m_Filepath.size() - other.m_FilenameOffset);
-		m_FileExtOffset = m_Filepath.size() - (other.m_Filepath.size() - other.m_FileExtOffset);
-	}
-
-	/*
-	 *  Gets the directory at 'level' of the path. For example given the directory:
-	 *
-	 *   0  1   2        3           4   Undefined
-	 *  'C:/dev/Projects/SomeProject/Src/Somefile.txt'
-	 *   -5 -4  -3       -2          -1  Undefined
-	 *
-	 *  The levels are listed above and below the path respectively
-	 *  So, to get a directory one path level above the current directory, you would simply say:
-	 *  GetDirectory(-2);
-	 */
-	std::string CPath::GetDirectory(int level) const
-	{
-		const char* startCopy = m_Filepath.c_str();
-		const char* endCopy = m_Filepath.c_str();
-		if (level < 0)
-		{
-
-			for (int i = (int)(m_Filepath.size() - 1); i >= 0; i--)
-			{
-				if (IsSeparator(m_Filepath[i]))
-				{
-					level++;
-					if (level >= 0)
-					{
-						endCopy = &m_Filepath[i];
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			for (int i = 0; i < m_Filepath.size(); i++)
-			{
-				if (IsSeparator(m_Filepath[i]))
-				{
-					level--;
-					if (level < 0)
-					{
-						endCopy = &m_Filepath[i];
-						if (IsFile() && endCopy == &m_Filepath[m_FilenameOffset])
-						{
-							endCopy = m_Filepath.c_str();
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		return std::string(startCopy, endCopy);
-	}
-
-	bool CPath::IsFile() const
-	{
-		return IFile::IsFile(*this);
-	}
-
-	bool CPath::IsDirectory()
-	{
-		return IFile::IsDirectory(*this);
-	}
-
-	std::string CPath::GetFilenameWithoutExt() const
-	{
-		return m_Filepath.substr(m_FilenameOffset, FilenameSize() - FileExtSize());
+		CPath tmp1 = File::GetAbsolutePath(a);
+		CPath tmp2 = File::GetAbsolutePath(b);
+		return strcmp(tmp1.Path.c_str(), tmp2.Path.c_str()) == 0;
 	}
 }

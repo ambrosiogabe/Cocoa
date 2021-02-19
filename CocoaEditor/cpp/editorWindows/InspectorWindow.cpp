@@ -1,273 +1,344 @@
-#pragma once
-#include "externalLibs.h"
-#include "cocoa/util/CMath.h"
-
-#include "EditorWindows/InspectorWindow.h"
-#include "Gui/ImGuiExtended.h"
-#include "FontAwesome.h"
+#include "editorWindows/InspectorWindow.h"
+#include "gui/ImGuiExtended.h"
+#include "gui/FontAwesome.h"
+#include "gui/ImGuiExtended.h"
 #include "nativeScripting/SourceFileWatcher.h"
 
-#include "cocoa/components/components.h"
 #include "cocoa/components/Transform.h"
-#include "cocoa/physics2d/Physics2DSystem.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
+#include "cocoa/physics2d/Physics2D.h"
+#include "cocoa/util/CMath.h"
+#include "cocoa/components/Transform.h"
+#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/systems/ScriptSystem.h"
+#include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
 {
-	std::vector<Entity> InspectorWindow::s_ActiveEntities = std::vector<Entity>();
-	ScriptSystem* InspectorWindow::s_ScriptSystem = nullptr;
-
-	static const char* stringBuffer[100];
-
-	void InspectorWindow::ImGui()
+	namespace InspectorWindow
 	{
-		ImGui::Begin(ICON_FA_CUBE "Inspector");
-		if (s_ActiveEntities.size() == 0)
+		// Internal Variables
+		std::vector<Entity> ActiveEntities = std::vector<Entity>();
+		static const char* StringBuffer[100];
+
+		// Forward declarations
+		// =====================================================================
+		// Basic components
+		// =====================================================================
+		static void ImGuiTransform(TransformData& transform);
+
+		// =====================================================================
+		// Renderer components
+		// =====================================================================
+		static void ImGuiSpriteRenderer(SpriteRenderer& spr);
+		static void ImGuiFontRenderer(FontRenderer& fontRenderer);
+
+		// =====================================================================
+		// Physics components
+		// =====================================================================
+		static void ImGuiRigidbody2D(Rigidbody2D& rb);
+		static void ImGuiAABB(AABB& box);
+		static void ImGuiBox2D(Box2D& box);
+		static void ImGuiCircle(Circle& circle);
+
+		static void ImGuiAddComponentButton();
+
+		void ImGui()
 		{
-			ImGui::End();
-			return;
-		}
-
-		bool doTransform = true;
-		bool doSpriteRenderer = true;
-		bool doRigidbody2D = true;
-		bool doAABB = true;
-		bool doBox2D = true;
-		bool doCircle = true;
-
-		for (auto& entity : s_ActiveEntities)
-		{
-			doTransform &= entity.HasComponent<Transform>();
-			doSpriteRenderer &= entity.HasComponent<SpriteRenderer>();
-			doRigidbody2D &= entity.HasComponent<Rigidbody2D>();
-			doAABB &= entity.HasComponent<AABB>();
-			doBox2D &= entity.HasComponent<Box2D>();
-			doCircle &= entity.HasComponent<Circle>();
-		}
-
-		if (doTransform)
-			ImGuiTransform(s_ActiveEntities[0].GetComponent<Transform>());
-		if (doSpriteRenderer)
-			ImGuiSpriteRenderer(s_ActiveEntities[0].GetComponent<SpriteRenderer>());
-		if (doRigidbody2D)
-			ImGuiRigidbody2D(s_ActiveEntities[0].GetComponent<Rigidbody2D>());
-		if (doBox2D)
-			ImGuiBox2D(s_ActiveEntities[0].GetComponent<Box2D>());
-		if (doAABB)
-			ImGuiAABB(s_ActiveEntities[0].GetComponent<AABB>());
-		if (doCircle)
-			ImGuiCircle(s_ActiveEntities[0].GetComponent<Circle>());
-		if (s_ScriptSystem)
-			s_ScriptSystem->ImGui(s_ActiveEntities[0]);
-
-		ImGuiAddComponentButton();
-		ImGui::End();
-	}
-
-	void InspectorWindow::AddEntity(Entity entity)
-	{
-		if (std::find(s_ActiveEntities.begin(), s_ActiveEntities.end(), entity) == s_ActiveEntities.end())
-			s_ActiveEntities.push_back(entity);
-	}
-
-	void InspectorWindow::RemoveEntity(Entity entity)
-	{
-		auto iter = std::find(s_ActiveEntities.begin(), s_ActiveEntities.end(), entity);
-		if (iter != s_ActiveEntities.end())
-			s_ActiveEntities.erase(iter);
-	}
-
-	void InspectorWindow::ClearAllEntities()
-	{
-		s_ActiveEntities.clear();
-	}
-
-	Entity InspectorWindow::GetActiveEntity()
-	{
-		if (s_ActiveEntities.size() == 0)
-			return Entity::Null;
-		return s_ActiveEntities[0];
-	}
-
-	// =====================================================================
-	// Helper ImGui functions
-	// =====================================================================
-	void InspectorWindow::ImGuiAddComponentButton()
-	{
-		const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
-		int size = classes.size() + 4;
-		auto classIter = classes.begin();
-		for (int i = 4; i < classes.size() + 4; i++)
-		{
-			stringBuffer[i] = classIter->m_ClassName.c_str();
-			classIter++;
-		}
-
-		stringBuffer[0] = "Sprite Renderer";
-		stringBuffer[1] = "Rigidbody2D";
-		stringBuffer[2] = "Box Collider2D";
-		stringBuffer[3] = "Circle Collider2D";
-
-		Entity activeEntity = s_ActiveEntities[0];
-		int itemPressed = 0;
-		if (CImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", stringBuffer, size, itemPressed))
-		{
-			switch (itemPressed)
+			ImGui::Begin(ICON_FA_CUBE "Inspector");
+			if (ActiveEntities.size() == 0)
 			{
-			case 0:
-				activeEntity.AddComponent<SpriteRenderer>();
-				break;
-			case 1:
-				activeEntity.AddComponent<Rigidbody2D>();
-				break;
-			case 2:
-				activeEntity.AddComponent<Box2D>();
-				break;
-			case 3:
-				activeEntity.AddComponent<Circle>();
-				break;
-			default:
-				if (s_ScriptSystem != nullptr)
+				ImGui::End();
+				return;
+			}
+
+			bool doTransform = true;
+			bool doSpriteRenderer = true;
+			bool doFontRenderer = true;
+			bool doRigidbody2D = true;
+			bool doAABB = true;
+			bool doBox2D = true;
+			bool doCircle = true;
+
+			for (auto& entity: ActiveEntities)
+			{
+				doTransform &= NEntity::HasComponent<TransformData>(entity);
+				doSpriteRenderer &= NEntity::HasComponent<SpriteRenderer>(entity);
+				doFontRenderer &= NEntity::HasComponent<FontRenderer>(entity);
+				doRigidbody2D &= NEntity::HasComponent<Rigidbody2D>(entity);
+				doAABB &= NEntity::HasComponent<AABB>(entity);
+				doBox2D &= NEntity::HasComponent<Box2D>(entity);
+				doCircle &= NEntity::HasComponent<Circle>(entity);
+			}
+
+			if (doTransform)
+				ImGuiTransform(NEntity::GetComponent<TransformData>(ActiveEntities[0]));
+			if (doSpriteRenderer)
+				ImGuiSpriteRenderer(NEntity::GetComponent<SpriteRenderer>(ActiveEntities[0]));
+			if (doFontRenderer)
+				ImGuiFontRenderer(NEntity::GetComponent<FontRenderer>(ActiveEntities[0]));
+			if (doRigidbody2D)
+				ImGuiRigidbody2D(NEntity::GetComponent<Rigidbody2D>(ActiveEntities[0]));
+			if (doBox2D)
+				ImGuiBox2D(NEntity::GetComponent<Box2D>(ActiveEntities[0]));
+			if (doAABB)
+				ImGuiAABB(NEntity::GetComponent<AABB>(ActiveEntities[0]));
+			if (doCircle)
+				ImGuiCircle(NEntity::GetComponent<Circle>(ActiveEntities[0]));
+			ScriptSystem::ImGui(ActiveEntities[0]);
+
+			ImGuiAddComponentButton();
+			ImGui::End();
+		}
+
+		void AddEntity(Entity entity)
+		{
+			if (std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
+				ActiveEntities.push_back(entity);
+		}
+
+		void RemoveEntity(Entity entity)
+		{
+			auto iter = std::find(ActiveEntities.begin(), ActiveEntities.end(), entity);
+			if (iter != ActiveEntities.end())
+				ActiveEntities.erase(iter);
+		}
+
+		void ClearAllEntities()
+		{
+			ActiveEntities.clear();
+		}
+
+		Entity GetActiveEntity()
+		{
+			if (ActiveEntities.size() == 0)
+				return NEntity::CreateNull();
+			return ActiveEntities[0];
+		}
+
+		// =====================================================================
+		// Internal Functions
+		// =====================================================================
+		static void ImGuiAddComponentButton()
+		{
+			const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
+			int defaultComponentSize = 5;
+			int size = classes.size() + defaultComponentSize;
+			auto classIter = classes.begin();
+			for (int i = 0; i < classes.size(); i++)
+			{
+				StringBuffer[i + defaultComponentSize] = classIter->m_ClassName.c_str();
+				classIter++;
+			}
+
+			StringBuffer[0] = "Sprite Renderer";
+			StringBuffer[1] = "Font Renderer";
+			StringBuffer[2] = "Rigidbody2D";
+			StringBuffer[3] = "Box Collider2D";
+			StringBuffer[4] = "Circle Collider2D";
+
+			Entity activeEntity = ActiveEntities[0];
+			int itemPressed = 0;
+			if (CImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", StringBuffer, size, itemPressed))
+			{
+				switch (itemPressed)
 				{
-					Log::Info("Adding component %s from inspector tp %d", stringBuffer[itemPressed], entt::to_integral(activeEntity.GetRawEntity()));
-					s_ScriptSystem->AddComponentFromString(stringBuffer[itemPressed], activeEntity.GetRawEntity(), activeEntity.GetRegistry());
+				case 0:
+					NEntity::AddComponent<SpriteRenderer>(activeEntity);
+					break;
+				case 1:
+					NEntity::AddComponent<FontRenderer>(activeEntity);
+					break;
+				case 2:
+					NEntity::AddComponent<Rigidbody2D>(activeEntity);
+					break;
+				case 3:
+					NEntity::AddComponent<Box2D>(activeEntity);
+					break;
+				case 4:
+					NEntity::AddComponent<Circle>(activeEntity);
+					break;
+				default:
+					Log::Info("Adding component %s from inspector to %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
+					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.Handle, activeEntity.Scene->Registry);
+					break;
+				}
+			}
+		}
+
+		// =====================================================================
+		// Basic components
+		// =====================================================================
+		static void ImGuiTransform(TransformData& transform)
+		{
+			static bool collapsingHeaderOpen = true;
+			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::UndoableDragFloat3("Position: ", transform.Position);
+				CImGui::UndoableDragFloat3("Scale: ", transform.Scale);
+				CImGui::UndoableDragFloat3("Rotation: ", transform.EulerRotation);
+				CImGui::EndCollapsingHeaderGroup();
+			}
+		}
+
+
+		// =====================================================================
+		// Renderer components
+		// =====================================================================
+		static void ImGuiSpriteRenderer(SpriteRenderer& spr)
+		{
+			static bool collapsingHeaderOpen = true;
+			if (ImGui::CollapsingHeader("Sprite Renderer"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
+				CImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
+
+				if (spr.m_Sprite.m_Texture)
+				{
+					const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.m_AssetId);
+					CImGui::InputText("##SpriteRendererTexture", (char*)NCPath::Filename(tex.Path),
+						NCPath::FilenameSize(tex.Path), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
-					Log::Error("Trying to add script as component, but script system not set in inspector.");
+					CImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
 				}
-				break;
-			}
-		}
-	}
-
-	// =====================================================================
-	// Basic components
-	// =====================================================================
-	void InspectorWindow::ImGuiTransform(Transform& transform)
-	{
-		static bool collapsingHeaderOpen = true;
-		if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
-		{
-			CImGui::BeginCollapsingHeaderGroup();
-			CImGui::UndoableDragFloat3("Position: ", transform.m_Position);
-			CImGui::UndoableDragFloat3("Scale: ", transform.m_Scale);
-			CImGui::UndoableDragFloat3("Rotation: ", transform.m_EulerRotation);
-			CImGui::EndCollapsingHeaderGroup();
-		}
-	}
-
-
-	// =====================================================================
-	// Renderer components
-	// =====================================================================
-	void InspectorWindow::ImGuiSpriteRenderer(SpriteRenderer& spr)
-	{
-		static bool collapsingHeaderOpen = true;
-		if (ImGui::CollapsingHeader("Sprite Renderer"))
-		{
-			CImGui::BeginCollapsingHeaderGroup();
-			CImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
-			CImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
-
-			if (spr.m_Sprite.m_Texture)
-			{
-				CImGui::InputText("##SpriteRendererTexture", (char*)spr.m_Sprite.m_Texture.Get()->GetFilepath().Filename(),
-					spr.m_Sprite.m_Texture.Get()->GetFilepath().FilenameSize(), ImGuiInputTextFlags_ReadOnly);
-			}
-			else
-			{
-				CImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
-			}
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_HANDLE_ID"))
+				if (ImGui::BeginDragDropTarget())
 				{
-					IM_ASSERT(payload->DataSize == sizeof(int));
-					int textureResourceId = *(const int*)payload->Data;
-					spr.m_Sprite.m_Texture = textureResourceId;
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE_HANDLE_ID"))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(int));
+						int textureResourceId = *(const int*)payload->Data;
+						spr.m_Sprite.m_Texture = textureResourceId;
+					}
+					ImGui::EndDragDropTarget();
 				}
-				ImGui::EndDragDropTarget();
+
+				CImGui::EndCollapsingHeaderGroup();
 			}
-
-			CImGui::EndCollapsingHeaderGroup();
 		}
-	}
 
-
-	// =====================================================================
-	// Physics components
-	// =====================================================================
-	void InspectorWindow::ImGuiRigidbody2D(Rigidbody2D& rb)
-	{
-		static bool treeNodeOpen = true;
-		ImGui::SetNextTreeNodeOpen(treeNodeOpen);
-		if (ImGui::CollapsingHeader("Rigidbody 2D"))
+		static void ImGuiFontRenderer(FontRenderer& fontRenderer)
 		{
-			CImGui::BeginCollapsingHeaderGroup();
+			static bool collapsingHeaderOpen = true;
+			if (ImGui::CollapsingHeader("Font Renderer"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::UndoableDragInt("Z-Index: ##fonts", fontRenderer.m_ZIndex);
+				CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.m_Color);
+				CImGui::UndoableDragInt("Font Size: ", fontRenderer.fontSize);
 
-			int currentItem = static_cast<int>(rb.m_BodyType);
-			std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
-			CImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
+				static char textBuffer[100];
+				Log::Assert(fontRenderer.text.size() < 100, "Font Renderer only supports text sizes up to 100 characters.");
+				strcpy(textBuffer, fontRenderer.text.c_str());
+				if (CImGui::InputText("Text: ", textBuffer, 100))
+				{
+					fontRenderer.text = textBuffer;
+				}
 
-			CImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
-			CImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);
-			CImGui::UndoableDragFloat("Linear Damping: ##2", rb.m_LinearDamping);
-			CImGui::UndoableDragFloat("Angular Damping: ##3", rb.m_AngularDamping);
-			CImGui::UndoableDragFloat("Mass: ##4", rb.m_Mass);
-			CImGui::UndoableDragFloat2("Velocity: ##5", rb.m_Velocity);
+				if (fontRenderer.m_Font)
+				{
+					const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+					CImGui::InputText("##FontRendererTexture", (char*)NCPath::Filename(font.m_Path),
+						NCPath::FilenameSize(font.m_Path), ImGuiInputTextFlags_ReadOnly);
+				}
+				else
+				{
+					CImGui::InputText("##FontRendererTexture", "Default Font", 12, ImGuiInputTextFlags_ReadOnly);
+				}
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FONT_HANDLE_ID"))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(int));
+						int fontResourceId = *(const int*)payload->Data;
+						fontRenderer.m_Font = fontResourceId;
+					}
+					ImGui::EndDragDropTarget();
+				}
 
-			CImGui::EndCollapsingHeaderGroup();
+				CImGui::EndCollapsingHeaderGroup();
+			}
 		}
-	}
 
-	void InspectorWindow::ImGuiAABB(AABB& box)
-	{
-		static bool treeNodeOpen = true;
-		ImGui::SetNextTreeNodeOpen(treeNodeOpen);
-		if (ImGui::CollapsingHeader("AABB"))
+
+		// =====================================================================
+		// Physics components
+		// =====================================================================
+		static void ImGuiRigidbody2D(Rigidbody2D& rb)
 		{
-			CImGui::BeginCollapsingHeaderGroup();
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("Rigidbody 2D"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
 
-			CImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
-			CImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
+				int currentItem = static_cast<int>(rb.m_BodyType);
+				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
+				CImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
 
-			CImGui::EndCollapsingHeaderGroup();
+				CImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
+				CImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);
+				CImGui::UndoableDragFloat("Linear Damping: ##2", rb.m_LinearDamping);
+				CImGui::UndoableDragFloat("Angular Damping: ##3", rb.m_AngularDamping);
+				CImGui::UndoableDragFloat("Mass: ##4", rb.m_Mass);
+				CImGui::UndoableDragFloat2("Velocity: ##5", rb.m_Velocity);
+
+				CImGui::EndCollapsingHeaderGroup();
+			}
 		}
-	}
 
-	void InspectorWindow::ImGuiBox2D(Box2D& box)
-	{
-		static bool treeNodeOpen = true;
-		ImGui::SetNextTreeNodeOpen(treeNodeOpen);
-		if (ImGui::CollapsingHeader("Box2D"))
+		static void ImGuiAABB(AABB& box)
 		{
-			CImGui::BeginCollapsingHeaderGroup();
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("AABB"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
 
-			//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-			CImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
+				CImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
+				CImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
 
-			CImGui::EndCollapsingHeaderGroup();
-
-			// Draw box highlight
-			const Transform& transform = s_ActiveEntities[0].GetComponent<Transform>();
-			DebugDraw::AddBox2D(CMath::Vector2From3(transform.m_Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.m_Scale), transform.m_EulerRotation.z);
+				CImGui::EndCollapsingHeaderGroup();
+			}
 		}
-	}
 
-	void InspectorWindow::ImGuiCircle(Circle& circle)
-	{
-		static bool treeNodeOpen = true;
-		ImGui::SetNextTreeNodeOpen(treeNodeOpen);
-		if (ImGui::CollapsingHeader("Circle"))
+		static void ImGuiBox2D(Box2D& box)
 		{
-			CImGui::BeginCollapsingHeaderGroup();
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("Box2D"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
 
-			//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-			CImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
+				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				CImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
 
-			CImGui::EndCollapsingHeaderGroup();
+				CImGui::EndCollapsingHeaderGroup();
+
+				// Draw box highlight
+				const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
+				DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
+			}
+		}
+
+		static void ImGuiCircle(Circle& circle)
+		{
+			static bool treeNodeOpen = true;
+			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
+			if (ImGui::CollapsingHeader("Circle"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+
+				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				CImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
+
+				CImGui::EndCollapsingHeaderGroup();
+			}
 		}
 	}
 }

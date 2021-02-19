@@ -2,16 +2,17 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/systems/System.h"
+#include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
-	class Scene;
 	class COCOA SceneInitializer
 	{
 	public:
 		SceneInitializer() {}
 
-		virtual void Init(Scene* scene, std::vector<std::unique_ptr<System>>& systems) = 0;
+		virtual void Init(SceneData& scene) = 0;
+		virtual void Start(SceneData& scene) = 0;
+		virtual void Destroy(SceneData& scene) = 0;
 	};
 }

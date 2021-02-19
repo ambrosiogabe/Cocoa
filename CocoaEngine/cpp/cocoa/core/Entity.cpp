@@ -3,44 +3,45 @@
 
 namespace Cocoa
 {
-	Entity Entity::Null = Entity();
-	Scene* Entity::s_Scene = nullptr;
-
-	Entity::Entity(entt::entity handle, Scene* scene)
-		: m_EntityHandle(handle)
+	namespace NEntity
 	{
-		Log::Assert((s_Scene != nullptr), "Scene cannot be null to construct an entity. Did you forget to initialize entity at scene change?");
+		// Internal Variables
+		static Entity Null = { entt::null, nullptr };
+		static SceneData* m_Scene = nullptr;
+
+		Entity CreateEntity(SceneData* scene)
+		{
+			return Scene::CreateEntity(*scene);
+		}
+
+		Entity CreateEntity(entt::entity raw)
+		{
+			return Entity{ raw, GetScene() };
+		}
+
+		void SetScene(SceneData* scene)
+		{
+			m_Scene = scene;
+		}
+
+		SceneData* GetScene()
+		{
+			return m_Scene;
+		}
+
+		Entity CreateNull()
+		{
+			return Null;
+		}
 	}
 
-	Entity::Entity(const entt::entity& other)
+	bool operator==(const Entity& a, const Entity& b)
 	{
-		Log::Assert((s_Scene != nullptr), "Scene cannot be null to construct an entity. Did you forget to initialize entity at scene change?");
-		m_EntityHandle = other;
+		return a.Handle == b.Handle;
 	}
 
-	Entity::Entity(entt::entity& other)
+	bool operator==(Entity& a, Entity& b)
 	{
-		Log::Assert((s_Scene != nullptr), "Scene cannot be null to construct an entity. Did you forget to initialize entity at scene change?");
-		m_EntityHandle = other;
-	}
-
-	Entity::Entity()
-	{
-		m_EntityHandle = entt::null;
-	}
-
-	void Entity::SetScene(Scene* scene)
-	{
-		s_Scene = scene;
-	}
-
-	bool Entity::operator==(const Entity& other) const
-	{
-		return other.m_EntityHandle == this->m_EntityHandle;
-	}
-
-	bool Entity::operator==(Entity& other) const
-	{
-		return other.m_EntityHandle == this->m_EntityHandle;
+		return a.Handle == b.Handle;
 	}
 }

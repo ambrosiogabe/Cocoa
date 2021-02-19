@@ -45,10 +45,10 @@ namespace Cocoa
 		file << "#include <imgui.h>\n";
 		file << "#include <map>\n\n";
 		file << "#include \"ImGuiExtended.h\"\n";
-		file << "#include \"../" << m_FullFilepath.GetFilenameWithoutExt() << ".h\"\n\n";
+		file << "#include \"../" << NCPath::GetFilenameWithoutExt(m_FullFilepath) << ".h\"\n\n";
 
 		file << "namespace Cocoa\n{\n";
-		file << "\tnamespace Reflect" << GetFilenameAsClassName(m_FullFilepath.GetFilenameWithoutExt()) << " \n\t{\n";
+		file << "\tnamespace Reflect" << GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(m_FullFilepath)) << " \n\t{\n";
 
 		file << "\t\tbool initialized = false;\n\n";
 
@@ -223,11 +223,11 @@ namespace Cocoa
 		"		{\n"
 		"			auto typeData = entt::resolve_type(any.type().id());\n"
 		"			\n"
-		"			int size = j[\"Size\"];\n"
+		"			int size = j[\"Components\"].size();\n"
 		"			auto typeName = debugNames.find(any.type().id())->second;\n"
 		"			json compJson;\n"
 		"			compJson[typeName] = {};\n"
-		"			compJson[typeName][\"Entity\"] = entity.GetID();\n"
+		"			compJson[typeName][\"Entity\"] = NEntity::GetID(entity);\n"
 		"\n"
 		"			for (auto data : typeData.data())\n"
 		"			{\n"
@@ -251,12 +251,11 @@ namespace Cocoa
 		"			}\n"
 		"\n"
 		"			j[\"Components\"][size] = compJson;\n"
-		"			j[\"Size\"] = size + 1;\n"
 		"		}\n"
 		"\n";
 
 		// Save Scripts function
-		file << "\t\tvoid SaveScripts(json& j, entt::registry& registry)\n";
+		file << "\t\tvoid SaveScripts(json& j, entt::registry& registry, SceneData* sceneData)\n";
 		file << "\t\t{\n";
 
 		for (auto uclass : m_Classes)
@@ -268,7 +267,7 @@ namespace Cocoa
 			file << "\t\t\t\t{\n";
 			file << "\t\t\t\t\tauto comp = registry.get<" << uclass.m_ClassName.c_str() << ">(entity);\n";
 			file << "\t\t\t\t\tentt::meta_any any = { comp };\n";
-			file << "\t\t\t\t\tSaveScript(any, j, Entity(entity));\n";
+			file << "\t\t\t\t\tSaveScript(any, j, Entity{ entity, sceneData });\n";
 			file << "\t\t\t\t}\n";
 
 			file << "\t\t\t}\n";
@@ -308,7 +307,7 @@ namespace Cocoa
 		file << "\t\tvoid TryLoad(json& j, Entity entity, entt::registry& registry)\n";
 		file << "\t\t{\n";
 		file << "\t\t\tjson::iterator it = j.begin();\n";
-		file << "\t\t\tentt::entity e = entity.GetRawEntity();\n";
+		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e))\n";
 		file << "\t\t\t{\n";
 		file << "\t\t\t\te = registry.create(e);\n";
@@ -370,7 +369,7 @@ namespace Cocoa
 		// ImGui function
 		file << "\t\tvoid ImGui(Entity entity, entt::registry& registry)\n";
 		file << "\t\t{\n";
-		file << "\t\t\tentt::entity e = entity.GetRawEntity();\n";
+		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e)) return;\n";
 
 		i = 0;
@@ -682,6 +681,7 @@ namespace Cocoa
 		{
 			Log::Error("Error: Expected '%d' but instead got '%d'", type, m_CurrentIter->m_Type);
 			Log::Error("Line: %d, Column: %d", m_CurrentIter->m_Line, m_CurrentIter->m_Column);
+			// TODO: Create static error token to return a const ref to instead of returning unsafe reference to local variable
 			return GenerateErrorToken();
 		}
 

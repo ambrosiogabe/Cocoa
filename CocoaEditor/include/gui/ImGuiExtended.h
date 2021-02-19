@@ -1,10 +1,11 @@
 #pragma once
+#include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
 #ifdef _COCOA_SCRIPT_DLL
 #include "ImGuiHeader.h"
 #else
-#include "Gui/ImGuiHeader.h"
+#include "gui/ImGuiHeader.h"
 #endif
 
 #include "cocoa/util/Settings.h"
@@ -12,15 +13,11 @@
 #include "cocoa/renderer/Texture.h"
 
 #include <imgui.h>
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 namespace CImGui
 {
 	bool MenuButton(const char* label, const glm::vec2& size = { 0, 0 });
-	bool Button(const char* label, const glm::vec2& size = { 0, 0 });
+	bool Button(const char* label, const glm::vec2& size = { 0, 0 }, bool invertTextColor=true);
 	bool ButtonDropdown(const char* label, const char* const items[], int items_size, int& item_pressed);
 	bool ImageButton(const Cocoa::Texture& texture, const glm::vec2& size, int framePadding = -1,
 		const glm::vec4& bgColor = { 0, 0, 0, 0 }, const glm::vec4& tintColor = { 1, 1, 1, 1 });
@@ -28,13 +25,16 @@ namespace CImGui
 		ImGuiInputTextCallback callback = (ImGuiInputTextCallback)0, void* user_data = (void*)0);
 	bool Checkbox(const char* label, bool* checked);
 
-	void UndoableColorEdit4(const char* label, glm::vec4& color);
-	void UndoableColorEdit3(const char* label, glm::vec3& color);
-	void UndoableDragFloat4(const char* label, glm::vec4& vector);
-	void UndoableDragFloat3(const char* label, glm::vec3& vector);
-	void UndoableDragFloat2(const char* label, glm::vec2& vector);
-	void UndoableDragFloat(const char* label, float& val);
-	void UndoableDragInt(const char* label, int& val);
+	bool UndoableColorEdit4(const char* label, glm::vec4& color);
+	bool UndoableColorEdit3(const char* label, glm::vec3& color);
+	bool UndoableDragFloat4(const char* label, glm::vec4& vector);
+	bool UndoableDragFloat3(const char* label, glm::vec3& vector);
+	bool UndoableDragFloat2(const char* label, glm::vec2& vector);
+	bool UndoableDragFloat(const char* label, float& val);
+	bool UndoableDragInt2(const char* label, glm::ivec2& val);
+	bool UndoableDragInt(const char* label, int& val);
+
+	void ReadonlyText(const char* label, const std::string& readonlyTextValue);
 
 	template <typename T>
 	bool UndoableCombo(T& enumVal, const char* label, const char* const items[], int items_count)

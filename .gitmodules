@@ -16,3 +16,6 @@
 [submodule "CocoaEngine/vendor/imguiVendor"]
 	path = CocoaEngine/vendor/imguiVendor
 	url = https://github.com/ambrosiogabe/imgui
+[submodule "CocoaEngine/vendor/freetypeVendor"]
+	path = CocoaEngine/vendor/freetypeVendor
+	url = https://github.com/ambrosiogabe/FreetypeFork

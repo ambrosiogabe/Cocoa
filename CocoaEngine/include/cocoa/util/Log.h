@@ -8,13 +8,12 @@
 
 namespace Cocoa
 {
-	class COCOA Log
+	namespace Log
 	{
-	public:
-		static void _Log(const char* filename, int line, const char* format, ...);
-		static void _Info(const char* filename, int line, const char* format, ...);
-		static void _Warning(const char* filename, int line, const char* format, ...);
-		static void _Error(const char* filename, int line, const char* format, ...);
-		static void _Assert(const char* filename, int line, int condition, const char* format, ...);
+		COCOA void _Log(const char* filename, int line, const char* format, ...);
+		COCOA void _Info(const char* filename, int line, const char* format, ...);
+		COCOA void _Warning(const char* filename, int line, const char* format, ...);
+		COCOA void _Error(const char* filename, int line, const char* format, ...);
+		COCOA void _Assert(const char* filename, int line, int condition, const char* format, ...);
 	};
 }

@@ -1,208 +1,391 @@
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/util/Log.h"
 #include "cocoa/renderer/Texture.h"
-#include "cocoa/file/IFile.h"
+#include "cocoa/file/File.h"
 #include "cocoa/util/JsonExtended.h"
 
 namespace Cocoa
 {
-	std::unique_ptr<AssetManager> AssetManager::s_Instance = nullptr;
-	AssetManager* AssetManager::Get()
-	{
-		Log::Assert(s_Instance != nullptr, "Asset Manager never initialized.");
-		return s_Instance.get();
-	}
+	std::vector<Texture> AssetManager::s_Textures = std::vector<Texture>();
+	std::vector<Font> AssetManager::s_Fonts = std::vector<Font>();
+	std::vector<Shader> AssetManager::s_Shaders = std::vector<Shader>();
+	uint32 AssetManager::s_CurrentScene = 0;
+	uint32 AssetManager::s_ResourceCount = 0;
 
 	void AssetManager::Init(uint32 scene)
 	{
-		Log::Assert(s_Instance == nullptr, "Asset Manager is already initialized. Cannot initailze twice.");
-		s_Instance = std::unique_ptr<AssetManager>(new AssetManager(scene));
+		s_CurrentScene = scene;
+		s_ResourceCount = 0;
+		// TODO: Clear assets somehow?
 	}
 
-	std::unordered_map<uint32, std::shared_ptr<Asset>>& AssetManager::GetAllAssets(uint32 scene)
+	const Shader& AssetManager::GetShader(uint32 resourceId)
 	{
-		AssetManager* manager = Get();
-		auto it = manager->m_Assets.find(scene);
-		if (it == manager->m_Assets.end())
+		if (resourceId < s_Shaders.size())
 		{
-			return manager->m_EmptyAssetContainer;
+			return s_Shaders[resourceId];
 		}
-		return it->second;
+
+		return NShader::CreateShader();
 	}
 
-	std::shared_ptr<Asset> AssetManager::GetAsset(uint32 assetId)
+	Handle<Shader> AssetManager::GetShader(const CPath& path)
 	{
-		AssetManager* manager = Get();
-		auto assetsIt = manager->m_Assets.find(manager->m_CurrentScene);
-		if (assetsIt != manager->m_Assets.end())
+		int i = 0;
+		for (auto& shader : s_Shaders)
 		{
-			auto assetIt = assetsIt->second.find(assetId);
-			if (assetIt != assetsIt->second.end())
+			if (shader.Filepath == path)
 			{
-				return assetIt->second;
+				return Handle<Shader>(i);
+			}
+			i++;
+		}
+
+		return Handle<Shader>();
+	}
+
+	Handle<Shader> AssetManager::LoadShaderFromFile(const CPath& path, bool isDefault, int id)
+	{
+		Handle<Shader> shader = GetShader(path);
+		if (!shader.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
+			return shader;
+		}
+
+		CPath absPath = File::GetAbsolutePath(path);
+		int index = id;
+
+		// If id is -1, we don't care where you place the texture so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Shaders.size();
+			s_Shaders.emplace_back(NShader::CreateShader(absPath, isDefault));
+		}
+		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Shaders.size(), "Id must be smaller then shader size.");
+			Log::Assert(NShader::IsNull(s_Shaders[index]), "Texture slot must be free to place a texture at the specified id.");
+			if (NShader::IsNull(s_Shaders[index]))
+			{
+				s_Shaders[index] = NShader::CreateShader(absPath, isDefault);
+			}
+			else
+			{
+				Log::Error("Could not place shader at requested id. The slot is already taken.");
 			}
 		}
 
-		return std::shared_ptr<Asset>(new NullAsset());
+		return Handle<Shader>(index);
 	}
 
-	std::shared_ptr<Asset> AssetManager::GetAsset(const CPath& path)
+	const Texture& AssetManager::GetTexture(uint32 resourceId)
 	{
-		AssetManager* manager = Get();
-		auto assetsIt = manager->m_Assets.find(manager->m_CurrentScene);
-		if (assetsIt != manager->m_Assets.end())
+		if (resourceId < s_Textures.size())
 		{
-			for (auto asset = assetsIt->second.begin(); asset != assetsIt->second.end(); asset++)
+			return s_Textures[resourceId];
+		}
+
+		return TextureUtil::NullTexture;
+	}
+
+	Handle<Texture> AssetManager::GetTexture(const CPath& path)
+	{
+		int i = 0;
+		for (auto& tex : s_Textures)
+		{
+			if (tex.Path == path)
 			{
-				if (asset->second->GetPath() == path)
-				{
-					return asset->second;
-				}
+				return Handle<Texture>(i);
+			}
+			i++;
+		}
+
+		return Handle<Texture>();
+	}
+
+	Handle<Texture> AssetManager::LoadTextureFromJson(const json& j, bool isDefault, int id)
+	{
+		Texture texture = TextureUtil::Deserialize(j);
+		texture.IsDefault = isDefault;
+
+		Handle<Texture> textureHandle = GetTexture(texture.Path);
+		if (!textureHandle.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Path.c_str());
+			return textureHandle;
+		}
+
+		CPath absPath = File::GetAbsolutePath(texture.Path);
+		int index = id;
+
+		// Make sure to generate texture *before* pushing back since we are pushing back a copy
+		TextureUtil::Generate(texture, texture.Path);
+
+		// If id is -1, we don't care where you place the font so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Textures.size();
+			s_Textures.push_back(texture);
+		}
+		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
+			Log::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
+			if (TextureUtil::IsNull(s_Textures[index]))
+			{
+				s_Textures[index] = texture;
+			}
+			else
+			{
+				Log::Error("Could not place texture at requested id. The slot is already taken.");
 			}
 		}
 
-		return std::shared_ptr<Asset>(new NullAsset());
+		return Handle<Texture>(index);
 	}
 
-	std::shared_ptr<Asset> AssetManager::LoadTextureFromFile(const CPath& path, bool isDefault)
+	Handle<Texture> AssetManager::LoadTextureFromFile(Texture& texture, const CPath& path, int id)
 	{
-		AssetManager* manager = Get();
-
-		std::shared_ptr<Asset> assetExists = GetAsset(path);
-		if (!assetExists->IsNull())
+		Handle<Texture> textureHandle = GetTexture(path);
+		if (!textureHandle.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded.");
-			return std::shared_ptr<Asset>(new NullAsset());
+			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
+			return textureHandle;
 		}
 
-		CPath absPath = IFile::GetAbsolutePath(path);
-		std::shared_ptr<Texture> newAsset = std::make_shared<Texture>(absPath.Filepath(), isDefault);
+		CPath absPath = File::GetAbsolutePath(path);
+		int index = id;
+		texture.Path = path;
+		TextureUtil::Generate(texture, path);
 
-		auto& assets = manager->m_Assets[manager->m_CurrentScene];
-
-		uint32 newId = (uint32)assets.size();
-
-		newAsset->SetResourceId(newId);
-		assets.insert({ newId, newAsset });
-		newAsset->Load();
-		return newAsset;
-	}
-
-	void AssetManager::Clear()
-	{
-		AssetManager* manager = Get();
-		for (auto assetListIt = manager->m_Assets.begin(); assetListIt != manager->m_Assets.end(); assetListIt++)
+		// If id is -1, we don't care where you place the texture so long as it gets loaded
+		if (index == -1)
 		{
-			for (auto assetIt = assetListIt->second.begin(); assetIt != assetListIt->second.end(); assetIt++)
+			index = s_Textures.size();
+			s_Textures.push_back(texture);
+		}
+		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
+			Log::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
+			if (TextureUtil::IsNull(s_Textures[index]))
 			{
-				auto asset = assetIt->second;
-				if (!asset->IsNull())
-				{
-					asset->Unload();
-				}
+				s_Textures[index] = texture;
 			}
-			assetListIt->second.clear();
-		}
-
-		manager->m_Assets.clear();
-	}
-
-	std::unordered_map<uint32, uint32> AssetManager::LoadFrom(const json& j)
-	{
-		AssetManager* manager = Get();
-
-		std::unordered_map<uint32, uint32> resourceIDMap{};
-
-		uint32 scene = -1;
-		JsonExtended::AssignIfNotNull(j["SceneID"], scene);
-		int assetCount = -1;
-		JsonExtended::AssignIfNotNull(j["AssetCount"], assetCount);
-
-		if (scene >= 0 && assetCount > 0)
-		{
-			for (auto it = j["AssetList"].begin(); it != j["AssetList"].end(); ++it)
+			else
 			{
-				const json& assetJson = it.value();
-				uint32 type = 0;
-				JsonExtended::AssignIfNotNull(assetJson["Type"], type);
-				uint32 resourceId = -1;
-				JsonExtended::AssignIfNotNull(assetJson["ResourceId"], resourceId);
-
-				CPath path = "";
-				if (!assetJson["Filepath"].is_null())
-				{
-					path = CPath(assetJson["Filepath"], false);
-				}
-
-				if (resourceId >= 0)
-				{
-					switch ((Asset::AssetType)type)
-					{
-					case Asset::AssetType::None:
-						Log::Warning("Tried to deserialize asset of type none: %s", path.Filepath());
-						break;
-					case Asset::AssetType::Texture:
-					{
-						std::shared_ptr<Asset> tex = LoadTextureFromFile(path);
-						resourceIDMap.insert({resourceId, tex->GetResourceId()});
-					}
-					break;
-					default:
-						Log::Warning("Unkown asset type %d for: %s", type, path.Filepath());
-						break;
-					}
-				}
+				Log::Error("Could not place texture at requested id. The slot is already taken.");
 			}
 		}
 
-		return resourceIDMap;
+		return Handle<Texture>(index);
+	}
+
+	const Font& AssetManager::GetFont(uint32 resourceId)
+	{
+		if (resourceId < s_Fonts.size())
+		{
+			return s_Fonts[resourceId];
+		}
+
+		return Font::nullFont;
+	}
+
+	Handle<Font> AssetManager::GetFont(const CPath& path)
+	{
+		int i = 0;
+		for (auto& font : s_Fonts)
+		{
+			if (font.m_Path == path)
+			{
+				return Handle<Font>(i);
+			}
+			i++;
+		}
+
+		return Handle<Font>();
+	}
+
+	Handle<Font> AssetManager::LoadFontFromJson(const CPath& path, const json& j, bool isDefault, int id)
+	{
+		Handle<Font> font = GetFont(path);
+		if (!font.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", path.Path.c_str());
+			return font;
+		}
+
+		CPath absPath = File::GetAbsolutePath(path);
+		int index = id;
+
+		// If id is -1, we don't care where you place the font so long as it gets loaded
+		if (index == -1)
+		{
+			index = s_Fonts.size();
+			s_Fonts.emplace_back(Font{ absPath, isDefault });
+		}
+		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
+		else
+		{
+			Log::Assert(index < s_Fonts.size(), "Id must be smaller then texture size.");
+			Log::Assert(s_Fonts[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
+			if (s_Fonts[index].IsNull())
+			{
+				s_Fonts[index] = Font{ absPath, isDefault };
+			}
+			else
+			{
+				Log::Error("Could not place font at requested id. The slot is already taken.");
+			}
+		}
+
+		Font& newFont = s_Fonts.at(index);
+		newFont.Deserialize(j);
+		return Handle<Font>(index);
+	}
+
+	Handle<Font> AssetManager::LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
+	{
+		Handle<Font> font = GetFont(fontFile);
+		if (!font.IsNull())
+		{
+			Log::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Path.c_str());
+			return font;
+		}
+
+		CPath absPath = File::GetAbsolutePath(fontFile);
+		int index = s_Fonts.size();
+
+		s_Fonts.push_back(Font{ absPath, false });
+		Font& newFont = s_Fonts.at(index);
+		newFont.GenerateSdf(fontFile, fontSize, outputFile, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+
+		Texture fontTexSpec;
+		fontTexSpec.IsDefault = false;
+		fontTexSpec.MagFilter = FilterMode::Linear;
+		fontTexSpec.MinFilter = FilterMode::Linear;
+		fontTexSpec.WrapS = WrapMode::Repeat;
+		fontTexSpec.WrapT = WrapMode::Repeat;
+		newFont.m_FontTexture = AssetManager::LoadTextureFromFile(fontTexSpec, outputFile);
+
+		return Handle<Font>(index);
 	}
 
 	json AssetManager::Serialize()
 	{
 		json res;
 
-		AssetManager* manager = Get();
+		res["SceneID"] = s_CurrentScene;
 
-		res["SceneID"] = manager->m_CurrentScene;
-		auto assetList = manager->m_Assets[manager->m_CurrentScene];
-
-		int assetCount = 0;
-		
-		for (auto assetIt = assetList.begin(); assetIt != assetList.end(); assetIt++)
+		int i = 0;
+		for (auto& assetIt : s_Textures)
 		{
-			if (!assetIt->second->m_IsDefault)
+			if (!assetIt.IsDefault)
 			{
-				json assetSerialized = assetIt->second->Serialize();
-				if (assetSerialized["Type"] != 0)
-				{
-					assetCount++;
-					res["AssetList"][std::to_string(assetIt->first)] = assetSerialized;
-				}
+				json assetSerialized = TextureUtil::Serialize(assetIt);
+				assetSerialized["ResourceId"] = i;
+				res["Textures"][i] = assetSerialized;
 			}
+			i++;
 		}
 
-		res["AssetCount"] = assetCount;
+		i = 0;
+		for (auto& assetIt : s_Fonts)
+		{
+			if (!assetIt.IsDefault())
+			{
+				json assetSerialized = assetIt.Serialize();
+				assetSerialized["ResourceId"] = i;
+				res["Fonts"][i] = assetSerialized;
+			}
+			i++;
+		}
 
 		return res;
 	}
 
-	json Asset::Serialize()
+	void AssetManager::LoadTexturesFrom(const json& j)
 	{
-		Asset::AssetType type = Asset::AssetType::None;
-		if (GetType() == Asset::GetResourceTypeId<Texture>())
-		{
-			type = Asset::AssetType::Texture;
-		}
-		else
-		{
-			return { {"Type", Asset::AssetType::None} };
-		}
+		uint32 scene = -1;
+		JsonExtended::AssignIfNotNull(j, "SceneID", scene);
 
-		return {
-			{"Type", type},
-			{"Filepath", m_Path.Filepath()},
-			{"ResourceId", m_ResourceId}
-		};
+		if (scene >= 0 && j.contains("Textures"))
+		{
+			// Note: We shouldn't have to worry about adding in the size of the default textures because they get 'serialized' as null
+			// Note: Should we keep it this way though?
+			s_Textures.resize(j["Textures"].size());
+			for (auto it = j["Textures"].begin(); it != j["Textures"].end(); ++it)
+			{
+				const json& assetJson = it.value();
+				if (assetJson.is_null()) continue;
+
+				uint32 resourceId = -1;
+				JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
+
+				if (resourceId >= 0)
+				{
+					LoadTextureFromJson(assetJson, false, resourceId);
+				}
+			}
+		}
+	}
+
+	void AssetManager::LoadFontsFrom(const json& j)
+	{
+		uint32 scene = -1;
+		JsonExtended::AssignIfNotNull(j, "SceneID", scene);
+
+		if (scene >= 0 && j.contains("Fonts"))
+		{
+			s_Fonts.resize(s_Fonts.size() + j["Fonts"].size());
+			for (auto it = j["Fonts"].begin(); it != j["Fonts"].end(); ++it)
+			{
+				const json& assetJson = it.value();
+				if (assetJson.is_null()) continue;
+
+				uint32 resourceId = -1;
+				JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
+
+				CPath path = NCPath::CreatePath();
+				if (assetJson.contains("Filepath"))
+				{
+					path = NCPath::CreatePath(assetJson["Filepath"], false);
+				}
+
+				if (resourceId >= 0)
+				{
+					LoadFontFromJson(path, assetJson, false, resourceId);
+				}
+			}
+		}
+	}
+
+	void AssetManager::Clear()
+	{
+		// Delete all textures on GPU before clear
+		for (auto& tex : s_Textures)
+		{
+			TextureUtil::Delete(tex);
+		}
+		s_Textures.clear();
+
+		// Free all fonts before destroying them
+		for (auto& font : s_Fonts)
+		{
+			font.Free();
+		}
+		s_Fonts.clear();
+
+		// Delete all shaders on clear
+		for (auto& shader : s_Shaders)
+		{
+			NShader::Delete(shader);
+		}
+		NShader::ClearAllShaderVariables();
+		s_Shaders.clear();
 	}
 }

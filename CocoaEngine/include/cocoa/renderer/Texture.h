@@ -1,41 +1,83 @@
 #pragma once
-
-#include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/core/Core.h"
-#include "cocoa/core/AssetManager.h"
+#include "cocoa/file/CPath.h"
 
 namespace Cocoa
 {
-	class COCOA Texture : public Asset
+	enum class FilterMode
 	{
-	public:
-		Texture(const CPath& resourceName, bool isDefault=false);
-		Texture(int width, int height, bool isDefault=false);
+		None=0,
+		Linear,
+		Nearest
+	};
 
-		virtual void Load() override;
-		virtual void Unload() override;
+	enum class WrapMode
+	{
+		None=0,
+		Repeat
+	};
 
-		void Bind();
-		void Unbind();
+	enum class ByteFormat
+	{
+		None=0,
+		RGBA,
+		RGBA8,
 
-		void FreePixels();
-		const uint8* GetPixelBuffer();
+		RGB,
+		RGB8,
 
-		inline int GetId() const { return m_ID; }
-		inline int GetWidth() const { return m_Width; }
-		inline int GetHeight() const { return m_Height; }
-		inline const CPath& GetFilepath() const { return m_Path; }
-		inline int BytesPerPixel() const { return m_BytesPerPixel; }
-		inline bool IsDefault() { return m_IsDefault; }
+		R32UI,
+		RED_INTEGER,
 
-	private:
-		unsigned int m_ID;
-		int m_Width, m_Height;
-		int m_BytesPerPixel = 3;
+		// Depth/Stencil formats
+		DEPTH24_STENCIL8
+	};
 
-		uint8* m_PixelBuffer = nullptr;
-		bool m_PixelsFreed = false;
+	struct COCOA Texture
+	{
+		uint32 GraphicsId = (uint32)-1;
+		int32 Width = 0;
+		int32 Height = 0;
 
-		AABB m_BoundingBox;
+		// Texture attributes
+		FilterMode MagFilter = FilterMode::None;
+		FilterMode MinFilter = FilterMode::None;
+		WrapMode WrapS = WrapMode::None;
+		WrapMode WrapT = WrapMode::None;
+		ByteFormat InternalFormat = ByteFormat::None;
+		ByteFormat ExternalFormat = ByteFormat::None;
+
+		CPath Path = CPath();
+		bool IsDefault = false;
+	};
+
+	namespace TextureUtil
+	{
+		// Namespace variables
+		// NOTE: To make sure this variable is visible to other translation units, declare it as extern
+		COCOA extern const Texture NullTexture;
+
+		// Namespace functions
+		COCOA json Serialize(const Texture& texture);
+		COCOA Texture Deserialize(const json& j);
+
+		COCOA void Bind(const Texture& texture);
+		COCOA void Unbind(const Texture& texture);
+		COCOA void Delete(Texture& texture);
+
+		// Loads a texture using stb library and generates a texutre using the filter/wrap modes and automatically detects
+		// internal/external format, width, height, and alpha channel
+		COCOA void Generate(Texture& texture, const CPath& filepath);
+
+		// Allocates memory space on the GPU according to the texture specifications listed here
+		COCOA void Generate(Texture& texture);
+
+		COCOA bool IsNull(const Texture& texture);
+
+		COCOA uint32 ToGl(ByteFormat format);
+		COCOA uint32 ToGl(WrapMode wrapMode);
+		COCOA uint32 ToGl(FilterMode filterMode);
+		COCOA uint32 ToGlDataType(ByteFormat format);
+		COCOA bool ByteFormatIsInt(ByteFormat format);
 	};
 }
