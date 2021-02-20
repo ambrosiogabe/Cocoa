@@ -23,7 +23,8 @@ namespace Cocoa
 			float strokeWidth = 1.2f, 
 			glm::vec3 color = { 0.0f, 1.0f, 0.0f }, 
 			int lifetime = 1, 
-			bool onTop = true);
+			bool onTop = true
+		);
 
 		COCOA void AddBox2D(
 			glm::vec2& center, 
@@ -32,7 +33,8 @@ namespace Cocoa
 			float strokeWidth = 1.2f, 
 			glm::vec3 color = { 0.0f, 1.0f, 0.0f }, 
 			int lifetime = 1, 
-			bool onTop = true);
+			bool onTop = true
+		);
 
 		COCOA void AddSprite(
 			Handle<Texture> spriteTexture, 
@@ -43,6 +45,17 @@ namespace Cocoa
 			glm::vec2 texCoordMax = { 1.0f, 0.0f }, 
 			float rotation = 0.0f,
 			int lifetime = 1, 
-			bool onTop = true);
+			bool onTop = true
+		);
+
+		COCOA void AddShape(
+			glm::vec2* vertices,
+			int numVertices,
+			glm::vec3& color,
+			const glm::vec2& position,
+			float rotation = 0.0f,
+			int lifetime = 1,
+			bool onTop = true
+		);
 	};
 }

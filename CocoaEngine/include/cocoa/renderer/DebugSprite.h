@@ -19,18 +19,4 @@ namespace Cocoa
         int Lifetime;
         bool OnTop;
     };
-
-    //namespace NDebugSprite
-    //{
-    //    COCOA DebugSprite Create(
-    //        Handle<Texture> textureAssetId,
-    //        const glm::vec2& size,
-    //        const glm::vec2& position,
-    //        const glm::vec3& tint,
-    //        const glm::vec2& texCoordMin,
-    //        const glm::vec2& texCoordMax,
-    //        float rotation,
-    //        int lifetime,
-    //        bool onTop);
-    //}
 }

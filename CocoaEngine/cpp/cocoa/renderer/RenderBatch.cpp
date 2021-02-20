@@ -25,11 +25,13 @@ namespace Cocoa
 			uint32 entityId = -1);
 
 		static void LoadVertexProperties(
-			RenderBatchData& data, 
-			const glm::vec2* vertices, 
-			const glm::vec2* texCoords, 
-			const glm::vec4& color, 
+			RenderBatchData& data,
+			const glm::vec2* vertices,
+			const glm::vec2* texCoords,
+			const glm::vec4& color,
+			const glm::vec2& position,
 			int texId,
+			int numVertices,
 			uint32 entityId = -1);
 
 		static void LoadEmptyVertexProperties(RenderBatchData& data);
@@ -203,32 +205,13 @@ namespace Cocoa
 				glm::vec2 quadSize = { charInfo.chScaleX * fontRenderer.fontSize, charInfo.chScaleY * fontRenderer.fontSize };
 				//glm::vec3 pos = { xPos, yPos, 0.0f };
 
-				LoadVertexProperties(data, vertices, texCoords, fontRenderer.m_Color, texId, entityId);
+				LoadVertexProperties(data, vertices, texCoords, fontRenderer.m_Color, {0.0f, 0.0f}, texId, entityId);
 
 				x += charInfo.advance * fontRenderer.fontSize * transform.Scale.x;
 			}
 		}
 
-		//void Add(RenderBatchData& data, const glm::vec2& min, const glm::vec2& max, const glm::vec3& color)
-		//{
-		//	data.NumSprites++;
-		//	std::array<glm::vec2, 4> texCoords{
-		//		glm::vec2 {1, 1},
-		//		glm::vec2 {1, 0},
-		//		glm::vec2 {0, 0},
-		//		glm::vec2 {0, 1}
-		//	};
-		//	glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
-		//	glm::vec2 quadSize{ max.x - min.x, max.y - min.y };
-		//	glm::vec3 position{ min.x + ((max.x - min.x) / 2.0f), min.y + ((max.y - min.y) / 2.0f), 0.0f };
-		//	glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-		//	int texId = 0;
-		//	float rotation = 0.0f;
-
-		//	LoadVertexProperties(data, position, scale,  &texCoords[0], rotation, vec4Color, texId);
-		//}
-
-		void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color)
+		void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color, const glm::vec2& position, int numVertices)
 		{
 			data.NumSprites++;
 			std::array<glm::vec2, 4> texCoords{
@@ -240,7 +223,7 @@ namespace Cocoa
 			glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
 			int texId = 0;
 
-			LoadVertexProperties(data, vertices, &texCoords[0], vec4Color, texId);
+			LoadVertexProperties(data, vertices, &texCoords[0], vec4Color, position, texId, numVertices);
 		}
 
 		void Add(
@@ -361,12 +344,20 @@ namespace Cocoa
 			}
 		}
 
-		void LoadVertexProperties(RenderBatchData& data, const glm::vec2* vertices, const glm::vec2* texCoords, const glm::vec4& color, int texId, uint32 entityId)
+		void LoadVertexProperties(
+			RenderBatchData& data, 
+			const glm::vec2* vertices, 
+			const glm::vec2* texCoords, 
+			const glm::vec4& color, 
+			const glm::vec2& position, 
+			int texId, 
+			int numVertices, 
+			uint32 entityId)
 		{
-			for (int i = 0; i < 4; i++)
+			for (int i = 0; i < numVertices; i++)
 			{
 				// Load Attributes
-				data.VertexStackPointer->position = glm::vec3(vertices[i].x, vertices[i].y, 0.0f);
+				data.VertexStackPointer->position = glm::vec3(vertices[i].x + position.x, vertices[i].y + position.y, 0.0f);
 				data.VertexStackPointer->color = glm::vec4(color);
 				data.VertexStackPointer->texCoords = glm::vec2(texCoords[i]);
 				data.VertexStackPointer->texId = (float)texId;

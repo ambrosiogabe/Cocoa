@@ -19,23 +19,40 @@ namespace Cocoa
 {
 	namespace Gizmo
 	{
+		// Internal Variables
+		static int m_GizmoArrowModelVertCount = 8;
+		static glm::vec2 m_GizmoArrowModel[] = {
+			// The box part of the arrow
+			{  0.0f, -0.02f },
+			{  0.0f,  0.02f },
+			{ -0.5f,  0.02f },
+			{ -0.5f, -0.02f },
+
+			// The arrow part of the arrow
+			{  0.0f,  0.0f },
+			{  0.0f,  0.1f },
+			{  0.2f,  0.0f },
+			{  0.0f,  -0.1f, }
+		};
+
 		// =================================================================================================
 		// Gizmo
 		// =================================================================================================
-		GizmoData CreateGizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 darkTint)
+		GizmoData CreateGizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 color)
 		{
+			static glm::vec2 defaultGizmoHalfSize{ 8.0f / 80.0f, 20.0f / 80.0f };
+
 			GizmoData data;
 			data.Active = false;
 			data.Position = glm::vec3();
-			data.Box2D = { glm::vec2(10, 40), glm::vec2(5, 20), glm::vec2(0, 0) };
-			data.HalfSize = { 8, 20 };
+			data.HalfSize = defaultGizmoHalfSize;
 
 			data.Offset = offset;
 			data.SpriteRotation = spriteRotation;
 			data.TexCoordMin = sprite.m_TexCoords[0];
 			data.TexCoordMax = sprite.m_TexCoords[2];
 			data.TextureAssetId = sprite.m_Texture;
-			data.Tint = darkTint;
+			data.Color = color;
 			data.Type = type;
 			return data;
 		}
@@ -45,11 +62,17 @@ namespace Cocoa
 			float cameraZoom = camera.Zoom * 2;
 			if (data.Active)
 			{
-				DebugDraw::AddSprite(data.TextureAssetId, data.HalfSize * 2.0f * cameraZoom, CMath::Vector2From3(data.Position), data.Tint, data.TexCoordMin, data.TexCoordMax, data.SpriteRotation);
+				if (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical)
+				{
+					DebugDraw::AddShape(m_GizmoArrowModel, m_GizmoArrowModelVertCount, glm::vec3(data.Color) - glm::vec3(0.2f, 0.2f, 0.2f), data.Position);
+				}
 			}
 			else
 			{
-				DebugDraw::AddSprite(data.TextureAssetId, data.HalfSize * 2.0f * cameraZoom, CMath::Vector2From3(data.Position), { 1.0f, 1.0f, 1.0f }, data.TexCoordMin, data.TexCoordMax, data.SpriteRotation);
+				if (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical)
+				{
+					DebugDraw::AddShape(m_GizmoArrowModel, m_GizmoArrowModelVertCount, glm::vec3(data.Color), data.Position);
+				}
 			}
 		}
 
@@ -138,20 +161,22 @@ namespace Cocoa
 
 			m_Camera = &scene.SceneCamera;
 
-			float hzOffsetX = 15;
-			float hzOffsetY = -10;
-			float squareOffsetX = 5;
-			float squareOffsetY = 15;
-			float vtOffsetX = -8;
-			float vtOffsetY = 12;
-			Gizmos[3] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 1), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-			Gizmos[4] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-			Gizmos[5] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
-			Gizmos[5].Box2D = { glm::vec2(16, 16), glm::vec2(8, 8), glm::vec2(0, -12) };
+			glm::vec3 redColor = { 227.0f / 255.0f, 68.0f / 255.0f, 68.0f / 255.0f };
+			glm::vec3 greenColor = { 68.0f / 255.0f, 227.0f / 255.0f, 68.0f / 255.0f };
 
-			Gizmos[0] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal);
-			Gizmos[1] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical);
-			Gizmos[2] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free);
+			float hzOffsetX = 15.0f / 80.0f;
+			float hzOffsetY = -10.0f / 80.0f;
+			float squareOffsetX = 5.0f / 80.0f;
+			float squareOffsetY = 15.0f / 80.0f;
+			float vtOffsetX = -8.0f / 80.0f;
+			float vtOffsetY = 12.0f / 80.0f;
+			Gizmos[3] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 1), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal, redColor);
+			Gizmos[4] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 4), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical, greenColor);
+			Gizmos[5] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free, redColor);
+
+			Gizmos[0] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 2), { hzOffsetX, hzOffsetY, 0.0f }, -90.0f, GizmoType::Horizontal, redColor);
+			Gizmos[1] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 5), { vtOffsetX, vtOffsetY, 0.0f }, 0.0f, GizmoType::Vertical, greenColor);
+			Gizmos[2] = Gizmo::CreateGizmo(NSpritesheet::GetSprite(m_GizmoSpritesheet, 0), { squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free, redColor);
 		}
 
 		void Destroy(SceneData& data)
@@ -216,8 +241,8 @@ namespace Cocoa
 					GizmoData& gizmo = Gizmos[i];
 					float cameraZoom = m_Camera->Zoom * 2;
 					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
-					glm::vec3 boxPos = gizmo.Position + CMath::Vector3From2(gizmo.Box2D.m_Offset) * cameraZoom;
-					if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.Box2D.m_HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
+					glm::vec3 boxPos = CMath::Vector3From2(gizmo.Position) + gizmo.Offset * cameraZoom;
+					if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.HalfSize * cameraZoom, boxPos, gizmo.SpriteRotation))
 					{
 						gizmo.Active = true;
 						m_HotGizmo = i;

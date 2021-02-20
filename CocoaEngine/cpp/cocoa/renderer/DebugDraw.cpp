@@ -6,6 +6,7 @@
 #include "cocoa/renderer/RenderBatch.h"
 #include "cocoa/renderer/Line2D.h"
 #include "cocoa/renderer/DebugSprite.h"
+#include "cocoa/renderer/DebugShape.h"
 #include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
@@ -16,6 +17,7 @@ namespace Cocoa
 		static DynamicArray<RenderBatchData> m_Batches;
 		static DynamicArray<Line2D> m_Lines;
 		static DynamicArray<DebugSprite> m_Sprites;
+		static DynamicArray<DebugShape> m_Shapes;
 		static Handle<Shader> m_Shader;
 
 		static const int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
@@ -24,14 +26,17 @@ namespace Cocoa
 		// Forward Declarations
 		static void RemoveDeadSprites();
 		static void RemoveDeadLines();
+		static void RemoveDeadShapes();
 		static void AddSpritesToBatches();
 		static void AddLinesToBatches();
+		static void AddShapesToBatches();
 
 		void Init()
 		{
 			m_Batches = NDynamicArray::Create<RenderBatchData>();
 			m_Lines = NDynamicArray::Create<Line2D>();
 			m_Sprites = NDynamicArray::Create<DebugSprite>();
+			m_Shapes = NDynamicArray::Create<DebugShape>();
 			m_Shader = Handle<Shader>();
 		}
 
@@ -44,6 +49,7 @@ namespace Cocoa
 			NDynamicArray::Free<RenderBatchData>(m_Batches);
 			NDynamicArray::Free<Line2D>(m_Lines);
 			NDynamicArray::Free<DebugSprite>(m_Sprites);
+			NDynamicArray::Free<DebugShape>(m_Shapes);
 		}
 
 		void BeginFrame()
@@ -57,12 +63,14 @@ namespace Cocoa
 
 			RemoveDeadLines();
 			RemoveDeadSprites();
+			RemoveDeadShapes();
 		}
 
 		void DrawBottomBatches(const Camera& camera)
 		{
 			AddLinesToBatches();
 			AddSpritesToBatches();
+			AddShapesToBatches();
 
 			const Shader& shaderRef = AssetManager::GetShader(m_Shader.m_AssetId);
 			NShader::Bind(shaderRef);
@@ -148,6 +156,11 @@ namespace Cocoa
 			NDynamicArray::Add<DebugSprite>(m_Sprites, DebugSprite{ spriteTexture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 		}
 
+		void AddShape(glm::vec2* vertices, int numVertices, glm::vec3& color, const glm::vec2& position, float rotation, int lifetime, bool onTop)
+		{
+			NDynamicArray::Add<DebugShape>(m_Shapes, DebugShape{ vertices, numVertices, color, glm::vec2(position), rotation, lifetime, onTop });
+		}
+
 
 		// ===================================================================================================================
 		// Private methods
@@ -181,6 +194,24 @@ namespace Cocoa
 				if (lineIter.Lifetime <= 0)
 				{
 					NDynamicArray::Remove<Line2D>(m_Lines, index);
+				}
+				else
+				{
+					index++;
+				}
+			}
+		}
+
+		static void RemoveDeadShapes()
+		{
+			auto index = 0;
+			while (index != m_Shapes.m_NumElements)
+			{
+				DebugShape& shapeIter = m_Shapes.m_Data[index];
+				shapeIter.Lifetime--;
+				if (shapeIter.Lifetime <= 0)
+				{
+					NDynamicArray::Remove<DebugShape>(m_Shapes, index);
 				}
 				else
 				{
@@ -258,6 +289,32 @@ namespace Cocoa
 					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, lineOnTop);
 					RenderBatch::Start(newBatch);
 					RenderBatch::Add(newBatch, line->Verts, line->Color);
+					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+				}
+			}
+		}
+
+		static void AddShapesToBatches()
+		{
+			for (auto shape = NDynamicArray::Begin<DebugShape>(m_Shapes); shape != NDynamicArray::End<DebugShape>(m_Shapes); shape++)
+			{
+				bool wasAdded = false;
+				bool shapeOnTop = shape->OnTop;
+				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+				{
+					if (RenderBatch::HasRoom(*batch) && (shapeOnTop == batch->BatchOnTop))
+					{
+						RenderBatch::Add(*batch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices);
+						wasAdded = true;
+						break;
+					}
+				}
+
+				if (!wasAdded)
+				{
+					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, shapeOnTop);
+					RenderBatch::Start(newBatch);
+					RenderBatch::Add(newBatch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices);
 					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
 				}
 			}
