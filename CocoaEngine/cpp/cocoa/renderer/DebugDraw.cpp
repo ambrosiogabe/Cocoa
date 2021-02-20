@@ -202,7 +202,16 @@ namespace Cocoa
 					{
 						if (!sprite.SpriteTexture || RenderBatch::HasTexture(*batch, sprite.SpriteTexture) || RenderBatch::HasTextureRoom(*batch))
 						{
-							RenderBatch::Add(*batch, sprite.SpriteTexture, sprite.Size, sprite.Position, sprite.Tint, sprite.TexCoordMin, sprite.TexCoordMax, sprite.Rotation);
+							RenderBatch::Add(
+								*batch, 
+								sprite.SpriteTexture, 
+								CMath::Vector3From2(sprite.Position), 
+								CMath::Vector3From2(sprite.Size), 
+								sprite.Tint, 
+								sprite.TexCoordMin, 
+								sprite.TexCoordMax, 
+								sprite.Rotation);
+
 							wasAdded = true;
 							break;
 						}
@@ -213,7 +222,16 @@ namespace Cocoa
 				{
 					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, spriteOnTop);
 					RenderBatch::Start(newBatch);
-					RenderBatch::Add(newBatch, sprite.SpriteTexture, sprite.Size, sprite.Position, sprite.Tint, sprite.TexCoordMin, sprite.TexCoordMax, sprite.Rotation);
+					RenderBatch::Add(
+						newBatch, 
+						sprite.SpriteTexture, 
+						CMath::Vector3From2(sprite.Position), 
+						CMath::Vector3From2(sprite.Size), 
+						sprite.Tint, 
+						sprite.TexCoordMin, 
+						sprite.TexCoordMax, 
+						sprite.Rotation);
+
 					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
 				}
 			}

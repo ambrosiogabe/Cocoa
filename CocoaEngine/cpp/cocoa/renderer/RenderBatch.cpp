@@ -5,6 +5,7 @@
 #include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/core/Memory.h"
+#include "cocoa/util/CMath.h"
 
 namespace Cocoa
 {
@@ -12,14 +13,26 @@ namespace Cocoa
 	{
 		// Forward declarations
 		static void LoadVertexProperties(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr);
-		static void LoadVertexProperties(RenderBatchData& data, const glm::vec3& position,
-			const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords,
-			float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId = -1);
-		static void LoadVertexProperties(RenderBatchData& data, const glm::vec2* vertices, const glm::vec2* texCoords, const glm::vec4& color, int texId,
+
+		static void LoadVertexProperties(
+			RenderBatchData& data, 
+			const glm::vec3& position,
+			const glm::vec3& scale, 
+			const glm::vec2* texCoords,
+			float rotationDegrees, 
+			const glm::vec4& color, 
+			int texId, 
+			uint32 entityId = -1);
+
+		static void LoadVertexProperties(
+			RenderBatchData& data, 
+			const glm::vec2* vertices, 
+			const glm::vec2* texCoords, 
+			const glm::vec4& color, 
+			int texId,
 			uint32 entityId = -1);
 
 		static void LoadEmptyVertexProperties(RenderBatchData& data);
-
 		static void LoadElementIndices(RenderBatchData& data, int index);
 		static void GenerateIndices(RenderBatchData& data);
 
@@ -196,24 +209,24 @@ namespace Cocoa
 			}
 		}
 
-		void Add(RenderBatchData& data, const glm::vec2& min, const glm::vec2& max, const glm::vec3& color)
-		{
-			data.NumSprites++;
-			std::array<glm::vec2, 4> texCoords{
-				glm::vec2 {1, 1},
-				glm::vec2 {1, 0},
-				glm::vec2 {0, 0},
-				glm::vec2 {0, 1}
-			};
-			glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
-			glm::vec2 quadSize{ max.x - min.x, max.y - min.y };
-			glm::vec3 position{ min.x + ((max.x - min.x) / 2.0f), min.y + ((max.y - min.y) / 2.0f), 0.0f };
-			glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-			int texId = 0;
-			float rotation = 0.0f;
+		//void Add(RenderBatchData& data, const glm::vec2& min, const glm::vec2& max, const glm::vec3& color)
+		//{
+		//	data.NumSprites++;
+		//	std::array<glm::vec2, 4> texCoords{
+		//		glm::vec2 {1, 1},
+		//		glm::vec2 {1, 0},
+		//		glm::vec2 {0, 0},
+		//		glm::vec2 {0, 1}
+		//	};
+		//	glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
+		//	glm::vec2 quadSize{ max.x - min.x, max.y - min.y };
+		//	glm::vec3 position{ min.x + ((max.x - min.x) / 2.0f), min.y + ((max.y - min.y) / 2.0f), 0.0f };
+		//	glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+		//	int texId = 0;
+		//	float rotation = 0.0f;
 
-			LoadVertexProperties(data, position, scale, quadSize, &texCoords[0], rotation, vec4Color, texId);
-		}
+		//	LoadVertexProperties(data, position, scale,  &texCoords[0], rotation, vec4Color, texId);
+		//}
 
 		void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color)
 		{
@@ -230,8 +243,15 @@ namespace Cocoa
 			LoadVertexProperties(data, vertices, &texCoords[0], vec4Color, texId);
 		}
 
-		void Add(RenderBatchData& data, Handle<Texture> textureHandle, const glm::vec2& size, const glm::vec2& position,
-			const glm::vec3& color, const glm::vec2& texCoordMin, const glm::vec2& texCoordMax, float rotation)
+		void Add(
+			RenderBatchData& data, 
+			Handle<Texture> textureHandle, 
+			const glm::vec3& position,
+			const glm::vec3& scale,
+			const glm::vec3& color, 
+			const glm::vec2& texCoordMin, 
+			const glm::vec2& texCoordMax, 
+			float rotation)
 		{
 			data.NumSprites++;
 			std::array<glm::vec2, 4> texCoords{
@@ -242,7 +262,6 @@ namespace Cocoa
 			};
 			glm::vec4 vec4Color{ color.x, color.y, color.z, 1.0f };
 			glm::vec3 vec3Pos{ position.x, position.y, 0.0f };
-			glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
 
 			if (!HasTexture(data, textureHandle))
@@ -261,7 +280,7 @@ namespace Cocoa
 				}
 			}
 
-			LoadVertexProperties(data, vec3Pos, scale, size, &texCoords[0], rotation, vec4Color, texId);
+			LoadVertexProperties(data, position, scale, &texCoords[0], rotation, vec4Color, texId);
 		}
 
 		void LoadVertexProperties(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr)
@@ -269,7 +288,6 @@ namespace Cocoa
 			glm::vec4 color = spr.m_Color;
 			const Sprite& sprite = spr.m_Sprite;
 			const glm::vec2* texCoords = spr.m_Sprite.m_TexCoords;
-			glm::vec2 quadSize{ sprite.m_Width, sprite.m_Height };
 			float rotation = transform.EulerRotation.z;
 
 			int texId = 0;
@@ -286,11 +304,18 @@ namespace Cocoa
 			}
 
 			Entity res = NEntity::FromComponent<TransformData>(transform);
-			LoadVertexProperties(data, transform.Position, transform.Scale, quadSize, texCoords, rotation, color, texId, NEntity::GetID(res));
+			LoadVertexProperties(data, transform.Position, transform.Scale, texCoords, rotation, color, texId, NEntity::GetID(res));
 		}
 
-		void LoadVertexProperties(RenderBatchData& data, const glm::vec3& position, const glm::vec3& scale, const glm::vec2& quadSize, const glm::vec2* texCoords,
-			float rotationDegrees, const glm::vec4& color, int texId, uint32 entityId)
+		void LoadVertexProperties(
+			RenderBatchData& data, 
+			const glm::vec3& position, 
+			const glm::vec3& scale, 
+			const glm::vec2* texCoords,
+			float rotationDegrees, 
+			const glm::vec4& color, 
+			int texId, 
+			uint32 entityId)
 		{
 			bool isRotated = rotationDegrees != 0.0f;
 			glm::mat4 matrix = glm::mat4(1.0f);
@@ -298,7 +323,7 @@ namespace Cocoa
 			{
 				matrix = glm::translate(matrix, position);
 				matrix = glm::rotate(matrix, glm::radians(rotationDegrees), glm::vec3(0, 0, 1));
-				matrix = glm::scale(matrix, scale * glm::vec3(quadSize.x, quadSize.y, 1));
+				matrix = glm::scale(matrix, scale);
 			}
 
 			float xAdd = 0.5f;
@@ -318,8 +343,8 @@ namespace Cocoa
 					yAdd = -0.5f;
 				}
 
-				glm::vec4 currentPos = glm::vec4(position.x + (xAdd * scale.x * quadSize.x),
-					position.y + (yAdd * scale.y * quadSize.y), 0.0f, 1.0f);
+				glm::vec4 currentPos = glm::vec4(position.x + (xAdd * scale.x),
+					position.y + (yAdd * scale.y), 0.0f, 1.0f);
 				if (isRotated)
 				{
 					currentPos = matrix * glm::vec4(xAdd, yAdd, 0.0f, 1.0f);

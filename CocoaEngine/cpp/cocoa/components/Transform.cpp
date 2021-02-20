@@ -14,10 +14,6 @@ namespace Cocoa
 			data.EulerRotation = eulerRotation;
 			data.Orientation = glm::toQuat(glm::orientate3(data.EulerRotation));
 
-			data.Forward = glm::vec3(0, 0, 1) * data.Orientation;
-			data.Up = glm::vec3(0, 1, 0) * data.Orientation;
-			data.Right = glm::vec3(1, 0, 0) * data.Orientation;
-
 			UpdateMatrices(data);
 			return data;
 		}

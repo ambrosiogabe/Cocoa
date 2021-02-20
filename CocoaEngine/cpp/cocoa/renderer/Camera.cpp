@@ -10,7 +10,9 @@ namespace Cocoa
 			Camera res;
 			res.Transform = Transform::CreateTransform(position, glm::vec3(1.0f), glm::vec3(0.0f));
 			// TODO: Make this customizable
-			res.ProjectionSize = { 1920.0f, 1080.0f };
+			res.ProjectionSize = { 6.0f, 3.0f };
+			res.ProjectionNearPlane = 0.5f;
+			res.ProjectionFarPlane = 100.0f;
 			AdjustPerspective(res);
 			return res;
 		}
@@ -23,7 +25,14 @@ namespace Cocoa
 
 		void AdjustPerspective(Camera& camera)
 		{
-			camera.ProjectionMatrix = glm::ortho(-1920.0f * camera.Zoom / 2.0f, 1920.0f * camera.Zoom / 2.0f, -1080.0f * camera.Zoom / 2.0f, 1080.0f * camera.Zoom / 2.0f, 0.5f, 100.0f);
+			camera.ProjectionMatrix = glm::ortho(
+				-camera.ProjectionSize.x * camera.Zoom / 2.0f, 
+				camera.ProjectionSize.x * camera.Zoom / 2.0f, 
+				-camera.ProjectionSize.y * camera.Zoom / 2.0f, 
+				camera.ProjectionSize.y  * camera.Zoom / 2.0f, 
+				camera.ProjectionNearPlane, 
+				camera.ProjectionFarPlane);
+
 			camera.InverseProjection = glm::inverse(camera.ProjectionMatrix);
 		}
 

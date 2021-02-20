@@ -10,10 +10,6 @@ namespace Cocoa
 		glm::vec3 EulerRotation;
 		glm::quat Orientation;
 
-		glm::vec3 Forward;
-		glm::vec3 Up;
-		glm::vec3 Right;
-
 		glm::mat4 ModelMatrix;
 		glm::mat4 InverseModelMatrix;
 	};
