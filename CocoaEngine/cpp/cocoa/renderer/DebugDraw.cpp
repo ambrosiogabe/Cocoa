@@ -13,6 +13,15 @@ namespace Cocoa
 {
 	namespace DebugDraw
 	{
+		static const int m_FilledBoxVertCount = 4;
+		static const glm::vec2 m_FilledBoxModel[] = {
+			// Standard verts for a 1x1 box
+			{  0.5f, -0.5f },
+			{  0.5f,  0.5f },
+			{ -0.5f,  0.5f },
+			{ -0.5f, -0.5f },
+		};
+
 		// Internal Variables
 		static DynamicArray<RenderBatchData> m_Batches;
 		static DynamicArray<Line2D> m_Lines;
@@ -49,6 +58,11 @@ namespace Cocoa
 			NDynamicArray::Free<RenderBatchData>(m_Batches);
 			NDynamicArray::Free<Line2D>(m_Lines);
 			NDynamicArray::Free<DebugSprite>(m_Sprites);
+
+			for (int i = 0; i < m_Shapes.m_NumElements; i++)
+			{
+				FreeMem(m_Shapes.m_Data[i].Vertices);
+			}
 			NDynamicArray::Free<DebugShape>(m_Shapes);
 		}
 
@@ -142,6 +156,17 @@ namespace Cocoa
 			AddLine2D(vertices[2], vertices[0], strokeWidth, color, lifetime, onTop);
 		}
 
+		void AddFilledBox(
+			const glm::vec2& center,
+			const glm::vec2& dimensions,
+			float rotation,
+			const glm::vec3 color,
+			int lifetime,
+			bool onTop)
+		{
+			AddShape(m_FilledBoxModel, m_FilledBoxVertCount, color, center, dimensions, rotation, lifetime, onTop);
+		}
+
 		void AddSprite(
 			Handle<Texture> spriteTexture,
 			glm::vec2 size,
@@ -156,9 +181,23 @@ namespace Cocoa
 			NDynamicArray::Add<DebugSprite>(m_Sprites, DebugSprite{ spriteTexture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 		}
 
-		void AddShape(glm::vec2* vertices, int numVertices, glm::vec3& color, const glm::vec2& position, float rotation, int lifetime, bool onTop)
+		void AddShape(const glm::vec2* vertices, int numVertices, const glm::vec3& color, const glm::vec2& position, const glm::vec2& scale, float rotation, int lifetime, bool onTop)
 		{
-			NDynamicArray::Add<DebugShape>(m_Shapes, DebugShape{ vertices, numVertices, color, glm::vec2(position), rotation, lifetime, onTop });
+			// TODO: Maybe do this differently? I really don't like allocating and freeing so much small bits of memory
+			glm::vec2* vertsCopy = (glm::vec2*)AllocMem(sizeof(glm::vec2) * numVertices);
+			memcpy(vertsCopy, vertices, sizeof(glm::vec2) * numVertices);
+			if (!CMath::Compare(rotation, 0.0f) || !CMath::Compare(scale, {1.0f, 1.0f}))
+			{
+				glm::mat4 matrix = glm::mat4(1.0f);
+				matrix = glm::rotate(matrix, glm::radians(rotation), glm::vec3(0, 0, 1));
+				matrix = glm::scale(matrix, glm::vec3(scale.x, scale.y, 1.0f));
+				for (int i = 0; i < numVertices; i++)
+				{
+					glm::vec4 transformedPos = matrix * glm::vec4(vertsCopy[i].x, vertsCopy[i].y, 0.0f, 1.0f);
+					vertsCopy[i] = glm::vec2(transformedPos.x, transformedPos.y);
+				}
+			}
+			NDynamicArray::Add<DebugShape>(m_Shapes, DebugShape{ vertsCopy, numVertices, glm::vec3(color), glm::vec2(position), rotation, lifetime, onTop });
 		}
 
 
@@ -174,7 +213,6 @@ namespace Cocoa
 				spriteIter.Lifetime--;
 				if (spriteIter.Lifetime <= 0)
 				{
-					// TODO: Triple check this logic
 					NDynamicArray::Remove<DebugSprite>(m_Sprites, index);
 				}
 				else
@@ -211,6 +249,7 @@ namespace Cocoa
 				shapeIter.Lifetime--;
 				if (shapeIter.Lifetime <= 0)
 				{
+					FreeMem(m_Shapes.m_Data[index].Vertices);
 					NDynamicArray::Remove<DebugShape>(m_Shapes, index);
 				}
 				else
@@ -302,7 +341,7 @@ namespace Cocoa
 				bool shapeOnTop = shape->OnTop;
 				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
 				{
-					if (RenderBatch::HasRoom(*batch) && (shapeOnTop == batch->BatchOnTop))
+					if (RenderBatch::HasRoom(*batch, shape->NumVertices) && (shapeOnTop == batch->BatchOnTop))
 					{
 						RenderBatch::Add(*batch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices);
 						wasAdded = true;

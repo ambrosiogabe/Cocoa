@@ -29,7 +29,7 @@ namespace Cocoa
 
         uint32 VAO, VBO, EBO;
         int16 ZIndex = 0;
-        uint16 NumSprites = 0;
+        uint16 NumUsedVertices = 0;
         uint16 NumTextures = 0;
 
         int MaxBatchSize;
@@ -59,7 +59,7 @@ namespace Cocoa
 
         COCOA void Render(RenderBatchData& data);
 
-        COCOA bool HasRoom(const RenderBatchData& data);
+        COCOA bool HasRoom(const RenderBatchData& data, int numVertices=4);
         COCOA bool HasRoom(const RenderBatchData& data, const FontRenderer& fontRenderer);
         COCOA bool HasTextureRoom(const RenderBatchData& data);
 

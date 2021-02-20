@@ -33,21 +33,27 @@ namespace Cocoa
 		glm::vec2 Position;
 		glm::vec3 Offset;
 		glm::vec3 Color;
-		glm::vec2 HalfSize;
-		glm::vec2 TexCoordMin;
-		glm::vec2 TexCoordMax;
+		glm::vec2 Scale;
+		glm::vec2 BoxBoundsHalfSize;
+		glm::vec2 BoxBoundsOffset;
+		float Rotation;
 
 		GizmoType Type;
-		Handle<Texture> TextureAssetId;
-		float SpriteRotation;
 		bool Active;
 	};
 
 	namespace Gizmo
 	{
-		GizmoData CreateGizmo(const Sprite& sprite, glm::vec3 offset, float spriteRotation, GizmoType type, glm::vec3 color);
+		GizmoData CreateGizmo(
+			glm::vec3& offset,
+			float rotation,
+			GizmoType type,
+			glm::vec3& color,
+			glm::vec2& boxBoundsHalfSize,
+			glm::vec2& boxBoundsOffset = glm::vec2{ 0.0f, 0.0f },
+			glm::vec2& scale = glm::vec2{ 1.0f, 1.0f });
 
-		void Render(const GizmoData& data, const Camera& camera);
+		void Render(const GizmoData& data, const Camera& camera, GizmoMode mode);
 		void GizmoManipulateTranslate(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, const Camera& camera);
 		void GizmoManipulateRotate(const GizmoData& data, TransformData& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, const Camera& camera);
 		void GizmoManipulateScale(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, const Camera& camera);
