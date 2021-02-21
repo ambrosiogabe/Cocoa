@@ -1,5 +1,6 @@
 #pragma once
 #include "externalLibs.h"
+#include "cocoa/core/EntityStruct.h"
 
 namespace Cocoa
 {
@@ -12,5 +13,6 @@ namespace Cocoa
 
 		glm::mat4 ModelMatrix;
 		glm::mat4 InverseModelMatrix;
+		Entity Parent;
 	};
 }

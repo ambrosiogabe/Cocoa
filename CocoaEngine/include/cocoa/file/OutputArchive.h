@@ -2,6 +2,7 @@
 #include "externalLibs.h"
 
 #include "cocoa/components/Transform.h"
+#include "cocoa/components/Tag.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/physics2d/Physics2D.h"
 #include "cocoa/util/Log.h"
@@ -60,6 +61,11 @@ namespace Cocoa
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
 				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box);
+			}
+			else if (info.id() == entt::type_info<Tag>().id())
+			{
+				const Tag* tag = reinterpret_cast<const Tag*>(&component);
+				NTag::Serialize(m_Json, NEntity::CreateEntity(entity), *tag);
 			}
 			else
 			{

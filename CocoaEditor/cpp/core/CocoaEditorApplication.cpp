@@ -40,6 +40,34 @@ namespace Cocoa
 			Settings::General::s_EngineExeDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -1));
 			Settings::General::s_EngineSourceDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -4));
 			Log::Info("%s", Settings::General::s_EngineExeDirectory.Path.c_str());
+
+			// Set the assets path as CWD (which should be where the exe is currently located)
+			Settings::General::s_EngineAssetsPath = File::GetCwd();
+			NCPath::Join(Settings::General::s_EngineAssetsPath, NCPath::CreatePath("assets"));
+			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(Settings::General::s_ImGuiConfigPath, NCPath::CreatePath("default.ini"));
+
+			// Create application store data if it does not exist
+			CPath cocoaEngine = File::GetSpecialAppFolder();
+			NCPath::Join(cocoaEngine, NCPath::CreatePath("CocoaEngine"));
+			File::CreateDirIfNotExists(cocoaEngine);
+
+			CPath editorSaveData = cocoaEngine;
+			NCPath::Join(editorSaveData, Settings::General::s_EditorSaveData);
+			Settings::General::s_EditorSaveData = editorSaveData;
+			CPath editorStyleData = cocoaEngine;
+			NCPath::Join(editorStyleData, Settings::General::s_EditorStyleData);
+			Settings::General::s_EditorStyleData = editorStyleData;
+
+			// Copy default script files to the assets path
+			CPath defaultScriptH = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(defaultScriptH, NCPath::CreatePath("defaultCodeFiles"));
+			NCPath::Join(defaultScriptH, NCPath::CreatePath("DefaultScript.h"));
+			CPath defaultScriptCpp = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("defaultCodeFiles"));
+			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
+			File::CopyFile(defaultScriptH, cocoaEngine, "DefaultScript");
+			File::CopyFile(defaultScriptCpp, cocoaEngine, "DefaultScript");
 		}
 
 		bool CreateProject(SceneData& scene, const CPath& projectPath, const char* filename)
@@ -167,34 +195,6 @@ namespace Cocoa
 
 		void OnAttach(SceneData& scene)
 		{
-			// Set the assets path as CWD (which should be where the exe is currently located)
-			Settings::General::s_EngineAssetsPath = File::GetCwd();
-			NCPath::Join(Settings::General::s_EngineAssetsPath, NCPath::CreatePath("assets"));
-			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(Settings::General::s_ImGuiConfigPath, NCPath::CreatePath("default.ini"));
-
-			// Create application store data if it does not exist
-			CPath cocoaEngine = File::GetSpecialAppFolder();
-			NCPath::Join(cocoaEngine, NCPath::CreatePath("CocoaEngine"));
-			File::CreateDirIfNotExists(cocoaEngine);
-
-			CPath editorSaveData = cocoaEngine;
-			NCPath::Join(editorSaveData, Settings::General::s_EditorSaveData);
-			Settings::General::s_EditorSaveData = editorSaveData;
-			CPath editorStyleData = cocoaEngine;
-			NCPath::Join(editorStyleData, Settings::General::s_EditorStyleData);
-			Settings::General::s_EditorStyleData = editorStyleData;
-
-			// Copy default script files to the assets path
-			CPath defaultScriptH = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(defaultScriptH, NCPath::CreatePath("defaultCodeFiles"));
-			NCPath::Join(defaultScriptH, NCPath::CreatePath("DefaultScript.h"));
-			CPath defaultScriptCpp = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("defaultCodeFiles"));
-			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
-			File::CopyFile(defaultScriptH, cocoaEngine, "DefaultScript");
-			File::CopyFile(defaultScriptCpp, cocoaEngine, "DefaultScript");
-
 			LoadEditorData(scene, Settings::General::s_EditorSaveData);
 		}
 
@@ -295,8 +295,8 @@ namespace Cocoa
 		Cocoa::Input::Init();
 
 		// Application Initialization
-		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());
 		Cocoa::EditorLayer::Init();
+		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());
 
 		m_CurrentScene = Scene::Create(new LevelEditorSceneInitializer());
 		Scene::Init(m_CurrentScene);

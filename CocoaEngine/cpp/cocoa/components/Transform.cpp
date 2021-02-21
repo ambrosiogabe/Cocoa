@@ -6,13 +6,14 @@ namespace Cocoa
 	namespace Transform
 	{
 		// Internal Functions
-		static TransformData Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation)
+		static TransformData Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, Entity parent = NEntity::CreateNull())
 		{
 			TransformData data;
 			data.Position = position;
 			data.Scale = scale;
 			data.EulerRotation = eulerRotation;
 			data.Orientation = glm::toQuat(glm::orientate3(data.EulerRotation));
+			data.Parent = parent;
 
 			UpdateMatrices(data);
 			return data;
@@ -35,7 +36,7 @@ namespace Cocoa
 			data.ModelMatrix = glm::scale(data.ModelMatrix, data.Scale);
 		}
 
-		void Transform::Serialize(json& j, Entity entity, const TransformData& transform)
+		void Serialize(json& j, Entity entity, const TransformData& transform)
 		{
 			json position = CMath::Serialize("Position", transform.Position);
 			json scale = CMath::Serialize("Scale", transform.Scale);
@@ -50,12 +51,14 @@ namespace Cocoa
 				}}
 			};
 		}
-		void Transform::Deserialize(json& j, Entity entity)
+		void Deserialize(json& j, Entity entity)
 		{
 			TransformData transform;
 			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
 			transform.Scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
 			transform.EulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
+			// TODO: Make this really work
+			transform.Parent = NEntity::CreateNull();
 			NEntity::AddComponent<TransformData>(entity, transform);
 		}
 	}

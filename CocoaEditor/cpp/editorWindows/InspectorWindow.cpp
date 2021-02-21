@@ -95,7 +95,7 @@ namespace Cocoa
 
 		void AddEntity(Entity entity)
 		{
-			if (std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
+			if (!NEntity::IsNull(entity) && std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
 				ActiveEntities.push_back(entity);
 		}
 
@@ -162,7 +162,7 @@ namespace Cocoa
 					break;
 				default:
 					Log::Info("Adding component %s from inspector to %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
-					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.Handle, activeEntity.Scene->Registry);
+					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.Handle, NEntity::GetScene()->Registry);
 					break;
 				}
 			}

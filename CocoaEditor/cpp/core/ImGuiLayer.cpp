@@ -122,7 +122,7 @@ namespace Cocoa
 				RenderGameViewport(scene);
 				AssetWindow::ImGui(scene);
 				InspectorWindow::ImGui();
-				SceneHeirarchyWindow::ImGui();
+				SceneHeirarchyWindow::ImGui(scene);
 				if (Settings::Editor::ShowDemoWindow)
 				{
 					ImGui::ShowDemoWindow(&Settings::Editor::ShowDemoWindow);

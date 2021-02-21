@@ -31,7 +31,7 @@ namespace Cocoa
 
 			// Style Colors
 			glm::vec4 s_MainBgLight0{ 0.404f, 0.404f ,0.404f, 1.0f };
-			glm::vec4 s_MainBg{ 0.212f, 0.212f, 0.212f, 1.0f };
+			glm::vec4 s_MainBg{ 0.035f, 0.031f, 0.074f, 1.0f };
 			glm::vec4 s_MainBgDark0{ 0.190f, 0.190f, 0.190f, 1.0f };
 			glm::vec4 s_MainBgDark1{ 0.145f, 0.145f, 0.145f, 1.0f };
 			glm::vec4 s_MainBgDark2{ 0.098f, 0.098f, 0.098f, 1.0f };

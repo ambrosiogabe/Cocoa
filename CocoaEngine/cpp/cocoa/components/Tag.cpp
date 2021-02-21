@@ -1,0 +1,33 @@
+#include "cocoa/components/Tag.h"
+#include "cocoa/util/JsonExtended.h"
+#include "cocoa/core/Memory.h"
+
+namespace Cocoa
+{
+	namespace NTag
+	{
+		void Serialize(json& j, Entity entity, const Tag& tag)
+		{
+			int size = j["Components"].size();
+			j["Components"][size] = {
+				{"Tag", {
+					{"Entity", NEntity::GetID(entity)},
+					{"Name", tag.Name}
+				}}
+			};
+		}
+		void Deserialize(json& j, Entity entity)
+		{
+			Tag tag = {"", false, false};
+			std::string tagName = j["Tag"]["Name"];
+			int tagNameSize = tagName.length();
+			if (tagNameSize > 0)
+			{
+				tag.Name = (char*)AllocMem(sizeof(char) * (tagNameSize + 1));
+				memcpy((void*)tag.Name, tagName.c_str(), sizeof(char) * (tagNameSize + 1));
+			}
+
+			NEntity::AddComponent<Tag>(entity, tag);
+		}
+	}
+}

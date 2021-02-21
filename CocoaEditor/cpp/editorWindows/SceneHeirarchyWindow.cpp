@@ -4,71 +4,101 @@
 
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
+#include "cocoa/components/Tag.h"
 
 namespace Cocoa
 {
 	namespace SceneHeirarchyWindow
 	{
-		static void DoTreeNode(int& index, const TransformData& transform);
-		static SceneData* s_CurrentScene = nullptr;
+		static void DoTreeNode(Entity entity, TransformData& transform, Tag& entityTag, SceneData& scene);
+		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
 
-		void SetScene(SceneData& scene)
-		{
-			s_CurrentScene = &scene;
-		}
-
-		void ImGui()
+		void ImGui(SceneData& scene)
 		{
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
-			//int index = 0;
-			//auto view = s_CurrentScene->GetRegistry().view<Transform>();
-			//for (Entity entity : view)
-			//{
-			//	Transform& transform = entity.GetComponent<Transform>();
-			//	if (transform.m_Parent.IsNull())
-			//	{
-			//		DoTreeNode(index, transform);
-			//	}
-			//}
+			int index = 0;
+			auto view = scene.Registry.view<TransformData, Tag>();
+			for (entt::entity rawEntity : view)
+			{
+				Entity entity = NEntity::CreateEntity(rawEntity);
+				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+				Tag& tag = NEntity::GetComponent<Tag>(entity);
+				if (NEntity::IsNull(transform.Parent))
+				{
+					DoTreeNode(entity, transform, tag, scene);
+				}
+			}
 			ImGui::End();
 		}
 
-		static void DoTreeNode(int& index, const TransformData& transform)
+		static void DoTreeNode(Entity parentEntity, TransformData& parentTransform, Tag& parentTag, SceneData& scene)
 		{
-			//static bool isDark = true;
-			//std::string str = transform.m_Name;
-			//std::string res = str + "##" + std::to_string(index);
-			//index++;
+			static bool isDark = true;
 
-			//Entity next = transform.m_Next;
-			//while (!next.IsNull())
-			//{
-			//	const Transform& transform2 = next.GetComponent<Transform>();
-			//	std::string str2 = transform2.m_Name;
-			//	std::string res2 = str2 + "##" + std::to_string(index);
-			//	index++;
+			bool open = ImGui::TreeNodeEx(parentTag.Name,
+					ImGuiTreeNodeFlags_FramePadding | 
+					ImGuiTreeNodeFlags_DefaultOpen | 
+					(parentTag.Selected ? ImGuiTreeNodeFlags_Selected : 0) | 
+					(parentTag.HasChildren ? 0 : ImGuiTreeNodeFlags_Leaf) |
+					ImGuiTreeNodeFlags_OpenOnArrow,
+				"%s", parentTag.Name);
 
-			//	if (ImGui::TreeNodeEx(res2.c_str(), ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth))
-			//	{
-			//		if (!transform2.m_First.IsNull())
-			//		{
-			//			const Transform& childTrans = transform2.m_First.GetComponent<Transform>();
-			//			DoTreeNode(index, childTrans);
-			//		}
-			//		ImGui::TreePop();
-			//	}
-			//	next = transform2.m_Next;
-			//}
+			// We do drag drop right after the element we want it to effect, and this one will be a source and drag target
+			if (ImGui::BeginDragDropSource())
+			{
+				// Set payload to carry the address of transform (could be anything)
+				ImGui::SetDragDropPayload("SCENE_HEIRARCHY_ENTITY_TRANSFORM", &parentEntity, sizeof(Entity));
+				ImGui::Text("%s", parentTag.Name);
+				ImGui::EndDragDropSource();
+			}
 
-			//if (ImGui::TreeNodeEx(res.c_str(), ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth))
-			//{
-			//	if (!transform.m_First.IsNull())
-			//	{
-			//		const Transform& firstTransform = transform.m_First.GetComponent<Transform>();
-			//		DoTreeNode(index, firstTransform);
-			//	}
-			//	ImGui::TreePop();
-			//}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HEIRARCHY_ENTITY_TRANSFORM"))
+				{
+					Log::Assert(payload->DataSize == sizeof(Entity), "Invalid payload.");
+					Entity childEntity = *(Entity*)payload->Data;
+					if (!NEntity::IsNull(childEntity) && !IsDescendantOf(parentEntity, childEntity))
+					{
+						TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
+						childTransform.Parent = parentEntity;
+						parentTag.HasChildren = true;
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			if (open)
+			{
+				auto view = scene.Registry.view<TransformData, Tag>();
+				for (entt::entity rawChildEntity : view)
+				{
+					Entity childEntity = NEntity::CreateEntity(rawChildEntity);
+					TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
+					Tag& childTag = NEntity::GetComponent<Tag>(childEntity);
+					if (childTransform.Parent == parentEntity)
+					{
+						DoTreeNode(childEntity, childTransform, childTag, scene);
+					}
+				}
+				parentTag.Selected = true;
+				ImGui::TreePop();
+			}
+		}
+
+		static bool IsDescendantOf(Entity childEntity, Entity parentEntity)
+		{
+			TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
+			Tag& childTag = NEntity::GetComponent<Tag>(childEntity);
+			if (childTransform.Parent == parentEntity || childEntity == parentEntity)
+			{
+				return true;
+			}
+			else if (!NEntity::IsNull(childTransform.Parent)) 
+			{
+				return IsDescendantOf(childTransform.Parent, parentEntity);
+			}
+			return false;
 		}
 	}
 }

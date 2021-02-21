@@ -257,6 +257,7 @@ namespace Cocoa
 			}
 			pathBuffer[pathIndex] = '\0';
 
+			// TODO: Bug here (repro just open an existing project possibly with a blank name for example '.cprj')
 			outPath.Path = std::string(pathBuffer, pathIndex);
 			outPath.FilenameOffset = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
 				? lastPathSeparator + 1 : pathIndex;

@@ -5,6 +5,7 @@
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
+#include "cocoa/components/Tag.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/scenes/SceneInitializer.h"
 #include "cocoa/core/AssetManager.h"
@@ -105,7 +106,7 @@ namespace Cocoa
 			auto view = data.Registry.view<TransformData>();
 			for (auto entity : view)
 			{
-				Physics2D::AddEntity(Entity{entity, &data});
+				Physics2D::AddEntity(Entity{entity});
 			}
 		}
 
@@ -126,7 +127,7 @@ namespace Cocoa
 			OutputArchive output(data.SaveDataJson);
 			entt::snapshot{ data.Registry }
 				.entities(output)
-				.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB>(output);
+				.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB, Tag>(output);
 
 			ScriptSystem::SaveScripts(data.SaveDataJson);
 
@@ -137,15 +138,16 @@ namespace Cocoa
 		{
 			FreeResources(data);
 			Log::Info("Loading scene %s", filename.Path.c_str());
+			Init(data);
 
 			Settings::General::s_CurrentScene = filename;
 			FileHandle* file = File::OpenFile(filename);
 			if (file->m_Size <= 0)
 			{
+				File::CloseFile(file);
 				return;
 			}
 
-			Init(data);
 
 			json j = json::parse(file->m_Data);
 
@@ -190,6 +192,11 @@ namespace Cocoa
 					Entity entity = FindOrCreateEntity(component["AABB"]["Entity"], data, data.Registry);
 					Physics2D::DeserializeAABB(component, entity);
 				}
+				else if (it.key() == "Tag")
+				{
+					Entity entity = FindOrCreateEntity(component["Tag"]["Entity"], data, data.Registry);
+					NTag::Deserialize(component, entity);
+				}
 				else
 				{
 					Entity entity = FindOrCreateEntity(component.front()["Entity"], data, data.Registry);
@@ -216,7 +223,7 @@ namespace Cocoa
 			{
 				json::iterator it = j["Components"][i].begin();
 				json component = j["Components"][i];
-				if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB")
+				if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB" && it.key() != "Tag")
 				{
 					Entity entity = FindOrCreateEntity(component.front()["Entity"], data, data.Registry);
 					ScriptSystem::Deserialize(component, entity);
@@ -230,16 +237,17 @@ namespace Cocoa
 		Entity CreateEntity(SceneData& data)
 		{
 			entt::entity e = data.Registry.create();
-			Entity entity = Entity{e, &data};
+			Entity entity = Entity{e};
 			TransformData defaultTransform = Transform::CreateTransform();
 			NEntity::AddComponent<TransformData>(entity, defaultTransform);
+			NEntity::AddComponent<Tag>(entity, "New Entity", false, false);
 			return entity;
 		}
 
 		Entity DuplicateEntity(SceneData& data, Entity entity)
 		{
 			entt::entity newEntEntity = data.Registry.create();
-			Entity newEntity = Entity{newEntEntity, &data};
+			Entity newEntity = Entity{newEntEntity};
 			if (NEntity::HasComponent<TransformData>(entity))
 			{
 				NEntity::AddComponent<TransformData>(newEntity, NEntity::GetComponent<TransformData>(entity));
@@ -270,7 +278,7 @@ namespace Cocoa
 			{
 				entity = entt::entity(id);
 			}
-			return Entity{entity, &data};
+			return Entity{entity};
 		}
 
 		static void LoadDefaultAssets()
@@ -291,11 +299,11 @@ namespace Cocoa
 			Entity entity;
 			if (registry.valid(entt::entity(id)))
 			{
-				entity = Entity{entt::entity(id), &scene};
+				entity = Entity{entt::entity(id)};
 			}
 			else
 			{
-				entity = Entity{registry.create(entt::entity(id)), &scene};
+				entity = Entity{registry.create(entt::entity(id))};
 			}
 
 			return entity;

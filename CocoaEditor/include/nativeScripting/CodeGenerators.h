@@ -38,6 +38,7 @@ namespace Cocoa
 			source << "#include \"cocoa/core/Core.h\"\n";
 			source << "#include \"cocoa/util/Log.h\"\n";
 			source << "#include \"cocoa/core/Entity.h\"\n";
+			source << "#include \"cocoa/core/EntityStruct.h\"\n";
 
 			const std::filesystem::path base = NCPath::GetDirectory(filepath, -1);
 			for (auto clazz : classes)

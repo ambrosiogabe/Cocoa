@@ -267,7 +267,7 @@ namespace Cocoa
 			file << "\t\t\t\t{\n";
 			file << "\t\t\t\t\tauto comp = registry.get<" << uclass.m_ClassName.c_str() << ">(entity);\n";
 			file << "\t\t\t\t\tentt::meta_any any = { comp };\n";
-			file << "\t\t\t\t\tSaveScript(any, j, Entity{ entity, sceneData });\n";
+			file << "\t\t\t\t\tSaveScript(any, j, Entity{ entity });\n";
 			file << "\t\t\t\t}\n";
 
 			file << "\t\t\t}\n";

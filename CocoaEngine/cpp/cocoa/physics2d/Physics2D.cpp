@@ -25,7 +25,7 @@ namespace Cocoa
 			auto view = scene.Registry.view<Rigidbody2D>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity entity = { rawEntity, &scene };
+				Entity entity = { rawEntity };
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 
 				// Manually destroy all bodies, in case the physics system would like
@@ -105,7 +105,7 @@ namespace Cocoa
 			auto view = scene.Registry.view<TransformData, Rigidbody2D>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity entity = { rawEntity, &scene };
+				Entity entity = { rawEntity };
 				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);

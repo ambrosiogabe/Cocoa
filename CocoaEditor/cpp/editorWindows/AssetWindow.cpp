@@ -124,7 +124,8 @@ namespace Cocoa
 
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
-					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+					// Set payload to carry the index of our item (could be anything)
+					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));
 					ImageButton(tex, NCPath::Filename(tex.Path), m_ButtonSize);
 					ImGui::EndDragDropSource();
 				}
