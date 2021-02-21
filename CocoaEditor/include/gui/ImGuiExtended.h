@@ -85,4 +85,6 @@ namespace CImGui
 
 	void BeginCollapsingHeaderGroup();
 	void EndCollapsingHeaderGroup();
+	ImVec4 From(const glm::vec4& vec4);
+	ImVec2 From(const glm::vec2& vec2);
 }

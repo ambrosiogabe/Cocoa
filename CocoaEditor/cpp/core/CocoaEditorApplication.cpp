@@ -47,6 +47,10 @@ namespace Cocoa
 			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(Settings::General::s_ImGuiConfigPath, NCPath::CreatePath("default.ini"));
 
+			// Set the styles directory
+			Settings::General::s_StylesDirectory = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(Settings::General::s_StylesDirectory, NCPath::CreatePath("styles"));
+
 			// Create application store data if it does not exist
 			CPath cocoaEngine = File::GetSpecialAppFolder();
 			NCPath::Join(cocoaEngine, NCPath::CreatePath("CocoaEngine"));

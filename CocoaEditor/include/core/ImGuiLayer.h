@@ -20,5 +20,7 @@ namespace Cocoa
         void EndFrame();
 
         void LoadStyle(const CPath& filepath);
+        void ApplyStyle();
+        void ExportCurrentStyle(const CPath& outputPath);
     };
 }

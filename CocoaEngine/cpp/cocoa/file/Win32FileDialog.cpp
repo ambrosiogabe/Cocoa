@@ -107,7 +107,7 @@ namespace Cocoa
 			dialogStruct.nMaxFile = 256;
 			dialogStruct.lpstrFileTitle = NULL;// (LPSTR)initialPath.c_str();
 			dialogStruct.nMaxFileTitle = 0; // initialPath.length();
-			dialogStruct.lpstrInitialDir = NULL; // initialPath.c_str();
+			dialogStruct.lpstrInitialDir = initialPath.c_str(); 
 			dialogStruct.lpstrTitle = NULL;
 			dialogStruct.Flags = 0; // TODO: Consider adding flags to this function
 			dialogStruct.nFileOffset = 0;

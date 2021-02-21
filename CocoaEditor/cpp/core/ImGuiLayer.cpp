@@ -45,16 +45,6 @@ namespace Cocoa
 		void SetupDockspace(SceneData& scene);
 		void RenderGameViewport(SceneData& scene);
 
-		ImVec4 From(const glm::vec4& vec4)
-		{
-			return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
-		}
-
-		ImVec2 From(const glm::vec2& vec2)
-		{
-			return ImVec2(vec2.x, vec2.y);
-		}
-
 		void Init(void* window)
 		{
 			m_Window = window;
@@ -321,49 +311,26 @@ namespace Cocoa
 			}
 			else
 			{
-				json styles = {
-					{"Colors",
-						{
-							CMath::Serialize("MainBgLight0",    Settings::EditorStyle::s_MainBgLight0),
-							CMath::Serialize("MainBg",          Settings::EditorStyle::s_MainBg),
-							CMath::Serialize("MainBgDark0",     Settings::EditorStyle::s_MainBgDark0),
-							CMath::Serialize("MainBgDark1",     Settings::EditorStyle::s_MainBgDark1),
-							CMath::Serialize("MainBgDark2",     Settings::EditorStyle::s_MainBgDark2),
-							CMath::Serialize("Accent",          Settings::EditorStyle::s_Accent),
-							CMath::Serialize("AccentDark0",     Settings::EditorStyle::s_AccentDark0),
-							CMath::Serialize("AccentDark1",     Settings::EditorStyle::s_AccentDark1),
-							CMath::Serialize("Button",          Settings::EditorStyle::s_Button),
-							CMath::Serialize("ButtonHovered",   Settings::EditorStyle::s_ButtonHovered),
-							CMath::Serialize("Font",            Settings::EditorStyle::s_Font),
-							CMath::Serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
-							CMath::Serialize("Highlight",       Settings::EditorStyle::s_HighlightColor)
-						}
-					},
-					{"Sizing",
-						{
-							CMath::Serialize("WindowPadding",  Settings::EditorStyle::s_WindowPadding),
-							CMath::Serialize("FramePadding",   Settings::EditorStyle::s_FramePadding),
-							CMath::Serialize("ItemSpacing",    Settings::EditorStyle::s_ItemSpacing),
-							{"ScrollbarSize",                  Settings::EditorStyle::s_ScrollbarSize},
-							{"ScrollbarRounding",              Settings::EditorStyle::s_ScrollbarRounding},
-							{"FrameRounding",                  Settings::EditorStyle::s_FrameRounding},
-							{"GrabRounding",                   Settings::EditorStyle::s_GrabRounding},
-							{"TabRounding",                    Settings::EditorStyle::s_TabRounding}
-						}
-					}
-				};
-				File::WriteFile(styles.dump(4).c_str(), Settings::General::s_EditorStyleData);
+				CPath defaultStylePath = Settings::General::s_StylesDirectory;
+				NCPath::Join(defaultStylePath, NCPath::CreatePath("Default.json"));
+				ExportCurrentStyle(defaultStylePath);
+				ExportCurrentStyle(Settings::General::s_EditorStyleData);
 			}
 			File::CloseFile(styleData);
 
+			ApplyStyle();
+		}
+
+		void ApplyStyle()
+		{
 			ImGuiStyle* style = &ImGui::GetStyle();
 
 			// Apply Sizing
-			style->WindowPadding = From(Settings::EditorStyle::s_WindowPadding);
+			style->WindowPadding = CImGui::From(Settings::EditorStyle::s_WindowPadding);
 			style->WindowBorderSize = 1;
 			style->ChildBorderSize = 1;
-			style->FramePadding = From(Settings::EditorStyle::s_FramePadding);
-			style->ItemSpacing = From(Settings::EditorStyle::s_ItemSpacing);
+			style->FramePadding = CImGui::From(Settings::EditorStyle::s_FramePadding);
+			style->ItemSpacing = CImGui::From(Settings::EditorStyle::s_ItemSpacing);
 			style->ScrollbarSize = Settings::EditorStyle::s_ScrollbarSize;
 			style->ScrollbarRounding = Settings::EditorStyle::s_ScrollbarRounding;
 			style->FrameRounding = Settings::EditorStyle::s_FrameRounding;
@@ -373,59 +340,95 @@ namespace Cocoa
 
 			// Apply Colors
 			ImVec4* colors = style->Colors;
-			colors[ImGuiCol_WindowBg] = From(Settings::EditorStyle::s_MainBg);
-			colors[ImGuiCol_ChildBg] = From(Settings::EditorStyle::s_MainBg);
+			colors[ImGuiCol_WindowBg] = CImGui::From(Settings::EditorStyle::s_MainBg);
+			colors[ImGuiCol_ChildBg] = CImGui::From(Settings::EditorStyle::s_MainBg);
 
-			colors[ImGuiCol_Text] = From(Settings::EditorStyle::s_Font);
-			colors[ImGuiCol_TextDisabled] = From(Settings::EditorStyle::s_FontDisabled);
-			colors[ImGuiCol_TextInverted] = From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_Text] = CImGui::From(Settings::EditorStyle::s_Font);
+			colors[ImGuiCol_TextDisabled] = CImGui::From(Settings::EditorStyle::s_FontDisabled);
+			colors[ImGuiCol_TextInverted] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
 
-			colors[ImGuiCol_FrameBg] = From(Settings::EditorStyle::s_MainBgDark1);
-			colors[ImGuiCol_FrameBgHovered] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_FrameBgActive] = From(Settings::EditorStyle::s_MainBgDark2);
+			colors[ImGuiCol_FrameBg] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_FrameBgHovered] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_FrameBgActive] = CImGui::From(Settings::EditorStyle::s_MainBgDark2);
 
-			colors[ImGuiCol_TitleBg] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_TitleBgCollapsed] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_TitleBgActive] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_MenuBarBg] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_MenuBarButtonBg] = From(Settings::EditorStyle::s_AccentDark0);
-			colors[ImGuiCol_MenuBarButtonBgHover] = From(Settings::EditorStyle::s_AccentDark1);
-			colors[ImGuiCol_MenuBarButtonBgActive] = From(Settings::EditorStyle::s_AccentDark1);
+			colors[ImGuiCol_TitleBg] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_TitleBgCollapsed] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_TitleBgActive] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_MenuBarBg] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_MenuBarButtonBg] = CImGui::From(Settings::EditorStyle::s_AccentDark0);
+			colors[ImGuiCol_MenuBarButtonBgHover] = CImGui::From(Settings::EditorStyle::s_AccentDark1);
+			colors[ImGuiCol_MenuBarButtonBgActive] = CImGui::From(Settings::EditorStyle::s_AccentDark1);
 
-			colors[ImGuiCol_Tab] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_TabUnfocused] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_TabHovered] = From(Settings::EditorStyle::s_MainBgDark1);
-			colors[ImGuiCol_TabActive] = From(Settings::EditorStyle::s_MainBgDark1);
-			colors[ImGuiCol_TabUnfocusedActive] = From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_Tab] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_TabUnfocused] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_TabHovered] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_TabActive] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_TabUnfocusedActive] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
 
-			colors[ImGuiCol_ScrollbarBg] = From(Settings::EditorStyle::s_MainBgDark1);
-			colors[ImGuiCol_ScrollbarGrab] = From(Settings::EditorStyle::s_Font);
-			colors[ImGuiCol_ScrollbarGrabActive] = From(Settings::EditorStyle::s_FontDisabled);
-			colors[ImGuiCol_ScrollbarGrabHovered] = From(Settings::EditorStyle::s_FontDisabled);
-			colors[ImGuiCol_CheckMark] = From(Settings::EditorStyle::s_Font);
-			colors[ImGuiCol_SliderGrab] = From(Settings::EditorStyle::s_Font);
-			colors[ImGuiCol_SliderGrabActive] = From(Settings::EditorStyle::s_FontDisabled);
+			colors[ImGuiCol_ScrollbarBg] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_ScrollbarGrab] = CImGui::From(Settings::EditorStyle::s_Font);
+			colors[ImGuiCol_ScrollbarGrabActive] = CImGui::From(Settings::EditorStyle::s_FontDisabled);
+			colors[ImGuiCol_ScrollbarGrabHovered] = CImGui::From(Settings::EditorStyle::s_FontDisabled);
+			colors[ImGuiCol_CheckMark] = CImGui::From(Settings::EditorStyle::s_Font);
+			colors[ImGuiCol_SliderGrab] = CImGui::From(Settings::EditorStyle::s_Font);
+			colors[ImGuiCol_SliderGrabActive] = CImGui::From(Settings::EditorStyle::s_FontDisabled);
 
-			colors[ImGuiCol_Button] = From(Settings::EditorStyle::s_Button);
-			colors[ImGuiCol_ButtonHovered] = From(Settings::EditorStyle::s_ButtonHovered);
-			colors[ImGuiCol_ButtonActive] = From(Settings::EditorStyle::s_ButtonHovered);
+			colors[ImGuiCol_Button] = CImGui::From(Settings::EditorStyle::s_Button);
+			colors[ImGuiCol_ButtonHovered] = CImGui::From(Settings::EditorStyle::s_ButtonHovered);
+			colors[ImGuiCol_ButtonActive] = CImGui::From(Settings::EditorStyle::s_ButtonHovered);
 
-			colors[ImGuiCol_Header] = From(Settings::EditorStyle::s_MainBg);
-			colors[ImGuiCol_HeaderHovered] = From(Settings::EditorStyle::s_MainBgDark0);
-			colors[ImGuiCol_HeaderActive] = From(Settings::EditorStyle::s_MainBgDark1);
+			colors[ImGuiCol_Header] = CImGui::From(Settings::EditorStyle::s_MainBg);
+			colors[ImGuiCol_HeaderHovered] = CImGui::From(Settings::EditorStyle::s_MainBgDark0);
+			colors[ImGuiCol_HeaderActive] = CImGui::From(Settings::EditorStyle::s_MainBgDark1);
 
-			colors[ImGuiCol_Separator] = From(Settings::EditorStyle::s_MainBgLight0);
-			colors[ImGuiCol_SeparatorHovered] = From(Settings::EditorStyle::s_MainBgLight0);
-			colors[ImGuiCol_SeparatorActive] = From(Settings::EditorStyle::s_MainBgLight0);
-			colors[ImGuiCol_Border] = From(Settings::EditorStyle::s_MainBgLight0);
+			colors[ImGuiCol_Separator] = CImGui::From(Settings::EditorStyle::s_MainBgLight0);
+			colors[ImGuiCol_SeparatorHovered] = CImGui::From(Settings::EditorStyle::s_MainBgLight0);
+			colors[ImGuiCol_SeparatorActive] = CImGui::From(Settings::EditorStyle::s_MainBgLight0);
+			colors[ImGuiCol_Border] = CImGui::From(Settings::EditorStyle::s_MainBgLight0);
 
-			colors[ImGuiCol_ResizeGrip] = From(Settings::EditorStyle::s_MainBg);
-			colors[ImGuiCol_ResizeGripHovered] = From(Settings::EditorStyle::s_MainBg);
-			colors[ImGuiCol_ResizeGripActive] = From(Settings::EditorStyle::s_MainBg);
+			colors[ImGuiCol_ResizeGrip] = CImGui::From(Settings::EditorStyle::s_MainBg);
+			colors[ImGuiCol_ResizeGripHovered] = CImGui::From(Settings::EditorStyle::s_MainBg);
+			colors[ImGuiCol_ResizeGripActive] = CImGui::From(Settings::EditorStyle::s_MainBg);
 
-			colors[ImGuiCol_DockingPreview] = From(Settings::EditorStyle::s_AccentDark0);
-			colors[ImGuiCol_TextSelectedBg] = From(Settings::EditorStyle::s_HighlightColor);
-			colors[ImGuiCol_NavHighlight] = From(Settings::EditorStyle::s_AccentDark0);
+			colors[ImGuiCol_DockingPreview] = CImGui::From(Settings::EditorStyle::s_AccentDark0);
+			colors[ImGuiCol_TextSelectedBg] = CImGui::From(Settings::EditorStyle::s_HighlightColor);
+			colors[ImGuiCol_NavHighlight] = CImGui::From(Settings::EditorStyle::s_AccentDark0);
+		}
+
+		void ExportCurrentStyle(const CPath& outputPath)
+		{
+			json styles = {
+				{"Colors",
+					{
+						CMath::Serialize("MainBgLight0",    Settings::EditorStyle::s_MainBgLight0),
+						CMath::Serialize("MainBg",          Settings::EditorStyle::s_MainBg),
+						CMath::Serialize("MainBgDark0",     Settings::EditorStyle::s_MainBgDark0),
+						CMath::Serialize("MainBgDark1",     Settings::EditorStyle::s_MainBgDark1),
+						CMath::Serialize("MainBgDark2",     Settings::EditorStyle::s_MainBgDark2),
+						CMath::Serialize("Accent",          Settings::EditorStyle::s_Accent),
+						CMath::Serialize("AccentDark0",     Settings::EditorStyle::s_AccentDark0),
+						CMath::Serialize("AccentDark1",     Settings::EditorStyle::s_AccentDark1),
+						CMath::Serialize("Button",          Settings::EditorStyle::s_Button),
+						CMath::Serialize("ButtonHovered",   Settings::EditorStyle::s_ButtonHovered),
+						CMath::Serialize("Font",            Settings::EditorStyle::s_Font),
+						CMath::Serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
+						CMath::Serialize("Highlight",       Settings::EditorStyle::s_HighlightColor)
+					}
+				},
+				{"Sizing",
+					{
+						CMath::Serialize("WindowPadding",  Settings::EditorStyle::s_WindowPadding),
+						CMath::Serialize("FramePadding",   Settings::EditorStyle::s_FramePadding),
+						CMath::Serialize("ItemSpacing",    Settings::EditorStyle::s_ItemSpacing),
+						{"ScrollbarSize",                  Settings::EditorStyle::s_ScrollbarSize},
+						{"ScrollbarRounding",              Settings::EditorStyle::s_ScrollbarRounding},
+						{"FrameRounding",                  Settings::EditorStyle::s_FrameRounding},
+						{"GrabRounding",                   Settings::EditorStyle::s_GrabRounding},
+						{"TabRounding",                    Settings::EditorStyle::s_TabRounding}
+					}
+				}
+			};
+			File::WriteFile(styles.dump(4).c_str(), outputPath);
 		}
 	}
 }
