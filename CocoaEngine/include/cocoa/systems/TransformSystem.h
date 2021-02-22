@@ -7,5 +7,6 @@ namespace Cocoa
 	namespace TransformSystem
 	{
 		COCOA void Update(SceneData& scene, float dt);
+		COCOA void Destroy(SceneData& scene);
 	}
 }

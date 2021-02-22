@@ -95,14 +95,18 @@ namespace Cocoa
 		void FreeResources(SceneData& data)
 		{
 			AssetManager::Clear();
-			auto view = data.Registry.view<TransformData>();
-			data.Registry.destroy(view.begin(), view.end());
 
+			TransformSystem::Destroy(data);
 			RenderSystem::Destroy();
 			Physics2D::Destroy(data);
 			ScriptSystem::FreeScriptLibrary();
 
 			data.CurrentSceneInitializer->Destroy(data);
+
+			// Make sure to clear the entities last, that way we can properly destroy all
+			// the instances in the other systems if needed
+			auto view = data.Registry.view<TransformData>();
+			data.Registry.destroy(view.begin(), view.end());
 		}
 
 		void Play(SceneData& data)
@@ -245,7 +249,7 @@ namespace Cocoa
 			Entity entity = Entity{e};
 			TransformData defaultTransform = Transform::CreateTransform();
 			NEntity::AddComponent<TransformData>(entity, defaultTransform);
-			NEntity::AddComponent<Tag>(entity, "New Entity", false, false);
+			NEntity::AddComponent<Tag>(entity, NTag::CreateTag("New Entity"));
 			return entity;
 		}
 
