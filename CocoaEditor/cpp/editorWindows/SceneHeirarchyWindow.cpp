@@ -1,6 +1,8 @@
 #include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/InspectorWindow.h"
 #include "gui/ImGuiExtended.h"
 #include "gui/FontAwesome.h"
+#include "util/Settings.h"
 
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
@@ -40,8 +42,10 @@ namespace Cocoa
 					ImGuiTreeNodeFlags_DefaultOpen | 
 					(parentTag.Selected ? ImGuiTreeNodeFlags_Selected : 0) | 
 					(parentTag.HasChildren ? 0 : ImGuiTreeNodeFlags_Leaf) |
-					ImGuiTreeNodeFlags_OpenOnArrow,
+					ImGuiTreeNodeFlags_OpenOnArrow |
+					ImGuiTreeNodeFlags_SpanFullWidth,
 				"%s", parentTag.Name);
+			bool clicked = ImGui::IsItemClicked();
 
 			// We do drag drop right after the element we want it to effect, and this one will be a source and drag target
 			if (ImGui::BeginDragDropSource())
@@ -62,6 +66,7 @@ namespace Cocoa
 					{
 						TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
 						childTransform.Parent = parentEntity;
+						childTransform.RelativePosition = childTransform.Position - parentTransform.Position;
 						parentTag.HasChildren = true;
 					}
 				}
@@ -81,9 +86,16 @@ namespace Cocoa
 						DoTreeNode(childEntity, childTransform, childTag, scene);
 					}
 				}
-				parentTag.Selected = true;
 				ImGui::TreePop();
 			}
+
+			if (clicked)
+			{
+				InspectorWindow::ClearAllEntities();
+				InspectorWindow::AddEntity(parentEntity);
+			}
+
+			parentTag.Selected = InspectorWindow::GetActiveEntity() == parentEntity;
 		}
 
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity)

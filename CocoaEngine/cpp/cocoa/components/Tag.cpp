@@ -6,6 +6,16 @@ namespace Cocoa
 {
 	namespace NTag
 	{
+		Tag CreateTag(const char* name, bool isHeapAllocated)
+		{
+			Tag res;
+			res.Name = name;
+			res.IsHeapAllocated = isHeapAllocated;
+			res.HasChildren = false;
+			res.Selected = false;
+			return res;
+		}
+
 		void Serialize(json& j, Entity entity, const Tag& tag)
 		{
 			int size = j["Components"].size();

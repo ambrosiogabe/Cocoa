@@ -7,6 +7,7 @@
 #include "cocoa/components/Transform.h"
 #include "cocoa/components/Tag.h"
 #include "cocoa/systems/ScriptSystem.h"
+#include "cocoa/systems/TransformSystem.h"
 #include "cocoa/scenes/SceneInitializer.h"
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/renderer/DebugDraw.h"
@@ -55,6 +56,7 @@ namespace Cocoa
 
 		void Update(SceneData& data, float dt)
 		{
+			TransformSystem::Update(data, dt);
 			Physics2D::Update(data, dt);
 			ScriptSystem::Update(data, dt);
 			NCamera::Update(data.SceneCamera);
@@ -62,6 +64,9 @@ namespace Cocoa
 
 		void EditorUpdate(SceneData& data, float dt)
 		{
+			// There are certain systems that use the same update loop for the editor and the actual game, so there's no 
+			// sense in creating a unique update loop if the logic is the same (TransformSystem, and NCamera are examples of this)
+			TransformSystem::Update(data, dt);
 			ScriptSystem::EditorUpdate(data, dt);
 			NCamera::Update(data.SceneCamera);
 		}

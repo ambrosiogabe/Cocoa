@@ -10,10 +10,13 @@ namespace Cocoa
 		const char* Name;
 		bool Selected;
 		bool HasChildren;
+		bool IsHeapAllocated;
 	};
 
 	namespace NTag
 	{
+		COCOA Tag CreateTag(const char* name, bool isHeapAllocated = false);
+
 		COCOA void Serialize(json& j, Entity entity, const Tag& transform);
 		COCOA void Deserialize(json& j, Entity entity);
 	}

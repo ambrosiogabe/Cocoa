@@ -14,8 +14,8 @@ namespace Cocoa
 			data.EulerRotation = eulerRotation;
 			data.Orientation = glm::toQuat(glm::orientate3(data.EulerRotation));
 			data.Parent = parent;
+			data.RelativePosition = glm::vec3();
 
-			UpdateMatrices(data);
 			return data;
 		}
 
@@ -29,8 +29,15 @@ namespace Cocoa
 			return Init(position, scale, eulerRotation);
 		}
 
-		void UpdateMatrices(TransformData& data)
+		void Update(TransformData& data, float dt)
 		{
+			if (!NEntity::IsNull(data.Parent))
+			{
+				// TODO: This logic is probably flawed because it assumes that the parent is updated before the child
+				const TransformData& parentPos = NEntity::GetComponent<TransformData>(data.Parent);
+				data.Position = parentPos.Position + data.RelativePosition;
+			}
+
 			data.ModelMatrix = glm::translate(glm::mat4(1.0f), data.Position);
 			data.ModelMatrix = data.ModelMatrix * glm::toMat4(data.Orientation);
 			data.ModelMatrix = glm::scale(data.ModelMatrix, data.Scale);

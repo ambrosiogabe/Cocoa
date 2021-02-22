@@ -53,10 +53,14 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader("Edit Style Colors"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::UndoableColorEdit4("Accent", Settings::EditorStyle::s_Accent);
 				CImGui::UndoableColorEdit4("AccentDark0", Settings::EditorStyle::s_AccentDark0);
 				CImGui::UndoableColorEdit4("AccentDark1", Settings::EditorStyle::s_AccentDark1);
 				CImGui::UndoableColorEdit4("Button", Settings::EditorStyle::s_Button);
 				CImGui::UndoableColorEdit4("ButtonHovered", Settings::EditorStyle::s_ButtonHovered);
+				CImGui::UndoableColorEdit4("Header", Settings::EditorStyle::s_Header);
+				CImGui::UndoableColorEdit4("HeaderHovered", Settings::EditorStyle::s_HeaderHovered);
+				CImGui::UndoableColorEdit4("HeaderActive", Settings::EditorStyle::s_HeaderActive);
 				CImGui::UndoableColorEdit4("DefaultFontColor", Settings::EditorStyle::s_Font);
 				CImGui::UndoableColorEdit4("DefaultFontDisabledColor", Settings::EditorStyle::s_FontDisabled);
 				CImGui::UndoableColorEdit4("HighlightColor", Settings::EditorStyle::s_HighlightColor);

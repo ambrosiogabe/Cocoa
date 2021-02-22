@@ -123,7 +123,15 @@ namespace Cocoa
 				newPos = startToMouse + originalDragClickPos - mouseOffset;
 			}
 
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.Position, newPos));
+			if (NEntity::IsNull(transform.Parent))
+			{
+				CommandHistory::AddCommand(new ChangeVec3Command(transform.Position, newPos));
+			}
+			else
+			{
+				glm::vec3 newRelPos = (newPos - transform.Position) + transform.RelativePosition;
+				CommandHistory::AddCommand(new ChangeVec3Command(transform.RelativePosition, newRelPos));
+			}
 		}
 
 		void GizmoManipulateRotate(const GizmoData& data, TransformData& transform, const glm::vec3& startPos, const glm::vec3& mouseOffset, const Camera& camera)
