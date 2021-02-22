@@ -13,7 +13,7 @@ namespace Cocoa
 		COCOA void Update(TransformData& data, float dt);
 
 		COCOA void Serialize(json& j, Entity entity, const TransformData& transform);
-		COCOA void Deserialize(json& j, Entity entity);
+		COCOA void Deserialize(json& j, Entity entity, Entity parent = NEntity::CreateNull());
 	}
 
 	namespace TransformSystem

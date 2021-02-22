@@ -184,7 +184,8 @@ namespace Cocoa
 				else if (it.key() == "Transform")
 				{
 					Entity entity = FindOrCreateEntity(component["Transform"]["Entity"], data, data.Registry);
-					Transform::Deserialize(component, entity);
+					Entity parentEntity = FindOrCreateEntity(component["Transform"]["Parent"], data, data.Registry);
+					Transform::Deserialize(component, entity, parentEntity);
 				}
 				else if (it.key() == "Rigidbody2D")
 				{
@@ -306,6 +307,11 @@ namespace Cocoa
 		static Entity FindOrCreateEntity(int id, SceneData& scene, entt::registry& registry)
 		{
 			Entity entity;
+			if (entt::entity(id) == entt::null)
+			{
+				return NEntity::CreateNull();
+			}
+
 			if (registry.valid(entt::entity(id)))
 			{
 				entity = Entity{entt::entity(id)};

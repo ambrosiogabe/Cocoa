@@ -66,7 +66,7 @@ namespace Cocoa
 					{
 						TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
 						childTransform.Parent = parentEntity;
-						childTransform.RelativePosition = childTransform.Position - parentTransform.Position;
+						childTransform.LocalPosition = childTransform.Position - parentTransform.Position;
 						parentTag.HasChildren = true;
 					}
 				}

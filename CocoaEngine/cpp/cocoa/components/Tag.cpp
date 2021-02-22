@@ -38,7 +38,8 @@ namespace Cocoa
 			j["Components"][size] = {
 				{"Tag", {
 					{"Entity", NEntity::GetID(entity)},
-					{"Name", tag.Name}
+					{"Name", tag.Name},
+					{"HasChildren", tag.HasChildren}
 				}}
 			};
 		}
@@ -46,13 +47,16 @@ namespace Cocoa
 		{
 			Tag tag = { "", false, false };
 			std::string tagName = j["Tag"]["Name"];
+
 			int tagNameSize = tagName.length();
 			if (tagNameSize > 0)
 			{
 				tag.Name = (char*)AllocMem(sizeof(char) * (tagNameSize + 1));
 				memcpy((void*)tag.Name, tagName.c_str(), sizeof(char) * (tagNameSize + 1));
 				tag.IsHeapAllocated = true;
+				tag.Size = tagNameSize;
 			}
+			tag.HasChildren = j["Tag"]["HasChildren"];
 
 			NEntity::AddComponent<Tag>(entity, tag);
 		}

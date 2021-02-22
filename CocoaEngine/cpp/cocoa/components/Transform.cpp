@@ -14,7 +14,7 @@ namespace Cocoa
 			data.EulerRotation = eulerRotation;
 			data.Orientation = glm::toQuat(glm::orientate3(data.EulerRotation));
 			data.Parent = parent;
-			data.RelativePosition = glm::vec3();
+			data.LocalPosition = glm::vec3();
 
 			return data;
 		}
@@ -35,7 +35,7 @@ namespace Cocoa
 			{
 				// TODO: This logic is probably flawed because it assumes that the parent is updated before the child
 				const TransformData& parentPos = NEntity::GetComponent<TransformData>(data.Parent);
-				data.Position = parentPos.Position + data.RelativePosition;
+				data.Position = parentPos.Position + data.LocalPosition;
 			}
 
 			data.ModelMatrix = glm::translate(glm::mat4(1.0f), data.Position);
@@ -48,24 +48,27 @@ namespace Cocoa
 			json position = CMath::Serialize("Position", transform.Position);
 			json scale = CMath::Serialize("Scale", transform.Scale);
 			json rotation = CMath::Serialize("Rotation", transform.EulerRotation);
+			json localPos = CMath::Serialize("LocalPosition", transform.LocalPosition);
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Transform", {
 					{"Entity", NEntity::GetID(entity)},
 					position,
 					scale,
-					rotation
+					rotation,
+					{"Parent", NEntity::GetID(transform.Parent)},
+					localPos
 				}}
 			};
 		}
-		void Deserialize(json& j, Entity entity)
+		void Deserialize(json& j, Entity entity, Entity parent)
 		{
 			TransformData transform;
 			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
 			transform.Scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
 			transform.EulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
-			// TODO: Make this really work
-			transform.Parent = NEntity::CreateNull();
+			transform.Parent = parent;
+			transform.LocalPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
 			NEntity::AddComponent<TransformData>(entity, transform);
 		}
 	}

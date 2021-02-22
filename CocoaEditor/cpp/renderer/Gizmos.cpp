@@ -129,8 +129,8 @@ namespace Cocoa
 			}
 			else
 			{
-				glm::vec3 newRelPos = (newPos - transform.Position) + transform.RelativePosition;
-				CommandHistory::AddCommand(new ChangeVec3Command(transform.RelativePosition, newRelPos));
+				glm::vec3 newRelPos = (newPos - transform.Position) + transform.LocalPosition;
+				CommandHistory::AddCommand(new ChangeVec3Command(transform.LocalPosition, newRelPos));
 			}
 		}
 

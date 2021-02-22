@@ -13,7 +13,7 @@ namespace Cocoa
 
 		glm::mat4 ModelMatrix;
 		glm::mat4 InverseModelMatrix;
-		glm::vec3 RelativePosition;
+		glm::vec3 LocalPosition;
 		Entity Parent;
 	};
 }
