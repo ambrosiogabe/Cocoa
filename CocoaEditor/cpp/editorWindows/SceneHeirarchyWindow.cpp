@@ -21,6 +21,8 @@ namespace Cocoa
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
 			int index = 0;
 
+			// Before we begin drawing the actual window contents check if the user is dragging
+			// an entity into the window itself
 			if (CImGui::BeginDragDropTargetCurrentWindow())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HEIRARCHY_ENTITY_TRANSFORM"))
@@ -37,6 +39,7 @@ namespace Cocoa
 				ImGui::EndDragDropTarget();
 			}
 
+			// Now recurse through all the entities
 			auto view = scene.Registry.view<TransformData, Tag>();
 			for (entt::entity rawEntity : view)
 			{
@@ -95,6 +98,7 @@ namespace Cocoa
 			if (open)
 			{
 				auto view = scene.Registry.view<TransformData, Tag>();
+				bool parentHasChildren = false;
 				for (entt::entity rawChildEntity : view)
 				{
 					Entity childEntity = NEntity::CreateEntity(rawChildEntity);
@@ -103,9 +107,11 @@ namespace Cocoa
 					if (childTransform.Parent == parentEntity)
 					{
 						DoTreeNode(childEntity, childTransform, childTag, scene);
+						parentHasChildren = true;
 					}
 				}
 				ImGui::TreePop();
+				parentTag.HasChildren = parentHasChildren;
 			}
 
 			if (clicked)
