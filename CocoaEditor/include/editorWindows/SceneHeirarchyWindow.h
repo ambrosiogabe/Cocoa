@@ -8,6 +8,9 @@ namespace Cocoa
 {
 	namespace SceneHeirarchyWindow
 	{
+		void Init();
+		void Destroy();
+
 		void ImGui(SceneData& scene);
 	};
 }

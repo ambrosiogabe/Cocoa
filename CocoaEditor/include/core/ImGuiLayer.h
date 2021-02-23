@@ -15,6 +15,7 @@ namespace Cocoa
     namespace ImGuiLayer
     {
         void Init(void* window);
+        void Destroy();
         void OnEvent(SceneData& scene, Event& e);
         void BeginFrame(SceneData& scene);
         void EndFrame();

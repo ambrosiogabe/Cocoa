@@ -85,6 +85,13 @@ namespace Cocoa
 			io.Fonts->Build();
 
 			LoadStyle(Settings::General::s_EditorStyleData);
+
+			SceneHeirarchyWindow::Init();
+		}
+
+		void Destroy()
+		{
+			SceneHeirarchyWindow::Destroy();
 		}
 
 		void OnEvent(SceneData& scene, Event& e)

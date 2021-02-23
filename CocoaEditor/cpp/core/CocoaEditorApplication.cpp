@@ -317,6 +317,7 @@ namespace Cocoa
 
 #if _COCOA_DEBUG
 		// In debug builds free all the memory to make sure there are no leaks
+		ImGuiLayer::Destroy();
 		DebugDraw::Destroy();
 		Scene::FreeResources(m_CurrentScene);
 #endif

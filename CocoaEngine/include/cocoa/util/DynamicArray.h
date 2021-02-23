@@ -29,7 +29,7 @@ namespace Cocoa
 	namespace NDynamicArray
 	{
 		template<typename T>
-		DynamicArray<T> Create(int size=0)
+		DynamicArray<T> Create(int size = 0)
 		{
 			DynamicArray<T> data;
 			Log::Assert(size >= 0, "Cannot initalize a dynamic array of with a negative size.");
@@ -130,6 +130,20 @@ namespace Cocoa
 		T* End(DynamicArray<T>& data)
 		{
 			return &data.m_Data[0] + data.m_NumElements;
+		}
+
+		template<typename T>
+		void Clear(DynamicArray<T>& data, bool freeMemory = true)
+		{
+			data.m_NumElements = 0;
+			if (freeMemory)
+			{
+				if (data.m_MaxSize != 1)
+				{
+					data.m_MaxSize = 1;
+					data.m_Data = (T*)ReallocMem(data.m_Data, sizeof(T) * data.m_MaxSize);
+				}
+			}
 		}
 	}
 }
