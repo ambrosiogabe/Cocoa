@@ -12,6 +12,7 @@ namespace Cocoa
 {
 	namespace SceneHeirarchyWindow
 	{
+		// Private functions
 		static void DoTreeNode(Entity entity, TransformData& transform, Tag& entityTag, SceneData& scene);
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
 
@@ -19,6 +20,23 @@ namespace Cocoa
 		{
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
 			int index = 0;
+
+			if (CImGui::BeginDragDropTargetCurrentWindow())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HEIRARCHY_ENTITY_TRANSFORM"))
+				{
+					Log::Assert(payload->DataSize == sizeof(Entity), "Invalid payload.");
+					Entity childEntity = *(Entity*)payload->Data;
+					if (!NEntity::IsNull(childEntity))
+					{
+						TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
+						childTransform.Parent = NEntity::CreateNull();
+						childTransform.LocalPosition = glm::vec3();
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 			auto view = scene.Registry.view<TransformData, Tag>();
 			for (entt::entity rawEntity : view)
 			{
@@ -30,6 +48,7 @@ namespace Cocoa
 					DoTreeNode(entity, transform, tag, scene);
 				}
 			}
+
 			ImGui::End();
 		}
 
