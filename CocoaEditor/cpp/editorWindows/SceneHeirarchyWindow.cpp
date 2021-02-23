@@ -22,7 +22,8 @@ namespace Cocoa
 		// Private functions
 		static void DoTreeNode(Entity entity, TransformData& transform, Tag& entityTag, SceneData& scene);
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
-		static bool ImGuiSceneHeirarchyWindow(SceneData& scene);
+		static bool ImGuiSceneHeirarchyWindow(SceneData& scene, int* inBetweenIndex);
+		static void PopulateOrderedEntities(SceneData& scene);
 
 		void Init()
 		{
@@ -36,17 +37,27 @@ namespace Cocoa
 			NDynamicArray::Free<Entity>(orderedEntities);
 		}
 
+		void AddNewEntity(Entity entity)
+		{
+			// TODO: Consider making entity creation a message then subscribing to this message type
+			NDynamicArray::Add<Entity>(orderedEntities, entity);
+		}
+
 		void ImGui(SceneData& scene)
 		{
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
 			int index = 0;
 			NDynamicArray::Clear<ImRect>(inBetweenBuffer, false);
 
-			// Now recurse through all the entities
-			auto view = scene.Registry.view<TransformData, Tag>();
-			for (entt::entity rawEntity : view)
+			if (orderedEntities.m_NumElements == 0)
 			{
-				Entity entity = NEntity::CreateEntity(rawEntity);
+				PopulateOrderedEntities(scene);
+			}
+
+			// Now recurse through all the entities
+			for (int i = 0; i < orderedEntities.m_NumElements; i++)
+			{
+				Entity entity = orderedEntities.m_Data[i];
 				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
 				Tag& tag = NEntity::GetComponent<Tag>(entity);
 				if (NEntity::IsNull(transform.Parent))
@@ -57,7 +68,8 @@ namespace Cocoa
 
 			// We do this after drawing all the elements so that we can loop through all
 			// the rects in the window
-			if (ImGuiSceneHeirarchyWindow(scene))
+			static int inBetweenIndex = 0;
+			if (ImGuiSceneHeirarchyWindow(scene, &inBetweenIndex))
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HEIRARCHY_ENTITY_TRANSFORM"))
 				{
@@ -68,6 +80,28 @@ namespace Cocoa
 						TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
 						childTransform.Parent = NEntity::CreateNull();
 						childTransform.LocalPosition = glm::vec3();
+						int indexOfDraggedElement = NDynamicArray::FindIndexOf<Entity>(orderedEntities, childEntity);
+						Log::Assert(indexOfDraggedElement != -1, "We should never not find an entity in the ordered entities.");
+
+						Entity draggedElement = orderedEntities.m_Data[indexOfDraggedElement];
+						bool movingElementUp = indexOfDraggedElement > inBetweenIndex;
+						bool movingElementDown = indexOfDraggedElement < inBetweenIndex;
+						if (movingElementUp)
+						{
+							for (int i = indexOfDraggedElement; i > inBetweenIndex; i--)
+							{
+								orderedEntities.m_Data[i] = orderedEntities.m_Data[i - 1];
+							}
+							orderedEntities.m_Data[inBetweenIndex] = draggedElement;
+						}
+						else if (movingElementDown)
+						{
+							for (int i = indexOfDraggedElement; i < inBetweenIndex; i++)
+							{
+								orderedEntities.m_Data[i] = orderedEntities.m_Data[i + 1];
+							}
+							orderedEntities.m_Data[inBetweenIndex] = draggedElement;
+						}
 					}
 				}
 				ImGui::EndDragDropTarget();
@@ -81,12 +115,12 @@ namespace Cocoa
 			static bool isDark = true;
 
 			bool open = ImGui::TreeNodeEx(parentTag.Name,
-					ImGuiTreeNodeFlags_FramePadding | 
-					ImGuiTreeNodeFlags_DefaultOpen | 
-					(parentTag.Selected ? ImGuiTreeNodeFlags_Selected : 0) | 
-					(parentTag.HasChildren ? 0 : ImGuiTreeNodeFlags_Leaf) |
-					ImGuiTreeNodeFlags_OpenOnArrow |
-					ImGuiTreeNodeFlags_SpanFullWidth,
+				ImGuiTreeNodeFlags_FramePadding |
+				ImGuiTreeNodeFlags_DefaultOpen |
+				(parentTag.Selected ? ImGuiTreeNodeFlags_Selected : 0) |
+				(parentTag.HasChildren ? 0 : ImGuiTreeNodeFlags_Leaf) |
+				ImGuiTreeNodeFlags_OpenOnArrow |
+				ImGuiTreeNodeFlags_SpanFullWidth,
 				"%s", parentTag.Name);
 
 			// Track the in-between size for this tree node
@@ -97,7 +131,7 @@ namespace Cocoa
 			cursorPos.y -= ImGui::GetStyle().FramePadding.y;
 			ImVec2 windowPos = ImGui::GetCurrentWindow()->Pos;
 			NDynamicArray::Add<ImRect>(
-				inBetweenBuffer, 
+				inBetweenBuffer,
 				ImRect(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y, windowPos.x + cursorPos.x + elementSize.x, windowPos.y + cursorPos.y + elementSize.y));
 
 			bool clicked = ImGui::IsItemClicked();
@@ -164,14 +198,14 @@ namespace Cocoa
 			{
 				return true;
 			}
-			else if (!NEntity::IsNull(childTransform.Parent)) 
+			else if (!NEntity::IsNull(childTransform.Parent))
 			{
 				return IsDescendantOf(childTransform.Parent, parentEntity);
 			}
 			return false;
 		}
 
-		static bool ImGuiSceneHeirarchyWindow(SceneData& scene)
+		static bool ImGuiSceneHeirarchyWindow(SceneData& scene, int* inBetweenIndex)
 		{
 			ImGuiContext& g = *GImGui;
 			if (!g.DragDropActive)
@@ -191,7 +225,7 @@ namespace Cocoa
 			// So, if we just loop through all the objects in this window we should be able to 
 			// maybe find out which in-between we are in
 			bool hoveringBetween = false;
-			for (int i=0; i < inBetweenBuffer.m_NumElements; i++)
+			for (int i = 0; i < inBetweenBuffer.m_NumElements; i++)
 			{
 				ImRect& rect = inBetweenBuffer.m_Data[i];
 				if (ImGui::IsMouseHoveringRect(rect.Min, rect.Max))
@@ -201,6 +235,7 @@ namespace Cocoa
 					// TODO: Test this on different resolution sized screens and make sure it's 1 pixel there as well
 					windowRect.Min.y += 4;
 					windowRect.Max.y = windowRect.Min.y - 4;
+					*inBetweenIndex = i;
 					hoveringBetween = true;
 					break;
 				}
@@ -216,16 +251,7 @@ namespace Cocoa
 				windowRect.Min.y += 4;
 				windowRect.Max.y = windowRect.Min.y - 4;
 				hoveringBetween = true;
-			}
-
-			if (mousePos.y < inBetweenBuffer.m_Data[0].Min.y)
-			{
-				// If we are above all elements default to showing a place at the top
-				// of the elements as where it will be added
-				windowRect = inBetweenBuffer.m_Data[0];
-				windowRect.Min.y += 4;
-				windowRect.Max.y = windowRect.Min.y - 4;
-				hoveringBetween = true;
+				*inBetweenIndex = inBetweenBuffer.m_NumElements - 1;
 			}
 
 			if (!hoveringBetween)
@@ -238,6 +264,22 @@ namespace Cocoa
 			g.DragDropTargetId = window->ID;
 			g.DragDropWithinTarget = true;
 			return true;
+		}
+
+		static void PopulateOrderedEntities(SceneData& scene)
+		{
+			// TODO: Have this load in a project's serialized entity order in the future so that
+			// TODO: user does not lose their work
+			auto view = scene.Registry.view<TransformData, Tag>();
+			for (entt::entity rawEntity : view)
+			{
+				Entity entity = NEntity::CreateEntity(rawEntity);
+				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+				if (NEntity::IsNull(transform.Parent))
+				{
+					NDynamicArray::Add<Entity>(orderedEntities, entity);
+				}
+			}
 		}
 	}
 }

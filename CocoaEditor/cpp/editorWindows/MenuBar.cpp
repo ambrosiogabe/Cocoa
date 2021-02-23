@@ -2,6 +2,7 @@
 #include "core/ImGuiLayer.h"
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/ProjectWizard.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
 #include "gui/ImGuiExtended.h"
 #include "util/Settings.h"
 
@@ -167,6 +168,7 @@ namespace Cocoa
 					{
 						Entity entity = Scene::CreateEntity(scene);
 						NEntity::AddComponent<SpriteRenderer>(entity);
+						SceneHeirarchyWindow::AddNewEntity(entity);
 					}
 
 					ImGui::EndMenu();

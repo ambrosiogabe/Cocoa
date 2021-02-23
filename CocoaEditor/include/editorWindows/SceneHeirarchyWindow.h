@@ -11,6 +11,7 @@ namespace Cocoa
 		void Init();
 		void Destroy();
 
+		void AddNewEntity(Entity entity);
 		void ImGui(SceneData& scene);
 	};
 }

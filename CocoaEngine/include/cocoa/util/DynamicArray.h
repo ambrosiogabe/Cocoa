@@ -145,5 +145,20 @@ namespace Cocoa
 				}
 			}
 		}
+
+		template<typename T>
+		int FindIndexOf(DynamicArray<T>& data, T& element)
+		{
+			// TODO: Horrible search, linear complexity can probably be improved
+			for (int i = 0; i < data.m_NumElements; i++)
+			{
+				if (memcmp(&data.m_Data[i], &element, sizeof(T)) == 0)
+				{
+					return i;
+				}
+			}
+
+			return -1;
+		}
 	}
 }
