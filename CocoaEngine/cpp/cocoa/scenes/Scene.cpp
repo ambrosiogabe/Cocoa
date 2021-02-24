@@ -160,6 +160,8 @@ namespace Cocoa
 
 
 			json j = json::parse(file->m_Data);
+			// TODO: Change this so that the scene doesn't hold the json at all
+			data.SaveDataJson = j;
 
 			if (j.contains("Assets"))
 			{
@@ -298,6 +300,16 @@ namespace Cocoa
 		bool IsValid(SceneData& scene, uint32 entityId)
 		{
 			return scene.Registry.valid(entt::entity(entityId));
+		}
+
+		bool IsValid(SceneData& scene, Entity entity)
+		{
+			return scene.Registry.valid(entity.Handle);
+		}
+
+		void DeleteEntity(SceneData& scene, Entity entity)
+		{
+			scene.Registry.destroy(entity.Handle);
 		}
 
 		static void LoadDefaultAssets()

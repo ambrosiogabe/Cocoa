@@ -200,6 +200,16 @@ namespace Cocoa
 				}
 			}
 
+			if (e.GetKeyCode() == COCOA_KEY_DELETE)
+			{
+				Entity activeEntity = InspectorWindow::GetActiveEntity();
+				if (!NEntity::IsNull(activeEntity))
+				{
+					Scene::DeleteEntity(scene, activeEntity);
+					InspectorWindow::ClearAllEntities();
+				}
+			}
+
 			return false;
 		}
 

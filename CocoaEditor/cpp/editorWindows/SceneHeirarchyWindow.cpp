@@ -112,7 +112,8 @@ namespace Cocoa
 			for (int i = 0; i < orderedEntities.m_NumElements; i++)
 			{
 				Entity entity = orderedEntities.m_Data[i];
-				orderedEntitiesJson.push_back({ "Id", NEntity::GetID(entity) });
+				json entityId = {{ "Id", NEntity::GetID(entity) }};
+				orderedEntitiesJson.push_back(entityId);
 			}
 			j["SceneHeirarchyOrder"] = orderedEntitiesJson;
 		}
@@ -121,13 +122,12 @@ namespace Cocoa
 		{
 			if (j.contains("SceneHeirarchyOrder"))
 			{
-				for (auto it = j["SceneHeirarchyOrder"].begin(); it != j["SceneHeirarchyOrder"].end(); ++it)
+				for (auto& entityJson : j["SceneHeirarchyOrder"])
 				{
-					const json& assetJson = it.value();
-					if (assetJson.is_null()) continue;
+					if (entityJson.is_null()) continue;
 
 					uint32 entityId = -1;
-					JsonExtended::AssignIfNotNull(assetJson, "Id", entityId);
+					JsonExtended::AssignIfNotNull(entityJson, "Id", entityId);
 
 					Log::Assert(entt::entity(entityId) != entt::null, "Somehow a null entity got serialized in the scene heirarchy panel.");
 					Log::Assert(Scene::IsValid(scene, entityId), "Somehow an invalid entity id got serialized in the scene heirarchy panel.");

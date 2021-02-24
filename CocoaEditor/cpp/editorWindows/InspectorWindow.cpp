@@ -16,6 +16,7 @@
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/core/Memory.h"
+#include "cocoa/scenes/Scene.h"
 
 namespace Cocoa
 {
@@ -50,7 +51,7 @@ namespace Cocoa
 
 		static void ImGuiAddComponentButton();
 
-		void ImGui()
+		void ImGui(SceneData& scene)
 		{
 			ImGui::Begin(ICON_FA_CUBE "Inspector");
 			if (ActiveEntities.size() == 0)
@@ -70,6 +71,7 @@ namespace Cocoa
 
 			for (auto& entity: ActiveEntities)
 			{
+				Log::Assert(Scene::IsValid(scene, entity), "Invalid active entity in inspector window");
 				doTag &= NEntity::HasComponent<Tag>(entity);
 				doTransform &= NEntity::HasComponent<TransformData>(entity);
 				doSpriteRenderer &= NEntity::HasComponent<SpriteRenderer>(entity);
