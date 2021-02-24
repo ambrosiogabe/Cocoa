@@ -8,5 +8,6 @@ namespace Cocoa
 	{
 		COCOA void Update(SceneData& scene, float dt);
 		COCOA void Destroy(SceneData& scene);
+		COCOA void DeleteEntity(Entity entity);
 	}
 }

@@ -206,9 +206,9 @@ namespace Cocoa
 				Entity activeEntity = InspectorWindow::GetActiveEntity();
 				if (!NEntity::IsNull(activeEntity))
 				{
+					SceneHeirarchyWindow::DeleteEntity(activeEntity);
 					Scene::DeleteEntity(scene, activeEntity);
 					InspectorWindow::ClearAllEntities();
-					SceneHeirarchyWindow::DeleteEntity(activeEntity);
 				}
 			}
 

@@ -27,5 +27,14 @@ namespace Cocoa
 				NTag::Destroy(tag);
 			}
 		}
+
+		void DeleteEntity(Entity entity)
+		{
+			if (NEntity::HasComponent<Tag>(entity))
+			{
+				Tag& tag = NEntity::GetComponent<Tag>(entity);
+				NTag::Destroy(tag);
+			}
+		}
 	}
 }

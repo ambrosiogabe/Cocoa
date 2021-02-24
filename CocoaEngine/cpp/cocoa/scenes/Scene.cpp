@@ -309,6 +309,8 @@ namespace Cocoa
 
 		void DeleteEntity(SceneData& scene, Entity entity)
 		{
+			Physics2D::DeleteEntity(entity);
+			TransformSystem::DeleteEntity(entity);
 			scene.Registry.destroy(entity.Handle);
 		}
 

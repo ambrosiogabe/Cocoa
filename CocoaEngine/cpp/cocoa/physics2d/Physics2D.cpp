@@ -93,6 +93,19 @@ namespace Cocoa
 			}
 		}
 
+		void DeleteEntity(Entity entity)
+		{
+			if (NEntity::HasComponent<Rigidbody2D>(entity))
+			{
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+
+				// Manually destroy all bodies, in case the physics system would like
+				// to use this world again
+				m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+				rb.m_RawRigidbody = nullptr;
+			}
+		}
+
 		void Update(SceneData& scene, float dt)
 		{
 			m_PhysicsTime += dt;
