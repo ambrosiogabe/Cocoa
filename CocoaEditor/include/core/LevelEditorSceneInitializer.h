@@ -15,5 +15,7 @@ namespace Cocoa
 		virtual void Init(SceneData& scene) override;
 		virtual void Start(SceneData& scene) override;
 		virtual void Destroy(SceneData& scene) override;
+		virtual void Save(SceneData& scene) override;
+		virtual void Load(SceneData& scene) override;
 	};
 }

@@ -4,10 +4,12 @@
 #include "gui/FontAwesome.h"
 #include "util/Settings.h"
 
+#include "cocoa/scenes/Scene.h"
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/components/Tag.h"
 #include "cocoa/util/DynamicArray.h"
+#include "cocoa/util/JsonExtended.h"
 
 namespace Cocoa
 {
@@ -23,7 +25,6 @@ namespace Cocoa
 		static void DoTreeNode(Entity entity, TransformData& transform, Tag& entityTag, SceneData& scene);
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
 		static bool ImGuiSceneHeirarchyWindow(SceneData& scene, int* inBetweenIndex);
-		static void PopulateOrderedEntities(SceneData& scene);
 
 		void Init()
 		{
@@ -48,11 +49,6 @@ namespace Cocoa
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
 			int index = 0;
 			NDynamicArray::Clear<ImRect>(inBetweenBuffer, false);
-
-			if (orderedEntities.m_NumElements == 0)
-			{
-				PopulateOrderedEntities(scene);
-			}
 
 			// Now recurse through all the entities
 			for (int i = 0; i < orderedEntities.m_NumElements; i++)
@@ -108,6 +104,37 @@ namespace Cocoa
 			}
 
 			ImGui::End();
+		}
+
+		void Serialize(json& j)
+		{
+			json orderedEntitiesJson = {};
+			for (int i = 0; i < orderedEntities.m_NumElements; i++)
+			{
+				Entity entity = orderedEntities.m_Data[i];
+				orderedEntitiesJson.push_back({ "Id", NEntity::GetID(entity) });
+			}
+			j["SceneHeirarchyOrder"] = orderedEntitiesJson;
+		}
+
+		void Deserialize(json& j, SceneData& scene)
+		{
+			if (j.contains("SceneHeirarchyOrder"))
+			{
+				for (auto it = j["SceneHeirarchyOrder"].begin(); it != j["SceneHeirarchyOrder"].end(); ++it)
+				{
+					const json& assetJson = it.value();
+					if (assetJson.is_null()) continue;
+
+					uint32 entityId = -1;
+					JsonExtended::AssignIfNotNull(assetJson, "Id", entityId);
+
+					Log::Assert(entt::entity(entityId) != entt::null, "Somehow a null entity got serialized in the scene heirarchy panel.");
+					Log::Assert(Scene::IsValid(scene, entityId), "Somehow an invalid entity id got serialized in the scene heirarchy panel.");
+					Entity entity = Entity{ entt::entity(entityId) };
+					NDynamicArray::Add<Entity>(orderedEntities, entity);
+				}
+			}
 		}
 
 		static void DoTreeNode(Entity parentEntity, TransformData& parentTransform, Tag& parentTag, SceneData& scene)
@@ -264,22 +291,6 @@ namespace Cocoa
 			g.DragDropTargetId = window->ID;
 			g.DragDropWithinTarget = true;
 			return true;
-		}
-
-		static void PopulateOrderedEntities(SceneData& scene)
-		{
-			// TODO: Have this load in a project's serialized entity order in the future so that
-			// TODO: user does not lose their work
-			auto view = scene.Registry.view<TransformData, Tag>();
-			for (entt::entity rawEntity : view)
-			{
-				Entity entity = NEntity::CreateEntity(rawEntity);
-				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
-				if (NEntity::IsNull(transform.Parent))
-				{
-					NDynamicArray::Add<Entity>(orderedEntities, entity);
-				}
-			}
 		}
 	}
 }

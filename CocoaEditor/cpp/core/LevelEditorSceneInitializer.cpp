@@ -2,6 +2,7 @@
 
 #include "renderer/Gizmos.h"
 #include "editorWindows/InspectorWindow.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
 #include "core/LevelEditorSystem.h"
 #include "core/ImGuiLayer.h"
 #include "core/CocoaEditorApplication.h"
@@ -27,5 +28,15 @@ namespace Cocoa
 	{
 		GizmoSystem::Destroy(scene);
 		LevelEditorSystem::Destroy(scene);
+	}
+
+	void LevelEditorSceneInitializer::Save(SceneData& scene)
+	{
+		SceneHeirarchyWindow::Serialize(scene.SaveDataJson);
+	}
+
+	void LevelEditorSceneInitializer::Load(SceneData& scene)
+	{
+		SceneHeirarchyWindow::Deserialize(scene.SaveDataJson, scene);
 	}
 }

@@ -35,5 +35,6 @@ namespace Cocoa
 		COCOA Entity CreateEntity(SceneData& data);
 		COCOA Entity DuplicateEntity(SceneData& data, Entity entity);
 		COCOA Entity GetEntity(SceneData& data, uint32 id);
+		COCOA bool IsValid(SceneData& scene, uint32 entityId);
 	};
 }

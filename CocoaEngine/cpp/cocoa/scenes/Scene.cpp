@@ -115,7 +115,7 @@ namespace Cocoa
 			auto view = data.Registry.view<TransformData>();
 			for (auto entity : view)
 			{
-				Physics2D::AddEntity(Entity{entity});
+				Physics2D::AddEntity(Entity{ entity });
 			}
 		}
 
@@ -139,6 +139,7 @@ namespace Cocoa
 				.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB, Tag>(output);
 
 			ScriptSystem::SaveScripts(data.SaveDataJson);
+			data.CurrentSceneInitializer->Save(data);
 
 			File::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
 		}
@@ -214,6 +215,9 @@ namespace Cocoa
 				}
 			}
 
+			// After we deserialize the entities, hand it off to the application in case they saved anything as well
+			data.CurrentSceneInitializer->Load(data);
+
 			j = {};
 			File::CloseFile(file);
 		}
@@ -247,7 +251,7 @@ namespace Cocoa
 		Entity CreateEntity(SceneData& data)
 		{
 			entt::entity e = data.Registry.create();
-			Entity entity = Entity{e};
+			Entity entity = Entity{ e };
 			TransformData defaultTransform = Transform::CreateTransform();
 			NEntity::AddComponent<TransformData>(entity, defaultTransform);
 			NEntity::AddComponent<Tag>(entity, NTag::CreateTag("New Entity"));
@@ -257,7 +261,7 @@ namespace Cocoa
 		Entity DuplicateEntity(SceneData& data, Entity entity)
 		{
 			entt::entity newEntEntity = data.Registry.create();
-			Entity newEntity = Entity{newEntEntity};
+			Entity newEntity = Entity{ newEntEntity };
 			if (NEntity::HasComponent<TransformData>(entity))
 			{
 				NEntity::AddComponent<TransformData>(newEntity, NEntity::GetComponent<TransformData>(entity));
@@ -281,14 +285,19 @@ namespace Cocoa
 			return newEntity;
 		}
 
-		Entity Scene::GetEntity(SceneData& data, uint32 id)
+		Entity GetEntity(SceneData& data, uint32 id)
 		{
 			entt::entity entity = entt::null;
 			if (id < std::numeric_limits<uint32>::max())
 			{
 				entity = entt::entity(id);
 			}
-			return Entity{entity};
+			return Entity{ entity };
+		}
+
+		bool IsValid(SceneData& scene, uint32 entityId)
+		{
+			return scene.Registry.valid(entt::entity(entityId));
 		}
 
 		static void LoadDefaultAssets()
@@ -314,11 +323,11 @@ namespace Cocoa
 
 			if (registry.valid(entt::entity(id)))
 			{
-				entity = Entity{entt::entity(id)};
+				entity = Entity{ entt::entity(id) };
 			}
 			else
 			{
-				entity = Entity{registry.create(entt::entity(id))};
+				entity = Entity{ registry.create(entt::entity(id)) };
 			}
 
 			return entity;

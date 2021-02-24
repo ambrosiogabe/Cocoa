@@ -13,5 +13,8 @@ namespace Cocoa
 
 		void AddNewEntity(Entity entity);
 		void ImGui(SceneData& scene);
+
+		void Serialize(json& j);
+		void Deserialize(json& json, SceneData& scene);
 	};
 }
