@@ -20,8 +20,9 @@ namespace Cocoa
 	namespace Gizmo
 	{
 		// Internal Variables
-		static int m_GizmoArrowModelVertCount = 8;
-		static glm::vec2 m_GizmoArrowModel[] = {
+		static const int m_GizmoArrowModelVertCount = 8;
+		static const int m_GizmoArrowModelElementCount = 12;
+		static const glm::vec2 m_GizmoArrowModel[] = {
 			// The box part of the arrow
 			{  0.0f, -0.02f },
 			{  0.0f,  0.02f },
@@ -35,8 +36,9 @@ namespace Cocoa
 			{  0.0f, -0.1f, }
 		};
 
-		static int m_GizmoScaleModelVertCount = 8;
-		static glm::vec2 m_GizmoScaleModel[] = {
+		static const int m_GizmoScaleModelVertCount = 8;
+		static const int m_GizmoScaleModelElementCount = 12;
+		static const glm::vec2 m_GizmoScaleModel[] = {
 			// The box part of the arrow
 			{  0.0f, -0.02f },
 			{  0.0f,  0.02f },
@@ -76,7 +78,14 @@ namespace Cocoa
 			{
 				if (mode == GizmoMode::Translate && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(m_GizmoArrowModel, m_GizmoArrowModelVertCount, data.Color - glm::vec3(0.2f, 0.2f, 0.2f), data.Position, data.Scale, data.Rotation);
+					DebugDraw::AddShape(
+						m_GizmoArrowModel, 
+						m_GizmoArrowModelVertCount, 
+						m_GizmoArrowModelElementCount, 
+						data.Color - glm::vec3(0.2f, 0.2f, 0.2f), 
+						data.Position, 
+						data.Scale, 
+						data.Rotation);
 				}
 				else if (data.Type == GizmoType::Free)
 				{
@@ -84,14 +93,28 @@ namespace Cocoa
 				}
 				else if (mode == GizmoMode::Scale && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(m_GizmoScaleModel, m_GizmoScaleModelVertCount, data.Color - glm::vec3(0.2f, 0.2f, 0.2f), data.Position, data.Scale, data.Rotation);
+					DebugDraw::AddShape(
+						m_GizmoScaleModel, 
+						m_GizmoScaleModelVertCount, 
+						m_GizmoScaleModelElementCount,
+						data.Color - glm::vec3(0.2f, 0.2f, 0.2f), 
+						data.Position, 
+						data.Scale, 
+						data.Rotation);
 				}
 			}
 			else
 			{
 				if (mode == GizmoMode::Translate && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(m_GizmoArrowModel, m_GizmoArrowModelVertCount, data.Color, data.Position, data.Scale, data.Rotation);
+					DebugDraw::AddShape(
+						m_GizmoArrowModel, 
+						m_GizmoArrowModelVertCount, 
+						m_GizmoArrowModelElementCount,
+						data.Color, 
+						data.Position, 
+						data.Scale, 
+						data.Rotation);
 				}
 				else if (data.Type == GizmoType::Free)
 				{
@@ -99,7 +122,14 @@ namespace Cocoa
 				}
 				else if (mode == GizmoMode::Scale && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(m_GizmoScaleModel, m_GizmoScaleModelVertCount, data.Color, data.Position, data.Scale, data.Rotation);
+					DebugDraw::AddShape(
+						m_GizmoScaleModel, 
+						m_GizmoScaleModelVertCount, 
+						m_GizmoScaleModelElementCount,
+						data.Color, 
+						data.Position, 
+						data.Scale, 
+						data.Rotation);
 				}
 			}
 		}

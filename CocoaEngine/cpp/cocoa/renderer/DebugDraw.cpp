@@ -14,6 +14,7 @@ namespace Cocoa
 	namespace DebugDraw
 	{
 		static const int m_FilledBoxVertCount = 4;
+		static const int m_FilledBoxElementCount = 6;
 		static const glm::vec2 m_FilledBoxModel[] = {
 			// Standard verts for a 1x1 box
 			{  0.5f, -0.5f },
@@ -164,7 +165,7 @@ namespace Cocoa
 			int lifetime,
 			bool onTop)
 		{
-			AddShape(m_FilledBoxModel, m_FilledBoxVertCount, color, center, dimensions, rotation, lifetime, onTop);
+			AddShape(m_FilledBoxModel, m_FilledBoxVertCount, m_FilledBoxElementCount, color, center, dimensions, rotation, lifetime, onTop);
 		}
 
 		void AddSprite(
@@ -181,7 +182,16 @@ namespace Cocoa
 			NDynamicArray::Add<DebugSprite>(m_Sprites, DebugSprite{ spriteTexture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 		}
 
-		void AddShape(const glm::vec2* vertices, int numVertices, const glm::vec3& color, const glm::vec2& position, const glm::vec2& scale, float rotation, int lifetime, bool onTop)
+		void AddShape(
+			const glm::vec2* vertices, 
+			int numVertices, 
+			int numElements,
+			const glm::vec3& color, 
+			const glm::vec2& position, 
+			const glm::vec2& scale, 
+			float rotation, 
+			int lifetime, 
+			bool onTop)
 		{
 			// TODO: Maybe do this differently? I really don't like allocating and freeing so much small bits of memory
 			glm::vec2* vertsCopy = (glm::vec2*)AllocMem(sizeof(glm::vec2) * numVertices);
@@ -197,7 +207,7 @@ namespace Cocoa
 					vertsCopy[i] = glm::vec2(transformedPos.x, transformedPos.y);
 				}
 			}
-			NDynamicArray::Add<DebugShape>(m_Shapes, DebugShape{ vertsCopy, numVertices, glm::vec3(color), glm::vec2(position), rotation, lifetime, onTop });
+			NDynamicArray::Add<DebugShape>(m_Shapes, DebugShape{ vertsCopy, numVertices, numElements, glm::vec3(color), glm::vec2(position), rotation, lifetime, onTop });
 		}
 
 
@@ -343,7 +353,7 @@ namespace Cocoa
 				{
 					if (RenderBatch::HasRoom(*batch, shape->NumVertices) && (shapeOnTop == batch->BatchOnTop))
 					{
-						RenderBatch::Add(*batch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices);
+						RenderBatch::Add(*batch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices, shape->NumElements);
 						wasAdded = true;
 						break;
 					}
@@ -353,7 +363,7 @@ namespace Cocoa
 				{
 					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, shapeOnTop);
 					RenderBatch::Start(newBatch);
-					RenderBatch::Add(newBatch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices);
+					RenderBatch::Add(newBatch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices, shape->NumElements);
 					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
 				}
 			}

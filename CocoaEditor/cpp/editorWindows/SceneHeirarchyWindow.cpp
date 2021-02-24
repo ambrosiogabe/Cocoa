@@ -106,6 +106,11 @@ namespace Cocoa
 			ImGui::End();
 		}
 
+		void DeleteEntity(Entity entity)
+		{
+			NDynamicArray::Remove<Entity>(orderedEntities, entity);
+		}
+
 		void Serialize(json& j)
 		{
 			json orderedEntitiesJson = {};

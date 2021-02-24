@@ -130,8 +130,8 @@ namespace Cocoa
 
 		void Add(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr)
 		{
-			// 4 Vertices per sprite
-			data.NumUsedVertices += 4;
+			// 6 elments per sprite
+			data.NumUsedElements += 6;
 
 			const Sprite& sprite = spr.m_Sprite;
 			Handle<Texture> tex = sprite.m_Texture;
@@ -181,8 +181,8 @@ namespace Cocoa
 			int strLength = str.size();
 			for (int i = 0; i < strLength; i++)
 			{
-				// 4 Vertices per sprite
-				data.NumUsedVertices += 4;
+				// 6 elements per sprite
+				data.NumUsedElements += 6;
 				const CharInfo& charInfo = font.GetCharacterInfo(str[i]);
 				float scaleX = transform.Scale.x * fontRenderer.fontSize;
 				float scaleY = transform.Scale.y * fontRenderer.fontSize;
@@ -213,9 +213,9 @@ namespace Cocoa
 			}
 		}
 
-		void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color, const glm::vec2& position, int numVertices)
+		void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color, const glm::vec2& position, int numVertices, int numElements)
 		{
-			data.NumUsedVertices += numVertices;
+			data.NumUsedElements += numElements;
 			std::array<glm::vec2, 4> texCoords{
 				glm::vec2 {1, 1},
 				glm::vec2 {1, 0},
@@ -238,8 +238,8 @@ namespace Cocoa
 			const glm::vec2& texCoordMax,
 			float rotation)
 		{
-			// 4 Vertices per sprite
-			data.NumUsedVertices += 4;
+			// 6 elements per sprite,
+			data.NumUsedElements += 6;
 			std::array<glm::vec2, 4> texCoords{
 				glm::vec2 {texCoordMax.x, texCoordMax.y},
 				glm::vec2 {texCoordMax.x, texCoordMin.y},
@@ -382,7 +382,7 @@ namespace Cocoa
 		void Render(RenderBatchData& data)
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, data.VBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * data.NumUsedVertices, &data.VertexBufferBase[0]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * data.NumUsedElements, &data.VertexBufferBase[0]);
 
 			for (int i = 0; i < data.NumTextures; i++)
 			{
@@ -392,7 +392,7 @@ namespace Cocoa
 
 			glBindVertexArray(data.VAO);
 
-			glDrawElements(GL_TRIANGLES, data.NumUsedVertices * 2, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, data.NumUsedElements, GL_UNSIGNED_INT, 0);
 
 			glBindVertexArray(0);
 
@@ -435,7 +435,7 @@ namespace Cocoa
 		void Clear(RenderBatchData& data)
 		{
 			data.VertexStackPointer = data.VertexBufferBase;
-			data.NumUsedVertices = 0;
+			data.NumUsedElements = 0;
 			data.NumTextures = 0;
 			for (int i = 0; i < data.NumTextures; i++)
 			{
@@ -451,7 +451,7 @@ namespace Cocoa
 		bool HasRoom(const RenderBatchData& data, const FontRenderer& fontRenderer)
 		{
 			// 4 Vertices per quad
-			return data.NumUsedVertices + (fontRenderer.text.size() * 4) < data.MaxBatchSize;
+			return data.NumUsedElements + (fontRenderer.text.size() * 4) < data.MaxBatchSize;
 		}
 
 		bool HasTextureRoom(const RenderBatchData& data)

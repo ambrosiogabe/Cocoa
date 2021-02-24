@@ -13,6 +13,7 @@ namespace Cocoa
 
 		void AddNewEntity(Entity entity);
 		void ImGui(SceneData& scene);
+		void DeleteEntity(Entity entity);
 
 		void Serialize(json& j);
 		void Deserialize(json& json, SceneData& scene);

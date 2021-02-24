@@ -8,6 +8,7 @@ namespace Cocoa
     {
         glm::vec2* Vertices;
         int NumVertices;
+        int NumElements;
         glm::vec3 Color;
         glm::vec2 Position;
         float Rotation;

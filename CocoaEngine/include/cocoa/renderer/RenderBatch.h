@@ -29,7 +29,7 @@ namespace Cocoa
 
         uint32 VAO, VBO, EBO;
         int16 ZIndex = 0;
-        uint16 NumUsedVertices = 0;
+        uint16 NumUsedElements = 0;
         uint16 NumTextures = 0;
 
         int MaxBatchSize;
@@ -45,7 +45,7 @@ namespace Cocoa
         COCOA void Start(RenderBatchData& data);
         COCOA void Add(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr);
         COCOA void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer);
-        COCOA void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color, const glm::vec2& position={0.0f, 0.0f}, int numVertices=4);
+        COCOA void Add(RenderBatchData& data, const glm::vec2* vertices, const glm::vec3& color, const glm::vec2& position={0.0f, 0.0f}, int numVertices=4, int numElements=6);
         
         COCOA void Add(
             RenderBatchData& data,

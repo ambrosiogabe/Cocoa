@@ -3,6 +3,7 @@
 #include "gui/FontAwesome.h"
 #include "gui/ImGuiExtended.h"
 #include "editorWindows/InspectorWindow.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
 #include "util/Settings.h"
 
 #include "cocoa/systems/ScriptSystem.h"
@@ -207,6 +208,7 @@ namespace Cocoa
 				{
 					Scene::DeleteEntity(scene, activeEntity);
 					InspectorWindow::ClearAllEntities();
+					SceneHeirarchyWindow::DeleteEntity(activeEntity);
 				}
 			}
 

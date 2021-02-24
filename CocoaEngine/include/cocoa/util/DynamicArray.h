@@ -107,6 +107,19 @@ namespace Cocoa
 		}
 
 		template<typename T>
+		void Remove(DynamicArray<T>& data, T& element)
+		{
+			for (int i = 0; i < data.m_NumElements; i++)
+			{
+				if (memcmp(&data.m_Data[i], &element, sizeof(T)) == 0)
+				{
+					Remove<T>(data, i);
+					return;
+				}
+			}
+		}
+
+		template<typename T>
 		T& Get(DynamicArray<T>& data, int index)
 		{
 			Log::Assert(index >= 0 && index < data.m_NumElements, "Index out of bounds exception. '%d' in array size '%d'.", index, data.m_NumElements);
