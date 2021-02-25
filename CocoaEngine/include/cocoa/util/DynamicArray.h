@@ -6,6 +6,15 @@
 namespace Cocoa
 {
 	template<typename T>
+	using Compare = bool (*)(T& e1, T& e2);
+
+	template<typename T>
+	bool defaultCompare(T & e1, T & e2)
+	{
+		return memcmp(&e1, &e2, sizeof(T)) == 0;
+	}
+
+	template<typename T>
 	struct DynamicArray
 	{
 		T* m_Data;
@@ -107,11 +116,11 @@ namespace Cocoa
 		}
 
 		template<typename T>
-		void Remove(DynamicArray<T>& data, T& element)
+		void Remove(DynamicArray<T>& data, T& element, Compare<T> compareFn = defaultCompare)
 		{
 			for (int i = 0; i < data.m_NumElements; i++)
 			{
-				if (memcmp(&data.m_Data[i], &element, sizeof(T)) == 0)
+				if (compareFn(data.m_Data[i], element))
 				{
 					Remove<T>(data, i);
 					return;

@@ -12,8 +12,6 @@ namespace Cocoa
 			res.Name = name;
 			res.Size = strlen(name);
 			res.IsHeapAllocated = isHeapAllocated;
-			res.HasChildren = false;
-			res.Selected = false;
 			return res;
 		}
 
@@ -38,8 +36,7 @@ namespace Cocoa
 			j["Components"][size] = {
 				{"Tag", {
 					{"Entity", NEntity::GetID(entity)},
-					{"Name", tag.Name},
-					{"HasChildren", tag.HasChildren}
+					{"Name", tag.Name}
 				}}
 			};
 		}
@@ -56,7 +53,6 @@ namespace Cocoa
 				tag.IsHeapAllocated = true;
 				tag.Size = tagNameSize;
 			}
-			tag.HasChildren = j["Tag"]["HasChildren"];
 
 			NEntity::AddComponent<Tag>(entity, tag);
 		}

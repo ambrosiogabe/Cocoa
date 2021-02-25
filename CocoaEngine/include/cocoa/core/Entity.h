@@ -70,4 +70,6 @@ namespace Cocoa
 
 	COCOA bool operator==(const Entity& a, const Entity& b);
 	COCOA bool operator==(Entity& a, Entity& other);
+	COCOA bool operator!=(const Entity& a, const Entity& b);
+	COCOA bool operator!=(Entity& a, Entity& b);
 }

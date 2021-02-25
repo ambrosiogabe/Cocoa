@@ -44,4 +44,14 @@ namespace Cocoa
 	{
 		return a.Handle == b.Handle;
 	}
+
+	bool operator!=(const Entity& a, const Entity& b)
+	{
+		return !(a == b);
+	}
+
+	bool operator!=(Entity& a, Entity& b)
+	{
+		return !(a == b);
+	}
 }

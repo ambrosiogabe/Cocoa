@@ -9,8 +9,6 @@ namespace Cocoa
 	{
 		const char* Name;
 		int Size;
-		bool Selected;
-		bool HasChildren;
 		bool IsHeapAllocated;
 	};
 
