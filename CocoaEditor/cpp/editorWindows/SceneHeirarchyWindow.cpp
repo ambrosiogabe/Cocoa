@@ -36,7 +36,7 @@ namespace Cocoa
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
 		static bool ImGuiSceneHeirarchyWindow(SceneData& scene, int* inBetweenIndex);
 		static void AddElementAsChild(SceneTreeMetadata& parent, SceneTreeMetadata& newChild);
-		static void MoveTreeTo(SceneTreeMetadata& treeToMove, SceneTreeMetadata& placeToMoveBelow);
+		static void MoveTreeTo(SceneTreeMetadata& treeToMove, SceneTreeMetadata& placeToMoveTo);
 		static int GetNumChildren(SceneTreeMetadata& parent);
 
 		void Init()
@@ -64,7 +64,7 @@ namespace Cocoa
 			int index = 0;
 			NDynamicArray::Clear<ImRect>(inBetweenBuffer, false);
 
-			// Now recurse through all the entities
+			// Now iterate through all the entities
 			for (int i = 0; i < orderedEntities.m_NumElements; i++)
 			{
 				SceneTreeMetadata& element = orderedEntities.m_Data[i];
@@ -75,15 +75,24 @@ namespace Cocoa
 				SceneTreeMetadata& nextElement = orderedEntities.m_Data[(i + 1) % orderedEntities.m_NumElements];
 				if (!DoTreeNode(element, transform, tag, scene, nextElement))
 				{
+					// If the tree node is not open, skip all the children
+					i = orderedEntities.m_NumElements - 1;
 					for (int j = i; j < orderedEntities.m_NumElements; j++)
 					{
-						SceneTreeMetadata& data = orderedEntities.m_Data[j];
-						TransformData& dataTransform = NEntity::GetComponent<TransformData>(data.entity);
-						if (dataTransform.Parent != element.entity && data.level == element.level)
+						if (orderedEntities.m_Data[j].level <= element.level)
 						{
-							i = j + 1;
+							i = j;
 							break;
 						}
+					}
+				}
+
+				if (nextElement.level <= element.level)
+				{
+					int numPops = element.level - nextElement.level + 1;
+					for (int treePops = 0; treePops < numPops; treePops++)
+					{
+						ImGui::TreePop();
 					}
 				}
 			}
@@ -95,8 +104,10 @@ namespace Cocoa
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(SCENE_HEIRARCHY_PAYLOAD))
 				{
-					Log::Assert(payload->DataSize == sizeof(SceneTreeMetadata), "Invalid payload.");
-					SceneTreeMetadata childMetadata = *(SceneTreeMetadata*)payload->Data;
+					Log::Assert(payload->DataSize == sizeof(int), "Invalid payload.");
+					int childIndex = *(int*)payload->Data;
+					Log::Assert(childIndex >= 0 && childIndex < orderedEntities.m_NumElements, "Invalid payload.");
+					SceneTreeMetadata childMetadata = orderedEntities.m_Data[childIndex];
 					if (!NEntity::IsNull(childMetadata.entity))
 					{
 						MoveTreeTo(childMetadata, orderedEntities.m_Data[inBetweenIndex]);
@@ -121,7 +132,7 @@ namespace Cocoa
 				(nextTransform.Parent == element.entity ? 0 : ImGuiTreeNodeFlags_Leaf) |
 				ImGuiTreeNodeFlags_OpenOnArrow |
 				ImGuiTreeNodeFlags_SpanFullWidth,
-			"%s", parentTag.Name);
+				"%s", parentTag.Name);
 			ImGui::PopID();
 
 			// Track the in-between size for this tree node
@@ -141,7 +152,7 @@ namespace Cocoa
 			if (ImGui::BeginDragDropSource())
 			{
 				// Set payload to carry the address of transform (could be anything)
-				ImGui::SetDragDropPayload(SCENE_HEIRARCHY_PAYLOAD, &element, sizeof(SceneTreeMetadata));
+				ImGui::SetDragDropPayload(SCENE_HEIRARCHY_PAYLOAD, &element.index, sizeof(int));
 				ImGui::Text("%s", parentTag.Name);
 				ImGui::EndDragDropSource();
 			}
@@ -150,20 +161,16 @@ namespace Cocoa
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(SCENE_HEIRARCHY_PAYLOAD))
 				{
-					Log::Assert(payload->DataSize == sizeof(SceneTreeMetadata), "Invalid payload.");
-					SceneTreeMetadata childMetadata = *(SceneTreeMetadata*)payload->Data;
+					Log::Assert(payload->DataSize == sizeof(int), "Invalid payload.");
+					int childIndex = *(int*)payload->Data;
+					Log::Assert(childIndex >= 0 && childIndex < orderedEntities.m_NumElements, "Invalid payload.");
+					SceneTreeMetadata& childMetadata = orderedEntities.m_Data[childIndex];
 					if (!NEntity::IsNull(childMetadata.entity) && !IsDescendantOf(element.entity, childMetadata.entity))
 					{
 						AddElementAsChild(element, childMetadata);
 					}
 				}
 				ImGui::EndDragDropTarget();
-			}
-
-			if (open && nextElement.level <= element.level)
-			{
-				// If this element was open, and we hit its last child pop the tree node
-				ImGui::TreePop();
 			}
 
 			if (clicked)
@@ -185,13 +192,16 @@ namespace Cocoa
 			childTransform.Parent = parent.entity;
 			childTransform.LocalPosition = childTransform.Position - parentTransform.Position;
 			newChild.level = parent.level + 1;
-			
-			MoveTreeTo(newChild, parent);
+			SceneTreeMetadata& placeToMoveTo = parent.index + 1 >= orderedEntities.m_NumElements ?
+				orderedEntities.m_Data[parent.index] :
+				orderedEntities.m_Data[parent.index + 1];
+
+			MoveTreeTo(newChild, placeToMoveTo);
 		}
 
-		static void MoveTreeTo(SceneTreeMetadata& treeToMove, SceneTreeMetadata& placeToMoveBelow)
+		static void MoveTreeTo(SceneTreeMetadata& treeToMove, SceneTreeMetadata& placeToMoveTo)
 		{
-			if (placeToMoveBelow.index == treeToMove.index - 1)
+			if (placeToMoveTo.index == treeToMove.index)
 			{
 				// We're in the right place already, exit early
 				return;
@@ -201,6 +211,11 @@ namespace Cocoa
 			// so first find how many children this element has
 			int numChildren = GetNumChildren(treeToMove);
 			int numItemsToCopy = numChildren + 1;
+			
+			TransformData& treeToMoveTransform = NEntity::GetComponent<TransformData>(treeToMove.entity);
+			TransformData& placeToMoveToTransform = NEntity::GetComponent<TransformData>(placeToMoveTo.entity);
+			treeToMove.level = placeToMoveTo.level;
+			treeToMoveTransform.Parent = placeToMoveToTransform.Parent;
 
 			// Temporarily copy the tree we are about to move
 			SceneTreeMetadata* copyOfTreeToMove = (SceneTreeMetadata*)AllocMem(sizeof(SceneTreeMetadata) * numItemsToCopy);
@@ -209,11 +224,11 @@ namespace Cocoa
 				copyOfTreeToMove[i] = orderedEntities.m_Data[i + treeToMove.index];
 			}
 
-			if (placeToMoveBelow.index < treeToMove.index)
+			if (placeToMoveTo.index < treeToMove.index)
 			{
 				// Child is higher in the tree than parent
 				// This makes room at the first slot of the parent for this new child and all his children
-				for (int i = treeToMove.index + numChildren; i > placeToMoveBelow.index; i--)
+				for (int i = treeToMove.index + numChildren; i > placeToMoveTo.index; i--)
 				{
 					orderedEntities.m_Data[i] = orderedEntities.m_Data[i - numItemsToCopy];
 					orderedEntities.m_Data[i].index = i;
@@ -223,7 +238,7 @@ namespace Cocoa
 			{
 				// Child is lower in the tree than the parent
 				// This makes room at the first slot of the parent for this new child and all his children
-				for (int i = treeToMove.index + numChildren; i < placeToMoveBelow.index; i++)
+				for (int i = treeToMove.index + numChildren; i < placeToMoveTo.index; i++)
 				{
 					orderedEntities.m_Data[i] = orderedEntities.m_Data[i + numItemsToCopy];
 					orderedEntities.m_Data[i].index = i;
@@ -232,7 +247,7 @@ namespace Cocoa
 
 			// Now copy new child and all children into that slot
 			int copyIndex = 0;
-			for (int i = placeToMoveBelow.index; i < placeToMoveBelow.index + numItemsToCopy; i++)
+			for (int i = placeToMoveTo.index; i < placeToMoveTo.index + numItemsToCopy; i++)
 			{
 				orderedEntities.m_Data[i] = copyOfTreeToMove[copyIndex];
 				orderedEntities.m_Data[i].index = i;
