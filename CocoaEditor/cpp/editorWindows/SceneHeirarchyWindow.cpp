@@ -24,6 +24,7 @@ namespace Cocoa
 			int level;
 			int index;
 			bool selected;
+			bool isOpen;
 		};
 
 		// Internal variables
@@ -66,6 +67,7 @@ namespace Cocoa
 
 		void ImGui(SceneData& scene)
 		{
+			// TODO: Save when a tree node is open
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
 			int index = 0;
 			NDynamicArray::Clear<ImRect>(inBetweenBuffer, false);
@@ -127,6 +129,9 @@ namespace Cocoa
 			// Synchronize the copies
 			for (int i = 0; i < orderedEntitiesCopy.m_NumElements; i++)
 			{
+				// TODO: Maybe better way to do this?
+				orderedEntitiesCopy.m_Data[i].isOpen = orderedEntities.m_Data[i].isOpen;
+				orderedEntitiesCopy.m_Data[i].selected = orderedEntities.m_Data[i].selected;
 				orderedEntities.m_Data[i] = orderedEntitiesCopy.m_Data[i];
 			}
 
@@ -135,19 +140,18 @@ namespace Cocoa
 
 		static bool DoTreeNode(SceneTreeMetadata& element, TransformData& parentTransform, Tag& parentTag, SceneData& scene, SceneTreeMetadata& nextElement)
 		{
-			static bool isDark = true;
-
 			TransformData& nextTransform = NEntity::GetComponent<TransformData>(nextElement.entity);
 			ImGui::PushID(element.index);
+			ImGui::SetNextItemOpen(element.isOpen);
 			bool open = ImGui::TreeNodeEx(parentTag.Name,
 				ImGuiTreeNodeFlags_FramePadding |
-				ImGuiTreeNodeFlags_DefaultOpen |
 				(element.selected ? ImGuiTreeNodeFlags_Selected : 0) |
 				(nextTransform.Parent == element.entity ? 0 : ImGuiTreeNodeFlags_Leaf) |
 				ImGuiTreeNodeFlags_OpenOnArrow |
 				ImGuiTreeNodeFlags_SpanFullWidth,
 				"%s", parentTag.Name);
 			ImGui::PopID();
+			element.isOpen = open;
 
 			// Track the in-between size for this tree node
 			ImVec2 cursorPos = ImGui::GetCursorPos();
@@ -250,52 +254,67 @@ namespace Cocoa
 
 			// Temporarily copy the tree we are about to move
 			SceneTreeMetadata* copyOfTreeToMove = (SceneTreeMetadata*)AllocMem(sizeof(SceneTreeMetadata) * numItemsToCopy);
-			for (int i = 0; i < numItemsToCopy; i++)
-			{
-				copyOfTreeToMove[i] = orderedEntitiesCopy.m_Data[i + treeToMove.index];
-			}
+			memcpy(copyOfTreeToMove, &orderedEntitiesCopy.m_Data[treeToMoveIndex], sizeof(SceneTreeMetadata) * numItemsToCopy);
 
 			if (placeToMoveTo.index < treeToMove.index)
 			{
-				// Child is lower in the tree than parent
-				// This makes room at the first slot of the parent for this new child and all his children
-				for (int i = treeToMove.index + numChildren; i > placeToMoveTo.index; i--)
-				{
-					orderedEntitiesCopy.m_Data[i] = orderedEntitiesCopy.m_Data[i - numItemsToCopy];
-					orderedEntitiesCopy.m_Data[i].index = i;
-				}
+				// Step 1
+				SceneTreeMetadata* dataAboveTreeToMove = (SceneTreeMetadata*)AllocMem(sizeof(SceneTreeMetadata) * (treeToMoveIndex - placeToMoveToIndex));
+				memcpy(dataAboveTreeToMove, &orderedEntitiesCopy.m_Data[placeToMoveToIndex], sizeof(SceneTreeMetadata) * (treeToMoveIndex - placeToMoveToIndex));
 
-				// Now copy new child and all children into that slot
-				int copyIndex = 0;
-				for (int i = placeToMoveTo.index; i < placeToMoveTo.index + numItemsToCopy; i++)
-				{
-					orderedEntitiesCopy.m_Data[i] = copyOfTreeToMove[copyIndex];
-					orderedEntitiesCopy.m_Data[i].index = i;
-					copyIndex++;
-				}
+				// Step 2
+				memcpy(&orderedEntitiesCopy.m_Data[placeToMoveToIndex + numItemsToCopy], dataAboveTreeToMove, sizeof(SceneTreeMetadata) * (treeToMoveIndex - placeToMoveToIndex));
+				FreeMem(dataAboveTreeToMove);
+
+				// Step 3
+				memcpy(&orderedEntitiesCopy.m_Data[placeToMoveToIndex], copyOfTreeToMove, sizeof(SceneTreeMetadata) * numItemsToCopy);
 			}
 			else
 			{
-				// Child is higher in the tree than the parent
-				// This makes room at the first slot of the parent for this new child and all his children
-				int lastIndex = placeToMoveToIndex + numItemsToCopy;
-				lastIndex = CMath::Min(lastIndex, orderedEntitiesCopy.m_NumElements - numItemsToCopy);
-				for (int i = treeToMove.index; i < lastIndex; i++)
+				// Step 1
+				int sizeOfData = placeToMoveToIndex - (treeToMoveIndex + numChildren);
+
+				// Copying trees down is a bit trickier, because if we try to place this guy in the split of a tree going down,
+				// then we have to move that whole tree up to compensate...
+				if (placeToMoveToIndex + 1 < orderedEntitiesCopy.m_NumElements)
 				{
-					orderedEntitiesCopy.m_Data[i] = orderedEntitiesCopy.m_Data[i + numItemsToCopy];
-					orderedEntitiesCopy.m_Data[i].index = i;
+					if (IsDescendantOf(
+						orderedEntitiesCopy.m_Data[placeToMoveToIndex + 1].entity, 
+						orderedEntitiesCopy.m_Data[placeToMoveToIndex].entity))
+					{
+						int parentLevel = orderedEntitiesCopy.m_Data[placeToMoveToIndex].level;
+						int subtreeLevel = orderedEntitiesCopy.m_Data[placeToMoveToIndex + 1].level;
+						// Tricky, now we have to move the whole subtree
+						for (int i = placeToMoveToIndex + 1; i < orderedEntitiesCopy.m_NumElements; i++)
+						{
+							if (orderedEntitiesCopy.m_Data[i].level == parentLevel)
+							{
+								break;
+							}
+							sizeOfData++;
+							placeToMoveToIndex++;
+						}
+
+						Log::Assert(placeToMoveToIndex < orderedEntitiesCopy.m_NumElements, "Invalid place to move to calculation.");
+					}
 				}
 
-				// Now copy new child and all children into that slot
-				int copyIndex = 0;
-				for (int i = placeToMoveToIndex - numChildren; i < placeToMoveToIndex + 1; i++)
-				{
-					orderedEntitiesCopy.m_Data[i] = copyOfTreeToMove[copyIndex];
-					orderedEntitiesCopy.m_Data[i].index = i;
-					copyIndex++;
-				}
+				SceneTreeMetadata* dataBelowTreeToMove = (SceneTreeMetadata*)AllocMem(sizeof(SceneTreeMetadata) * sizeOfData);
+				memcpy(dataBelowTreeToMove, &orderedEntitiesCopy.m_Data[placeToMoveToIndex - sizeOfData + 1], sizeof(SceneTreeMetadata) * sizeOfData);
+
+				// Step 2
+				memcpy(&orderedEntitiesCopy.m_Data[treeToMoveIndex], dataBelowTreeToMove, sizeof(SceneTreeMetadata) * sizeOfData);
+				FreeMem(dataBelowTreeToMove);
+
+				// Step 3
+				memcpy(&orderedEntitiesCopy.m_Data[placeToMoveToIndex - numChildren], copyOfTreeToMove, sizeof(SceneTreeMetadata) * numItemsToCopy);
 			}
 
+			// Update indices
+			for (int i = 0; i < orderedEntitiesCopy.m_NumElements; i++)
+			{
+				orderedEntitiesCopy.m_Data[i].index = i;
+			}
 			FreeMem(copyOfTreeToMove);
 		}
 
@@ -330,7 +349,8 @@ namespace Cocoa
 					{ "Id", NEntity::GetID(metadata.entity) },
 					{ "Level", metadata.level },
 					{ "Index", metadata.index },
-					{ "Selected", metadata.selected }
+					{ "Selected", metadata.selected },
+					{ "IsOpen", metadata.isOpen }
 				};
 				orderedEntitiesJson.push_back(entityId);
 			}
@@ -355,12 +375,14 @@ namespace Cocoa
 					Log::Assert(index == orderedEntities.m_NumElements, "Scene tree was not serialized in sorted order, this will cause problems.");
 					bool selected = false;
 					JsonExtended::AssignIfNotNull(entityJson, "Selected", selected);
+					bool isOpen = false;
+					JsonExtended::AssignIfNotNull(entityJson, "IsOpen", isOpen);
 
 					Log::Assert(entt::entity(entityId) != entt::null, "Somehow a null entity got serialized in the scene heirarchy panel.");
 					Log::Assert(Scene::IsValid(scene, entityId), "Somehow an invalid entity id got serialized in the scene heirarchy panel.");
 					Entity entity = Entity{ entt::entity(entityId) };
-					NDynamicArray::Add<SceneTreeMetadata>(orderedEntities, { entity, level, index, selected });
-					NDynamicArray::Add<SceneTreeMetadata>(orderedEntitiesCopy, { entity, level, index, selected });
+					NDynamicArray::Add<SceneTreeMetadata>(orderedEntities, { entity, level, index, selected, isOpen });
+					NDynamicArray::Add<SceneTreeMetadata>(orderedEntitiesCopy, { entity, level, index, selected, isOpen });
 				}
 			}
 		}
