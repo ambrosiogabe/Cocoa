@@ -10,6 +10,7 @@
 #include "cocoa/components/Tag.h"
 #include "cocoa/util/DynamicArray.h"
 #include "cocoa/util/JsonExtended.h"
+#include "cocoa/util/CMath.h"
 
 namespace Cocoa
 {
@@ -30,25 +31,29 @@ namespace Cocoa
 		// scene heirarchy tree
 		static DynamicArray<ImRect> inBetweenBuffer;
 		static DynamicArray<SceneTreeMetadata> orderedEntities;
+		static DynamicArray<SceneTreeMetadata> orderedEntitiesCopy;
 
 		// Private functions
 		static bool DoTreeNode(SceneTreeMetadata& element, TransformData& transform, Tag& entityTag, SceneData& scene, SceneTreeMetadata& nextElement);
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
 		static bool ImGuiSceneHeirarchyWindow(SceneData& scene, int* inBetweenIndex);
-		static void AddElementAsChild(SceneTreeMetadata& parent, SceneTreeMetadata& newChild);
-		static void MoveTreeTo(SceneTreeMetadata& treeToMove, SceneTreeMetadata& placeToMoveTo);
-		static int GetNumChildren(SceneTreeMetadata& parent);
+		static void AddElementAsChild(int parentIndex, int newChildIndex);
+		static void MoveTreeTo(int treeToMoveIndex, int placeToMoveToIndex, bool reparent = true);
+		static void UpdateLevel(int parentIndex, int newLevel);
+		static int GetNumChildren(int parentIndex);
 
 		void Init()
 		{
 			inBetweenBuffer = NDynamicArray::Create<ImRect>();
 			orderedEntities = NDynamicArray::Create<SceneTreeMetadata>();
+			orderedEntitiesCopy = NDynamicArray::Create<SceneTreeMetadata>();
 		}
 
 		void Destroy()
 		{
 			NDynamicArray::Free<ImRect>(inBetweenBuffer);
 			NDynamicArray::Free<SceneTreeMetadata>(orderedEntities);
+			NDynamicArray::Free<SceneTreeMetadata>(orderedEntitiesCopy);
 		}
 
 		void AddNewEntity(Entity entity)
@@ -56,6 +61,7 @@ namespace Cocoa
 			// TODO: Consider making entity creation a message then subscribing to this message type
 			int newIndex = orderedEntities.m_NumElements;
 			NDynamicArray::Add<SceneTreeMetadata>(orderedEntities, SceneTreeMetadata{ entity, 0, newIndex, false });
+			NDynamicArray::Add<SceneTreeMetadata>(orderedEntitiesCopy, SceneTreeMetadata{ entity, 0, newIndex, false });
 		}
 
 		void ImGui(SceneData& scene)
@@ -107,13 +113,17 @@ namespace Cocoa
 					Log::Assert(payload->DataSize == sizeof(int), "Invalid payload.");
 					int childIndex = *(int*)payload->Data;
 					Log::Assert(childIndex >= 0 && childIndex < orderedEntities.m_NumElements, "Invalid payload.");
-					SceneTreeMetadata childMetadata = orderedEntities.m_Data[childIndex];
-					if (!NEntity::IsNull(childMetadata.entity))
-					{
-						MoveTreeTo(childMetadata, orderedEntities.m_Data[inBetweenIndex]);
-					}
+					SceneTreeMetadata& childMetadata = orderedEntitiesCopy.m_Data[childIndex];
+					Log::Assert(!NEntity::IsNull(childMetadata.entity), "Invalid payload.");
+					MoveTreeTo(childIndex, inBetweenIndex);
 				}
 				ImGui::EndDragDropTarget();
+			}
+
+			// Synchronize the copies
+			for (int i = 0; i < orderedEntitiesCopy.m_NumElements; i++)
+			{
+				orderedEntities.m_Data[i] = orderedEntitiesCopy.m_Data[i];
 			}
 
 			ImGui::End();
@@ -164,10 +174,10 @@ namespace Cocoa
 					Log::Assert(payload->DataSize == sizeof(int), "Invalid payload.");
 					int childIndex = *(int*)payload->Data;
 					Log::Assert(childIndex >= 0 && childIndex < orderedEntities.m_NumElements, "Invalid payload.");
-					SceneTreeMetadata& childMetadata = orderedEntities.m_Data[childIndex];
+					SceneTreeMetadata& childMetadata = orderedEntitiesCopy.m_Data[childIndex];
 					if (!NEntity::IsNull(childMetadata.entity) && !IsDescendantOf(element.entity, childMetadata.entity))
 					{
-						AddElementAsChild(element, childMetadata);
+						AddElementAsChild(element.index, childIndex);
 					}
 				}
 				ImGui::EndDragDropTarget();
@@ -183,75 +193,103 @@ namespace Cocoa
 			return open;
 		}
 
-		static void AddElementAsChild(SceneTreeMetadata& parent, SceneTreeMetadata& newChild)
+		static void AddElementAsChild(int parentIndex, int newChildIndex)
 		{
-			Log::Assert(parent.index != newChild.index, "Tried to child a parent to itself, not possible.");
+			Log::Assert(parentIndex != newChildIndex, "Tried to child a parent to itself, not possible.");
 
+			SceneTreeMetadata& parent = orderedEntitiesCopy.m_Data[parentIndex];
+			SceneTreeMetadata& newChild = orderedEntitiesCopy.m_Data[newChildIndex];
 			TransformData& childTransform = NEntity::GetComponent<TransformData>(newChild.entity);
 			TransformData& parentTransform = NEntity::GetComponent<TransformData>(parent.entity);
+
 			childTransform.Parent = parent.entity;
 			childTransform.LocalPosition = childTransform.Position - parentTransform.Position;
-			newChild.level = parent.level + 1;
-			SceneTreeMetadata& placeToMoveTo = parent.index + 1 >= orderedEntities.m_NumElements ?
-				orderedEntities.m_Data[parent.index] :
-				orderedEntities.m_Data[parent.index + 1];
+			UpdateLevel(newChildIndex, parent.level + 1);
+			int placeToMoveToIndex = parent.index < newChild.index ?
+				parent.index + 1 :
+				parent.index;
 
-			MoveTreeTo(newChild, placeToMoveTo);
+			MoveTreeTo(newChildIndex, placeToMoveToIndex, false);
 		}
 
-		static void MoveTreeTo(SceneTreeMetadata& treeToMove, SceneTreeMetadata& placeToMoveTo)
+		static void MoveTreeTo(int treeToMoveIndex, int placeToMoveToIndex, bool reparent)
 		{
-			if (placeToMoveTo.index == treeToMove.index)
+			if (placeToMoveToIndex == treeToMoveIndex)
 			{
 				// We're in the right place already, exit early
 				return;
 			}
 
+			SceneTreeMetadata& placeToMoveTo = orderedEntitiesCopy.m_Data[placeToMoveToIndex];
+			SceneTreeMetadata& treeToMove = orderedEntitiesCopy.m_Data[treeToMoveIndex];
+			if (IsDescendantOf(placeToMoveTo.entity, treeToMove.entity))
+			{
+				return;
+			}
+
 			// We have to move this element and all it's children right into the parent's slot
 			// so first find how many children this element has
-			int numChildren = GetNumChildren(treeToMove);
+			int numChildren = GetNumChildren(treeToMoveIndex);
 			int numItemsToCopy = numChildren + 1;
-			
-			TransformData& treeToMoveTransform = NEntity::GetComponent<TransformData>(treeToMove.entity);
-			TransformData& placeToMoveToTransform = NEntity::GetComponent<TransformData>(placeToMoveTo.entity);
-			treeToMove.level = placeToMoveTo.level;
-			treeToMoveTransform.Parent = placeToMoveToTransform.Parent;
+
+			if (reparent)
+			{
+				TransformData& treeToMoveTransform = NEntity::GetComponent<TransformData>(treeToMove.entity);
+				TransformData& placeToMoveToTransform = NEntity::GetComponent<TransformData>(placeToMoveTo.entity);
+				TransformData& newParentTransform = !NEntity::IsNull(placeToMoveToTransform.Parent) ?
+					NEntity::GetComponent<TransformData>(placeToMoveToTransform.Parent) :
+					Transform::CreateTransform();
+				treeToMove.level = placeToMoveTo.level;
+				treeToMoveTransform.Parent = placeToMoveToTransform.Parent;
+				treeToMoveTransform.LocalPosition = treeToMoveTransform.Position - newParentTransform.Position;
+			}
 
 			// Temporarily copy the tree we are about to move
 			SceneTreeMetadata* copyOfTreeToMove = (SceneTreeMetadata*)AllocMem(sizeof(SceneTreeMetadata) * numItemsToCopy);
 			for (int i = 0; i < numItemsToCopy; i++)
 			{
-				copyOfTreeToMove[i] = orderedEntities.m_Data[i + treeToMove.index];
+				copyOfTreeToMove[i] = orderedEntitiesCopy.m_Data[i + treeToMove.index];
 			}
 
 			if (placeToMoveTo.index < treeToMove.index)
 			{
-				// Child is higher in the tree than parent
+				// Child is lower in the tree than parent
 				// This makes room at the first slot of the parent for this new child and all his children
 				for (int i = treeToMove.index + numChildren; i > placeToMoveTo.index; i--)
 				{
-					orderedEntities.m_Data[i] = orderedEntities.m_Data[i - numItemsToCopy];
-					orderedEntities.m_Data[i].index = i;
+					orderedEntitiesCopy.m_Data[i] = orderedEntitiesCopy.m_Data[i - numItemsToCopy];
+					orderedEntitiesCopy.m_Data[i].index = i;
+				}
+
+				// Now copy new child and all children into that slot
+				int copyIndex = 0;
+				for (int i = placeToMoveTo.index; i < placeToMoveTo.index + numItemsToCopy; i++)
+				{
+					orderedEntitiesCopy.m_Data[i] = copyOfTreeToMove[copyIndex];
+					orderedEntitiesCopy.m_Data[i].index = i;
+					copyIndex++;
 				}
 			}
 			else
 			{
-				// Child is lower in the tree than the parent
+				// Child is higher in the tree than the parent
 				// This makes room at the first slot of the parent for this new child and all his children
-				for (int i = treeToMove.index + numChildren; i < placeToMoveTo.index; i++)
+				int lastIndex = placeToMoveToIndex + numItemsToCopy;
+				lastIndex = CMath::Min(lastIndex, orderedEntitiesCopy.m_NumElements - numItemsToCopy);
+				for (int i = treeToMove.index; i < lastIndex; i++)
 				{
-					orderedEntities.m_Data[i] = orderedEntities.m_Data[i + numItemsToCopy];
-					orderedEntities.m_Data[i].index = i;
+					orderedEntitiesCopy.m_Data[i] = orderedEntitiesCopy.m_Data[i + numItemsToCopy];
+					orderedEntitiesCopy.m_Data[i].index = i;
 				}
-			}
 
-			// Now copy new child and all children into that slot
-			int copyIndex = 0;
-			for (int i = placeToMoveTo.index; i < placeToMoveTo.index + numItemsToCopy; i++)
-			{
-				orderedEntities.m_Data[i] = copyOfTreeToMove[copyIndex];
-				orderedEntities.m_Data[i].index = i;
-				copyIndex++;
+				// Now copy new child and all children into that slot
+				int copyIndex = 0;
+				for (int i = placeToMoveToIndex - numChildren; i < placeToMoveToIndex + 1; i++)
+				{
+					orderedEntitiesCopy.m_Data[i] = copyOfTreeToMove[copyIndex];
+					orderedEntitiesCopy.m_Data[i].index = i;
+					copyIndex++;
+				}
 			}
 
 			FreeMem(copyOfTreeToMove);
@@ -261,6 +299,15 @@ namespace Cocoa
 		{
 			NDynamicArray::Remove<SceneTreeMetadata>(
 				orderedEntities,
+				SceneTreeMetadata{ entity, false, 0 },
+				[](SceneTreeMetadata& e1, SceneTreeMetadata& e2) -> bool
+				{
+					// Custom compare function as a lambda
+					return e1.entity == e2.entity;
+				});
+
+			NDynamicArray::Remove<SceneTreeMetadata>(
+				orderedEntitiesCopy,
 				SceneTreeMetadata{ entity, false, 0 },
 				[](SceneTreeMetadata& e1, SceneTreeMetadata& e2) -> bool
 				{
@@ -296,8 +343,9 @@ namespace Cocoa
 
 					uint32 entityId = -1;
 					JsonExtended::AssignIfNotNull(entityJson, "Id", entityId);
-					int level = 0;
+					int level = -1;
 					JsonExtended::AssignIfNotNull(entityJson, "Level", level);
+					Log::Assert(level != -1, "Invalid entity level serialized for scene heirarchy tree.");
 					int index = -1;
 					JsonExtended::AssignIfNotNull(entityJson, "Index", index);
 					Log::Assert(index == orderedEntities.m_NumElements, "Scene tree was not serialized in sorted order, this will cause problems.");
@@ -308,19 +356,41 @@ namespace Cocoa
 					Log::Assert(Scene::IsValid(scene, entityId), "Somehow an invalid entity id got serialized in the scene heirarchy panel.");
 					Entity entity = Entity{ entt::entity(entityId) };
 					NDynamicArray::Add<SceneTreeMetadata>(orderedEntities, { entity, level, index, selected });
+					NDynamicArray::Add<SceneTreeMetadata>(orderedEntitiesCopy, { entity, level, index, selected });
 				}
 			}
 		}
 
-		static int GetNumChildren(SceneTreeMetadata& parent)
+		static void UpdateLevel(int parentIndex, int newParentLevel)
 		{
-			Log::Assert(parent.index >= 0 && parent.index < orderedEntities.m_NumElements, "Out of bounds index.");
+			Log::Assert(parentIndex >= 0 && parentIndex < orderedEntitiesCopy.m_NumElements, "Out of bounds index.");
+			SceneTreeMetadata& parent = orderedEntitiesCopy.m_Data[parentIndex];
 			int numChildren = 0;
-			for (int i = parent.index + 1; i < orderedEntities.m_NumElements; i++)
+			for (int i = parent.index + 1; i < orderedEntitiesCopy.m_NumElements; i++)
 			{
 				// We don't have to worry about going out of bounds with that plus one, because if it is out
 				// of bounds then the for loop won't execute anyways
-				SceneTreeMetadata& element = orderedEntities.m_Data[i];
+				SceneTreeMetadata& element = orderedEntitiesCopy.m_Data[i];
+				if (element.level <= parent.level)
+				{
+					break;
+				}
+				
+				element.level += (newParentLevel - parent.level);
+			}
+			parent.level = newParentLevel;
+		}
+
+		static int GetNumChildren(int parentIndex)
+		{
+			Log::Assert(parentIndex >= 0 && parentIndex < orderedEntitiesCopy.m_NumElements, "Out of bounds index.");
+			SceneTreeMetadata& parent = orderedEntitiesCopy.m_Data[parentIndex];
+			int numChildren = 0;
+			for (int i = parent.index + 1; i < orderedEntitiesCopy.m_NumElements; i++)
+			{
+				// We don't have to worry about going out of bounds with that plus one, because if it is out
+				// of bounds then the for loop won't execute anyways
+				SceneTreeMetadata& element = orderedEntitiesCopy.m_Data[i];
 				if (element.level <= parent.level)
 				{
 					break;
