@@ -27,10 +27,16 @@ namespace Cocoa
 			bool isOpen;
 		};
 
+		struct BetweenMetadata
+		{
+			ImRect rect;
+			int index;
+		};
+
 		// Internal variables
 		// This is the in between spaces for all the different elements in the
 		// scene heirarchy tree
-		static DynamicArray<ImRect> inBetweenBuffer;
+		static DynamicArray<BetweenMetadata> inBetweenBuffer;
 		static DynamicArray<SceneTreeMetadata> orderedEntities;
 		static DynamicArray<SceneTreeMetadata> orderedEntitiesCopy;
 
@@ -45,14 +51,14 @@ namespace Cocoa
 
 		void Init()
 		{
-			inBetweenBuffer = NDynamicArray::Create<ImRect>();
+			inBetweenBuffer = NDynamicArray::Create<BetweenMetadata>();
 			orderedEntities = NDynamicArray::Create<SceneTreeMetadata>();
 			orderedEntitiesCopy = NDynamicArray::Create<SceneTreeMetadata>();
 		}
 
 		void Destroy()
 		{
-			NDynamicArray::Free<ImRect>(inBetweenBuffer);
+			NDynamicArray::Free<BetweenMetadata>(inBetweenBuffer);
 			NDynamicArray::Free<SceneTreeMetadata>(orderedEntities);
 			NDynamicArray::Free<SceneTreeMetadata>(orderedEntitiesCopy);
 		}
@@ -70,7 +76,7 @@ namespace Cocoa
 			// TODO: Save when a tree node is open
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
 			int index = 0;
-			NDynamicArray::Clear<ImRect>(inBetweenBuffer, false);
+			NDynamicArray::Clear<BetweenMetadata>(inBetweenBuffer, false);
 
 			// Now iterate through all the entities
 			for (int i = 0; i < orderedEntities.m_NumElements; i++)
@@ -160,9 +166,12 @@ namespace Cocoa
 			elementSize.y = ImGui::GetStyle().FramePadding.y;
 			cursorPos.y -= ImGui::GetStyle().FramePadding.y;
 			ImVec2 windowPos = ImGui::GetCurrentWindow()->Pos;
-			NDynamicArray::Add<ImRect>(
+			NDynamicArray::Add<BetweenMetadata>(
 				inBetweenBuffer,
-				ImRect(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y, windowPos.x + cursorPos.x + elementSize.x, windowPos.y + cursorPos.y + elementSize.y));
+				{ 
+					ImRect(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y, windowPos.x + cursorPos.x + elementSize.x, windowPos.y + cursorPos.y + elementSize.y),
+					element.index
+				});
 
 			bool clicked = ImGui::IsItemClicked();
 
@@ -464,15 +473,15 @@ namespace Cocoa
 			bool hoveringBetween = false;
 			for (int i = 0; i < inBetweenBuffer.m_NumElements; i++)
 			{
-				ImRect& rect = inBetweenBuffer.m_Data[i];
-				if (ImGui::IsMouseHoveringRect(rect.Min, rect.Max))
+				BetweenMetadata& meta = inBetweenBuffer.m_Data[i];
+				if (ImGui::IsMouseHoveringRect(meta.rect.Min, meta.rect.Max))
 				{
-					windowRect = rect;
+					windowRect = meta.rect;
 					// I just tweaked these values until I got a line of about 1 pixel.
 					// TODO: Test this on different resolution sized screens and make sure it's 1 pixel there as well
 					windowRect.Min.y += 4;
 					windowRect.Max.y = windowRect.Min.y - 4;
-					*inBetweenIndex = i;
+					*inBetweenIndex = meta.index;
 					hoveringBetween = true;
 					break;
 				}
@@ -480,11 +489,11 @@ namespace Cocoa
 
 			Log::Assert(inBetweenBuffer.m_NumElements > 0, "No tree elements, impossible to be dragging them...");
 			ImVec2 mousePos = ImGui::GetMousePos();
-			if (mousePos.y > inBetweenBuffer.m_Data[inBetweenBuffer.m_NumElements - 1].Max.y)
+			if (mousePos.y > inBetweenBuffer.m_Data[inBetweenBuffer.m_NumElements - 1].rect.Max.y)
 			{
 				// If we are below all elements default to showing a place at the bottom
 				// of the elements as where it will be added
-				windowRect = inBetweenBuffer.m_Data[inBetweenBuffer.m_NumElements - 1];
+				windowRect = inBetweenBuffer.m_Data[inBetweenBuffer.m_NumElements - 1].rect;
 				windowRect.Min.y += 4;
 				windowRect.Max.y = windowRect.Min.y - 4;
 				hoveringBetween = true;
