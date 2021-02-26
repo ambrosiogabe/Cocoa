@@ -88,7 +88,7 @@ namespace Cocoa
 					{
 						if (orderedEntities.m_Data[j].level <= element.level)
 						{
-							lastIndex = j;
+							lastIndex = j - 1;
 							break;
 						}
 					}
