@@ -243,7 +243,7 @@ namespace Cocoa
 				TransformData& newParentTransform = !NEntity::IsNull(placeToMoveToTransform.Parent) ?
 					NEntity::GetComponent<TransformData>(placeToMoveToTransform.Parent) :
 					Transform::CreateTransform();
-				treeToMove.level = placeToMoveTo.level;
+				UpdateLevel(treeToMove.index, placeToMoveTo.level);
 				treeToMoveTransform.Parent = placeToMoveToTransform.Parent;
 				treeToMoveTransform.LocalPosition = treeToMoveTransform.Position - newParentTransform.Position;
 			}
