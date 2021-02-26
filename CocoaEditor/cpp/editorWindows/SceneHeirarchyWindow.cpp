@@ -79,23 +79,27 @@ namespace Cocoa
 
 				// Next element wraps around to 0, which plays nice with all of our sorting logic
 				SceneTreeMetadata& nextElement = orderedEntities.m_Data[(i + 1) % orderedEntities.m_NumElements];
+				int isOpen = 1;
 				if (!DoTreeNode(element, transform, tag, scene, nextElement))
 				{
 					// If the tree node is not open, skip all the children
-					i = orderedEntities.m_NumElements - 1;
-					for (int j = i; j < orderedEntities.m_NumElements; j++)
+					int lastIndex = orderedEntities.m_NumElements - 1;
+					for (int j = i + 1; j < orderedEntities.m_NumElements; j++)
 					{
 						if (orderedEntities.m_Data[j].level <= element.level)
 						{
-							i = j;
+							lastIndex = j;
 							break;
 						}
 					}
+					i = lastIndex;
+					nextElement = orderedEntities.m_Data[(i + 1) % orderedEntities.m_NumElements];
+					isOpen = 0;
 				}
 
 				if (nextElement.level <= element.level)
 				{
-					int numPops = element.level - nextElement.level + 1;
+					int numPops = element.level - nextElement.level + isOpen;
 					for (int treePops = 0; treePops < numPops; treePops++)
 					{
 						ImGui::TreePop();
