@@ -30,8 +30,11 @@ namespace Cocoa
 
 				// Manually destroy all bodies, in case the physics system would like
 				// to use this world again
-				m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
-				rb.m_RawRigidbody = nullptr;
+				if (rb.m_RawRigidbody)
+				{
+					m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+					rb.m_RawRigidbody = nullptr;
+				}
 			}
 			delete m_World;
 		}

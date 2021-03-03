@@ -24,6 +24,8 @@ namespace Cocoa
 #endif
 
 			res.OnTop = onTop;
+			res.Lifetime = lifetime;
+			res.Color = color;
 			return res;
 		}
 	}

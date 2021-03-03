@@ -239,7 +239,8 @@ namespace Cocoa
 			{
 				Line2D& lineIter = m_Lines.m_Data[index];
 				lineIter.Lifetime--;
-				if (lineIter.Lifetime <= 0)
+				// TODO: Investigate why this needs < but RemoveDeadShapes only needs <=
+				if (lineIter.Lifetime < 0)
 				{
 					NDynamicArray::Remove<Line2D>(m_Lines, index);
 				}

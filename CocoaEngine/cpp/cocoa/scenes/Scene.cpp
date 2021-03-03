@@ -309,6 +309,18 @@ namespace Cocoa
 
 		void DeleteEntity(SceneData& scene, Entity entity)
 		{
+			// Recursively delete entity and all children
+			auto view = scene.Registry.view<TransformData>();
+			for (entt::entity rawEntity : view)
+			{
+				Entity potentialChild = NEntity::CreateEntity(rawEntity);
+				TransformData& transformData = NEntity::GetComponent<TransformData>(potentialChild);
+				if (transformData.Parent == entity)
+				{
+					DeleteEntity(scene, potentialChild);
+				}
+			}
+
 			Physics2D::DeleteEntity(entity);
 			TransformSystem::DeleteEntity(entity);
 			scene.Registry.destroy(entity.Handle);

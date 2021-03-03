@@ -14,15 +14,15 @@ namespace Cocoa
 
     struct Box2D
     {
-        glm::vec2 m_Size = glm::vec2();
-        glm::vec2 m_HalfSize = glm::vec2();
+        glm::vec2 m_Size = glm::vec2(1.0f, 1.0f);
+        glm::vec2 m_HalfSize = glm::vec2(0.5f, 0.5f);
         glm::vec2 m_Offset = glm::vec2();
     };
 
     struct AABB
     {
-        glm::vec2 m_Size = glm::vec2();
-        glm::vec2 m_HalfSize = glm::vec2();
+        glm::vec2 m_Size = glm::vec2(1.0f, 1.0f);
+        glm::vec2 m_HalfSize = glm::vec2(0.5f, 0.5f);
         glm::vec2 m_Offset = glm::vec2();
     };
 

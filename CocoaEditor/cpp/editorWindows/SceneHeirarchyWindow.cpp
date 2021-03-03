@@ -168,7 +168,7 @@ namespace Cocoa
 			ImVec2 windowPos = ImGui::GetCurrentWindow()->Pos;
 			NDynamicArray::Add<BetweenMetadata>(
 				inBetweenBuffer,
-				{ 
+				{
 					ImRect(windowPos.x + cursorPos.x, windowPos.y + cursorPos.y, windowPos.x + cursorPos.x + elementSize.x, windowPos.y + cursorPos.y + elementSize.y),
 					element.index
 				});
@@ -256,6 +256,14 @@ namespace Cocoa
 				TransformData& newParentTransform = !NEntity::IsNull(placeToMoveToTransform.Parent) ?
 					NEntity::GetComponent<TransformData>(placeToMoveToTransform.Parent) :
 					Transform::CreateTransform();
+
+				// Check if parent is open or closed, if they are closed then we want to use their parent and level
+				if (!NEntity::IsNull(placeToMoveToTransform.Parent))
+				{
+					// Need to start at the root and go down until you find a closed parent and thats the correct new parent
+					// TODO: Not sure if this is the actual root of the problem
+				}
+
 				UpdateLevel(treeToMove.index, placeToMoveTo.level);
 				treeToMoveTransform.Parent = placeToMoveToTransform.Parent;
 				treeToMoveTransform.LocalPosition = treeToMoveTransform.Position - newParentTransform.Position;
@@ -288,7 +296,7 @@ namespace Cocoa
 				if (placeToMoveToIndex + 1 < orderedEntitiesCopy.m_NumElements)
 				{
 					if (IsDescendantOf(
-						orderedEntitiesCopy.m_Data[placeToMoveToIndex + 1].entity, 
+						orderedEntitiesCopy.m_Data[placeToMoveToIndex + 1].entity,
 						orderedEntitiesCopy.m_Data[placeToMoveToIndex].entity))
 					{
 						int parentLevel = orderedEntitiesCopy.m_Data[placeToMoveToIndex].level;
@@ -327,25 +335,36 @@ namespace Cocoa
 			FreeMem(copyOfTreeToMove);
 		}
 
-		void DeleteEntity(Entity entity)
+		void DeleteEntity(Entity entityToDelete)
 		{
-			NDynamicArray::Remove<SceneTreeMetadata>(
-				orderedEntities,
-				SceneTreeMetadata{ entity, false, 0 },
-				[](SceneTreeMetadata& e1, SceneTreeMetadata& e2) -> bool
+			int numChildren = -1;
+			int parentIndex = -1;
+			int index = 0;
+			for (int index = 0; index < orderedEntities.m_NumElements; index++)
+			{
+				if (orderedEntities.m_Data[index].entity == entityToDelete)
 				{
-					// Custom compare function as a lambda
-					return e1.entity == e2.entity;
-				});
+					numChildren = GetNumChildren(index);
+					parentIndex = index;
+					break;
+				}
+			}
 
-			NDynamicArray::Remove<SceneTreeMetadata>(
-				orderedEntitiesCopy,
-				SceneTreeMetadata{ entity, false, 0 },
-				[](SceneTreeMetadata& e1, SceneTreeMetadata& e2) -> bool
+			if (parentIndex >= 0)
+			{
+				// The +1 is for the parent to be deleted also
+				for (int i = 0; i < numChildren + 1; i++)
 				{
-					// Custom compare function as a lambda
-					return e1.entity == e2.entity;
-				});
+					NDynamicArray::Remove<SceneTreeMetadata>(orderedEntities, parentIndex);
+					NDynamicArray::Remove<SceneTreeMetadata>(orderedEntitiesCopy, parentIndex);
+				}
+
+				for (int i = parentIndex; i < orderedEntities.m_NumElements; i++)
+				{
+					orderedEntities.m_Data[i].index = i;
+					orderedEntitiesCopy.m_Data[i].index = i;
+				}
+			}
 		}
 
 		void Serialize(json& j)
@@ -368,6 +387,10 @@ namespace Cocoa
 
 		void Deserialize(json& j, SceneData& scene)
 		{
+			// TODO: See if this is consistent with how you load the rest of the assets
+			NDynamicArray::Clear<SceneTreeMetadata>(orderedEntities, false);
+			NDynamicArray::Clear<SceneTreeMetadata>(orderedEntitiesCopy, false);
+
 			if (j.contains("SceneHeirarchyOrder"))
 			{
 				for (auto& entityJson : j["SceneHeirarchyOrder"])
@@ -410,7 +433,7 @@ namespace Cocoa
 				{
 					break;
 				}
-				
+
 				element.level += (newParentLevel - parent.level);
 			}
 			parent.level = newParentLevel;
@@ -493,11 +516,12 @@ namespace Cocoa
 			{
 				// If we are below all elements default to showing a place at the bottom
 				// of the elements as where it will be added
+				SceneTreeMetadata& lastElement = orderedEntitiesCopy.m_Data[orderedEntitiesCopy.m_NumElements - 1];
 				windowRect = inBetweenBuffer.m_Data[inBetweenBuffer.m_NumElements - 1].rect;
 				windowRect.Min.y += 4;
 				windowRect.Max.y = windowRect.Min.y - 4;
 				hoveringBetween = true;
-				*inBetweenIndex = inBetweenBuffer.m_NumElements - 1;
+				*inBetweenIndex = lastElement.index;
 			}
 
 			if (!hoveringBetween)

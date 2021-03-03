@@ -359,11 +359,11 @@ namespace Cocoa
 				CImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
 
 				CImGui::EndCollapsingHeaderGroup();
-
-				// Draw box highlight
-				const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
-				DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
 			}
+
+			// Draw box highlight
+			const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
+			DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
 		}
 
 		static void ImGuiCircle(Circle& circle)
