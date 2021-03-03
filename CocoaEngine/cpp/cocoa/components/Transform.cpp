@@ -61,7 +61,8 @@ namespace Cocoa
 				}}
 			};
 		}
-		void Deserialize(json& j, Entity entity, Entity parent)
+
+		void Deserialize(const json& j, Entity entity, Entity parent)
 		{
 			TransformData transform;
 			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
@@ -70,6 +71,30 @@ namespace Cocoa
 			transform.Parent = parent;
 			transform.LocalPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
 			NEntity::AddComponent<TransformData>(entity, transform);
+		}
+
+		void Serialize(json& j, const TransformData& transform)
+		{
+			json position = CMath::Serialize("Position", transform.Position);
+			json scale = CMath::Serialize("Scale", transform.Scale);
+			json rotation = CMath::Serialize("Rotation", transform.EulerRotation);
+			json localPos = CMath::Serialize("LocalPosition", transform.LocalPosition);
+			int size = j["Components"].size();
+			j["Transform"] = {
+				position,
+				scale,
+				rotation,
+				{"Parent", NEntity::GetID(transform.Parent)},
+				localPos
+			};
+		}
+
+		void Deserialize(const json& j, TransformData& transform)
+		{
+			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
+			transform.Scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
+			transform.EulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
+			transform.LocalPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
 		}
 	}
 }

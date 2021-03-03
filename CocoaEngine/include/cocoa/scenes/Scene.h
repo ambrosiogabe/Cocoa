@@ -29,7 +29,7 @@ namespace Cocoa
 		COCOA void Play(SceneData& data);
 		COCOA void Stop(SceneData& data);
 		COCOA void Save(SceneData& data, const CPath& filename);
-		COCOA void Load(SceneData& data, const CPath& filename);
+		COCOA void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene = true);
 		COCOA void LoadScriptsOnly(SceneData& data, const CPath& filename);
 
 		COCOA Entity CreateEntity(SceneData& data);

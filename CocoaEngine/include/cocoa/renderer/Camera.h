@@ -18,5 +18,8 @@ namespace Cocoa
 		COCOA void CalculateOrthoViewMatrix(Camera& camera);
 
 		COCOA glm::vec2 ScreenToOrtho(const Camera& camera);
+
+		COCOA json Serialize(const Camera& camera);
+		COCOA void Deserialize(const json& j, Camera& camera);
 	};
 }

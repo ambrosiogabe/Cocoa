@@ -130,7 +130,8 @@ namespace Cocoa
 			data.SaveDataJson = {
 				{"Components", {}},
 				{"Project", Settings::General::s_CurrentProject.Path.c_str()},
-				{"Assets", AssetManager::Serialize()}
+				{"Assets", AssetManager::Serialize()},
+				{"EditorCamera", NCamera::Serialize(data.SceneCamera)}
 			};
 
 			OutputArchive output(data.SaveDataJson);
@@ -144,13 +145,17 @@ namespace Cocoa
 			File::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
 		}
 
-		void Load(SceneData& data, const CPath& filename)
+		void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene)
 		{
 			FreeResources(data);
 			Log::Info("Loading scene %s", filename.Path.c_str());
 			Init(data);
 
-			Settings::General::s_CurrentScene = filename;
+			if (setAsCurrentScene)
+			{
+				Settings::General::s_CurrentScene = filename;
+			}
+
 			FileHandle* file = File::OpenFile(filename);
 			if (file->m_Size <= 0)
 			{
@@ -162,6 +167,11 @@ namespace Cocoa
 			json j = json::parse(file->m_Data);
 			// TODO: Change this so that the scene doesn't hold the json at all
 			data.SaveDataJson = j;
+
+			if (j.contains("EditorCamera"))
+			{
+				NCamera::Deserialize(j["EditorCamera"], data.SceneCamera);
+			}
 
 			if (j.contains("Assets"))
 			{
