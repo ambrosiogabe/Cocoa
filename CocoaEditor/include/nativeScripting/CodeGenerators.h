@@ -106,7 +106,7 @@ namespace Cocoa
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
 				source << "\t\t\t\t\tauto comp = registry.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
-				source << "\t\t\t\t\tcomp.Update(dt);\n";
+				source << "\t\t\t\t\tcomp.Update(NEntity::CreateEntity(entity), dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
 			}
@@ -123,7 +123,7 @@ namespace Cocoa
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
 				source << "\t\t\t\t\tauto comp = registry.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
-				source << "\t\t\t\t\tcomp.EditorUpdate(dt);\n";
+				source << "\t\t\t\t\tcomp.EditorUpdate(NEntity::CreateEntity(entity), dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
 			}
