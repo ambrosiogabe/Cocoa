@@ -15,6 +15,10 @@
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/file/File.h"
+#include "cocoa/components/Tag.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
+#include "cocoa/physics2d/PhysicsComponents.h"
 
 #include <imgui.h>
 
@@ -50,8 +54,10 @@ namespace Cocoa
 		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene);
 		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
+		static void InitComponentIds(SceneData& scene);
 		void Init(SceneData& scene)
 		{
+			InitComponentIds(scene);
 			tmpScriptDll = Settings::General::s_EngineExeDirectory;
 			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
 			scriptDll = Settings::General::s_EngineExeDirectory;
@@ -63,6 +69,18 @@ namespace Cocoa
 		void Destroy(SceneData& scene)
 		{
 
+		}
+
+		static void InitComponentIds(SceneData& scene)
+		{
+			entt::type_id<TransformData>();
+			entt::type_id<Tag>();
+			entt::type_id<SpriteRenderer>();
+			entt::type_id<FontRenderer>();
+			entt::type_id<Rigidbody2D>();
+			entt::type_id<Box2D>();
+			entt::type_id<Circle>();
+			entt::type_id<AABB>();
 		}
 
 		void EditorUpdate(SceneData& scene, float dt)
@@ -77,11 +95,11 @@ namespace Cocoa
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
-				ScriptSystem::FreeScriptLibrary();
+				ScriptSystem::FreeScriptLibrary(scene);
 
 				File::DeleteFile(scriptDll);
 				File::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
-				ScriptSystem::Reload();
+				ScriptSystem::Reload(scene);
 				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
 				Scene::LoadScriptsOnly(scene, Settings::General::s_CurrentScene);
 

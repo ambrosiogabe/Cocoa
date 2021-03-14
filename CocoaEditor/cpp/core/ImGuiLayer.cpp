@@ -13,9 +13,12 @@
 #include "cocoa/util/JsonExtended.h"
 #include "cocoa/systems/RenderSystem.h"
 
-#include <examples/imgui_impl_glfw.h>
-#ifndef _JADE_IMPL_IMGUI
-#define _JADE_IMPL_IMGUI
+#ifndef _JADE_IMPL
+#define _JADE_IMPL
+#ifdef IMGUI_IMPL_API
+#undef IMGUI_IMPL_API
+#endif
+#define IMGUI_IMPL_API __declspec(dllexport)
 #pragma warning( push )
 #pragma warning ( disable : 26812 )
 #pragma warning ( disable : 26451 )
@@ -27,6 +30,7 @@
 #include <examples/imgui_impl_opengl3.cpp>
 #pragma warning( pop )
 #endif
+#include <examples/imgui_impl_glfw.h>
 
 namespace Cocoa
 {

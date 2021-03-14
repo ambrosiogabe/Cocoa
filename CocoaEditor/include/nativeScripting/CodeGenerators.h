@@ -63,16 +63,11 @@ namespace Cocoa
 			source << "{\n";
 			source << "\textern \"C\" namespace Init\n";
 			source << "\t{\n";
-			source << "\t\tentt::registry registry = entt::registry();\n\n";
 
 			// AddComponent function
-			source << "\t\textern \"C\" COCOA_SCRIPT void AddComponent(std::string className, entt::entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void AddComponent(entt::registry& registryRef, std::string className, entt::entity entity)\n";
 			source << "\t\t{\n";
-			source << "\t\t\tif (!registry.valid(entity))\n";
-			source << "\t\t\t{\n";
-			source << "\t\t\t\tregistry.create(entity);\n";
-			source << "\t\t\t}\n";
-			source << "\t\t\n\n";
+			source << "\t\t\tLog::Assert(registryRef.valid(entity), \"Invalid entity in script\");\n";
 
 			numVisited = 0;
 			for (auto clazz : classes)
@@ -84,7 +79,7 @@ namespace Cocoa
 					source << "\t\t\t{\n";
 					source << "\t\t\t\tif (strClass.first == className)\n";
 					source << "\t\t\t\t{\n";
-					source << "\t\t\t\t\t" << namespaceName << "::AddComponent(className, entity, registry);\n";
+					source << "\t\t\t\t\t" << namespaceName << "::AddComponent(className, entity, registryRef);\n";
 					source << "\t\t\t\t\treturn;\n";
 					source << "\t\t\t\t}\n";
 					source << "\t\t\t}\n";
@@ -97,15 +92,15 @@ namespace Cocoa
 			source << "\t\t}\n\n";
 
 			// Generate UpdateScripts function
-			source << "\t\textern \"C\" COCOA_SCRIPT void UpdateScripts(float dt)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void UpdateScripts(entt::registry& registryRef, float dt)\n";
 			source << "\t\t{\n";
 			for (auto clazz : classes)
 			{
 				source << "\t\t\t{\n";
-				source << "\t\t\t\tauto view = registry.view<" << clazz.m_ClassName.c_str() << ">();\n";
+				source << "\t\t\t\tauto view = registryRef.view<" << clazz.m_ClassName.c_str() << ">();\n";
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tauto comp = registry.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
+				source << "\t\t\t\t\tauto comp = registryRef.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
 				source << "\t\t\t\t\tcomp.Update(NEntity::CreateEntity(entity), dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
@@ -114,15 +109,15 @@ namespace Cocoa
 
 			// Generate EditorUpdateScripts function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void EditorUpdateScripts(float dt)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void EditorUpdateScripts(entt::registry& registryRef, float dt)\n";
 			source << "\t\t{\n";
 			for (auto clazz : classes)
 			{
 				source << "\t\t\t{\n";
-				source << "\t\t\t\tauto view = registry.view<" << clazz.m_ClassName.c_str() << ">();\n";
+				source << "\t\t\t\tauto view = registryRef.view<" << clazz.m_ClassName.c_str() << ">();\n";
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tauto comp = registry.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
+				source << "\t\t\t\t\tauto comp = registryRef.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
 				source << "\t\t\t\t\tcomp.EditorUpdate(NEntity::CreateEntity(entity), dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
@@ -131,7 +126,7 @@ namespace Cocoa
 
 			// Generate SaveScript function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void SaveScripts(json& j, SceneData* sceneData)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void SaveScripts(entt::registry& registryRef, json& j, SceneData* sceneData)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Saving scripts\");\n";
 			numVisited = 0;
@@ -140,7 +135,7 @@ namespace Cocoa
 				if (!visitedSourceFile(clazz))
 				{
 					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
-					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registry, sceneData);\n";
+					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registryRef, sceneData);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
 					numVisited++;
@@ -150,7 +145,7 @@ namespace Cocoa
 
 			// Generate Load Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void LoadScript(json& j, Entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void LoadScript(entt::registry& registryRef, json& j, Entity entity)\n";
 			source << "\t\t{\n";
 			numVisited = 0;
 			for (auto clazz : classes)
@@ -158,7 +153,7 @@ namespace Cocoa
 				if (!visitedSourceFile(clazz))
 				{
 					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
-					source << "\t\t\t" << namespaceName.c_str() << "::TryLoad(j, entity, registry);\n";
+					source << "\t\t\t" << namespaceName.c_str() << "::TryLoad(j, entity, registryRef);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
 					numVisited++;
@@ -196,7 +191,7 @@ namespace Cocoa
 
 			// Generate ImGui function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void ImGui(Entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void ImGui(entt::registry& registryRef, Entity entity)\n";
 			source << "\t\t{\n";
 
 			numVisited = 0;
@@ -205,7 +200,7 @@ namespace Cocoa
 				if (!visitedSourceFile(clazz))
 				{
 					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
-					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registry);\n";
+					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registryRef);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
 					numVisited++;
@@ -215,7 +210,7 @@ namespace Cocoa
 
 			// Generate Delete Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void DeleteScripts()\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void DeleteScripts(entt::registry& registryRef)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Deleting Scripts\");\n";
 
@@ -225,7 +220,7 @@ namespace Cocoa
 				if (!visitedSourceFile(clazz))
 				{
 					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
-					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts(registry);\n";
+					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts(registryRef);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
 					numVisited++;

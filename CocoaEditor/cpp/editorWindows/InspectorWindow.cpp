@@ -98,7 +98,7 @@ namespace Cocoa
 				ImGuiAABB(NEntity::GetComponent<AABB>(ActiveEntities[0]));
 			if (doCircle)
 				ImGuiCircle(NEntity::GetComponent<Circle>(ActiveEntities[0]));
-			ScriptSystem::ImGui(ActiveEntities[0]);
+			ScriptSystem::ImGui(scene, ActiveEntities[0]);
 
 			ImGuiAddComponentButton();
 			ImGui::End();

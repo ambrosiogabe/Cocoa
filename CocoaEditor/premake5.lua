@@ -45,7 +45,6 @@ project "CocoaEditor"
     }
 
     defines {
-        "ENTT_API_IMPORT",
         "_CRT_SECURE_NO_WARNINGS"
     }
 

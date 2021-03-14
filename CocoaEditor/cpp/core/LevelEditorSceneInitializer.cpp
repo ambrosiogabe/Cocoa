@@ -14,9 +14,9 @@ namespace Cocoa
 {
 	void LevelEditorSceneInitializer::Init(SceneData& scene)
 	{
+		LevelEditorSystem::Init(scene);
 		InspectorWindow::ClearAllEntities();
 		GizmoSystem::Init(scene);
-		LevelEditorSystem::Init(scene);
 	}
 
 	void LevelEditorSceneInitializer::Start(SceneData& scene)
