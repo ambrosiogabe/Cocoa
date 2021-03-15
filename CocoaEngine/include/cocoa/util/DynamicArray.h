@@ -143,6 +143,14 @@ namespace Cocoa
 		}
 
 		template<typename T>
+		const T Pop(DynamicArray<T>& data)
+		{
+			Log::Assert(data.m_NumElements > 0, "Cannot pop empty array.");
+			data.m_NumElements -= 1;
+			return data.m_Data[data.m_NumElements];
+		}
+
+		template<typename T>
 		T* Begin(DynamicArray<T>& data)
 		{
 			return &data.m_Data[0];

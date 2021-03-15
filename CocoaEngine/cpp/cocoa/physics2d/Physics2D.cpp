@@ -132,6 +132,16 @@ namespace Cocoa
 			}
 		}
 
+		void ApplyForce(Entity entity, glm::vec2 force)
+		{
+			if (NEntity::HasComponent<Rigidbody2D, TransformData>(entity))
+			{
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
+				body->ApplyForceToCenter(b2Vec2(force.x, force.y), true);
+			}
+		}
+
 		void Serialize(json& j, Entity entity, const AABB& box)
 		{
 			json halfSize = CMath::Serialize("HalfSize", box.m_HalfSize);

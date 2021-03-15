@@ -19,6 +19,8 @@ namespace Cocoa
         COCOA void DeleteEntity(Entity entity);
 		COCOA void Update(SceneData& scene, float dt);
 
+        COCOA void ApplyForce(Entity entity, glm::vec2 force);
+
         // ----------------------------------------------------------------------------
         // Serialization
         // ----------------------------------------------------------------------------

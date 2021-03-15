@@ -40,7 +40,12 @@ namespace Cocoa
 		std::ostringstream file;
 		file << "#pragma once\n\n";
 		file << "#define ENTT_STANDARD_CPP\n";
-		file << "#include <entt/entt.hpp>\n";
+		file << "#include <entt/core/hashed_string.hpp>\n";
+		file << "#include <entt/core/type_info.hpp>\n";
+		file << "#include <entt/meta/factory.hpp>\n";
+		file << "#include <entt/meta/meta.hpp>\n";
+		file << "#include <entt/meta/resolve.hpp>\n\n";
+
 		file << "#include <nlohmann/json.hpp>\n";
 		file << "#include <imgui.h>\n";
 		file << "#include <map>\n\n";
@@ -50,6 +55,7 @@ namespace Cocoa
 		file << "namespace Cocoa\n{\n";
 		file << "\tnamespace Reflect" << GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(m_FullFilepath)) << " \n\t{\n";
 
+		file << "\t\tusing namespace entt::literals;\n";
 		file << "\t\tbool initialized = false;\n\n";
 
 		// Append ids as entt hash strings
@@ -92,19 +98,31 @@ namespace Cocoa
 		file << "\t\t};\n\n";
 
 		// Append debug names map
-		file << "\t\tstd::map<entt::id_type, const char*> debugNames = \n\t\t{\n";
+		file << "\t\tstd::map<entt::id_type, const char*> debugNames;\n";
+
+		// Append stringToTypeMap
+		file << "\t\tstd::map<std::string, entt::id_type> stringToMap;\n";
+
+		// Create Init function ---------------------------------------------------------------
+		file << "\t\tvoid Init()\n";
+		file << "\t\t{\n";
+		file << "\t\t\tif (initialized) return;\n";
+		file << "\t\t\tinitialized = true;\n\n";
+
+		// Debug Names
+		file << "\t\tdebugNames = \n\t\t{ \n";
 
 		int id = 0;
 		i = 0;
 		for (auto ustruct : m_Structs)
 		{
 			int j = 0;
-			file << "\t\t\t{ entt::type_info<" << ustruct.m_StructName.c_str() << ">().id(), \"" << ustruct.m_StructName.c_str() << "\"},\n";
+			file << "\t\t\t{ entt::type_seq<" << ustruct.m_StructName.c_str() << ">::value(), \"" << ustruct.m_StructName.c_str() << "\"},\n";
 			for (auto uvar : ustruct.m_Variables)
 			{
 				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1 && m_Classes.size() == 0)
 					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"}\n";
-				else 
+				else
 					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"},\n";
 				id++;
 				j++;
@@ -117,7 +135,7 @@ namespace Cocoa
 		for (auto uclass : m_Classes)
 		{
 			int j = 0;
-			file << "\t\t\t{ entt::type_info<" << uclass.m_ClassName.c_str() << ">().id(), \"" << uclass.m_ClassName.c_str() << "\"},\n";
+			file << "\t\t\t{ entt::type_seq<" << uclass.m_ClassName.c_str() << ">::value(), \"" << uclass.m_ClassName.c_str() << "\"},\n";
 			for (auto uvar : uclass.m_Variables)
 			{
 				if (i == m_Classes.size() - 1 && j == uclass.m_Variables.size() - 1)
@@ -134,17 +152,17 @@ namespace Cocoa
 
 		file << "\t\t};\n\n";
 
-		// Append stringToTypeMap
-		file << "\t\tstd::map<std::string, entt::id_type> stringToMap = \n\t\t{\n";
+		// String to map
+		file << "\t\tstringToMap = \n\t\t{ \n";
 
 		i = 0;
 		for (auto ustruct : m_Structs)
 		{
 			int j = 0;
 			if (i == m_Structs.size() - 1 && m_Classes.size() == 0)
-				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_info<" << ustruct.m_StructName.c_str() << ">().id() }\n";
-			else 
-				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_info<" << ustruct.m_StructName.c_str() << ">().id() },\n";
+				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_seq<" << ustruct.m_StructName.c_str() << ">::value() }\n";
+			else
+				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_seq<" << ustruct.m_StructName.c_str() << ">::value() },\n";
 			// TODO: Create variable string to type id mapper...
 			i++;
 		}
@@ -153,21 +171,16 @@ namespace Cocoa
 		for (auto uclass : m_Classes)
 		{
 			if (i == m_Classes.size() - 1)
-				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_info<" << uclass.m_ClassName.c_str() << ">().id() }\n";
+				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_seq<" << uclass.m_ClassName.c_str() << ">::value() }\n";
 			else
-				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_info<" << uclass.m_ClassName.c_str() << ">().id() },\n";
+				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_seq<" << uclass.m_ClassName.c_str() << ">::value() },\n";
 
 			i++;
 		}
 
 		file << "\t\t};\n\n";
 
-		// Create Init function
-		file << "\t\tvoid Init()\n";
-		file << "\t\t{\n";
-		file << "\t\t\tif (initialized) return;\n";
-		file << "\t\t\tinitialized = true;\n\n";
-
+		// Meta initialization
 		id = 0;
 		for(auto ustruct : m_Structs)
 		{
@@ -211,7 +224,8 @@ namespace Cocoa
 				file << "\t\t\telse if";
 			file << "(className == \"" << uclass.m_ClassName.c_str() << "\")\n";
 			file << "\t\t\t{\n";
-			file << "\t\t\t\tregistry.emplace<" << uclass.m_ClassName.c_str() << ">(entity);\n";
+			file << "\t\t\t\tEntity e = NEntity::CreateEntity(entity);\n";
+			file << "\t\t\t\tNEntity::AddComponent<" << uclass.m_ClassName.c_str() << ">(e);\n";
 			file << "\t\t\t}\n";
 			i++;
 		}
@@ -221,7 +235,7 @@ namespace Cocoa
 		file << "\n"
 		"		void SaveScript(entt::meta_any any, json& j, Entity entity)\n"
 		"		{\n"
-		"			auto typeData = entt::resolve_type(any.type().id());\n"
+		"			auto typeData = entt::resolve(any.type().id());\n"
 		"			\n"
 		"			int size = j[\"Components\"].size();\n"
 		"			auto typeName = debugNames.find(any.type().id())->second;\n"
@@ -265,7 +279,7 @@ namespace Cocoa
 			file << "\t\t\t\tauto view = registry.view<" << uclass.m_ClassName.c_str() << ">();\n";
 			file << "\t\t\t\tfor (auto entity : view)\n";
 			file << "\t\t\t\t{\n";
-			file << "\t\t\t\t\tauto comp = registry.get<" << uclass.m_ClassName.c_str() << ">(entity);\n";
+			file << "\t\t\t\t\tauto comp = NEntity::GetComponent<" << uclass.m_ClassName.c_str() << ">(NEntity::CreateEntity(entity));\n";
 			file << "\t\t\t\t\tentt::meta_any any = { comp };\n";
 			file << "\t\t\t\t\tSaveScript(any, j, Entity{ entity });\n";
 			file << "\t\t\t\t}\n";
@@ -279,7 +293,7 @@ namespace Cocoa
 		file << "\n"
 			"		void LoadScript(entt::meta_any any, entt::meta_handle handle, json& j)\n"
 			"		{\n"
-			"			auto typeData = entt::resolve_type(any.type().id());\n"
+			"			auto typeData = entt::resolve(any.type().id());\n"
 			"			auto typeName = debugNames.find(any.type().id())->second;\n"
 			"\n"
 			"			for (auto data : typeData.data())\n"
@@ -292,12 +306,12 @@ namespace Cocoa
 			"				if (data.type().is_floating_point())\n"
 			"				{\n"
 			"					if (j[typeName].contains(name->second))\n"
-			"						data.get(handle).cast<float>() = j[typeName][name->second];\n"
+			"						data.set<float>(handle, j[typeName][name->second]);\n"
 			"				}\n"
 			"				else if (data.type().is_integral())\n"
 			"				{\n"
 			"					if (j[typeName].contains(name->second))\n"
-			"						data.get(handle).cast<int>() = j[typeName][name->second];\n"
+			"						data.set<int>(handle, j[typeName][name->second]);\n"
 			"				}\n"
 			"			}\n"
 			"		}\n"
@@ -310,7 +324,8 @@ namespace Cocoa
 		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e))\n";
 		file << "\t\t\t{\n";
-		file << "\t\t\t\te = registry.create(e);\n";
+		file << "\t\t\t\tLog::Error(\"Invalid entity, entity does not exist.\");\n";
+		file << "\t\t\t\treturn;\n";
 		file << "\t\t\t}\n";
 		file << "\n";
 
@@ -324,7 +339,7 @@ namespace Cocoa
 
 			file << " (it.key() == \"" << uclass.m_ClassName.c_str() << "\")\n";
 			file << "\t\t\t{\n";
-			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = registry.emplace<" << uclass.m_ClassName.c_str() << ">(e);\n";
+			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = NEntity::AddComponent<" << uclass.m_ClassName.c_str() << ">(entity);\n";
 			file << "\t\t\t\tLoadScript({ comp }, comp, j);\n";
 			file << "\t\t\t}\n";
 
@@ -337,7 +352,7 @@ namespace Cocoa
 		file << "\n"
 			"		void ImGuiAny(entt::meta_any any, entt::meta_handle handle)\n"
 			"		{\n"
-			"			auto typeData = entt::resolve_type(any.type().id());\n"
+			"			auto typeData = entt::resolve(any.type().id());\n"
 			"			auto typeName = debugNames.find(any.type().id())->second;\n"
 			"\n"
 			"			if (ImGui::CollapsingHeader(typeName))\n"
@@ -352,13 +367,13 @@ namespace Cocoa
 			"\n"
 			"					if (data.type().is_floating_point())\n"
 			"					{\n"
-			"						float& val = data.get(handle).cast<float>();\n"
-			"						CImGui::UndoableDragFloat(name->second, val);\n"
+			"						float* val = (float*)data.get(handle).data();\n"
+			"						CImGui::UndoableDragFloat(name->second, *val);\n"
 			"					}\n"
 			"					else if (data.type().is_integral())\n"
 			"					{\n"
-			"						int& val = data.get(handle).cast<int>();\n"
-			"						CImGui::UndoableDragInt(name->second, val);\n"
+			"						int* val = (int*)data.get(handle).data();\n"
+			"						CImGui::UndoableDragInt(name->second, *val);\n"
 			"					}\n"
 			"				}\n"
 			"				CImGui::EndCollapsingHeaderGroup();\n"
@@ -375,28 +390,13 @@ namespace Cocoa
 		i = 0;
 		for (auto uclass : m_Classes)
 		{
-			file << "\t\t\tif (registry.has<" << uclass.m_ClassName.c_str() << ">(e))\n";
+			file << "\t\t\tif (NEntity::HasComponent<" << uclass.m_ClassName.c_str() << ">(entity))\n";
 			file << "\t\t\t{\n";
-			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = registry.get<" << uclass.m_ClassName.c_str() << ">(e);\n";
+			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = NEntity::GetComponent<" << uclass.m_ClassName.c_str() << ">(entity);\n";
 			file << "\t\t\t\tImGuiAny({ comp }, comp);\n";
 			file << "\t\t\t}\n";
 
 			i++;
-		}
-
-		file << "\t\t}\n";
-
-		// Delete Scripts function
-		file << "\t\tvoid DeleteScripts(entt::registry& registry)\n";
-		file << "\t\t{\n";
-
-		for (auto uclass : m_Classes)
-		{
-			file << "\t\t\t{\n";
-
-			file << "\t\t\t\tregistry.clear<" << uclass.m_ClassName.c_str() << ">();\n";
-
-			file << "\t\t\t}\n";
 		}
 
 		file << "\t\t}\n";
@@ -417,7 +417,7 @@ namespace Cocoa
 		file << "\n"
 		"		void debugPrintAny(entt::meta_any any)\n"
 		"		{\n"
-		"			auto typeData = entt::resolve_type(any.type().id());\n"
+		"			auto typeData = entt::resolve(any.type().id());\n"
 		"		\n"
 		"			for (auto data : typeData.data())\n"
 		"			{\n"

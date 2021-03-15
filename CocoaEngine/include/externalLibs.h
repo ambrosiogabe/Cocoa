@@ -7,12 +7,6 @@
 using json = nlohmann::json;
 
 // ===================================================================
-// Entt
-// ===================================================================
-#define ENTT_STANDARD_CPP
-#include <entt/entt.hpp>
-
-// ===================================================================
 // GLM
 // ===================================================================
 #include <glm/vec4.hpp>
@@ -35,6 +29,12 @@ using json = nlohmann::json;
 #include <box2d/b2_world.h>
 
 // ===================================================================
+// Entt
+// ===================================================================
+#define ENTT_STANDARD_CPP
+#include <entt/entt.hpp>
+
+// ===================================================================
 // Std Library
 // ===================================================================
 #include <string>
@@ -52,6 +52,16 @@ using json = nlohmann::json;
 
 // STB
 #include <stb/stb_image.h>
+
+// Make sure to include windows before glfw
+#ifdef _WIN32
+#include <windows.h>
+#undef DeleteFile
+#undef CopyFile
+#undef CreateFile
+#undef GetSaveFileName
+#undef GetOpenFileName
+#endif
 
 // ===================================================================
 // GLFW & GLAD

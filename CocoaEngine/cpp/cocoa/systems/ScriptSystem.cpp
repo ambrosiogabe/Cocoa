@@ -12,29 +12,27 @@ namespace Cocoa
 	namespace ScriptSystem
 	{
 		// Internal Variables
-		static LoadScriptFn m_LoadScript = nullptr;
-		static SaveScriptFn m_SaveScripts = nullptr;
-		static DeleteScriptFn m_DeleteScripts = nullptr;
+		static AddComponentFn m_AddComponentFromString = nullptr;
 		static UpdateScriptFn m_UpdateScripts = nullptr;
-		static InitScriptsFn m_InitScripts = nullptr;
 		static EditorUpdateScriptFn m_EditorUpdateScripts = nullptr;
-		static AddComponentFromStringFn m_AddComponentFromString = nullptr;
-		static ImGuiFn m_ImGui = nullptr;
+		static SaveScriptsFn m_SaveScripts = nullptr;
+		static LoadScriptFn m_LoadScript = nullptr;
+		static InitScriptsFn m_InitScripts = nullptr;
 		static InitImGuiFn m_InitImGui = nullptr;
+		static ImGuiFn m_ImGui = nullptr;
 		
 		static bool m_IsLoaded = false;
 		static HMODULE m_Module;
 
 		// Forward Declarations
-		static void DeleteScriptStub() {}
-		static void InitScriptsStub() {}
+		static void AddComponentStub(entt::registry&, std::string, entt::entity) { Log::Warning("Adding component from STUB"); }
+		static void UpdateScriptStub(entt::registry&, float) {}
+		static void EditorUpdateScriptStub(entt::registry&, float) {}
+		static void SaveScriptsStub(entt::registry&, json&, SceneData*) {}
+		static void LoadScriptStub(entt::registry&, json&, Entity) {}
+		static void InitScriptsStub(SceneData*) {}
 		static void InitImGuiStub(void*) {}
-		static void SaveScriptStub(json&) {}
-		static void LoadScriptStub(json&, Entity) {}
-		static void ImGuiStub(Entity) {}
-		static void UpdateScriptStub(float, SceneData*) {}
-		static void EditorUpdateScriptStub(float, SceneData*) {}
-		static void AddComponentFromStringStub(std::string, entt::entity, entt::registry&) { Log::Warning("Adding component from STUB"); }
+		static void ImGuiStub(entt::registry&, Entity) {}
 
 		static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
 		{
@@ -47,16 +45,16 @@ namespace Cocoa
 			return func;
 		}
 
-		void Init()
+		void Init(SceneData& scene)
 		{
-			Reload();
+			Reload(scene);
 		}
 
 		void Update(SceneData& scene, float dt)
 		{
 			if (m_UpdateScripts)
 			{
-				m_UpdateScripts(dt, &scene);
+				m_UpdateScripts(scene.Registry, dt);
 			}
 		}
 
@@ -64,15 +62,15 @@ namespace Cocoa
 		{
 			if (m_EditorUpdateScripts)
 			{
-				m_EditorUpdateScripts(dt, &scene);
+				m_EditorUpdateScripts(scene.Registry, dt);
 			}
 		}
 
-		void Reload()
+		void Reload(SceneData& scene)
 		{
 			if (m_IsLoaded)
 			{
-				if (!FreeScriptLibrary()) return;
+				if (!FreeScriptLibrary(scene)) return;
 			}
 
 			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
@@ -83,12 +81,11 @@ namespace Cocoa
 
 				if (m_Module)
 				{
-					m_SaveScripts = (SaveScriptFn)TryLoadFunction(m_Module, "SaveScripts");
+					m_SaveScripts = (SaveScriptsFn)TryLoadFunction(m_Module, "SaveScripts");
 					m_LoadScript = (LoadScriptFn)TryLoadFunction(m_Module, "LoadScript");
-					m_DeleteScripts = (DeleteScriptFn)TryLoadFunction(m_Module, "DeleteScripts");
 					m_UpdateScripts = (UpdateScriptFn)TryLoadFunction(m_Module, "UpdateScripts");
 					m_EditorUpdateScripts = (UpdateScriptFn)TryLoadFunction(m_Module, "EditorUpdateScripts");
-					m_AddComponentFromString = (AddComponentFromStringFn)TryLoadFunction(m_Module, "AddComponent");
+					m_AddComponentFromString = (AddComponentFn)TryLoadFunction(m_Module, "AddComponent");
 					m_InitScripts = (InitScriptsFn)TryLoadFunction(m_Module, "InitScripts");
 					m_InitImGui = (InitImGuiFn)TryLoadFunction(m_Module, "InitImGui");
 					m_ImGui = (ImGuiFn)TryLoadFunction(m_Module, "ImGui");
@@ -96,25 +93,24 @@ namespace Cocoa
 
 					if (m_InitScripts)
 					{
-						m_InitScripts();
+						m_InitScripts(&scene);
 					}
 				}
 			}
 		}
 
-		bool FreeScriptLibrary()
+		bool FreeScriptLibrary(SceneData& scene)
 		{
-			if (m_DeleteScripts)
+			if (!m_IsLoaded)
 			{
-				m_DeleteScripts();
+				return true;
 			}
 
-			m_SaveScripts = SaveScriptStub;
+			m_SaveScripts = SaveScriptsStub;
 			m_LoadScript = LoadScriptStub;
-			m_DeleteScripts = DeleteScriptStub;
 			m_UpdateScripts = UpdateScriptStub;
 			m_EditorUpdateScripts = EditorUpdateScriptStub;
-			m_AddComponentFromString = AddComponentFromStringStub;
+			m_AddComponentFromString = AddComponentStub;
 			m_InitScripts = InitScriptsStub;
 			m_InitImGui = InitImGuiStub;
 			m_ImGui = ImGuiStub;
@@ -131,11 +127,11 @@ namespace Cocoa
 			return true;
 		}
 
-		void ImGui(Entity entity)
+		void ImGui(SceneData& scene, Entity entity)
 		{
 			if (m_ImGui)
 			{
-				m_ImGui(entity);
+				m_ImGui(scene.Registry, entity);
 			}
 		}
 
@@ -147,12 +143,12 @@ namespace Cocoa
 			}
 		}
 
-		void SaveScripts(json& j)
+		void SaveScripts(SceneData& scene, json& j)
 		{
 			if (m_SaveScripts)
 			{
 				Log::Info("Saving scripts!");
-				m_SaveScripts(j);
+				m_SaveScripts(scene.Registry, j, &scene);
 			}
 		}
 
@@ -160,15 +156,15 @@ namespace Cocoa
 		{
 			if (m_AddComponentFromString)
 			{
-				m_AddComponentFromString(className, entity, registry);
+				m_AddComponentFromString(registry, className, entity);
 			}
 		}
 
-		void Deserialize(json& j, Entity entity)
+		void Deserialize(SceneData& scene, json& j, Entity entity)
 		{
 			if (m_LoadScript)
 			{
-				m_LoadScript(j, entity);
+				m_LoadScript(scene.Registry, j, entity);
 			}
 		}
 	}

@@ -51,8 +51,14 @@ namespace Cocoa
 				NCPath::Join(otherGenCPath, NCPath::CreatePath("generated"));
 				NCPath::Join(otherGenCPath, NCPath::CreatePath(genFilename));
 				const std::filesystem::path otherGenPath = otherGenCPath.Path.c_str();
-				source << "#include \"" << std::filesystem::relative(otherGenPath, base).generic_string().c_str() << "\"\n";
+				source << "#include \"" << std::filesystem::relative(otherGenPath, base).generic_string().c_str() << "\"\n\n";
 			}
+
+			source << "#include \"cocoa/components/TransformStruct.h\"\n";
+			source << "#include \"cocoa/components/Tag.h\"\n";
+			source << "#include \"cocoa/components/SpriteRenderer.h\"\n";
+			source << "#include \"cocoa/components/FontRenderer.h\"\n";
+			source << "#include \"cocoa/physics2d/PhysicsComponents.h\"\n";
 
 			source << "\n";
 			source << "#define ENTT_STANDARD_CPP\n";
@@ -63,6 +69,25 @@ namespace Cocoa
 			source << "{\n";
 			source << "\textern \"C\" namespace Init\n";
 			source << "\t{\n";
+
+			// Init Component Id's -------------------------------------------------------------------------------------------
+			source << "\t\tstatic void InitComponentIds(SceneData & scene)\n";
+			source << "\t\t{\n";
+			source << "\t\t\tNEntity::RegisterComponentType<TransformData>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<Tag>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<SpriteRenderer>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<FontRenderer>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<Rigidbody2D>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<Box2D>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<Circle>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<AABB>();\n";
+
+			for (auto clazz : classes)
+			{
+				source << "\t\t\tNEntity::RegisterComponentType<" << clazz.m_ClassName.c_str() << ">();\n";
+			}
+
+			source << "\t\t}\n";
 
 			// AddComponent function
 			source << "\t\textern \"C\" COCOA_SCRIPT void AddComponent(entt::registry& registryRef, std::string className, entt::entity entity)\n";
@@ -163,9 +188,10 @@ namespace Cocoa
 
 			// Generate Init Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void InitScripts()\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void InitScripts(SceneData* sceneData)\n";
 			source << "\t\t{\n";
 			source << "\t\t\tLog::Info(\"Initializing scripts\");\n";
+			source << "\t\t\tInitComponentIds(*sceneData);\n";
 
 			numVisited = 0;
 			for (auto clazz : classes)
@@ -201,26 +227,6 @@ namespace Cocoa
 				{
 					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
 					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registryRef);\n";
-
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
-					numVisited++;
-				}
-			}
-			source << "\t\t}\n";
-
-			// Generate Delete Scripts function
-			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void DeleteScripts(entt::registry& registryRef)\n";
-			source << "\t\t{\n";
-			source << "\t\t\tLog::Info(\"Deleting Scripts\");\n";
-
-			numVisited = 0;
-			for (auto clazz : classes)
-			{
-				if (!visitedSourceFile(clazz))
-				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
-					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts(registryRef);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
 					numVisited++;
@@ -280,7 +286,7 @@ namespace Cocoa
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/include\",\n";
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor\",\n";
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/glmVendor\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/enttVendor/single_include\",\n";
+			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/enttVendor/src\",\n";
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/glad/include\",\n";
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/imguiVendor\",\n";
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/box2DVendor/include\",\n";

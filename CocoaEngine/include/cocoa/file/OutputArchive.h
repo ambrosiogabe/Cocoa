@@ -8,6 +8,7 @@
 #include "cocoa/util/Log.h"
 
 #include <nlohmann/json.hpp>
+#include <entt/core/type_info.hpp>
 
 namespace Cocoa
 {
@@ -30,39 +31,39 @@ namespace Cocoa
 		template <class T>
 		void operator()(entt::entity entity, const T& component)
 		{
-			entt::type_info info = entt::type_info<T>();
+			entt::type_info info = entt::type_id<T>();
 
-			if (info.id() == entt::type_info<TransformData>().id())
+			if (info.seq() == entt::type_id<TransformData>().seq())
 			{
 				const TransformData* transform = reinterpret_cast<const TransformData*>(&component);
 				Transform::Serialize(m_Json, NEntity::CreateEntity(entity), *transform);
 			} 
-			else if (info.id() == entt::type_info<SpriteRenderer>().id())
+			else if (info.seq() == entt::type_id<SpriteRenderer>().seq())
 			{
 				const SpriteRenderer* renderer = reinterpret_cast<const SpriteRenderer*>(&component);
 				RenderSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *renderer);
 			}
-			else if (info.id() == entt::type_info<FontRenderer>().id())
+			else if (info.seq() == entt::type_id<FontRenderer>().seq())
 			{
 				const FontRenderer* fontRenderer = reinterpret_cast<const FontRenderer*>(&component);
 				RenderSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *fontRenderer);
 			}
-			else if (info.id() == entt::type_info<Box2D>().id())
+			else if (info.seq() == entt::type_id<Box2D>().seq())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
 				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box2D);
 			}
-			else if (info.id() == entt::type_info<Rigidbody2D>().id())
+			else if (info.seq() == entt::type_id<Rigidbody2D>().seq())
 			{
 				const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
 				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *rb);
 			}
-			else if (info.id() == entt::type_info<AABB>().id())
+			else if (info.seq() == entt::type_id<AABB>().seq())
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
 				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box);
 			}
-			else if (info.id() == entt::type_info<Tag>().id())
+			else if (info.seq() == entt::type_id<Tag>().seq())
 			{
 				const Tag* tag = reinterpret_cast<const Tag*>(&component);
 				NTag::Serialize(m_Json, NEntity::CreateEntity(entity), *tag);

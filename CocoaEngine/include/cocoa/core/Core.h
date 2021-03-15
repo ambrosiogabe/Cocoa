@@ -32,6 +32,16 @@
     #define COCOA_SCRIPT
 #endif
 
+#ifdef _WIN32
+    #ifdef _COCOA_DLL
+        #define COCOA_TEMPLATE_EXTERN
+    #else 
+        #define COCOA_TEMPLATE_EXTERN extern
+    #endif
+#else 
+    #define COCOA_TEMPLATE_EXTERN
+#endif
+
 #define UPROPERTY(...) ;
 #define UCLASS(...) ;
 #define USTRUCT(...) ;

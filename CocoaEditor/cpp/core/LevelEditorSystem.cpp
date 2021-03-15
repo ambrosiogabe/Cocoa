@@ -73,14 +73,14 @@ namespace Cocoa
 
 		static void InitComponentIds(SceneData& scene)
 		{
-			entt::type_id<TransformData>();
-			entt::type_id<Tag>();
-			entt::type_id<SpriteRenderer>();
-			entt::type_id<FontRenderer>();
-			entt::type_id<Rigidbody2D>();
-			entt::type_id<Box2D>();
-			entt::type_id<Circle>();
-			entt::type_id<AABB>();
+			NEntity::RegisterComponentType<TransformData>();
+			NEntity::RegisterComponentType<Tag>();
+			NEntity::RegisterComponentType<SpriteRenderer>();
+			NEntity::RegisterComponentType<FontRenderer>();
+			NEntity::RegisterComponentType<Rigidbody2D>();
+			NEntity::RegisterComponentType<Box2D>();
+			NEntity::RegisterComponentType<Circle>();
+			NEntity::RegisterComponentType<AABB>();
 		}
 
 		void EditorUpdate(SceneData& scene, float dt)

@@ -8,30 +8,29 @@
 
 namespace Cocoa
 {
-    typedef void (*DeleteScriptFn)();
-    typedef void (*InitScriptsFn)();
+    typedef void (*AddComponentFn)(entt::registry&, std::string, entt::entity);
+    typedef void (*UpdateScriptFn)(entt::registry&, float);
+    typedef void (*EditorUpdateScriptFn)(entt::registry&, float);
+    typedef void (*SaveScriptsFn)(entt::registry&, json&, SceneData*);
+    typedef void (*LoadScriptFn)(entt::registry&, json&, Entity);
+    typedef void (*InitScriptsFn)(SceneData*);
     typedef void (*InitImGuiFn)(void*);
-    typedef void (*SaveScriptFn)(json&);
-    typedef void (*LoadScriptFn)(json&, Entity);
-    typedef void (*ImGuiFn)(Entity);
-    typedef void (*UpdateScriptFn)(float, SceneData*);
-    typedef void (*EditorUpdateScriptFn)(float, SceneData*);
-    typedef void (*AddComponentFromStringFn)(std::string, entt::entity, entt::registry&);
+    typedef void (*ImGuiFn)(entt::registry&, Entity);
 
     namespace ScriptSystem
     {
-        COCOA void Init();
+        COCOA void Init(SceneData& scene);
         COCOA void Update(SceneData& scene, float dt);
         COCOA void EditorUpdate(SceneData& scene, float dt);
 
-        COCOA void ImGui(Entity entity);
+        COCOA void ImGui(SceneData& scene, Entity entity);
         COCOA void InitImGui(void* context);
 
-        COCOA void Reload();
-        COCOA void SaveScripts(json& j);
-        COCOA void Deserialize(json& j, Entity entity);
+        COCOA void Reload(SceneData& scene);
+        COCOA void SaveScripts(SceneData& scene, json& j);
+        COCOA void Deserialize(SceneData& scene, json& j, Entity entity);
 
-        COCOA bool FreeScriptLibrary();
+        COCOA bool FreeScriptLibrary(SceneData& scene);
         COCOA void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry);
     };
 }

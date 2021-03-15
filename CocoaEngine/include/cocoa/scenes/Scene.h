@@ -5,12 +5,10 @@
 #include "cocoa/file/CPath.h"
 #include "cocoa/scenes/SceneInitializer.h"
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/core/Handle.h"
 #include "cocoa/events/Event.h"
 #include "cocoa/scenes/SceneData.h"
+#include "cocoa/core/Handle.h"
 #include "cocoa/core/Entity.h"
-
-#include <entt/entt.hpp>
 
 namespace Cocoa
 {

@@ -6,7 +6,7 @@
 #include "cocoa/scenes/SceneData.h"
 #include "cocoa/core/EntityStruct.h"
 
-#include <entt/entt.hpp>
+#include <entt/core/type_info.hpp>
 
 namespace Cocoa
 {
@@ -16,6 +16,20 @@ namespace Cocoa
 		COCOA void SetScene(SceneData* scene);
 		COCOA SceneData* GetScene();
 		COCOA Entity CreateNull();
+
+		template<typename Component>
+		void RegisterComponentType()
+		{
+			SceneData* scene = GetScene();
+			scene->Registry.prepare<Component>();
+		}
+
+		template<typename... Types>
+		void Clear()
+		{
+			SceneData* scene = GetScene();
+			scene->Registry.clear<Types...>();
+		}
 
 		template<typename... Component>
 		bool HasComponent(Entity entity)

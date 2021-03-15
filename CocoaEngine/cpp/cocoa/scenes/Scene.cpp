@@ -32,21 +32,35 @@ namespace Cocoa
 			return data;
 		}
 
+		static void InitComponentIds(SceneData& scene);
 		void Init(SceneData& data)
 		{
+			NEntity::SetScene(&data);
+			Input::SetScene(&data);
+
+			InitComponentIds(data);
 			LoadDefaultAssets();
 
 			glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
 			data.SceneCamera = NCamera::CreateCamera(cameraPos);
 
-			Input::SetScene(&data);
-			NEntity::SetScene(&data);
-
 			RenderSystem::Init(data);
 			Physics2D::Init({ 0, -10.0f });
-			ScriptSystem::Init();
+			ScriptSystem::Init(data);
 
 			data.CurrentSceneInitializer->Init(data);
+		}
+
+		static void InitComponentIds(SceneData& scene)
+		{
+			NEntity::RegisterComponentType<TransformData>();
+			NEntity::RegisterComponentType<Tag>();
+			NEntity::RegisterComponentType<SpriteRenderer>();
+			NEntity::RegisterComponentType<FontRenderer>();
+			NEntity::RegisterComponentType<Rigidbody2D>();
+			NEntity::RegisterComponentType<Box2D>();
+			NEntity::RegisterComponentType<Circle>();
+			NEntity::RegisterComponentType<AABB>();
 		}
 
 		void Start(SceneData& data)
@@ -99,14 +113,15 @@ namespace Cocoa
 			TransformSystem::Destroy(data);
 			RenderSystem::Destroy();
 			Physics2D::Destroy(data);
-			ScriptSystem::FreeScriptLibrary();
 
 			data.CurrentSceneInitializer->Destroy(data);
 
 			// Make sure to clear the entities last, that way we can properly destroy all
 			// the instances in the other systems if needed
-			auto view = data.Registry.view<TransformData>();
-			data.Registry.destroy(view.begin(), view.end());
+			data.Registry.clear();
+			data.Registry = entt::registry();
+
+			ScriptSystem::FreeScriptLibrary(data);
 		}
 
 		void Play(SceneData& data)
@@ -139,7 +154,7 @@ namespace Cocoa
 				.entities(output)
 				.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB, Tag>(output);
 
-			ScriptSystem::SaveScripts(data.SaveDataJson);
+			ScriptSystem::SaveScripts(data, data.SaveDataJson);
 			data.CurrentSceneInitializer->Save(data);
 
 			File::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
@@ -223,7 +238,7 @@ namespace Cocoa
 				else
 				{
 					Entity entity = FindOrCreateEntity(component.front()["Entity"], data, data.Registry);
-					ScriptSystem::Deserialize(component, entity);
+					ScriptSystem::Deserialize(data, component, entity);
 				}
 			}
 
@@ -252,7 +267,7 @@ namespace Cocoa
 				if (it.key() != "SpriteRenderer" && it.key() != "Transform" && it.key() != "Rigidbody2D" && it.key() != "Box2D" && it.key() != "AABB" && it.key() != "Tag")
 				{
 					Entity entity = FindOrCreateEntity(component.front()["Entity"], data, data.Registry);
-					ScriptSystem::Deserialize(component, entity);
+					ScriptSystem::Deserialize(data, component, entity);
 				}
 			}
 
