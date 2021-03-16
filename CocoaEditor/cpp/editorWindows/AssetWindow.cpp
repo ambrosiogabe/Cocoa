@@ -253,6 +253,7 @@ namespace Cocoa
 				if (IconButton(ICON_FA_FILE, NCPath::Filename(scenePath), m_ButtonSize))
 				{
 					Scene::Save(scene, Settings::General::s_CurrentScene);
+					Scene::FreeResources(scene);
 					Scene::Load(scene, scenePath);
 				}
 				ImGui::SameLine();

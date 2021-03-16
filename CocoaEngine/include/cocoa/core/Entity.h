@@ -24,11 +24,11 @@ namespace Cocoa
 			scene->Registry.prepare<Component>();
 		}
 
-		template<typename... Types>
+		template<typename Type>
 		void Clear()
 		{
 			SceneData* scene = GetScene();
-			scene->Registry.clear<Types...>();
+			scene->Registry.clear<Type>();
 		}
 
 		template<typename... Component>

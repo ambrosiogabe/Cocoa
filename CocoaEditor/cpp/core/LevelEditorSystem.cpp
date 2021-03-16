@@ -95,14 +95,19 @@ namespace Cocoa
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
-				ScriptSystem::FreeScriptLibrary(scene);
 
+				// This should free the scripts too so we can delete the old dll
+				Scene::FreeResources(scene);
+
+				// Now copy new dll and reload the scene
 				File::DeleteFile(scriptDll);
 				File::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
-				ScriptSystem::Reload(scene);
-				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
-				Scene::LoadScriptsOnly(scene, Settings::General::s_CurrentScene);
+				Scene::Load(scene, Settings::General::s_CurrentScene);
+				//ScriptSystem::Reload(scene);
+				//ScriptSystem::InitImGui(ImGui::GetCurrentContext());
+				//Scene::LoadScriptsOnly(scene, Settings::General::s_CurrentScene);
 
+				// Then delete temporary file of new dll
 				File::DeleteFile(tmpScriptDll);
 			}
 
@@ -215,6 +220,7 @@ namespace Cocoa
 						Entity duplicated = Scene::DuplicateEntity(scene, activeEntity);
 						InspectorWindow::ClearAllEntities();
 						InspectorWindow::AddEntity(duplicated);
+						SceneHeirarchyWindow::AddNewEntity(duplicated);
 					}
 				}
 			}

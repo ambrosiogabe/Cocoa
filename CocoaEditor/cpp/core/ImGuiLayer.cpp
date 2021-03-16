@@ -180,6 +180,7 @@ namespace Cocoa
 						Scene::Stop(scene);
 						CPath tmpPath = Settings::General::s_EngineAssetsPath;
 						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
+						Scene::FreeResources(scene);
 						Scene::Load(scene, tmpPath, false);
 						isPlaying = false;
 					}

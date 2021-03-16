@@ -179,6 +179,7 @@ namespace Cocoa
 					Settings::General::s_WorkingDirectory = NCPath::CreatePath(j["WorkingDirectory"], false);
 
 					CocoaEditor* application = (CocoaEditor*)Application::Get();
+					Scene::FreeResources(scene);
 					Scene::Load(scene, Settings::General::s_CurrentScene);
 
 					SaveEditorData();

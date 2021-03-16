@@ -20,6 +20,7 @@ namespace Cocoa
 		static InitScriptsFn m_InitScripts = nullptr;
 		static InitImGuiFn m_InitImGui = nullptr;
 		static ImGuiFn m_ImGui = nullptr;
+		static DeleteScriptsFn m_DeleteScripts = nullptr;
 		
 		static bool m_IsLoaded = false;
 		static HMODULE m_Module;
@@ -33,6 +34,7 @@ namespace Cocoa
 		static void InitScriptsStub(SceneData*) {}
 		static void InitImGuiStub(void*) {}
 		static void ImGuiStub(entt::registry&, Entity) {}
+		static void DeleteScriptsStub() {}
 
 		static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
 		{
@@ -66,11 +68,11 @@ namespace Cocoa
 			}
 		}
 
-		void Reload(SceneData& scene)
+		void Reload(SceneData& scene, bool deleteScriptComponents)
 		{
 			if (m_IsLoaded)
 			{
-				if (!FreeScriptLibrary(scene)) return;
+				if (!FreeScriptLibrary(scene, deleteScriptComponents)) return;
 			}
 
 			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
@@ -89,6 +91,7 @@ namespace Cocoa
 					m_InitScripts = (InitScriptsFn)TryLoadFunction(m_Module, "InitScripts");
 					m_InitImGui = (InitImGuiFn)TryLoadFunction(m_Module, "InitImGui");
 					m_ImGui = (ImGuiFn)TryLoadFunction(m_Module, "ImGui");
+					m_DeleteScripts = (DeleteScriptsFn)TryLoadFunction(m_Module, "DeleteScripts");
 					m_IsLoaded = true;
 
 					if (m_InitScripts)
@@ -99,11 +102,18 @@ namespace Cocoa
 			}
 		}
 
-		bool FreeScriptLibrary(SceneData& scene)
+		bool FreeScriptLibrary(SceneData& scene, bool deleteScriptComponents)
 		{
+			// TODO: Add way to clear a pool so that we can remove hot reload only script components, while leaving the
+			// TODO: rest of the scene intact. This might not be possible, so we shal see 
 			if (!m_IsLoaded)
 			{
 				return true;
+			}
+
+			if (deleteScriptComponents && m_DeleteScripts)
+			{
+				m_DeleteScripts();
 			}
 
 			m_SaveScripts = SaveScriptsStub;
@@ -114,6 +124,7 @@ namespace Cocoa
 			m_InitScripts = InitScriptsStub;
 			m_InitImGui = InitImGuiStub;
 			m_ImGui = ImGuiStub;
+			m_DeleteScripts = DeleteScriptsStub;
 
 			if (!FreeLibrary(m_Module))
 			{

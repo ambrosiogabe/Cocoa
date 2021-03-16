@@ -340,14 +340,23 @@ namespace Cocoa
 			int numChildren = -1;
 			int parentIndex = -1;
 			int index = 0;
+
+			bool hasEntity = false;
 			for (int index = 0; index < orderedEntities.m_NumElements; index++)
 			{
 				if (orderedEntities.m_Data[index].entity == entityToDelete)
 				{
 					numChildren = GetNumChildren(index);
 					parentIndex = index;
+					hasEntity = true;
 					break;
 				}
+			}
+
+			if (!hasEntity)
+			{
+				Log::Warning("Deleted entity that wasn't registered with the scene hierarchy tree.");
+				return;
 			}
 
 			if (parentIndex >= 0)

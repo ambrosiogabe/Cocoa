@@ -48,7 +48,7 @@ namespace Cocoa
 			glm::vec4 s_HeaderActive{ 0.379f, 0.379f, 0.379f, 1.0f };
 
 			glm::vec4 s_Font{ 0.902f, 0.902f, 0.902f, 1.0f };
-			glm::vec4 s_FontDisabled{ 0.839f, 0.839f, 0.839f, 1.0f };
+			glm::vec4 s_FontDisabled{ 0.36f, 0.36f, 0.36f, 1.0f };
 			glm::vec4 s_HighlightColor{ 0.145f, 0.553f, 0.384f, 1.0f };
 
 			// Sizing

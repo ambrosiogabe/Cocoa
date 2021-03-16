@@ -234,6 +234,26 @@ namespace Cocoa
 			}
 			source << "\t\t}\n";
 
+			// Generate Delete Scripts function
+			source << "\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void DeleteScripts()\n";
+			source << "\t\t{\n";
+			source << "\t\t\tLog::Info(\"Deleting Scripts\");\n";
+
+			numVisited = 0;
+			for (auto clazz : classes)
+			{
+				if (!visitedSourceFile(clazz))
+				{
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts();\n";
+
+					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					numVisited++;
+				}
+			}
+			source << "\t\t}\n";
+
 			source << "\t}\n";
 			source << "}\n";
 

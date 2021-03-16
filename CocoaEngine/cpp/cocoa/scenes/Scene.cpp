@@ -108,6 +108,7 @@ namespace Cocoa
 
 		void FreeResources(SceneData& data)
 		{
+			Log::Log("Freeing scene resources");
 			AssetManager::Clear();
 
 			TransformSystem::Destroy(data);
@@ -141,7 +142,7 @@ namespace Cocoa
 
 		void Save(SceneData& data, const CPath& filename)
 		{
-			Log::Info("Saving scene for %s", filename.Path.c_str());
+			Log::Log("Saving scene '%s'", filename.Path.c_str());
 			data.SaveDataJson = {
 				{"Components", {}},
 				{"Project", Settings::General::s_CurrentProject.Path.c_str()},
@@ -162,8 +163,7 @@ namespace Cocoa
 
 		void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene)
 		{
-			FreeResources(data);
-			Log::Info("Loading scene %s", filename.Path.c_str());
+			Log::Log("Loading scene %s", filename.Path.c_str());
 			Init(data);
 
 			if (setAsCurrentScene)
@@ -307,6 +307,14 @@ namespace Cocoa
 			if (NEntity::HasComponent<Box2D>(entity))
 			{
 				NEntity::AddComponent<Box2D>(newEntity, NEntity::GetComponent<Box2D>(entity));
+			}
+
+			if (NEntity::HasComponent<Tag>(entity))
+			{
+				Tag& tag = NEntity::GetComponent<Tag>(entity);
+				char* newTagName = (char*)AllocMem((tag.Size + 1) * sizeof(char));
+				memcpy(newTagName, tag.Name, (tag.Size + 1) * sizeof(char));
+				NEntity::AddComponent<Tag>(newEntity, NTag::CreateTag(newTagName, true));
 			}
 
 			return newEntity;

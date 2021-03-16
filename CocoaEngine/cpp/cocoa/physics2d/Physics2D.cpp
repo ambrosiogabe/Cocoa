@@ -10,7 +10,7 @@ namespace Cocoa
 	{
 		// Internal Variables
 		static b2Vec2 m_Gravity;
-		static b2World* m_World;
+		static b2World* m_World = nullptr;
 		static float m_PhysicsTime;
 
 		void Init(const glm::vec2& gravity)
@@ -36,7 +36,12 @@ namespace Cocoa
 					rb.m_RawRigidbody = nullptr;
 				}
 			}
-			delete m_World;
+
+			if (m_World)
+			{
+				delete m_World;
+				m_World = nullptr;
+			}
 		}
 
 		bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
@@ -102,10 +107,17 @@ namespace Cocoa
 			{
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 
-				// Manually destroy all bodies, in case the physics system would like
-				// to use this world again
-				m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
-				rb.m_RawRigidbody = nullptr;
+				if (rb.m_RawRigidbody)
+				{
+					// Manually destroy all bodies, in case the physics system would like
+					// to use this world again
+					m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+					rb.m_RawRigidbody = nullptr;
+				}
+				else
+				{
+					Log::Warning("Removed entity from physics engine that wasn't registered.");
+				}
 			}
 		}
 

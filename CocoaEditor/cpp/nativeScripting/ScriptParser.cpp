@@ -401,6 +401,21 @@ namespace Cocoa
 
 		file << "\t\t}\n";
 
+		// Delete Scripts function
+		file << "\t\tvoid DeleteScripts()\n";
+		file << "\t\t{\n";
+
+		for (auto uclass : m_Classes)
+		{
+			file << "\t\t\t{\n";
+
+			file << "\t\t\t\tNEntity::Clear<" << uclass.m_ClassName.c_str() << ">();\n";
+
+			file << "\t\t\t}\n";
+		}
+
+		file << "\t\t}\n";
+
 		// Tabs function
 		file << "\n"
 		"		int tabs = 0;\n"
