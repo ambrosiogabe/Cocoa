@@ -127,7 +127,9 @@ namespace Cocoa
 				Camera& camera = scene.SceneCamera;
 				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
-				camera.Transform.Position = lerp(camera.Transform.Position, camera.Transform.Position + delta, dt);
+				// TODO: Make this an editor setting
+				static const float sharpness = 15.0f;
+				camera.Transform.Position = lerp(camera.Transform.Position, camera.Transform.Position + delta, dt * sharpness);
 			}
 
 			// Draw grid lines
@@ -265,6 +267,7 @@ namespace Cocoa
 			static const float logMinZoom = glm::log(minZoom);
 			static const float maxZoom = 100.0f;
 			static const float logMaxZoom = glm::log(maxZoom);
+			// TODO: Make this an editor setting (maxSteps should be the setting)
 			static const float maxSteps = 100;
 			static float step = -1;
 			static float cameraSensitivity = 0.5f;
