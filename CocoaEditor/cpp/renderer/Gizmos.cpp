@@ -84,12 +84,12 @@ namespace Cocoa
 						m_GizmoArrowModelElementCount, 
 						data.Color - glm::vec3(0.2f, 0.2f, 0.2f), 
 						data.Position, 
-						data.Scale, 
+						data.Scale * camera.Zoom, 
 						data.Rotation);
 				}
 				else if (data.Type == GizmoType::Free)
 				{
-					DebugDraw::AddFilledBox(data.Position, data.Scale, data.Rotation, data.Color - glm::vec3(0.2f, 0.2f, 0.2f));
+					DebugDraw::AddFilledBox(data.Position, data.Scale * camera.Zoom, data.Rotation, data.Color - glm::vec3(0.2f, 0.2f, 0.2f));
 				}
 				else if (mode == GizmoMode::Scale && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
@@ -99,7 +99,7 @@ namespace Cocoa
 						m_GizmoScaleModelElementCount,
 						data.Color - glm::vec3(0.2f, 0.2f, 0.2f), 
 						data.Position, 
-						data.Scale, 
+						data.Scale * camera.Zoom,
 						data.Rotation);
 				}
 			}
@@ -113,12 +113,12 @@ namespace Cocoa
 						m_GizmoArrowModelElementCount,
 						data.Color, 
 						data.Position, 
-						data.Scale, 
+						data.Scale * camera.Zoom,
 						data.Rotation);
 				}
 				else if (data.Type == GizmoType::Free)
 				{
-					DebugDraw::AddFilledBox(data.Position, data.Scale, data.Rotation, data.Color);
+					DebugDraw::AddFilledBox(data.Position, data.Scale * camera.Zoom, data.Rotation, data.Color);
 				}
 				else if (mode == GizmoMode::Scale && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
@@ -128,7 +128,7 @@ namespace Cocoa
 						m_GizmoScaleModelElementCount,
 						data.Color, 
 						data.Position, 
-						data.Scale, 
+						data.Scale * camera.Zoom,
 						data.Rotation);
 				}
 			}
@@ -230,22 +230,25 @@ namespace Cocoa
 			glm::vec3 redColor = { 227.0f / 255.0f, 68.0f / 255.0f, 68.0f / 255.0f };
 			glm::vec3 greenColor = { 68.0f / 255.0f, 227.0f / 255.0f, 68.0f / 255.0f };
 
-			float hzOffsetX = 0.2f;
-			float hzOffsetY = -0.1f;
-			float vtOffsetX = -0.1f;
-			float vtOffsetY = 0.2f;
+			float hzOffsetX = 0.14f;
+			float hzOffsetY = -0.08f;
+			float vtOffsetX = -0.08f;
+			float vtOffsetY = 0.14f;
 			float squareOffsetX = 0.0f;
 			float squareOffsetY = 0.0f;
-			glm::vec2 boxBoundsHalfSize = { 0.35f, 0.1f };
-			glm::vec2 hzBoxBoundsOffset = { -0.143f, 0.0f };
-			glm::vec2 vtBoxBoundsOffset = { 0.0f, -0.143f };
-			glm::vec2 squareSize = { 0.2f, 0.2f };
-			Gizmos[3] = Gizmo::CreateGizmo(glm::vec3{ hzOffsetX, hzOffsetY, 0.0f }, 0.0f, GizmoType::Horizontal, redColor, boxBoundsHalfSize, hzBoxBoundsOffset);
-			Gizmos[4] = Gizmo::CreateGizmo(glm::vec3{ vtOffsetX, vtOffsetY, 0.0f }, 90.0f, GizmoType::Vertical, greenColor, boxBoundsHalfSize, vtBoxBoundsOffset);
+			glm::vec2 boxBoundsHalfSize = { 0.22f, 0.06f };
+			glm::vec2 hzBoxBoundsOffset = { -0.255f, 0.0f };
+			glm::vec2 vtBoxBoundsOffset = { 0.0f, -0.255f };
+
+			// TODO: Make these scales editable in the engine
+			glm::vec2 squareSize = { 0.15f, 0.15f };
+			glm::vec2 arrowScale = { 0.64f, 0.64f };
+			Gizmos[3] = Gizmo::CreateGizmo(glm::vec3{ hzOffsetX, hzOffsetY, 0.0f }, 0.0f, GizmoType::Horizontal, redColor, boxBoundsHalfSize, hzBoxBoundsOffset, arrowScale);
+			Gizmos[4] = Gizmo::CreateGizmo(glm::vec3{ vtOffsetX, vtOffsetY, 0.0f }, 90.0f, GizmoType::Vertical, greenColor, boxBoundsHalfSize, vtBoxBoundsOffset, arrowScale);
 			Gizmos[5] = Gizmo::CreateGizmo(glm::vec3{ squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free, redColor, squareSize * 0.5f, glm::vec2(), squareSize);
 
-			Gizmos[0] = Gizmo::CreateGizmo(glm::vec3{ hzOffsetX, hzOffsetY, 0.0f }, 0.0f, GizmoType::Horizontal, redColor, boxBoundsHalfSize, hzBoxBoundsOffset);
-			Gizmos[1] = Gizmo::CreateGizmo(glm::vec3{ vtOffsetX, vtOffsetY, 0.0f }, 90.0f, GizmoType::Vertical, greenColor, boxBoundsHalfSize, vtBoxBoundsOffset);
+			Gizmos[0] = Gizmo::CreateGizmo(glm::vec3{ hzOffsetX, hzOffsetY, 0.0f }, 0.0f, GizmoType::Horizontal, redColor, boxBoundsHalfSize, hzBoxBoundsOffset, arrowScale);
+			Gizmos[1] = Gizmo::CreateGizmo(glm::vec3{ vtOffsetX, vtOffsetY, 0.0f }, 90.0f, GizmoType::Vertical, greenColor, boxBoundsHalfSize, vtBoxBoundsOffset, arrowScale);
 			Gizmos[2] = Gizmo::CreateGizmo(glm::vec3{ squareOffsetX, squareOffsetY, 0.0f }, 0.0f, GizmoType::Free, redColor, squareSize * 0.5f, glm::vec2(), squareSize);
 		}
 
@@ -312,7 +315,18 @@ namespace Cocoa
 					float cameraZoom = m_Camera->Zoom * 2;
 					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = CMath::Vector3From2(gizmo.Position);
-					if (!m_MouseDragging && Physics2D::PointInBox(mousePosWorld, gizmo.BoxBoundsHalfSize, boxPos + CMath::Vector3From2(gizmo.BoxBoundsOffset), gizmo.Rotation))
+
+					// Uncomment me to visualize the gizmo box bounds
+					//DebugDraw::AddBox2D(
+					//	CMath::Vector2From3(boxPos + CMath::Vector3From2(gizmo.BoxBoundsOffset)),
+					//	gizmo.BoxBoundsHalfSize * m_Camera->Zoom * 2.0f, 
+					//	gizmo.Rotation);
+
+					if (!m_MouseDragging && Physics2D::PointInBox(
+						mousePosWorld, 
+						gizmo.BoxBoundsHalfSize * m_Camera->Zoom, 
+						boxPos + CMath::Vector3From2(gizmo.BoxBoundsOffset), 
+						gizmo.Rotation))
 					{
 						gizmo.Active = true;
 						m_HotGizmo = i;
