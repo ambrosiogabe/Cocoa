@@ -85,8 +85,7 @@ namespace Cocoa
 
 			json saveData = {
 				{"ProjectPath", Settings::General::s_CurrentProject.Path.c_str()},
-				{"CurrentScene", Settings::General::s_CurrentScene.Path.c_str()},
-				{"WorkingDirectory", Settings::General::s_WorkingDirectory.Path.c_str() }
+				{"CurrentScene", Settings::General::s_CurrentScene.Path.c_str()}
 			};
 
 			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
@@ -175,8 +174,9 @@ namespace Cocoa
 				json j = json::parse(projectData->m_Data);
 				if (!j["CurrentScene"].is_null())
 				{
+					Settings::General::s_CurrentProject = path;
 					Settings::General::s_CurrentScene = NCPath::CreatePath(j["CurrentScene"], false);
-					Settings::General::s_WorkingDirectory = NCPath::CreatePath(j["WorkingDirectory"], false);
+					Settings::General::s_WorkingDirectory = NCPath::CreatePath(NCPath::GetDirectory(path, -1));
 
 					CocoaEditor* application = (CocoaEditor*)Application::Get();
 					Scene::FreeResources(scene);
@@ -188,6 +188,7 @@ namespace Cocoa
 
 					CPath scriptsPath = Settings::General::s_WorkingDirectory;
 					NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
+					File::GetFoldersInDir(scriptsPath);
 					m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(scriptsPath);
 					static_cast<CocoaEditor*>(Application::Get())->SetProjectLoaded();
 					isLoaded = true;
