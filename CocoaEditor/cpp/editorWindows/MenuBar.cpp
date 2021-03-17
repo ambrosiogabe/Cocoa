@@ -123,7 +123,7 @@ namespace Cocoa
 					if (CImGui::MenuButton("Open Project"))
 					{
 						FileDialogResult result{};
-						if (FileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
+						if (FileDialog::GetOpenFileName(".", result, { {"Cocoa Projects *.cocoa", "*.cprj"}, {"All Files", "*.*"} }))
 						{
 							EditorLayer::LoadProject(scene, NCPath::CreatePath(result.filepath));
 						}
