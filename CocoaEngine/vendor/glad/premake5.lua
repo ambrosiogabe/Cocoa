@@ -1,7 +1,7 @@
 project "Glad"
     kind "StaticLib"
 	language "C"
-	staticruntime "on"
+	staticruntime "off"
     
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -15,6 +15,12 @@ project "Glad"
 	includedirs {
 		"include"
 	}
+
+	filter { "system:windows", "configurations:Debug" }
+        buildoptions "/MDd"        
+
+    filter { "system:windows", "configurations:Release" }
+        buildoptions "/MD"
     
 	filter "system:windows"
 		systemversion "latest"

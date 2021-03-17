@@ -5,6 +5,9 @@
 
 namespace Cocoa
 {
+	// TODO: Change it so that we build 'myproject-userScripts.dll' that way we can cache all projects
+	// TODO: in the engine exe directory. Then if we load new projects we can load the appropriate dll
+	// TODO: And we can also try to recompile on engine start up, and if it fails we can use the cached dll
 	ScriptScanner::ScriptScanner(const CPath& filepath)
 		: m_Filepath(filepath)
 	{

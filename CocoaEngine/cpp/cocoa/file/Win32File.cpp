@@ -215,7 +215,7 @@ namespace Cocoa
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
 			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
-			if ((dir = FindFirstFileA(dirPath.Path.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			if ((dir = FindFirstFileA(wildcardMatch.Path.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;

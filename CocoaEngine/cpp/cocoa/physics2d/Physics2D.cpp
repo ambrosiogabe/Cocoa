@@ -10,7 +10,7 @@ namespace Cocoa
 	{
 		// Internal Variables
 		static b2Vec2 m_Gravity;
-		static b2World* m_World;
+		static b2World* m_World = nullptr;
 		static float m_PhysicsTime;
 
 		void Init(const glm::vec2& gravity)
@@ -25,15 +25,23 @@ namespace Cocoa
 			auto view = scene.Registry.view<Rigidbody2D>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity entity = { rawEntity, &scene };
+				Entity entity = { rawEntity };
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 
 				// Manually destroy all bodies, in case the physics system would like
 				// to use this world again
-				m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
-				rb.m_RawRigidbody = nullptr;
+				if (rb.m_RawRigidbody)
+				{
+					m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+					rb.m_RawRigidbody = nullptr;
+				}
 			}
-			delete m_World;
+
+			if (m_World)
+			{
+				delete m_World;
+				m_World = nullptr;
+			}
 		}
 
 		bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees)
@@ -93,6 +101,26 @@ namespace Cocoa
 			}
 		}
 
+		void DeleteEntity(Entity entity)
+		{
+			if (NEntity::HasComponent<Rigidbody2D>(entity))
+			{
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+
+				if (rb.m_RawRigidbody)
+				{
+					// Manually destroy all bodies, in case the physics system would like
+					// to use this world again
+					m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
+					rb.m_RawRigidbody = nullptr;
+				}
+				else
+				{
+					Log::Warning("Removed entity from physics engine that wasn't registered.");
+				}
+			}
+		}
+
 		void Update(SceneData& scene, float dt)
 		{
 			m_PhysicsTime += dt;
@@ -105,7 +133,7 @@ namespace Cocoa
 			auto view = scene.Registry.view<TransformData, Rigidbody2D>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity entity = { rawEntity, &scene };
+				Entity entity = { rawEntity };
 				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
@@ -113,6 +141,16 @@ namespace Cocoa
 				transform.Position.x = position.x;
 				transform.Position.y = position.y;
 				transform.EulerRotation.z = CMath::ToDegrees(body->GetAngle());
+			}
+		}
+
+		void ApplyForce(Entity entity, glm::vec2 force)
+		{
+			if (NEntity::HasComponent<Rigidbody2D, TransformData>(entity))
+			{
+				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
+				body->ApplyForceToCenter(b2Vec2(force.x, force.y), true);
 			}
 		}
 

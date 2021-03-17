@@ -5,9 +5,6 @@
 #include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/core/Handle.h"
-
-#include <entt/entt.hpp>
 
 namespace Cocoa
 {

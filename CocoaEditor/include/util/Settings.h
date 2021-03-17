@@ -48,6 +48,10 @@ namespace Cocoa
             extern glm::vec4 s_Button;
             extern glm::vec4 s_ButtonHovered;
 
+            extern glm::vec4 s_Header;
+            extern glm::vec4 s_HeaderHovered;
+            extern glm::vec4 s_HeaderActive;
+
             extern glm::vec4 s_Font;
             extern glm::vec4 s_FontDisabled;
             extern glm::vec4 s_HighlightColor;

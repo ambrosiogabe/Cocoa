@@ -8,8 +8,14 @@ namespace Cocoa
 {
 	namespace SceneHeirarchyWindow
 	{
-		void SetScene(SceneData& scene);
+		void Init();
+		void Destroy();
 
-		void ImGui();
+		void AddNewEntity(Entity entity);
+		void ImGui(SceneData& scene);
+		void DeleteEntity(Entity entity);
+
+		void Serialize(json& j);
+		void Deserialize(json& json, SceneData& scene);
 	};
 }

@@ -9,6 +9,8 @@ namespace Cocoa
 			// =======================================================================
 			// General Settings
 			// =======================================================================
+			// TODO: This is a bit misleading because none of these defaults are actually ever used. See 'CocoaEditorApplication.cpp' to see how they
+			// TODO: are overwritten
 			extern CPath General::s_ImGuiConfigPath = NCPath::CreatePath("default.ini");
 			extern CPath General::s_EngineAssetsPath = NCPath::CreatePath("assets");
 			extern CPath General::s_EngineExeDirectory = NCPath::CreatePath();

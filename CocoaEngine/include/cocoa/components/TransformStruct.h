@@ -1,5 +1,6 @@
 #pragma once
 #include "externalLibs.h"
+#include "cocoa/core/EntityStruct.h"
 
 namespace Cocoa
 {
@@ -10,11 +11,9 @@ namespace Cocoa
 		glm::vec3 EulerRotation;
 		glm::quat Orientation;
 
-		glm::vec3 Forward;
-		glm::vec3 Up;
-		glm::vec3 Right;
-
 		glm::mat4 ModelMatrix;
 		glm::mat4 InverseModelMatrix;
+		glm::vec3 LocalPosition;
+		Entity Parent;
 	};
 }

@@ -26,8 +26,7 @@ project "CocoaEngine"
         "_CRT_SECURE_NO_WARNINGS",
         "NOMINMAX",
         "_COCOA_DLL",
-        "GLFW_DLL",
-		"ENTT_API_EXPORT"
+        "GLFW_DLL"
 	}
 
 	includedirs {

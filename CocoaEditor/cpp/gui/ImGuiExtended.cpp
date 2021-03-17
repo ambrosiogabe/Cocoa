@@ -285,4 +285,37 @@ namespace CImGui
 	{
 		return ImGui::Checkbox(label, checked);
 	}
+
+	ImVec4 From(const glm::vec4& vec4)
+	{
+		return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
+	}
+
+	ImVec2 From(const glm::vec2& vec2)
+	{
+		return ImVec2(vec2.x, vec2.y);
+	}
+
+	bool BeginDragDropTargetCurrentWindow()
+	{
+		ImGuiContext& g = *GImGui;
+		if (!g.DragDropActive)
+			return false;
+
+		ImGuiWindow* window = g.CurrentWindow;
+		if (window == NULL)
+			return false;
+
+		ImRect windowRect = window->Rect();
+		if (!ImGui::IsMouseHoveringRect(windowRect.Min, windowRect.Max))
+			return false;
+		if (window->SkipItems)
+			return false;
+
+		IM_ASSERT(g.DragDropWithinTarget == false);
+		g.DragDropTargetRect = windowRect;
+		g.DragDropTargetId = window->ID;
+		g.DragDropWithinTarget = true;
+		return true;
+	}
 }

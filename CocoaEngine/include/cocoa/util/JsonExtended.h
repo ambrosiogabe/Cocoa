@@ -11,6 +11,7 @@ namespace Cocoa
 		COCOA void AssignIfNotNull(const json& j, const char* property, uint32& val);
 		COCOA void AssignIfNotNull(const json& j, const char* property, int& val);
 		COCOA void AssignIfNotNull(const json& j, const char* property, float& val);
+		COCOA void AssignIfNotNull(const json& j, const char* property, bool& val);
 		COCOA void AssignIfNotNull(const json& j, const char* property, glm::vec2& vec);
 		COCOA void AssignIfNotNull(const json& j, const char* property, glm::vec3& vector);
 		COCOA void AssignIfNotNull(const json& j, const char* property, glm::vec4& vector);

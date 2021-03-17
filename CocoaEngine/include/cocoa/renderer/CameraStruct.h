@@ -13,6 +13,8 @@ namespace Cocoa
 		glm::mat4 InverseProjection;
 
 		glm::vec2 ProjectionSize;
+		float ProjectionNearPlane;
+		float ProjectionFarPlane;
 		TransformData Transform;
 
 		float Fov = 45.0f;

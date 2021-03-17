@@ -124,7 +124,8 @@ namespace Cocoa
 
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
-					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
+					// Set payload to carry the index of our item (could be anything)
+					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));
 					ImageButton(tex, NCPath::Filename(tex.Path), m_ButtonSize);
 					ImGui::EndDragDropSource();
 				}
@@ -252,6 +253,7 @@ namespace Cocoa
 				if (IconButton(ICON_FA_FILE, NCPath::Filename(scenePath), m_ButtonSize))
 				{
 					Scene::Save(scene, Settings::General::s_CurrentScene);
+					Scene::FreeResources(scene);
 					Scene::Load(scene, scenePath);
 				}
 				ImGui::SameLine();

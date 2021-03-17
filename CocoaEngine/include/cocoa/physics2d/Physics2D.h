@@ -16,7 +16,10 @@ namespace Cocoa
 		COCOA bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees);
 
 		COCOA void AddEntity(Entity entity);
+        COCOA void DeleteEntity(Entity entity);
 		COCOA void Update(SceneData& scene, float dt);
+
+        COCOA void ApplyForce(Entity entity, glm::vec2 force);
 
         // ----------------------------------------------------------------------------
         // Serialization

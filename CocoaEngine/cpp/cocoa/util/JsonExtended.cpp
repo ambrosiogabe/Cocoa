@@ -82,6 +82,14 @@ namespace Cocoa
 		}
 	}
 
+	void JsonExtended::AssignIfNotNull(const json& j, const char* property, bool& value)
+	{
+		if (j.contains(property))
+		{
+			value = j[property];
+		}
+	}
+
 	void JsonExtended::AssignIfNotNull(const json& j, const char* property, CPath& path)
 	{
 		if (j.contains(property) && j[property].is_string())

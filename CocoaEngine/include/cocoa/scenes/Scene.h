@@ -5,12 +5,10 @@
 #include "cocoa/file/CPath.h"
 #include "cocoa/scenes/SceneInitializer.h"
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/core/Handle.h"
 #include "cocoa/events/Event.h"
 #include "cocoa/scenes/SceneData.h"
+#include "cocoa/core/Handle.h"
 #include "cocoa/core/Entity.h"
-
-#include <entt/entt.hpp>
 
 namespace Cocoa
 {
@@ -29,11 +27,14 @@ namespace Cocoa
 		COCOA void Play(SceneData& data);
 		COCOA void Stop(SceneData& data);
 		COCOA void Save(SceneData& data, const CPath& filename);
-		COCOA void Load(SceneData& data, const CPath& filename);
+		COCOA void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene = true);
 		COCOA void LoadScriptsOnly(SceneData& data, const CPath& filename);
 
 		COCOA Entity CreateEntity(SceneData& data);
 		COCOA Entity DuplicateEntity(SceneData& data, Entity entity);
 		COCOA Entity GetEntity(SceneData& data, uint32 id);
+		COCOA bool IsValid(SceneData& scene, uint32 entityId);
+		COCOA bool IsValid(SceneData& scene, Entity entity);
+		COCOA void DeleteEntity(SceneData& data, Entity entity);
 	};
 }

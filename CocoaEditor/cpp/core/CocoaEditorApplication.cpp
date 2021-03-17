@@ -40,6 +40,38 @@ namespace Cocoa
 			Settings::General::s_EngineExeDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -1));
 			Settings::General::s_EngineSourceDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -4));
 			Log::Info("%s", Settings::General::s_EngineExeDirectory.Path.c_str());
+
+			// Set the assets path as CWD (which should be where the exe is currently located)
+			Settings::General::s_EngineAssetsPath = File::GetCwd();
+			NCPath::Join(Settings::General::s_EngineAssetsPath, NCPath::CreatePath("assets"));
+			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(Settings::General::s_ImGuiConfigPath, NCPath::CreatePath("default.ini"));
+
+			// Set the styles directory
+			Settings::General::s_StylesDirectory = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(Settings::General::s_StylesDirectory, NCPath::CreatePath("styles"));
+
+			// Create application store data if it does not exist
+			CPath cocoaEngine = File::GetSpecialAppFolder();
+			NCPath::Join(cocoaEngine, NCPath::CreatePath("CocoaEngine"));
+			File::CreateDirIfNotExists(cocoaEngine);
+
+			CPath editorSaveData = cocoaEngine;
+			NCPath::Join(editorSaveData, Settings::General::s_EditorSaveData);
+			Settings::General::s_EditorSaveData = editorSaveData;
+			CPath editorStyleData = cocoaEngine;
+			NCPath::Join(editorStyleData, Settings::General::s_EditorStyleData);
+			Settings::General::s_EditorStyleData = editorStyleData;
+
+			// Copy default script files to the assets path
+			CPath defaultScriptH = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(defaultScriptH, NCPath::CreatePath("defaultCodeFiles"));
+			NCPath::Join(defaultScriptH, NCPath::CreatePath("DefaultScript.h"));
+			CPath defaultScriptCpp = Settings::General::s_EngineAssetsPath;
+			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("defaultCodeFiles"));
+			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
+			File::CopyFile(defaultScriptH, cocoaEngine, "DefaultScript");
+			File::CopyFile(defaultScriptCpp, cocoaEngine, "DefaultScript");
 		}
 
 		bool CreateProject(SceneData& scene, const CPath& projectPath, const char* filename)
@@ -53,8 +85,7 @@ namespace Cocoa
 
 			json saveData = {
 				{"ProjectPath", Settings::General::s_CurrentProject.Path.c_str()},
-				{"CurrentScene", Settings::General::s_CurrentScene.Path.c_str()},
-				{"WorkingDirectory", Settings::General::s_WorkingDirectory.Path.c_str() }
+				{"CurrentScene", Settings::General::s_CurrentScene.Path.c_str()}
 			};
 
 			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
@@ -143,10 +174,12 @@ namespace Cocoa
 				json j = json::parse(projectData->m_Data);
 				if (!j["CurrentScene"].is_null())
 				{
+					Settings::General::s_CurrentProject = path;
 					Settings::General::s_CurrentScene = NCPath::CreatePath(j["CurrentScene"], false);
-					Settings::General::s_WorkingDirectory = NCPath::CreatePath(j["WorkingDirectory"], false);
+					Settings::General::s_WorkingDirectory = NCPath::CreatePath(NCPath::GetDirectory(path, -1));
 
 					CocoaEditor* application = (CocoaEditor*)Application::Get();
+					Scene::FreeResources(scene);
 					Scene::Load(scene, Settings::General::s_CurrentScene);
 
 					SaveEditorData();
@@ -155,6 +188,7 @@ namespace Cocoa
 
 					CPath scriptsPath = Settings::General::s_WorkingDirectory;
 					NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
+					File::GetFoldersInDir(scriptsPath);
 					m_SourceFileWatcher = std::make_shared<SourceFileWatcher>(scriptsPath);
 					static_cast<CocoaEditor*>(Application::Get())->SetProjectLoaded();
 					isLoaded = true;
@@ -167,34 +201,6 @@ namespace Cocoa
 
 		void OnAttach(SceneData& scene)
 		{
-			// Set the assets path as CWD (which should be where the exe is currently located)
-			Settings::General::s_EngineAssetsPath = File::GetCwd();
-			NCPath::Join(Settings::General::s_EngineAssetsPath, NCPath::CreatePath("assets"));
-			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(Settings::General::s_ImGuiConfigPath, NCPath::CreatePath("default.ini"));
-
-			// Create application store data if it does not exist
-			CPath cocoaEngine = File::GetSpecialAppFolder();
-			NCPath::Join(cocoaEngine, NCPath::CreatePath("CocoaEngine"));
-			File::CreateDirIfNotExists(cocoaEngine);
-
-			CPath editorSaveData = cocoaEngine;
-			NCPath::Join(editorSaveData, Settings::General::s_EditorSaveData);
-			Settings::General::s_EditorSaveData = editorSaveData;
-			CPath editorStyleData = cocoaEngine;
-			NCPath::Join(editorStyleData, Settings::General::s_EditorStyleData);
-			Settings::General::s_EditorStyleData = editorStyleData;
-
-			// Copy default script files to the assets path
-			CPath defaultScriptH = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(defaultScriptH, NCPath::CreatePath("defaultCodeFiles"));
-			NCPath::Join(defaultScriptH, NCPath::CreatePath("DefaultScript.h"));
-			CPath defaultScriptCpp = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("defaultCodeFiles"));
-			NCPath::Join(defaultScriptCpp, NCPath::CreatePath("DefaultScript.cpp"));
-			File::CopyFile(defaultScriptH, cocoaEngine, "DefaultScript");
-			File::CopyFile(defaultScriptCpp, cocoaEngine, "DefaultScript");
-
 			LoadEditorData(scene, Settings::General::s_EditorSaveData);
 		}
 
@@ -295,8 +301,8 @@ namespace Cocoa
 		Cocoa::Input::Init();
 
 		// Application Initialization
-		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());
 		Cocoa::EditorLayer::Init();
+		Cocoa::ImGuiLayer::Init(GetWindow()->GetNativeWindow());
 
 		m_CurrentScene = Scene::Create(new LevelEditorSceneInitializer());
 		Scene::Init(m_CurrentScene);
@@ -313,6 +319,7 @@ namespace Cocoa
 
 #if _COCOA_DEBUG
 		// In debug builds free all the memory to make sure there are no leaks
+		ImGuiLayer::Destroy();
 		DebugDraw::Destroy();
 		Scene::FreeResources(m_CurrentScene);
 #endif

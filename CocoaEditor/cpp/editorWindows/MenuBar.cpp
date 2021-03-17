@@ -2,6 +2,7 @@
 #include "core/ImGuiLayer.h"
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/ProjectWizard.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
 #include "gui/ImGuiExtended.h"
 #include "util/Settings.h"
 
@@ -48,6 +49,38 @@ namespace Cocoa
 			if (ImGui::ListBox("Styles", &Settings::Editor::SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
 				ImGuiLayer::LoadStyle(styles[Settings::Editor::SelectedStyle]);
+			}
+
+			if (ImGui::CollapsingHeader("Edit Style Colors"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::UndoableColorEdit4("Accent", Settings::EditorStyle::s_Accent);
+				CImGui::UndoableColorEdit4("AccentDark0", Settings::EditorStyle::s_AccentDark0);
+				CImGui::UndoableColorEdit4("AccentDark1", Settings::EditorStyle::s_AccentDark1);
+				CImGui::UndoableColorEdit4("Button", Settings::EditorStyle::s_Button);
+				CImGui::UndoableColorEdit4("ButtonHovered", Settings::EditorStyle::s_ButtonHovered);
+				CImGui::UndoableColorEdit4("Header", Settings::EditorStyle::s_Header);
+				CImGui::UndoableColorEdit4("HeaderHovered", Settings::EditorStyle::s_HeaderHovered);
+				CImGui::UndoableColorEdit4("HeaderActive", Settings::EditorStyle::s_HeaderActive);
+				CImGui::UndoableColorEdit4("DefaultFontColor", Settings::EditorStyle::s_Font);
+				CImGui::UndoableColorEdit4("DefaultFontDisabledColor", Settings::EditorStyle::s_FontDisabled);
+				CImGui::UndoableColorEdit4("HighlightColor", Settings::EditorStyle::s_HighlightColor);
+				CImGui::UndoableColorEdit4("MainBg", Settings::EditorStyle::s_MainBg);
+				CImGui::UndoableColorEdit4("MainBgDark0", Settings::EditorStyle::s_MainBgDark0);
+				CImGui::UndoableColorEdit4("MainBgDark1", Settings::EditorStyle::s_MainBgDark1);
+				CImGui::UndoableColorEdit4("MainBgDark2", Settings::EditorStyle::s_MainBgDark2);
+				CImGui::UndoableColorEdit4("MainBgLight0", Settings::EditorStyle::s_MainBgLight0);
+				CImGui::EndCollapsingHeaderGroup();
+				ImGuiLayer::ApplyStyle();
+
+				if (CImGui::Button("Export..."))
+				{
+					FileDialogResult result;
+					if (FileDialog::GetSaveFileName(Settings::General::s_StylesDirectory.Path, result))
+					{
+						ImGuiLayer::ExportCurrentStyle(NCPath::CreatePath(result.filepath));
+					}
+				}
 			}
 			ImGui::End();
 		}
@@ -135,6 +168,7 @@ namespace Cocoa
 					{
 						Entity entity = Scene::CreateEntity(scene);
 						NEntity::AddComponent<SpriteRenderer>(entity);
+						SceneHeirarchyWindow::AddNewEntity(entity);
 					}
 
 					ImGui::EndMenu();

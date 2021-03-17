@@ -26,8 +26,6 @@ namespace Cocoa
 
 				Sprite sprite{
 					textureHandle,
-					spriteWidth,
-					spriteHeight,
 					{
 						{rightX, topY},
 						{rightX, bottomY},

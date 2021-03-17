@@ -4,6 +4,7 @@
 #include "gui/ImGuiExtended.h"
 #include "nativeScripting/SourceFileWatcher.h"
 
+#include "cocoa/components/Tag.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/components/SpriteRenderer.h"
 #include "cocoa/components/FontRenderer.h"
@@ -14,6 +15,8 @@
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/core/AssetManager.h"
+#include "cocoa/core/Memory.h"
+#include "cocoa/scenes/Scene.h"
 
 namespace Cocoa
 {
@@ -21,12 +24,15 @@ namespace Cocoa
 	{
 		// Internal Variables
 		std::vector<Entity> ActiveEntities = std::vector<Entity>();
-		static const char* StringBuffer[100];
+		static const char* StringPointerBuffer[100];
+		static const int STRING_BUFFER_MAX = 100;
+		static char StringBuffer[STRING_BUFFER_MAX];
 
 		// Forward declarations
 		// =====================================================================
 		// Basic components
 		// =====================================================================
+		static void ImGuiTag(Tag& tag);
 		static void ImGuiTransform(TransformData& transform);
 
 		// =====================================================================
@@ -45,7 +51,7 @@ namespace Cocoa
 
 		static void ImGuiAddComponentButton();
 
-		void ImGui()
+		void ImGui(SceneData& scene)
 		{
 			ImGui::Begin(ICON_FA_CUBE "Inspector");
 			if (ActiveEntities.size() == 0)
@@ -54,6 +60,7 @@ namespace Cocoa
 				return;
 			}
 
+			bool doTag = true;
 			bool doTransform = true;
 			bool doSpriteRenderer = true;
 			bool doFontRenderer = true;
@@ -64,6 +71,8 @@ namespace Cocoa
 
 			for (auto& entity: ActiveEntities)
 			{
+				Log::Assert(Scene::IsValid(scene, entity), "Invalid active entity in inspector window");
+				doTag &= NEntity::HasComponent<Tag>(entity);
 				doTransform &= NEntity::HasComponent<TransformData>(entity);
 				doSpriteRenderer &= NEntity::HasComponent<SpriteRenderer>(entity);
 				doFontRenderer &= NEntity::HasComponent<FontRenderer>(entity);
@@ -73,6 +82,8 @@ namespace Cocoa
 				doCircle &= NEntity::HasComponent<Circle>(entity);
 			}
 
+			if (doTag)
+				ImGuiTag(NEntity::GetComponent<Tag>(ActiveEntities[0]));
 			if (doTransform)
 				ImGuiTransform(NEntity::GetComponent<TransformData>(ActiveEntities[0]));
 			if (doSpriteRenderer)
@@ -87,7 +98,7 @@ namespace Cocoa
 				ImGuiAABB(NEntity::GetComponent<AABB>(ActiveEntities[0]));
 			if (doCircle)
 				ImGuiCircle(NEntity::GetComponent<Circle>(ActiveEntities[0]));
-			ScriptSystem::ImGui(ActiveEntities[0]);
+			ScriptSystem::ImGui(scene, ActiveEntities[0]);
 
 			ImGuiAddComponentButton();
 			ImGui::End();
@@ -95,7 +106,7 @@ namespace Cocoa
 
 		void AddEntity(Entity entity)
 		{
-			if (std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
+			if (!NEntity::IsNull(entity) && std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
 				ActiveEntities.push_back(entity);
 		}
 
@@ -129,19 +140,19 @@ namespace Cocoa
 			auto classIter = classes.begin();
 			for (int i = 0; i < classes.size(); i++)
 			{
-				StringBuffer[i + defaultComponentSize] = classIter->m_ClassName.c_str();
+				StringPointerBuffer[i + defaultComponentSize] = classIter->m_ClassName.c_str();
 				classIter++;
 			}
 
-			StringBuffer[0] = "Sprite Renderer";
-			StringBuffer[1] = "Font Renderer";
-			StringBuffer[2] = "Rigidbody2D";
-			StringBuffer[3] = "Box Collider2D";
-			StringBuffer[4] = "Circle Collider2D";
+			StringPointerBuffer[0] = "Sprite Renderer";
+			StringPointerBuffer[1] = "Font Renderer";
+			StringPointerBuffer[2] = "Rigidbody2D";
+			StringPointerBuffer[3] = "Box Collider2D";
+			StringPointerBuffer[4] = "Circle Collider2D";
 
 			Entity activeEntity = ActiveEntities[0];
 			int itemPressed = 0;
-			if (CImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", StringBuffer, size, itemPressed))
+			if (CImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", StringPointerBuffer, size, itemPressed))
 			{
 				switch (itemPressed)
 				{
@@ -161,8 +172,8 @@ namespace Cocoa
 					NEntity::AddComponent<Circle>(activeEntity);
 					break;
 				default:
-					Log::Info("Adding component %s from inspector to %d", StringBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
-					ScriptSystem::AddComponentFromString(StringBuffer[itemPressed], activeEntity.Handle, activeEntity.Scene->Registry);
+					Log::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
+					ScriptSystem::AddComponentFromString(StringPointerBuffer[itemPressed], activeEntity.Handle, NEntity::GetScene()->Registry);
 					break;
 				}
 			}
@@ -171,6 +182,36 @@ namespace Cocoa
 		// =====================================================================
 		// Basic components
 		// =====================================================================
+		static void ImGuiTag(Tag& tag)
+		{
+			if (ImGui::CollapsingHeader("Tag"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+				Log::Assert(tag.Size < STRING_BUFFER_MAX, "Entity Name only supports text sizes up to 100 characters.");
+				strcpy(StringBuffer, tag.Name);
+				if (CImGui::InputText("Entity Name: ", StringBuffer, sizeof(StringBuffer)))
+				{
+					int newTextSize = strlen(StringBuffer);
+					int newTextSizeWithNullChar = newTextSize + 1;
+					// We keep it as char* until we the new string over the pointer, then we assign a new immutable 
+					// const char* to the tag
+					char* newTagName = nullptr;
+					if (tag.IsHeapAllocated)
+					{
+						newTagName = (char*)ReallocMem((void*)tag.Name, sizeof(char) * newTextSizeWithNullChar);
+					}
+					else
+					{
+						newTagName = (char*)AllocMem(sizeof(char) * newTextSizeWithNullChar);
+						tag.IsHeapAllocated = true;
+					}
+					strcpy(newTagName, StringBuffer);
+					tag.Name = newTagName;
+				}
+				CImGui::EndCollapsingHeaderGroup();
+			}
+		}
+
 		static void ImGuiTransform(TransformData& transform)
 		{
 			static bool collapsingHeaderOpen = true;
@@ -232,12 +273,11 @@ namespace Cocoa
 				CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.m_Color);
 				CImGui::UndoableDragInt("Font Size: ", fontRenderer.fontSize);
 
-				static char textBuffer[100];
-				Log::Assert(fontRenderer.text.size() < 100, "Font Renderer only supports text sizes up to 100 characters.");
-				strcpy(textBuffer, fontRenderer.text.c_str());
-				if (CImGui::InputText("Text: ", textBuffer, 100))
+				Log::Assert(fontRenderer.text.size() < STRING_BUFFER_MAX, "Font Renderer only supports text sizes up to 100 characters.");
+				strcpy(StringBuffer, fontRenderer.text.c_str());
+				if (CImGui::InputText("Text: ", StringBuffer, sizeof(StringBuffer)))
 				{
-					fontRenderer.text = textBuffer;
+					fontRenderer.text = StringBuffer;
 				}
 
 				if (fontRenderer.m_Font)
@@ -319,11 +359,11 @@ namespace Cocoa
 				CImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
 
 				CImGui::EndCollapsingHeaderGroup();
-
-				// Draw box highlight
-				const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
-				DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
 			}
+
+			// Draw box highlight
+			const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
+			DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
 		}
 
 		static void ImGuiCircle(Circle& circle)

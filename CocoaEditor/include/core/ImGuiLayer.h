@@ -15,10 +15,13 @@ namespace Cocoa
     namespace ImGuiLayer
     {
         void Init(void* window);
+        void Destroy();
         void OnEvent(SceneData& scene, Event& e);
         void BeginFrame(SceneData& scene);
         void EndFrame();
 
         void LoadStyle(const CPath& filepath);
+        void ApplyStyle();
+        void ExportCurrentStyle(const CPath& outputPath);
     };
 }

@@ -20,10 +20,15 @@ namespace Cocoa
 #if _COCOA_DEBUG
 			glm::vec2 testVec = res.Verts[1] - res.Verts[0];
 			float testLength = glm::length(testVec);
-			Log::Assert(CMath::Compare(stroke, testLength, 0.001f), "Invalid result when computing line2D position. Stroke width does not match. Stroke %2.3f, Actual Length: %2.3f", stroke, testLength);
+			if (!CMath::Compare(stroke, testLength, 0.001f))
+			{
+				Log::Warning("Invalid result when computing line2D position. Stroke width does not match. Stroke %2.3f, Actual Length: %2.3f", stroke, testLength);
+			}
 #endif
 
 			res.OnTop = onTop;
+			res.Lifetime = lifetime;
+			res.Color = color;
 			return res;
 		}
 	}

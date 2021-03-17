@@ -6,7 +6,7 @@ namespace Cocoa
 	namespace NEntity
 	{
 		// Internal Variables
-		static Entity Null = { entt::null, nullptr };
+		static Entity Null = { entt::null };
 		static SceneData* m_Scene = nullptr;
 
 		Entity CreateEntity(SceneData* scene)
@@ -16,7 +16,7 @@ namespace Cocoa
 
 		Entity CreateEntity(entt::entity raw)
 		{
-			return Entity{ raw, GetScene() };
+			return Entity{ raw };
 		}
 
 		void SetScene(SceneData* scene)
@@ -43,5 +43,15 @@ namespace Cocoa
 	bool operator==(Entity& a, Entity& b)
 	{
 		return a.Handle == b.Handle;
+	}
+
+	bool operator!=(const Entity& a, const Entity& b)
+	{
+		return !(a == b);
+	}
+
+	bool operator!=(Entity& a, Entity& b)
+	{
+		return !(a == b);
 	}
 }

@@ -6,6 +6,15 @@
 namespace Cocoa
 {
 	template<typename T>
+	using Compare = bool (*)(T& e1, T& e2);
+
+	template<typename T>
+	bool defaultCompare(T & e1, T & e2)
+	{
+		return memcmp(&e1, &e2, sizeof(T)) == 0;
+	}
+
+	template<typename T>
 	struct DynamicArray
 	{
 		T* m_Data;
@@ -29,7 +38,7 @@ namespace Cocoa
 	namespace NDynamicArray
 	{
 		template<typename T>
-		DynamicArray<T> Create(int size=0)
+		DynamicArray<T> Create(int size = 0)
 		{
 			DynamicArray<T> data;
 			Log::Assert(size >= 0, "Cannot initalize a dynamic array of with a negative size.");
@@ -107,6 +116,19 @@ namespace Cocoa
 		}
 
 		template<typename T>
+		void Remove(DynamicArray<T>& data, T& element, Compare<T> compareFn = defaultCompare)
+		{
+			for (int i = 0; i < data.m_NumElements; i++)
+			{
+				if (compareFn(data.m_Data[i], element))
+				{
+					Remove<T>(data, i);
+					return;
+				}
+			}
+		}
+
+		template<typename T>
 		T& Get(DynamicArray<T>& data, int index)
 		{
 			Log::Assert(index >= 0 && index < data.m_NumElements, "Index out of bounds exception. '%d' in array size '%d'.", index, data.m_NumElements);
@@ -121,6 +143,14 @@ namespace Cocoa
 		}
 
 		template<typename T>
+		const T Pop(DynamicArray<T>& data)
+		{
+			Log::Assert(data.m_NumElements > 0, "Cannot pop empty array.");
+			data.m_NumElements -= 1;
+			return data.m_Data[data.m_NumElements];
+		}
+
+		template<typename T>
 		T* Begin(DynamicArray<T>& data)
 		{
 			return &data.m_Data[0];
@@ -130,6 +160,35 @@ namespace Cocoa
 		T* End(DynamicArray<T>& data)
 		{
 			return &data.m_Data[0] + data.m_NumElements;
+		}
+
+		template<typename T>
+		void Clear(DynamicArray<T>& data, bool freeMemory = true)
+		{
+			data.m_NumElements = 0;
+			if (freeMemory)
+			{
+				if (data.m_MaxSize != 1)
+				{
+					data.m_MaxSize = 1;
+					data.m_Data = (T*)ReallocMem(data.m_Data, sizeof(T) * data.m_MaxSize);
+				}
+			}
+		}
+
+		template<typename T>
+		int FindIndexOf(DynamicArray<T>& data, T& element)
+		{
+			// TODO: Horrible search, linear complexity can probably be improved
+			for (int i = 0; i < data.m_NumElements; i++)
+			{
+				if (memcmp(&data.m_Data[i], &element, sizeof(T)) == 0)
+				{
+					return i;
+				}
+			}
+
+			return -1;
 		}
 	}
 }

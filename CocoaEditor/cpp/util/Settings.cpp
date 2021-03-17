@@ -31,7 +31,7 @@ namespace Cocoa
 
 			// Style Colors
 			glm::vec4 s_MainBgLight0{ 0.404f, 0.404f ,0.404f, 1.0f };
-			glm::vec4 s_MainBg{ 0.212f, 0.212f, 0.212f, 1.0f };
+			glm::vec4 s_MainBg{ 0.21f, 0.21f, 0.21f, 1.0f };
 			glm::vec4 s_MainBgDark0{ 0.190f, 0.190f, 0.190f, 1.0f };
 			glm::vec4 s_MainBgDark1{ 0.145f, 0.145f, 0.145f, 1.0f };
 			glm::vec4 s_MainBgDark2{ 0.098f, 0.098f, 0.098f, 1.0f };
@@ -42,9 +42,13 @@ namespace Cocoa
 
 			glm::vec4 s_Button{ 0.882f, 0.882f, 0.882f, 1.0f };
 			glm::vec4 s_ButtonHovered{ 0.782f, 0.782f, 0.782f, 1.0f };
+			
+			glm::vec4 s_Header{ 0.338f, 0.338f, 0.338f, 1.0f };
+			glm::vec4 s_HeaderHovered{ 0.276f, 0.276f, 0.276f, 1.0f };
+			glm::vec4 s_HeaderActive{ 0.379f, 0.379f, 0.379f, 1.0f };
 
 			glm::vec4 s_Font{ 0.902f, 0.902f, 0.902f, 1.0f };
-			glm::vec4 s_FontDisabled{ 0.839f, 0.839f, 0.839f, 1.0f };
+			glm::vec4 s_FontDisabled{ 0.36f, 0.36f, 0.36f, 1.0f };
 			glm::vec4 s_HighlightColor{ 0.145f, 0.553f, 0.384f, 1.0f };
 
 			// Sizing

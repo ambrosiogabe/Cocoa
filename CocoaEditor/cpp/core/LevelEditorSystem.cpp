@@ -3,6 +3,7 @@
 #include "gui/FontAwesome.h"
 #include "gui/ImGuiExtended.h"
 #include "editorWindows/InspectorWindow.h"
+#include "editorWindows/SceneHeirarchyWindow.h"
 #include "util/Settings.h"
 
 #include "cocoa/systems/ScriptSystem.h"
@@ -14,6 +15,10 @@
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/file/File.h"
+#include "cocoa/components/Tag.h"
+#include "cocoa/components/SpriteRenderer.h"
+#include "cocoa/components/FontRenderer.h"
+#include "cocoa/physics2d/PhysicsComponents.h"
 
 #include <imgui.h>
 
@@ -49,8 +54,10 @@ namespace Cocoa
 		static bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene);
 		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
+		static void InitComponentIds(SceneData& scene);
 		void Init(SceneData& scene)
 		{
+			InitComponentIds(scene);
 			tmpScriptDll = Settings::General::s_EngineExeDirectory;
 			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
 			scriptDll = Settings::General::s_EngineExeDirectory;
@@ -62,6 +69,32 @@ namespace Cocoa
 		void Destroy(SceneData& scene)
 		{
 
+		}
+
+		static void InitComponentIds(SceneData& scene)
+		{
+			NEntity::RegisterComponentType<TransformData>();
+			NEntity::RegisterComponentType<Tag>();
+			NEntity::RegisterComponentType<SpriteRenderer>();
+			NEntity::RegisterComponentType<FontRenderer>();
+			NEntity::RegisterComponentType<Rigidbody2D>();
+			NEntity::RegisterComponentType<Box2D>();
+			NEntity::RegisterComponentType<Circle>();
+			NEntity::RegisterComponentType<AABB>();
+		}
+
+		static float lerp(float a, float b, float t)
+		{
+			return a + t * (b - a);
+		}
+
+		static glm::vec3 lerp(glm::vec3& a, glm::vec3& b, float t)
+		{
+			return {
+				lerp(a.x, b.x, t),
+				lerp(a.y, b.y, t),
+				lerp(a.z, b.z, t)
+			};
 		}
 
 		void EditorUpdate(SceneData& scene, float dt)
@@ -76,14 +109,16 @@ namespace Cocoa
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
 				EditorLayer::SaveProject();
-				ScriptSystem::FreeScriptLibrary();
 
+				// This should free the scripts too so we can delete the old dll
+				Scene::FreeResources(scene);
+
+				// Now copy new dll and reload the scene
 				File::DeleteFile(scriptDll);
 				File::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
-				ScriptSystem::Reload();
-				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
-				Scene::LoadScriptsOnly(scene, Settings::General::s_CurrentScene);
+				Scene::Load(scene, Settings::General::s_CurrentScene);
 
+				// Then delete temporary file of new dll
 				File::DeleteFile(tmpScriptDll);
 			}
 
@@ -92,8 +127,9 @@ namespace Cocoa
 				Camera& camera = scene.SceneCamera;
 				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
-				delta *= 0.8f;
-				camera.Transform.Position = m_OriginalCameraPos + delta;
+				// TODO: Make this an editor setting
+				static const float sharpness = 15.0f;
+				camera.Transform.Position = lerp(camera.Transform.Position, camera.Transform.Position + delta, dt * sharpness);
 			}
 
 			// Draw grid lines
@@ -196,7 +232,19 @@ namespace Cocoa
 						Entity duplicated = Scene::DuplicateEntity(scene, activeEntity);
 						InspectorWindow::ClearAllEntities();
 						InspectorWindow::AddEntity(duplicated);
+						SceneHeirarchyWindow::AddNewEntity(duplicated);
 					}
+				}
+			}
+
+			if (e.GetKeyCode() == COCOA_KEY_DELETE)
+			{
+				Entity activeEntity = InspectorWindow::GetActiveEntity();
+				if (!NEntity::IsNull(activeEntity))
+				{
+					SceneHeirarchyWindow::DeleteEntity(activeEntity);
+					Scene::DeleteEntity(scene, activeEntity);
+					InspectorWindow::ClearAllEntities();
 				}
 			}
 
@@ -215,12 +263,27 @@ namespace Cocoa
 
 		bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene)
 		{
+			static const float minZoom = 0.3f;
+			static const float logMinZoom = glm::log(minZoom);
+			static const float maxZoom = 100.0f;
+			static const float logMaxZoom = glm::log(maxZoom);
+			// TODO: Make this an editor setting (maxSteps should be the setting)
+			static const float maxSteps = 100;
+			static float step = -1;
+			static float cameraSensitivity = 0.5f;
+
 			float yOffset = -e.GetYOffset();
 			if (yOffset != 0)
 			{
 				Camera& camera = scene.SceneCamera;
-				//float speed = 500.0f * camera->GetZoom();
-				camera.Zoom = camera.Zoom + (yOffset * 0.05f);
+				if (step < 0)
+				{
+					step = (glm::log(camera.Zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
+				}
+
+				step = glm::clamp(yOffset < 0 ? step - 1.0f : step + 1.0f, 0.0f, maxSteps);
+				float logZoom = logMinZoom + (logMaxZoom - logMinZoom) * step / (maxSteps - 1);
+				camera.Zoom = glm::exp(logZoom);
 				NCamera::AdjustPerspective(camera);
 			}
 
@@ -236,7 +299,6 @@ namespace Cocoa
 				const Camera& camera = scene.SceneCamera;
 				m_OriginalCameraPos = camera.Transform.Position;
 				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
-				//m_DragClickOffset = CMath::Vector3From2(camera->ScreenToOrtho()) - camera->GetTransform().m_Position;
 			}
 
 			return false;

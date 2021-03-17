@@ -8,7 +8,7 @@ namespace Cocoa
 {
 	namespace InspectorWindow
 	{
-		void ImGui();
+		void ImGui(SceneData& scene);
 
 		void AddEntity(Entity entity);
 

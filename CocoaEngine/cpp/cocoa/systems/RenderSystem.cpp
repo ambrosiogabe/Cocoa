@@ -131,12 +131,12 @@ namespace Cocoa
 
 		void Render(const SceneData& scene)
 		{
-			scene.Registry.group<const SpriteRenderer>(entt::get<const TransformData>).each([](auto entity, auto& spr, auto& transform)
+			scene.Registry.view<const SpriteRenderer, const TransformData>().each([](auto entity, const auto& spriteRenderer, const auto& transform)
 				{
-					AddEntity(transform, spr);
+					AddEntity(transform, spriteRenderer);
 				});
 
-			scene.Registry.group<const FontRenderer>(entt::get<const TransformData>).each([](auto entity, const auto& fontRenderer, const auto& transform)
+			scene.Registry.view<const FontRenderer, const TransformData>().each([](auto entity, const auto& fontRenderer, const auto& transform)
 				{
 					AddEntity(transform, fontRenderer);
 				});
