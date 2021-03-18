@@ -27,6 +27,8 @@ using json = nlohmann::json;
 #include <box2D/b2_shape.h>
 #include <box2D/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
+#include <box2d/b2_contact.h>
+#include <box2d/b2_collision.h>
 
 // ===================================================================
 // Entt

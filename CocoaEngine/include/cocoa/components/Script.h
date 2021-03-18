@@ -12,8 +12,7 @@ namespace Cocoa
 		virtual void Update(Entity entity, float dt) {}
 		virtual void ImGui(Entity entity) {}
 
-		//virtual void BaseImGui() = 0;
-		//virtual void Serialize(json& j, Entity entity, const Script& script) = 0;
-		//virtual void DeSerialize(json& j, Entity entity) = 0;
+		virtual void BeginContact(Entity other) {}
+		virtual void EndContact(Entity other) {}
 	};
 }

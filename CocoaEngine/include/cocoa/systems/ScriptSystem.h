@@ -17,6 +17,8 @@ namespace Cocoa
     typedef void (*InitImGuiFn)(void*);
     typedef void (*ImGuiFn)(entt::registry&, Entity);
     typedef void (*DeleteScriptsFn)();
+    typedef void (*NotifyBeginContactFn)(Entity, Entity);
+    typedef void (*NotifyEndContactFn)(Entity, Entity);
 
     namespace ScriptSystem
     {
@@ -26,6 +28,9 @@ namespace Cocoa
 
         COCOA void ImGui(SceneData& scene, Entity entity);
         COCOA void InitImGui(void* context);
+
+        COCOA void NotifyBeginContact(Entity entityA, Entity entityB);
+        COCOA void NotifyEndContact(Entity entityA, Entity entityB);
 
         COCOA void Reload(SceneData& scene, bool deleteScriptComponents = false);
         COCOA void SaveScripts(SceneData& scene, json& j);

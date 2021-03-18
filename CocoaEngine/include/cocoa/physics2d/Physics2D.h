@@ -19,7 +19,10 @@ namespace Cocoa
         COCOA void DeleteEntity(Entity entity);
 		COCOA void Update(SceneData& scene, float dt);
 
-        COCOA void ApplyForce(Entity entity, glm::vec2 force);
+        COCOA void ApplyForceToCenter(const Rigidbody2D& rigidbody, const glm::vec2& force);
+        COCOA void ApplyForce(const Rigidbody2D& rigidbody, const glm::vec2& force, const glm::vec2& point);
+        COCOA void ApplyLinearImpulseToCenter(const Rigidbody2D& rigidbody, const glm::vec2& impulse);
+        COCOA void ApplyLinearImpulse(const Rigidbody2D& rigidbody, const glm::vec2& impulse, const glm::vec2& point);
 
         // ----------------------------------------------------------------------------
         // Serialization

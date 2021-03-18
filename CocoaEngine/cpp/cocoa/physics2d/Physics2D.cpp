@@ -1,4 +1,5 @@
 #include "cocoa/physics2d/Physics2D.h"
+#include "cocoa/physics2d/ContactListener.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/util/CMath.h"
@@ -11,12 +12,14 @@ namespace Cocoa
 		// Internal Variables
 		static b2Vec2 m_Gravity;
 		static b2World* m_World = nullptr;
+		static ContactListener contactListener;
 		static float m_PhysicsTime;
 
 		void Init(const glm::vec2& gravity)
 		{
 			m_Gravity = { gravity.x, gravity.y };
 			m_World = new b2World{ m_Gravity };
+			m_World->SetContactListener(&contactListener);
 			m_PhysicsTime = 0.0f;
 		}
 
@@ -26,15 +29,7 @@ namespace Cocoa
 			for (entt::entity rawEntity : view)
 			{
 				Entity entity = { rawEntity };
-				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
-
-				// Manually destroy all bodies, in case the physics system would like
-				// to use this world again
-				if (rb.m_RawRigidbody)
-				{
-					m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
-					rb.m_RawRigidbody = nullptr;
-				}
+				DeleteEntity(entity);
 			}
 
 			if (m_World)
@@ -80,6 +75,10 @@ namespace Cocoa
 					bodyDef.type = b2BodyType::b2_kinematicBody;
 				}
 
+				entt::entity* staticRef = (entt::entity*)AllocMem(sizeof(entity.Handle));
+				*staticRef = entity.Handle;
+				bodyDef.userData = (void*)staticRef;
+
 				b2Body* body = m_World->CreateBody(&bodyDef);
 				rb.m_RawRigidbody = body;
 
@@ -111,6 +110,13 @@ namespace Cocoa
 				{
 					// Manually destroy all bodies, in case the physics system would like
 					// to use this world again
+					b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
+					void* userData = body->GetUserData();
+					if (userData)
+					{
+						FreeMem(userData);
+						body->SetUserData(nullptr);
+					}
 					m_World->DestroyBody(static_cast<b2Body*>(rb.m_RawRigidbody));
 					rb.m_RawRigidbody = nullptr;
 				}
@@ -144,14 +150,32 @@ namespace Cocoa
 			}
 		}
 
-		void ApplyForce(Entity entity, glm::vec2 force)
+		void ApplyForceToCenter(const Rigidbody2D& rigidbody, const glm::vec2& force)
 		{
-			if (NEntity::HasComponent<Rigidbody2D, TransformData>(entity))
-			{
-				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
-				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
-				body->ApplyForceToCenter(b2Vec2(force.x, force.y), true);
-			}
+			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
+			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force to center.");
+			rawBody->ApplyForceToCenter(b2Vec2(force.x, force.y), true);
+		}
+
+		void ApplyForce(const Rigidbody2D& rigidbody, const glm::vec2& force, const glm::vec2& point)
+		{
+			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
+			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force.");
+			rawBody->ApplyForce(b2Vec2(force.x, force.y), b2Vec2(point.x, point.y), true);
+		}
+
+		void ApplyLinearImpulseToCenter(const Rigidbody2D& rigidbody, const glm::vec2& impulse)
+		{
+			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
+			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply impulse to center.");
+			rawBody->ApplyLinearImpulseToCenter(b2Vec2(impulse.x, impulse.y), true);
+		}
+
+		void ApplyLinearImpulse(const Rigidbody2D& rigidbody, const glm::vec2& impulse, const glm::vec2& point)
+		{
+			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
+			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force.");
+			rawBody->ApplyLinearImpulse(b2Vec2(impulse.x, impulse.y), b2Vec2(point.x, point.y), true);
 		}
 
 		void Serialize(json& j, Entity entity, const AABB& box)

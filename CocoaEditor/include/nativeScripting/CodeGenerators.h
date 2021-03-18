@@ -149,6 +149,44 @@ namespace Cocoa
 			}
 			source << "\t\t}\n";
 
+			// Generate NotifyBeginContact function
+			source << "\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void NotifyBeginContact(Entity a, Entity b)\n";
+			source << "\t\t{\n";
+			for (auto clazz : classes)
+			{
+				source << "\t\t\t{\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(a))\n";
+				source << "\t\t\t\t{\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(a).BeginContact(b);\n";
+				source << "\t\t\t\t}\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(b))\n";
+				source << "\t\t\t\t{\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(b).BeginContact(a);\n";
+				source << "\t\t\t\t}\n";
+				source << "\t\t\t}\n";
+			}
+			source << "\t\t}\n";
+
+			// Generate NotifyEndContact function
+			source << "\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void NotifyEndContact(Entity a, Entity b)\n";
+			source << "\t\t{\n";
+			for (auto clazz : classes)
+			{
+				source << "\t\t\t{\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(a))\n";
+				source << "\t\t\t\t{\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(a).EndContact(b);\n";
+				source << "\t\t\t\t}\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(b))\n";
+				source << "\t\t\t\t{\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(b).EndContact(a);\n";
+				source << "\t\t\t\t}\n";
+				source << "\t\t\t}\n";
+			}
+			source << "\t\t}\n";
+
 			// Generate SaveScript function
 			source << "\n";
 			source << "\t\textern \"C\" COCOA_SCRIPT void SaveScripts(entt::registry& registryRef, json& j, SceneData* sceneData)\n";

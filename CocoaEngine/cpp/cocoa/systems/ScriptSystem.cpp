@@ -21,6 +21,8 @@ namespace Cocoa
 		static InitImGuiFn m_InitImGui = nullptr;
 		static ImGuiFn m_ImGui = nullptr;
 		static DeleteScriptsFn m_DeleteScripts = nullptr;
+		static NotifyBeginContactFn m_NotifyBeginContact = nullptr;
+		static NotifyEndContactFn m_NotifyEndContact = nullptr;
 		
 		static bool m_IsLoaded = false;
 		static HMODULE m_Module;
@@ -35,6 +37,8 @@ namespace Cocoa
 		static void InitImGuiStub(void*) {}
 		static void ImGuiStub(entt::registry&, Entity) {}
 		static void DeleteScriptsStub() {}
+		static void NotifyBeginContactStub(Entity a, Entity b) {}
+		static void NotifyEndContactStub(Entity a, Entity b) {}
 
 		static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
 		{
@@ -68,6 +72,22 @@ namespace Cocoa
 			}
 		}
 
+		void NotifyBeginContact(Entity entityA, Entity entityB)
+		{
+			if (m_NotifyBeginContact)
+			{
+				m_NotifyBeginContact(entityA, entityB);
+			}
+		}
+
+		void NotifyEndContact(Entity entityA, Entity entityB)
+		{
+			if (m_NotifyEndContact)
+			{
+				m_NotifyEndContact(entityA, entityB);
+			}
+		}
+
 		void Reload(SceneData& scene, bool deleteScriptComponents)
 		{
 			if (m_IsLoaded)
@@ -92,6 +112,8 @@ namespace Cocoa
 					m_InitImGui = (InitImGuiFn)TryLoadFunction(m_Module, "InitImGui");
 					m_ImGui = (ImGuiFn)TryLoadFunction(m_Module, "ImGui");
 					m_DeleteScripts = (DeleteScriptsFn)TryLoadFunction(m_Module, "DeleteScripts");
+					m_NotifyBeginContact = (NotifyBeginContactFn)TryLoadFunction(m_Module, "NotifyBeginContact");
+					m_NotifyEndContact = (NotifyEndContactFn)TryLoadFunction(m_Module, "NotifyEndContact");
 					m_IsLoaded = true;
 
 					if (m_InitScripts)
@@ -125,6 +147,8 @@ namespace Cocoa
 			m_InitImGui = InitImGuiStub;
 			m_ImGui = ImGuiStub;
 			m_DeleteScripts = DeleteScriptsStub;
+			m_NotifyBeginContact = NotifyBeginContactStub;
+			m_NotifyEndContact = NotifyEndContactStub;
 
 			if (!FreeLibrary(m_Module))
 			{
