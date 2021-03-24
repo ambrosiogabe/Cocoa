@@ -2,16 +2,14 @@
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/InspectorWindow.h"
 #include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/GameViewport.h"
 #include "gui/ImGuiExtended.h"
 #include "gui/FontAwesome.h"
 #include "util/Settings.h"
 
-#include "cocoa/core/Application.h"
 #include "cocoa/file/File.h"
-#include "cocoa/file/CPath.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/JsonExtended.h"
-#include "cocoa/systems/RenderSystem.h"
 
 #ifndef _JADE_IMPL
 #define _JADE_IMPL
@@ -36,17 +34,10 @@ namespace Cocoa
 {
 	namespace ImGuiLayer
 	{
-		// Internal Variables
-		static glm::vec2 m_GameviewPos = glm::vec2();
-		static glm::vec2 m_GameviewSize = glm::vec2();
-		static glm::vec2 m_GameviewMousePos = glm::vec2();
-		static bool m_BlockEvents = false;
-
 		static void* m_Window;
 
 		// Forward Declarations
 		void SetupDockspace(SceneData& scene);
-		void RenderGameViewport(SceneData& scene);
 
 		void Init(void* window)
 		{
@@ -100,13 +91,14 @@ namespace Cocoa
 
 		void OnEvent(SceneData& scene, Event& e)
 		{
-			if (m_BlockEvents)
-			{
-				ImGuiIO& io = ImGui::GetIO();
-				//e.m_Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-				//e.m_Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
-				e.m_Handled = true;
-			}
+			// Find way to block events when necessary
+			//if (m_BlockEvents)
+			//{
+			//	ImGuiIO& io = ImGui::GetIO();
+			//	//e.m_Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+			//	//e.m_Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+			//	e.m_Handled = true;
+			//}
 		}
 
 		void BeginFrame(SceneData& scene)
@@ -119,7 +111,7 @@ namespace Cocoa
 			if (CocoaEditor::IsProjectLoaded())
 			{
 				SetupDockspace(scene);
-				RenderGameViewport(scene);
+				GameViewport::ImGui(scene);
 				AssetWindow::ImGui(scene);
 				InspectorWindow::ImGui(scene);
 				SceneHeirarchyWindow::ImGui(scene);
@@ -150,88 +142,6 @@ namespace Cocoa
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backupCurrentContext);
-		}
-
-		void RenderGameViewport(SceneData& scene)
-		{
-			static bool open = true;
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-			ImGui::Begin("Game Viewport", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
-
-			if (ImGui::BeginMenuBar())
-			{
-				static bool isPlaying = false;
-				if (ImGui::BeginMenu("Play", !isPlaying))
-				{
-					if (!isPlaying)
-					{
-						CPath tmpPath = Settings::General::s_EngineAssetsPath;
-						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
-						Scene::Save(scene, tmpPath);
-						Scene::Play(scene);
-						isPlaying = true;
-					}
-					ImGui::EndMenu();
-				}
-				else if (ImGui::BeginMenu("Stop", isPlaying))
-				{
-					if (isPlaying)
-					{
-						Scene::Stop(scene);
-						CPath tmpPath = Settings::General::s_EngineAssetsPath;
-						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
-						Scene::FreeResources(scene);
-						Scene::Load(scene, tmpPath, false);
-						isPlaying = false;
-					}
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenuBar();
-			}
-
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 1);
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1);
-
-			ImVec2 windowSize = ImGui::GetContentRegionAvail() - ImVec2(1, 1);
-
-			// Figure out the largest area that fits this target aspect ratio
-			float aspectWidth = windowSize.x;
-			float aspectHeight = (float)aspectWidth / Application::Get()->GetWindow()->GetTargetAspectRatio();
-			if (aspectHeight > windowSize.y)
-			{
-				// It doesn't fit our height, we must switch to pillarbox
-				aspectHeight = windowSize.y;
-				aspectWidth = (float)aspectHeight * Application::Get()->GetWindow()->GetTargetAspectRatio();
-			}
-
-			// Center rectangle
-			float vpX = (windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f);
-			float vpY = ((float)windowSize.y / 2.0f) - ((float)aspectHeight / 2.0f);
-
-			ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(vpX, vpY));
-
-			ImVec2 topLeft = ImGui::GetCursorScreenPos();
-			m_GameviewPos.x = topLeft.x;
-			m_GameviewPos.y = topLeft.y + aspectHeight;
-			Input::SetGameViewPos(m_GameviewPos);
-			m_GameviewSize.x = aspectWidth;
-			m_GameviewSize.y = aspectHeight;
-			Input::SetGameViewSize(m_GameviewSize);
-
-			ImVec2 mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
-			m_GameviewMousePos.x = mousePos.x;
-			m_GameviewMousePos.y = mousePos.y;
-			Input::SetGameViewMousePos(m_GameviewMousePos);
-
-			uint32 texId = NFramebuffer::GetColorAttachment(RenderSystem::GetMainFramebuffer(), 0).GraphicsId;
-			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
-
-			ImGui::End();
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
-
-			m_BlockEvents = m_GameviewMousePos.x < 0 || m_GameviewMousePos.x > aspectWidth || m_GameviewMousePos.y < 0 || m_GameviewMousePos.y > aspectHeight;
 		}
 
 		void SetupDockspace(SceneData& scene)
