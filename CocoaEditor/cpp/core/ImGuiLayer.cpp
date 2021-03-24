@@ -3,6 +3,7 @@
 #include "editorWindows/InspectorWindow.h"
 #include "editorWindows/SceneHeirarchyWindow.h"
 #include "editorWindows/GameViewport.h"
+#include "editorWindows/GameEditorViewport.h"
 #include "gui/ImGuiExtended.h"
 #include "gui/FontAwesome.h"
 #include "util/Settings.h"
@@ -34,6 +35,8 @@ namespace Cocoa
 {
 	namespace ImGuiLayer
 	{
+		// Internal Declarations
+		static bool m_HoveringGameEditorWindow;
 		static void* m_Window;
 
 		// Forward Declarations
@@ -99,6 +102,11 @@ namespace Cocoa
 			//	//e.m_Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
 			//	e.m_Handled = true;
 			//}
+
+			if (!m_HoveringGameEditorWindow && ImGui::GetIO().WantCaptureMouse)
+			{
+				e.m_Handled = e.IsInCategory(EventCategoryMouse) ? true : false;
+			}
 		}
 
 		void BeginFrame(SceneData& scene)
@@ -111,6 +119,7 @@ namespace Cocoa
 			if (CocoaEditor::IsProjectLoaded())
 			{
 				SetupDockspace(scene);
+				GameEditorViewport::ImGui(scene, &m_HoveringGameEditorWindow);
 				GameViewport::ImGui(scene);
 				AssetWindow::ImGui(scene);
 				InspectorWindow::ImGui(scene);
