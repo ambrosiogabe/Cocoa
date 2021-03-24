@@ -221,6 +221,8 @@ namespace Cocoa
 
 			childTransform.Parent = parent.entity;
 			childTransform.LocalPosition = childTransform.Position - parentTransform.Position;
+			childTransform.LocalEulerRotation = childTransform.EulerRotation - parentTransform.EulerRotation;
+			childTransform.LocalScale = childTransform.Scale - parentTransform.Scale;
 			UpdateLevel(newChildIndex, parent.level + 1);
 			int placeToMoveToIndex = parent.index < newChild.index ?
 				parent.index + 1 :

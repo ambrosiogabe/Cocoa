@@ -156,6 +156,7 @@ namespace Cocoa
 		{
 			static bool open = true;
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 			ImGui::Begin("Game Viewport", &open, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
 
 			if (ImGui::BeginMenuBar())
@@ -189,7 +190,11 @@ namespace Cocoa
 				ImGui::EndMenuBar();
 			}
 
-			ImVec2 windowSize = ImGui::GetWindowContentRegionMax();
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 1);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1);
+
+			ImVec2 windowSize = ImGui::GetContentRegionAvail() - ImVec2(1, 1);
+
 			// Figure out the largest area that fits this target aspect ratio
 			float aspectWidth = windowSize.x;
 			float aspectHeight = (float)aspectWidth / Application::Get()->GetWindow()->GetTargetAspectRatio();
@@ -201,17 +206,17 @@ namespace Cocoa
 			}
 
 			// Center rectangle
-			float vpX = ((float)windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f);
+			float vpX = (windowSize.x / 2.0f) - ((float)aspectWidth / 2.0f);
 			float vpY = ((float)windowSize.y / 2.0f) - ((float)aspectHeight / 2.0f);
 
-			ImGui::SetCursorPos(ImVec2(vpX + 8, vpY + 8));
+			ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(vpX, vpY));
 
 			ImVec2 topLeft = ImGui::GetCursorScreenPos();
 			m_GameviewPos.x = topLeft.x;
 			m_GameviewPos.y = topLeft.y + aspectHeight;
 			Input::SetGameViewPos(m_GameviewPos);
-			m_GameviewSize.x = aspectWidth - 16;
-			m_GameviewSize.y = aspectHeight - 16;
+			m_GameviewSize.x = aspectWidth;
+			m_GameviewSize.y = aspectHeight;
 			Input::SetGameViewSize(m_GameviewSize);
 
 			ImVec2 mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
@@ -220,10 +225,11 @@ namespace Cocoa
 			Input::SetGameViewMousePos(m_GameviewMousePos);
 
 			uint32 texId = NFramebuffer::GetColorAttachment(RenderSystem::GetMainFramebuffer(), 0).GraphicsId;
-			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth - 16, aspectHeight - 16), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
 			ImGui::End();
 			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
 
 			m_BlockEvents = m_GameviewMousePos.x < 0 || m_GameviewMousePos.x > aspectWidth || m_GameviewMousePos.y < 0 || m_GameviewMousePos.y > aspectHeight;
 		}
