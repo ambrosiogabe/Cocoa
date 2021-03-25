@@ -225,7 +225,7 @@ namespace Cocoa
 			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
 			m_GizmoSpritesheet = NSpritesheet::CreateSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
 
-			m_Camera = &scene.SceneCamera;
+			m_Camera = &LevelEditorSystem::GetCamera();
 
 			glm::vec3 redColor = { 227.0f / 255.0f, 68.0f / 255.0f, 68.0f / 255.0f };
 			glm::vec3 greenColor = { 68.0f / 255.0f, 227.0f / 255.0f, 68.0f / 255.0f };
@@ -277,7 +277,7 @@ namespace Cocoa
 		void EditorUpdate(SceneData& scene, float dt)
 		{
 			Entity activeEntity = InspectorWindow::GetActiveEntity();
-			if (!NEntity::IsNull(activeEntity))
+			if (!NEntity::IsNull(activeEntity) && NEntity::HasComponent<TransformData>(activeEntity))
 			{
 				ImGui();
 				TransformData& entityTransform = NEntity::GetComponent<TransformData>(activeEntity);
@@ -396,11 +396,11 @@ namespace Cocoa
 		{
 			if (!m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
-				const Camera& camera = scene.SceneCamera;
+				const Camera& camera = *m_Camera;
 				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
 
 				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
-				const Framebuffer& mainFramebuffer = RenderSystem::GetMainFramebuffer();
+				const Framebuffer& mainFramebuffer = camera.Framebuffer;
 				uint32 pixel = NFramebuffer::ReadPixelUint32(mainFramebuffer, 1, (uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
 
 				Entity entity = Scene::GetEntity(scene, pixel);

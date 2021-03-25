@@ -18,6 +18,7 @@
 #include "cocoa/components/Tag.h"
 #include "cocoa/components/SpriteRenderer.h"
 #include "cocoa/components/FontRenderer.h"
+#include "cocoa/components/NoSerialize.h"
 #include "cocoa/physics2d/PhysicsComponents.h"
 
 #include <imgui.h>
@@ -47,6 +48,8 @@ namespace Cocoa
 		static CPath tmpScriptDll;
 		static CPath scriptDll;
 
+		static Entity m_CameraEntity;
+
 		// Forward Declarations
 		static bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene);
 		static bool HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene);
@@ -62,8 +65,34 @@ namespace Cocoa
 			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
 			scriptDll = Settings::General::s_EngineExeDirectory;
 			NCPath::Join(scriptDll, NCPath::CreatePath("ScriptModule.dll"));
-			auto view = scene.Registry.view<TransformData>();
 			initImGui = false;
+
+			Log::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
+			// Create editor camera's framebuffer
+			Framebuffer editorCameraFramebuffer;
+			editorCameraFramebuffer.Width = 3840;
+			editorCameraFramebuffer.Height = 2160;
+			editorCameraFramebuffer.IncludeDepthStencil = false;
+			Texture color0;
+			color0.InternalFormat = ByteFormat::RGB;
+			color0.ExternalFormat = ByteFormat::RGB;
+			color0.MagFilter = FilterMode::Linear;
+			color0.MinFilter = FilterMode::Linear;
+			color0.WrapS = WrapMode::Repeat;
+			color0.WrapT = WrapMode::Repeat;
+			NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color0);
+			Texture color1;
+			color1.InternalFormat = ByteFormat::R32UI;
+			color1.ExternalFormat = ByteFormat::RED_INTEGER;
+			NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color1);
+			NFramebuffer::Generate(editorCameraFramebuffer);
+
+			glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
+			Camera editorCamera = NCamera::CreateCamera(cameraPos, editorCameraFramebuffer);
+
+			m_CameraEntity = Scene::CreateEntity(scene);
+			NEntity::AddComponent<Camera>(m_CameraEntity, editorCamera);
+			NEntity::AddComponent<NoSerialize>(m_CameraEntity);
 		}
 
 		void Destroy(SceneData& scene)
@@ -81,6 +110,8 @@ namespace Cocoa
 			NEntity::RegisterComponentType<Box2D>();
 			NEntity::RegisterComponentType<Circle>();
 			NEntity::RegisterComponentType<AABB>();
+			NEntity::RegisterComponentType<Camera>();
+			NEntity::RegisterComponentType<NoSerialize>();
 		}
 
 		static float lerp(float a, float b, float t)
@@ -122,9 +153,9 @@ namespace Cocoa
 				File::DeleteFile(tmpScriptDll);
 			}
 
+			Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
 			if (m_IsDragging)
 			{
-				Camera& camera = scene.SceneCamera;
 				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				// TODO: Make this an editor setting
@@ -135,12 +166,12 @@ namespace Cocoa
 			// Draw grid lines
 			if (Settings::Editor::DrawGrid)
 			{
-				TransformData& cameraTransform = scene.SceneCamera.Transform;
-				float cameraZoom = scene.SceneCamera.Zoom;
+				TransformData& cameraTransform = camera.Transform;
+				float cameraZoom = camera.Zoom;
 				float gridWidth = Settings::Editor::GridSize.x;
 				float gridHeight = Settings::Editor::GridSize.y;
-				float projectionWidth = scene.SceneCamera.ProjectionSize.x;
-				float projectionHeight = scene.SceneCamera.ProjectionSize.y;
+				float projectionWidth = camera.ProjectionSize.x;
+				float projectionHeight = camera.ProjectionSize.y;
 
 				float firstX = (float)(((int)(cameraTransform.Position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
 				float firstY = (float)(((int)(cameraTransform.Position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
@@ -169,6 +200,12 @@ namespace Cocoa
 					}
 				}
 			}
+
+		}
+
+		Camera& GetCamera()
+		{
+			return NEntity::GetComponent<Camera>(m_CameraEntity);;
 		}
 
 		// TODO: Move this into CImGui?
@@ -275,7 +312,7 @@ namespace Cocoa
 			float yOffset = -e.GetYOffset();
 			if (yOffset != 0)
 			{
-				Camera& camera = scene.SceneCamera;
+				Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
 				if (step < 0)
 				{
 					step = (glm::log(camera.Zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
@@ -296,7 +333,7 @@ namespace Cocoa
 			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = true;
-				const Camera& camera = scene.SceneCamera;
+				const Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
 				m_OriginalCameraPos = camera.Transform.Position;
 				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 			}
@@ -311,6 +348,19 @@ namespace Cocoa
 				m_IsDragging = false;
 			}
 			return false;
+		}
+
+		void Serialize(json& j)
+		{
+			Camera& editorCamera = NEntity::GetComponent<Camera>(m_CameraEntity);
+			j["EditorCamera"] = NCamera::Serialize(editorCamera);
+		}
+
+		void Deserialize(const json& j, SceneData& scene)
+		{
+			Log::Assert(Scene::IsValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
+			Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
+			NCamera::Deserialize(j["EditorCamera"], camera);
 		}
 	}
 }

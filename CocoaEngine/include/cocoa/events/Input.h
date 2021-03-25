@@ -9,7 +9,6 @@ namespace Cocoa
 	{
 	public:
 		static void Init();
-		static void SetScene(SceneData* scene);
 
 		static void KeyCallback(int key, int scancode, int action, int mods);
 		static void CursorCallback(double xpos, double ypos);
@@ -25,8 +24,8 @@ namespace Cocoa
 		static void EndFrame();
 		static glm::vec2 MousePos();
 
-		static float OrthoMouseX();
-		static float OrthoMouseY();
+		static float OrthoMouseX(const Camera& camera);
+		static float OrthoMouseY(const Camera& camera);
 		static glm::vec2 ScreenToOrtho(const Camera& camera);
 		static glm::vec2 NormalizedMousePos();
 

@@ -40,6 +40,7 @@ namespace Cocoa
 		// =====================================================================
 		static void ImGuiSpriteRenderer(SpriteRenderer& spr);
 		static void ImGuiFontRenderer(FontRenderer& fontRenderer);
+		static void ImGuiCamera(Camera& camera);
 
 		// =====================================================================
 		// Physics components
@@ -68,6 +69,7 @@ namespace Cocoa
 			bool doAABB = true;
 			bool doBox2D = true;
 			bool doCircle = true;
+			bool doCamera = true;
 
 			for (auto& entity: ActiveEntities)
 			{
@@ -80,6 +82,7 @@ namespace Cocoa
 				doAABB &= NEntity::HasComponent<AABB>(entity);
 				doBox2D &= NEntity::HasComponent<Box2D>(entity);
 				doCircle &= NEntity::HasComponent<Circle>(entity);
+				doCamera &= NEntity::HasComponent<Camera>(entity);
 			}
 
 			if (doTag)
@@ -98,6 +101,8 @@ namespace Cocoa
 				ImGuiAABB(NEntity::GetComponent<AABB>(ActiveEntities[0]));
 			if (doCircle)
 				ImGuiCircle(NEntity::GetComponent<Circle>(ActiveEntities[0]));
+			if (doCamera)
+				ImGuiCamera(NEntity::GetComponent<Camera>(ActiveEntities[0]));
 			ScriptSystem::ImGui(scene, ActiveEntities[0]);
 
 			ImGuiAddComponentButton();
@@ -135,7 +140,7 @@ namespace Cocoa
 		static void ImGuiAddComponentButton()
 		{
 			const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
-			int defaultComponentSize = 5;
+			int defaultComponentSize = 6;
 			int size = classes.size() + defaultComponentSize;
 			auto classIter = classes.begin();
 			for (int i = 0; i < classes.size(); i++)
@@ -149,6 +154,7 @@ namespace Cocoa
 			StringPointerBuffer[2] = "Rigidbody2D";
 			StringPointerBuffer[3] = "Box Collider2D";
 			StringPointerBuffer[4] = "Circle Collider2D";
+			StringPointerBuffer[5] = "Camera";
 
 			Entity activeEntity = ActiveEntities[0];
 			int itemPressed = 0;
@@ -171,6 +177,12 @@ namespace Cocoa
 				case 4:
 					NEntity::AddComponent<Circle>(activeEntity);
 					break;
+				case 5:
+				{
+					Camera camera = NCamera::CreateCamera();
+					NEntity::AddComponent<Camera>(activeEntity, camera);
+					break;
+				}
 				default:
 					Log::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
 					ScriptSystem::AddComponentFromString(StringPointerBuffer[itemPressed], activeEntity.Handle, NEntity::GetScene()->Registry);
@@ -301,6 +313,20 @@ namespace Cocoa
 					ImGui::EndDragDropTarget();
 				}
 
+				CImGui::EndCollapsingHeaderGroup();
+			}
+		}
+
+		static void ImGuiCamera(Camera& camera)
+		{
+			static bool collapsingHeaderOpen = true;
+			if (ImGui::CollapsingHeader("Camera"))
+			{
+				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::UndoableDragFloat("Zoom: ", camera.Zoom);
+				CImGui::UndoableDragFloat2("Projection Size: ", camera.ProjectionSize);
+				CImGui::UndoableDragFloat("Near Plane: ", camera.ProjectionNearPlane);
+				CImGui::UndoableDragFloat("Far Plane: ", camera.ProjectionFarPlane);
 				CImGui::EndCollapsingHeaderGroup();
 			}
 		}

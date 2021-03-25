@@ -15,5 +15,10 @@ namespace Cocoa
 		void Init(SceneData& scene);
 		void OnEvent(SceneData& scene, Event& e);
 		void Destroy(SceneData& scene);
+
+		Camera& GetCamera();
+
+		void Serialize(json& j);
+		void Deserialize(const json& j, SceneData& scene);
 	};
 }

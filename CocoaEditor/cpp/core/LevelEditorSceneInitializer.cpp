@@ -33,10 +33,12 @@ namespace Cocoa
 	void LevelEditorSceneInitializer::Save(SceneData& scene)
 	{
 		SceneHeirarchyWindow::Serialize(scene.SaveDataJson);
+		LevelEditorSystem::Serialize(scene.SaveDataJson);
 	}
 
 	void LevelEditorSceneInitializer::Load(SceneData& scene)
 	{
 		SceneHeirarchyWindow::Deserialize(scene.SaveDataJson, scene);
+		LevelEditorSystem::Deserialize(scene.SaveDataJson, scene);
 	}
 }

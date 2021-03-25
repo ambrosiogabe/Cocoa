@@ -41,6 +41,7 @@ namespace Cocoa
 		static DynamicArray<SceneTreeMetadata> orderedEntitiesCopy;
 
 		// Private functions
+		static void ImGuiRightClickPopup(SceneData& scene);
 		static bool DoTreeNode(SceneTreeMetadata& element, TransformData& transform, Tag& entityTag, SceneData& scene, SceneTreeMetadata& nextElement);
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity);
 		static bool ImGuiSceneHeirarchyWindow(SceneData& scene, int* inBetweenIndex);
@@ -141,7 +142,23 @@ namespace Cocoa
 				orderedEntities.m_Data[i] = orderedEntitiesCopy.m_Data[i];
 			}
 
+			ImGuiRightClickPopup(scene);
+
 			ImGui::End();
+		}
+
+		static void ImGuiRightClickPopup(SceneData& scene)
+		{
+			if (ImGui::BeginPopupContextWindow())
+			{
+				if (ImGui::MenuItem("Add Empty Entity"))
+				{
+					Entity entity = Scene::CreateEntity(scene);
+					AddNewEntity(entity);
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 
 		static bool DoTreeNode(SceneTreeMetadata& element, TransformData& parentTransform, Tag& parentTag, SceneData& scene, SceneTreeMetadata& nextElement)

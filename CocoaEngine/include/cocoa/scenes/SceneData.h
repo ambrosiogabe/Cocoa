@@ -11,7 +11,6 @@ namespace Cocoa
 		bool IsPlaying;
 		entt::registry Registry;
 		json SaveDataJson;
-		Camera SceneCamera;
 
 		SceneInitializer* CurrentSceneInitializer = nullptr;
 	};

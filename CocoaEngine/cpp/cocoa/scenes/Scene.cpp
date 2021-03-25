@@ -6,6 +6,7 @@
 #include "cocoa/core/Entity.h"
 #include "cocoa/components/Transform.h"
 #include "cocoa/components/Tag.h"
+#include "cocoa/components/NoSerialize.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/systems/TransformSystem.h"
 #include "cocoa/scenes/SceneInitializer.h"
@@ -36,15 +37,11 @@ namespace Cocoa
 		void Init(SceneData& data)
 		{
 			NEntity::SetScene(&data);
-			Input::SetScene(&data);
 
 			InitComponentIds(data);
 			LoadDefaultAssets();
 
-			glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
-			data.SceneCamera = NCamera::CreateCamera(cameraPos);
-
-			RenderSystem::Init(data);
+			RenderSystem::Init();
 			Physics2D::Init({ 0, -10.0f });
 			ScriptSystem::Init(data);
 
@@ -61,6 +58,8 @@ namespace Cocoa
 			NEntity::RegisterComponentType<Box2D>();
 			NEntity::RegisterComponentType<Circle>();
 			NEntity::RegisterComponentType<AABB>();
+			NEntity::RegisterComponentType<Camera>();
+			NEntity::RegisterComponentType<NoSerialize>();
 		}
 
 		void Start(SceneData& data)
@@ -73,7 +72,7 @@ namespace Cocoa
 			TransformSystem::Update(data, dt);
 			Physics2D::Update(data, dt);
 			ScriptSystem::Update(data, dt);
-			NCamera::Update(data.SceneCamera);
+			CameraSystem::Update(data, dt);
 		}
 
 		void EditorUpdate(SceneData& data, float dt)
@@ -82,7 +81,7 @@ namespace Cocoa
 			// sense in creating a unique update loop if the logic is the same (TransformSystem, and NCamera are examples of this)
 			TransformSystem::Update(data, dt);
 			ScriptSystem::EditorUpdate(data, dt);
-			NCamera::Update(data.SceneCamera);
+			CameraSystem::Update(data, dt);
 		}
 
 		void OnEvent(SceneData& data, const Event& e)
@@ -92,18 +91,7 @@ namespace Cocoa
 
 		void Render(SceneData& data)
 		{
-			NFramebuffer::Bind(RenderSystem::GetMainFramebuffer());
-
-			glEnable(GL_BLEND);
-			glViewport(0, 0, 3840, 2160);
-			glClearColor(0.45f, 0.55f, 0.6f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			NFramebuffer::ClearColorAttachmentUint32(RenderSystem::GetMainFramebuffer(), 1, (uint32)-1);
-			//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
-
-			DebugDraw::DrawBottomBatches(data.SceneCamera);
 			RenderSystem::Render(data);
-			DebugDraw::DrawTopBatches(data.SceneCamera);
 		}
 
 		void FreeResources(SceneData& data)
@@ -114,6 +102,7 @@ namespace Cocoa
 			TransformSystem::Destroy(data);
 			RenderSystem::Destroy();
 			Physics2D::Destroy(data);
+			CameraSystem::Destroy(data);
 
 			data.CurrentSceneInitializer->Destroy(data);
 
@@ -146,14 +135,47 @@ namespace Cocoa
 			data.SaveDataJson = {
 				{"Components", {}},
 				{"Project", Settings::General::s_CurrentProject.Path.c_str()},
-				{"Assets", AssetManager::Serialize()},
-				{"EditorCamera", NCamera::Serialize(data.SceneCamera)}
+				{"Assets", AssetManager::Serialize()}
+				//{"EditorCamera", NCamera::Serialize(data.SceneCamera)}
 			};
 
-			OutputArchive output(data.SaveDataJson);
-			entt::snapshot{ data.Registry }
-				.entities(output)
-				.component<TransformData, Rigidbody2D, Box2D, SpriteRenderer, FontRenderer, AABB, Tag>(output);
+			data.Registry.each([&](auto rawEntity)
+				{
+					Entity entity = NEntity::CreateEntity(rawEntity);
+					// Only serialize if we can
+					if (!NEntity::HasComponent<NoSerialize>(entity))
+					{
+						if (NEntity::HasComponent<TransformData>(entity))
+						{
+							Transform::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<TransformData>(entity));
+						}
+						if (NEntity::HasComponent<SpriteRenderer>(entity))
+						{
+							RenderSystem::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<SpriteRenderer>(entity));
+						}
+						if (NEntity::HasComponent<FontRenderer>(entity))
+						{
+							RenderSystem::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<FontRenderer>(entity));
+						}
+						if (NEntity::HasComponent<Box2D>(entity))
+						{
+							Physics2D::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<Box2D>(entity));
+						}
+						if (NEntity::HasComponent<Rigidbody2D>(entity))
+						{
+							Physics2D::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<Rigidbody2D>(entity));
+						}
+						if (NEntity::HasComponent<AABB>(entity))
+						{
+							Physics2D::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<AABB>(entity));
+						}
+						if (NEntity::HasComponent<Tag>(entity))
+						{
+							NTag::Serialize(data.SaveDataJson, entity, NEntity::GetComponent<Tag>(entity));
+						}
+					}
+				}
+			);
 
 			ScriptSystem::SaveScripts(data, data.SaveDataJson);
 			data.CurrentSceneInitializer->Save(data);
@@ -185,7 +207,7 @@ namespace Cocoa
 
 			if (j.contains("EditorCamera"))
 			{
-				NCamera::Deserialize(j["EditorCamera"], data.SceneCamera);
+				//NCamera::Deserialize(j["EditorCamera"], data.SceneCamera);
 			}
 
 			if (j.contains("Assets"))
@@ -279,6 +301,7 @@ namespace Cocoa
 		{
 			entt::entity e = data.Registry.create();
 			Entity entity = Entity{ e };
+			// TODO: Make transform's optional with entities
 			TransformData defaultTransform = Transform::CreateTransform();
 			NEntity::AddComponent<TransformData>(entity, defaultTransform);
 			NEntity::AddComponent<Tag>(entity, NTag::CreateTag("New Entity"));

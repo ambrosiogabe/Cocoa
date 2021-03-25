@@ -9,6 +9,7 @@
 #include "cocoa/scenes/SceneData.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/core/Entity.h"
+#include "cocoa/renderer/CameraStruct.h"
 
 namespace Cocoa
 {

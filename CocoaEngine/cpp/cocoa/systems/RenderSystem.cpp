@@ -7,6 +7,8 @@
 #include "cocoa/commands/ICommand.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/util/DynamicArray.h"
+#include "cocoa/renderer/DebugDraw.h"
+#include "cocoa/renderer/CameraStruct.h"
 
 #include <nlohmann/json.hpp>
 
@@ -17,36 +19,14 @@ namespace Cocoa
 		// Internal Variables
 		static Handle<Shader> m_SpriteShader = Handle<Shader>();
 		static Handle<Shader> m_FontShader = Handle<Shader>();
-		static Framebuffer m_MainFramebuffer = Framebuffer();
 
 		static int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		static const int MAX_BATCH_SIZE = 1000;
 
 		static DynamicArray<RenderBatchData> m_Batches;
-		static Camera* m_Camera;
 
-		void Init(SceneData& scene)
+		void Init()
 		{
-			m_Camera = &scene.SceneCamera;
-
-			Log::Assert(m_MainFramebuffer.Fbo == (uint32)-1, "Tried to initialize render system twice.");
-			m_MainFramebuffer.Width = 3840;
-			m_MainFramebuffer.Height = 2160;
-			m_MainFramebuffer.IncludeDepthStencil = false;
-			Texture color0;
-			color0.InternalFormat = ByteFormat::RGB;
-			color0.ExternalFormat = ByteFormat::RGB;
-			color0.MagFilter = FilterMode::Linear;
-			color0.MinFilter = FilterMode::Linear;
-			color0.WrapS = WrapMode::Repeat;
-			color0.WrapT = WrapMode::Repeat;
-			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color0);
-			Texture color1;
-			color1.InternalFormat = ByteFormat::R32UI;
-			color1.ExternalFormat = ByteFormat::RED_INTEGER;
-			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color1);
-			NFramebuffer::Generate(m_MainFramebuffer);
-
 			m_Batches = NDynamicArray::Create<RenderBatchData>(1);
 
 			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
@@ -62,7 +42,6 @@ namespace Cocoa
 
 		void Destroy()
 		{
-			NFramebuffer::Delete(m_MainFramebuffer);
 			for (int i = 0; i < m_Batches.m_NumElements; i++)
 			{
 				RenderBatchData& data = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
@@ -75,7 +54,7 @@ namespace Cocoa
 		{
 			const Sprite& sprite = spr.m_Sprite;
 			bool wasAdded = false;
-			for (int i=0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.m_NumElements; i++)
 			{
 				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
 				if (RenderBatch::HasRoom(batch) && spr.m_ZIndex == batch.ZIndex && batch.BatchShader == m_SpriteShader)
@@ -104,7 +83,7 @@ namespace Cocoa
 		{
 			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
 			bool wasAdded = false;
-			for (int i=0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.m_NumElements; i++)
 			{
 				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
 				if (RenderBatch::HasRoom(batch, fontRenderer) && fontRenderer.m_ZIndex == batch.ZIndex && batch.BatchShader == m_FontShader)
@@ -141,24 +120,38 @@ namespace Cocoa
 					AddEntity(transform, fontRenderer);
 				});
 
-			for (int i=0; i < m_Batches.m_NumElements; i++)
+			// TODO: This is super broken
+			auto view = scene.Registry.view<const Camera>();
+			for (auto& rawEntity : view)
 			{
-				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-				Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
-				const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
-				NShader::Bind(shader);
-				NShader::UploadMat4(shader, "uProjection", m_Camera->ProjectionMatrix);
-				NShader::UploadMat4(shader, "uView", m_Camera->ViewMatrix);
-				NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
+				const Camera& camera = scene.Registry.get<Camera>(rawEntity);
+				NFramebuffer::Bind(camera.Framebuffer);
 
-				RenderBatch::Render(batch);
-				RenderBatch::Clear(batch);
+				glEnable(GL_BLEND); // TODO: This should be encapsulated within the camera somehow
+				glViewport(0, 0, 3840, 2160); // TODO: This should be encapsulated within the camera somehow
+				glClearColor(0.45f, 0.55f, 0.6f, 1.0f); // TODO: This should be encapsulated within the camera somehow
+				glClear(GL_COLOR_BUFFER_BIT); // TODO: This should be encapsulated within the camera somehow
+				//NFramebuffer::ClearColorAttachmentUint32(camera.Framebuffer, 1, (uint32)-1); // TODO: This should be encapsulated within the camera somehow
+				//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
+
+				DebugDraw::DrawBottomBatches(camera);
+
+				for (int i = 0; i < m_Batches.m_NumElements; i++)
+				{
+					RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
+					Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
+					const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
+					NShader::Bind(shader);
+					NShader::UploadMat4(shader, "uProjection", camera.ProjectionMatrix);
+					NShader::UploadMat4(shader, "uView", camera.ViewMatrix);
+					NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
+
+					RenderBatch::Render(batch);
+					RenderBatch::Clear(batch);
+				}
+
+				DebugDraw::DrawTopBatches(camera);
 			}
-		}
-
-		const Framebuffer& GetMainFramebuffer()
-		{
-			return m_MainFramebuffer;
 		}
 
 		void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)

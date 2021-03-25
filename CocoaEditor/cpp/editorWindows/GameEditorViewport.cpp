@@ -1,4 +1,5 @@
 #include "editorWindows/GameEditorViewport.h"
+#include "core/LevelEditorSystem.h"
 #include "util/Settings.h"
 
 #include "cocoa/util/Settings.h"
@@ -91,7 +92,8 @@ namespace Cocoa
 			m_GameviewMousePos.y = mousePos.y;
 			Input::SetGameViewMousePos(m_GameviewMousePos);
 
-			uint32 texId = NFramebuffer::GetColorAttachment(RenderSystem::GetMainFramebuffer(), 0).GraphicsId;
+			Camera& camera = LevelEditorSystem::GetCamera();
+			uint32 texId = NFramebuffer::GetColorAttachment(camera.Framebuffer, 0).GraphicsId;
 			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
 			ImGui::End();

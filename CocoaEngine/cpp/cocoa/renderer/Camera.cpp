@@ -6,7 +6,37 @@ namespace Cocoa
 {
 	namespace NCamera
 	{
-		Camera CreateCamera(glm::vec3& position)
+		// Internal functions
+		static void Update(Camera& camera);
+
+		Camera CreateCamera()
+		{
+			Camera res;
+			res.Transform = Transform::CreateTransform(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+			// TODO: Make this customizable
+			res.ProjectionSize = { 6.0f, 3.0f };
+			res.ProjectionNearPlane = 0.5f;
+			res.ProjectionFarPlane = 100.0f;
+			res.Zoom = 1.0f;
+			
+			res.Framebuffer.Width = 3840;
+			res.Framebuffer.Height = 2160;
+			res.Framebuffer.IncludeDepthStencil = false;
+			Texture color0;
+			color0.InternalFormat = ByteFormat::RGB;
+			color0.ExternalFormat = ByteFormat::RGB;
+			color0.MagFilter = FilterMode::Linear;
+			color0.MinFilter = FilterMode::Linear;
+			color0.WrapS = WrapMode::Repeat;
+			color0.WrapT = WrapMode::Repeat;
+			NFramebuffer::AddColorAttachment(res.Framebuffer, color0);
+			NFramebuffer::Generate(res.Framebuffer);
+
+			AdjustPerspective(res);
+			return res;
+		}
+
+		Camera CreateCamera(glm::vec3& position, Framebuffer framebuffer)
 		{
 			Camera res;
 			res.Transform = Transform::CreateTransform(position, glm::vec3(1.0f), glm::vec3(0.0f));
@@ -14,11 +44,13 @@ namespace Cocoa
 			res.ProjectionSize = { 6.0f, 3.0f };
 			res.ProjectionNearPlane = 0.5f;
 			res.ProjectionFarPlane = 100.0f;
+			res.Framebuffer = framebuffer;
+			res.Zoom = 1.0f;
 			AdjustPerspective(res);
 			return res;
 		}
 
-		void Update(Camera& camera)
+		static void Update(Camera& camera)
 		{
 			AdjustPerspective(camera);
 			CalculateOrthoViewMatrix(camera);
@@ -94,6 +126,28 @@ namespace Cocoa
 			camera.ProjectionFarPlane = j["ProjectionFarPlane"];
 			camera.ProjectionNearPlane = j["ProjectionNearPlane"];
 			camera.ProjectionSize = CMath::DeserializeVec2(j["ProjectionSize"]);
+		}
+	}
+
+	namespace CameraSystem
+	{
+		void Update(SceneData& scene, float dt) 
+		{
+			auto view = scene.Registry.view<Camera>();
+			for (auto& rawEntity : view)
+			{
+				NCamera::Update(view.get<Camera>(rawEntity));
+			}
+		}
+
+		void Destroy(SceneData& scene)
+		{
+			auto view = scene.Registry.view<Camera>();
+			for (auto& rawEntity : view)
+			{
+				Camera& camera = view.get<Camera>(rawEntity);
+				NFramebuffer::Delete(camera.Framebuffer);
+			}
 		}
 	}
 }

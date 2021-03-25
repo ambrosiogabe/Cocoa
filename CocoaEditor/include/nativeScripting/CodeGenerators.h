@@ -58,6 +58,8 @@ namespace Cocoa
 			source << "#include \"cocoa/components/Tag.h\"\n";
 			source << "#include \"cocoa/components/SpriteRenderer.h\"\n";
 			source << "#include \"cocoa/components/FontRenderer.h\"\n";
+			source << "#include \"cocoa/renderer/CameraStruct.h\"\n";
+			source << "#include \"cocoa/components/NoSerialize.h\"";
 			source << "#include \"cocoa/physics2d/PhysicsComponents.h\"\n";
 
 			source << "\n";
@@ -81,6 +83,8 @@ namespace Cocoa
 			source << "\t\t\tNEntity::RegisterComponentType<Box2D>();\n";
 			source << "\t\t\tNEntity::RegisterComponentType<Circle>();\n";
 			source << "\t\t\tNEntity::RegisterComponentType<AABB>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<Camera>();\n";
+			source << "\t\t\tNEntity::RegisterComponentType<NoSerialize>();\n";
 
 			for (auto clazz : classes)
 			{

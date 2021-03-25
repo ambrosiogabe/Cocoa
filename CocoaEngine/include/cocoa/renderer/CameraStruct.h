@@ -1,6 +1,7 @@
 #pragma once
 #include "externalLibs.h"
 #include "cocoa/components/TransformStruct.h"
+#include "cocoa/renderer/Framebuffer.h"
 
 namespace Cocoa
 {
@@ -16,6 +17,7 @@ namespace Cocoa
 		float ProjectionNearPlane;
 		float ProjectionFarPlane;
 		TransformData Transform;
+		Framebuffer Framebuffer;
 
 		float Fov = 45.0f;
 		float Aspect = 1920.0f / 1080.0f;

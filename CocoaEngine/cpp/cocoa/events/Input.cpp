@@ -19,18 +19,12 @@ namespace Cocoa
 	glm::vec2 Input::s_GameViewPos{ 0, 0 };
 	glm::vec2 Input::s_GameViewSize{ 0, 0 };
 	glm::vec2 Input::s_GameViewMousePos{ 0, 0 };
-	SceneData* Input::s_Scene = nullptr;
 
 	void Input::Init()
 	{
 		Log::Assert(!s_Initialized, "Input already initialized.");
 		s_Initialized = true;
 		const glm::vec2& windowSize = Application::Get()->GetWindow()->GetSize();
-	}
-
-	void Input::SetScene(SceneData* scene)
-	{
-		s_Scene = scene;
 	}
 
 	void Input::KeyCallback(int key, int scancode, int action, int mods)
@@ -77,22 +71,22 @@ namespace Cocoa
 		return s_YPos;
 	}
 
-	float Input::OrthoMouseX()
+	float Input::OrthoMouseX(const Camera& camera)
 	{
 		float currentX = MouseX() - s_GameViewPos.x;
 		currentX = (currentX / s_GameViewSize.x) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
-		tmp = s_Scene->SceneCamera.InverseView * s_Scene->SceneCamera.InverseProjection * tmp;
+		tmp = camera.InverseView * camera.InverseProjection * tmp;
 
 		return tmp.x;
 	}
 
-	float Input::OrthoMouseY()
+	float Input::OrthoMouseY(const Camera& camera)
 	{
 		float currentY = s_GameViewPos.y - MouseY();
 		currentY = (currentY / s_GameViewSize.y) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
-		tmp = s_Scene->SceneCamera.InverseView * s_Scene->SceneCamera.InverseProjection * tmp;
+		tmp = camera.InverseView * camera.InverseProjection * tmp;
 
 		return tmp.y;
 	}
