@@ -207,7 +207,6 @@ namespace Cocoa
 		static glm::vec3 m_OriginalScale;
 
 		static glm::vec3 m_OriginalDragClickPos;
-		static Camera* m_Camera;
 
 		static GizmoData Gizmos[6];
 
@@ -224,8 +223,6 @@ namespace Cocoa
 			NCPath::Join(gizmoTexPath, NCPath::CreatePath("images/gizmos.png"));
 			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
 			m_GizmoSpritesheet = NSpritesheet::CreateSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
-
-			m_Camera = &LevelEditorSystem::GetCamera();
 
 			glm::vec3 redColor = { 227.0f / 255.0f, 68.0f / 255.0f, 68.0f / 255.0f };
 			glm::vec3 greenColor = { 68.0f / 255.0f, 227.0f / 255.0f, 68.0f / 255.0f };
@@ -281,6 +278,7 @@ namespace Cocoa
 			{
 				ImGui();
 				TransformData& entityTransform = NEntity::GetComponent<TransformData>(activeEntity);
+				Camera& camera = LevelEditorSystem::GetCamera();
 
 				if (m_MouseDragging && m_ActiveGizmo >= 0)
 				{
@@ -288,13 +286,13 @@ namespace Cocoa
 					switch (m_Mode)
 					{
 					case GizmoMode::Translate:
-						Gizmo::GizmoManipulateTranslate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, *m_Camera);
+						Gizmo::GizmoManipulateTranslate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, camera);
 						break;
 					case GizmoMode::Rotate:
-						Gizmo::GizmoManipulateRotate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, *m_Camera);
+						Gizmo::GizmoManipulateRotate(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_MouseOffset, camera);
 						break;
 					case GizmoMode::Scale:
-						Gizmo::GizmoManipulateScale(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_OriginalScale, *m_Camera);
+						Gizmo::GizmoManipulateScale(Gizmos[m_ActiveGizmo], entityTransform, m_OriginalDragClickPos, m_OriginalScale, camera);
 						break;
 					}
 				}
@@ -307,12 +305,12 @@ namespace Cocoa
 					end = 6;
 				}
 
-				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(*m_Camera);
+				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
 				bool anyHot = false;
 				for (int i = start; i < end; i++)
 				{
 					GizmoData& gizmo = Gizmos[i];
-					float cameraZoom = m_Camera->Zoom * 2;
+					float cameraZoom = camera.Zoom * 2;
 					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = CMath::Vector3From2(gizmo.Position);
 
@@ -324,7 +322,7 @@ namespace Cocoa
 
 					if (!m_MouseDragging && Physics2D::PointInBox(
 						mousePosWorld, 
-						gizmo.BoxBoundsHalfSize * m_Camera->Zoom, 
+						gizmo.BoxBoundsHalfSize * camera.Zoom,
 						boxPos + CMath::Vector3From2(gizmo.BoxBoundsOffset), 
 						gizmo.Rotation))
 					{
@@ -336,7 +334,7 @@ namespace Cocoa
 					{
 						gizmo.Active = false;
 					}
-					Gizmo::Render(gizmo, *m_Camera, m_Mode);
+					Gizmo::Render(gizmo, camera, m_Mode);
 				}
 				if (!anyHot)
 				{
@@ -396,7 +394,7 @@ namespace Cocoa
 		{
 			if (!m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
-				const Camera& camera = *m_Camera;
+				const Camera& camera = LevelEditorSystem::GetCamera();
 				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
 
 				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();

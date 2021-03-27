@@ -149,8 +149,6 @@ namespace Cocoa
 				}
 
 				DebugDraw::DrawTopBatches(camera);
-
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
 
 			for (int i = 0; i < m_Batches.m_NumElements; i++)
