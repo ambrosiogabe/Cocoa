@@ -18,6 +18,6 @@ namespace Cocoa
 		COCOA void Destroy(Tag& tag);
 
 		COCOA void Serialize(json& j, Entity entity, const Tag& transform);
-		COCOA void Deserialize(json& j, Entity entity);
+		COCOA void Deserialize(const json& j, Entity entity);
 	}
 }

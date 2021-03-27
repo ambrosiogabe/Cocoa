@@ -212,7 +212,7 @@ namespace Cocoa
 
 			// Generate Load Scripts function
 			source << "\n";
-			source << "\t\textern \"C\" COCOA_SCRIPT void LoadScript(entt::registry& registryRef, json& j, Entity entity)\n";
+			source << "\t\textern \"C\" COCOA_SCRIPT void LoadScript(entt::registry& registryRef, const json& j, Entity entity)\n";
 			source << "\t\t{\n";
 			numVisited = 0;
 			for (auto clazz : classes)

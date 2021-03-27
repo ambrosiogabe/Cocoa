@@ -120,7 +120,8 @@ namespace Cocoa
 					AddEntity(transform, fontRenderer);
 				});
 
-			// TODO: This is super broken
+			DebugDraw::AddDebugObjectsToBatches();
+
 			auto view = scene.Registry.view<const Camera>();
 			for (auto& rawEntity : view)
 			{
@@ -129,9 +130,7 @@ namespace Cocoa
 
 				glEnable(GL_BLEND); // TODO: This should be encapsulated within the camera somehow
 				glViewport(0, 0, 3840, 2160); // TODO: This should be encapsulated within the camera somehow
-				glClearColor(0.45f, 0.55f, 0.6f, 1.0f); // TODO: This should be encapsulated within the camera somehow
-				glClear(GL_COLOR_BUFFER_BIT); // TODO: This should be encapsulated within the camera somehow
-				//NFramebuffer::ClearColorAttachmentUint32(camera.Framebuffer, 1, (uint32)-1); // TODO: This should be encapsulated within the camera somehow
+				NCamera::ClearColorRgb(camera, 0, camera.ClearColor);
 				//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
 
 				DebugDraw::DrawBottomBatches(camera);
@@ -147,10 +146,17 @@ namespace Cocoa
 					NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
 
 					RenderBatch::Render(batch);
-					RenderBatch::Clear(batch);
 				}
 
 				DebugDraw::DrawTopBatches(camera);
+
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			}
+
+			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			{
+				RenderBatch::Clear(m_Batches.m_Data[i]);
+				DebugDraw::ClearAllBatches();
 			}
 		}
 
@@ -175,7 +181,7 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeSpriteRenderer(json& j, Entity entity)
+		void DeserializeSpriteRenderer(const json& j, Entity entity)
 		{
 			SpriteRenderer spriteRenderer;
 			spriteRenderer.m_Color = CMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
@@ -219,7 +225,7 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeFontRenderer(json& j, Entity entity)
+		void DeserializeFontRenderer(const json& j, Entity entity)
 		{
 			FontRenderer fontRenderer;
 			fontRenderer.m_Color = CMath::DeserializeVec4(j["FontRenderer"]["Color"]);

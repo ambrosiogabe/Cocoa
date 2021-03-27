@@ -12,7 +12,7 @@ namespace Cocoa
     typedef void (*UpdateScriptFn)(entt::registry&, float);
     typedef void (*EditorUpdateScriptFn)(entt::registry&, float);
     typedef void (*SaveScriptsFn)(entt::registry&, json&, SceneData*);
-    typedef void (*LoadScriptFn)(entt::registry&, json&, Entity);
+    typedef void (*LoadScriptFn)(entt::registry&, const json&, Entity);
     typedef void (*InitScriptsFn)(SceneData*);
     typedef void (*InitImGuiFn)(void*);
     typedef void (*ImGuiFn)(entt::registry&, Entity);
@@ -34,7 +34,7 @@ namespace Cocoa
 
         COCOA void Reload(SceneData& scene, bool deleteScriptComponents = false);
         COCOA void SaveScripts(SceneData& scene, json& j);
-        COCOA void Deserialize(SceneData& scene, json& j, Entity entity);
+        COCOA void Deserialize(SceneData& scene, const json& j, Entity entity);
 
         COCOA bool FreeScriptLibrary(SceneData& scene, bool deleteScriptComponents = false);
         COCOA void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry);

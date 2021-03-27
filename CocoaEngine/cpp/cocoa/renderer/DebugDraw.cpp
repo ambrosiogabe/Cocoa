@@ -81,12 +81,15 @@ namespace Cocoa
 			RemoveDeadShapes();
 		}
 
-		void DrawBottomBatches(const Camera& camera)
+		void AddDebugObjectsToBatches()
 		{
 			AddLinesToBatches();
 			AddSpritesToBatches();
 			AddShapesToBatches();
+		}
 
+		void DrawBottomBatches(const Camera& camera)
+		{
 			const Shader& shaderRef = AssetManager::GetShader(m_Shader.m_AssetId);
 			NShader::Bind(shaderRef);
 			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
@@ -98,11 +101,18 @@ namespace Cocoa
 				if (!batch->BatchOnTop)
 				{
 					RenderBatch::Render(*batch);
-					RenderBatch::Clear(*batch);
 				}
 			}
 
 			NShader::Unbind(shaderRef);
+		}
+
+		void ClearAllBatches()
+		{
+			for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+			{
+				RenderBatch::Clear(*batch);
+			}
 		}
 
 		void DrawTopBatches(const Camera& camera)
@@ -118,7 +128,6 @@ namespace Cocoa
 				if (batch->BatchOnTop)
 				{
 					RenderBatch::Render(*batch);
-					RenderBatch::Clear(*batch);
 				}
 			}
 

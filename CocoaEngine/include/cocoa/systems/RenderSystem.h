@@ -23,8 +23,8 @@ namespace Cocoa
 		COCOA void Render(const SceneData& scene);
 
 		COCOA void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer);
-		COCOA void DeserializeSpriteRenderer(json& json, Entity entity);
+		COCOA void DeserializeSpriteRenderer(const json& json, Entity entity);
 		COCOA void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer);
-		COCOA void DeserializeFontRenderer(json& json, Entity entity);
+		COCOA void DeserializeFontRenderer(const json& json, Entity entity);
 	};
 }

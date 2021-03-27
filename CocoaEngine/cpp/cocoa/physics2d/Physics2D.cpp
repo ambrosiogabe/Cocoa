@@ -192,7 +192,7 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeAABB(json& j, Entity entity)
+		void DeserializeAABB(const json& j, Entity entity)
 		{
 			AABB box;
 			box.m_HalfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
@@ -213,7 +213,7 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeBox2D(json& j, Entity entity)
+		void DeserializeBox2D(const json& j, Entity entity)
 		{
 			Box2D box;
 			box.m_HalfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
@@ -243,7 +243,7 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeRigidbody2D(json& j, Entity entity)
+		void DeserializeRigidbody2D(const json& j, Entity entity)
 		{
 			Rigidbody2D rb;
 			rb.m_AngularDamping = j["Rigidbody2D"]["AngularDamping"];

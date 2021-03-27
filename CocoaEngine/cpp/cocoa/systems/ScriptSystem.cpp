@@ -32,7 +32,7 @@ namespace Cocoa
 		static void UpdateScriptStub(entt::registry&, float) {}
 		static void EditorUpdateScriptStub(entt::registry&, float) {}
 		static void SaveScriptsStub(entt::registry&, json&, SceneData*) {}
-		static void LoadScriptStub(entt::registry&, json&, Entity) {}
+		static void LoadScriptStub(entt::registry&, const json&, Entity) {}
 		static void InitScriptsStub(SceneData*) {}
 		static void InitImGuiStub(void*) {}
 		static void ImGuiStub(entt::registry&, Entity) {}
@@ -195,7 +195,7 @@ namespace Cocoa
 			}
 		}
 
-		void Deserialize(SceneData& scene, json& j, Entity entity)
+		void Deserialize(SceneData& scene, const json& j, Entity entity)
 		{
 			if (m_LoadScript)
 			{

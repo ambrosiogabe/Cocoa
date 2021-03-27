@@ -122,6 +122,31 @@ namespace Cocoa
 			return false;
 		}
 
+		bool ByteFormatIsRgb(ByteFormat format)
+		{
+			switch (format)
+			{
+			case ByteFormat::RGBA8:
+				return false;
+			case ByteFormat::RGB8:
+				return true;
+			case ByteFormat::RGBA:
+				return false;
+			case ByteFormat::RGB:
+				return true;
+			case ByteFormat::R32UI:
+				return false;
+			case ByteFormat::RED_INTEGER:
+				return false;
+			case ByteFormat::None:
+				return GL_NONE;
+			default:
+				Log::Warning("Unknown glByteFormat '%d'", format);
+			}
+
+			return false;
+		}
+
 		static void BindTextureParameters(const Texture& texture)
 		{
 			if (texture.WrapS != WrapMode::None)

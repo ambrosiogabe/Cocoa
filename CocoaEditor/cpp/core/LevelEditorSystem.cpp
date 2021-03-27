@@ -87,8 +87,7 @@ namespace Cocoa
 			NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color1);
 			NFramebuffer::Generate(editorCameraFramebuffer);
 
-			glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0);
-			Camera editorCamera = NCamera::CreateCamera(cameraPos, editorCameraFramebuffer);
+			Camera editorCamera = NCamera::CreateCamera(editorCameraFramebuffer);
 
 			m_CameraEntity = Scene::CreateEntity(scene);
 			NEntity::AddComponent<Camera>(m_CameraEntity, editorCamera);
@@ -154,19 +153,21 @@ namespace Cocoa
 			}
 
 			Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
+			// TODO: Make an OnRender function and call this in there
+			NCamera::ClearColorUint32(camera, 1, (uint32)-1);
+			TransformData& cameraTransform = NEntity::GetComponent<TransformData>(m_CameraEntity);
 			if (m_IsDragging)
 			{
 				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				// TODO: Make this an editor setting
 				static const float sharpness = 15.0f;
-				camera.Transform.Position = lerp(camera.Transform.Position, camera.Transform.Position + delta, dt * sharpness);
+				cameraTransform.Position = lerp(cameraTransform.Position, cameraTransform.Position + delta, dt * sharpness);
 			}
 
 			// Draw grid lines
 			if (Settings::Editor::DrawGrid)
 			{
-				TransformData& cameraTransform = camera.Transform;
 				float cameraZoom = camera.Zoom;
 				float gridWidth = Settings::Editor::GridSize.x;
 				float gridHeight = Settings::Editor::GridSize.y;
@@ -334,7 +335,8 @@ namespace Cocoa
 			{
 				m_IsDragging = true;
 				const Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
-				m_OriginalCameraPos = camera.Transform.Position;
+				const TransformData& transform = NEntity::GetComponent<TransformData>(m_CameraEntity);
+				m_OriginalCameraPos = transform.Position;
 				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 			}
 
@@ -353,14 +355,31 @@ namespace Cocoa
 		void Serialize(json& j)
 		{
 			Camera& editorCamera = NEntity::GetComponent<Camera>(m_CameraEntity);
-			j["EditorCamera"] = NCamera::Serialize(editorCamera);
+			j["EditorCamera"] = { 
+				{"Components", {}} 
+			};
+			Scene::SerializeEntity(&j["EditorCamera"], m_CameraEntity);
 		}
 
 		void Deserialize(const json& j, SceneData& scene)
 		{
 			Log::Assert(Scene::IsValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
-			Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
-			NCamera::Deserialize(j["EditorCamera"], camera);
+			if (j.contains("EditorCamera") && Scene::IsValid(scene, m_CameraEntity))
+			{
+				Scene::DeleteEntity(scene, m_CameraEntity);
+				// TODO: This is kind of hacky, there's probably a better way to do it
+				Scene::DeserializeEntities(j["EditorCamera"], scene);
+				NEntity::AddComponent<NoSerialize>(m_CameraEntity);
+
+				// TODO: Serialize/Deserialize framebuffer color attachments
+				Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
+				Framebuffer& editorCameraFramebuffer = camera.Framebuffer;
+				Texture color1;
+				color1.InternalFormat = ByteFormat::R32UI;
+				color1.ExternalFormat = ByteFormat::RED_INTEGER;
+				NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color1);
+				NFramebuffer::Regenerate(editorCameraFramebuffer);
+			}
 		}
 	}
 }

@@ -31,6 +31,8 @@ namespace Cocoa
 		COCOA void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene = true);
 		COCOA void LoadScriptsOnly(SceneData& data, const CPath& filename);
 
+		COCOA void SerializeEntity(json* j, Entity entity);
+		COCOA void DeserializeEntities(const json& j, SceneData& scene);
 		COCOA Entity CreateEntity(SceneData& data);
 		COCOA Entity DuplicateEntity(SceneData& data, Entity entity);
 		COCOA Entity GetEntity(SceneData& data, uint32 id);

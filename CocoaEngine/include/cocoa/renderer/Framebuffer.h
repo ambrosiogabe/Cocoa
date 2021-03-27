@@ -23,11 +23,13 @@ namespace Cocoa
 
 	namespace NFramebuffer
 	{
-		COCOA void Delete(Framebuffer& framebuffer);
+		COCOA void Delete(Framebuffer& framebuffer, bool clearColorAttachmentSpecs = true);
 		COCOA void Generate(Framebuffer& framebuffer);
+		COCOA void Regenerate(Framebuffer& framebuffer);
 
 		COCOA const Texture& GetColorAttachment(const Framebuffer& framebuffer, int index);
 		COCOA void AddColorAttachment(Framebuffer& framebuffer, const Texture& textureSpec); // TODO: The order the attachments are added will be the index they get (change this in the future too...?)
+		COCOA void ClearColorAttachmentRgb(const Framebuffer& framebuffer, int colorAttachment, glm::vec3 clearColor);
 		COCOA void ClearColorAttachmentUint32(const Framebuffer& framebuffer, int colorAttachment, uint32 clearColor);
 		COCOA uint32 ReadPixelUint32(const Framebuffer& framebuffer, int colorAttachment, int x, int y);
 

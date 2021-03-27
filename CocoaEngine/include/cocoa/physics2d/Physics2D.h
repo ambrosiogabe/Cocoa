@@ -28,10 +28,10 @@ namespace Cocoa
         // Serialization
         // ----------------------------------------------------------------------------
         COCOA void Serialize(json& j, Entity entity, const AABB& box);
-        COCOA void DeserializeAABB(json& j, Entity entity);
+        COCOA void DeserializeAABB(const json& j, Entity entity);
         COCOA void Serialize(json& j, Entity entity, const Box2D& box);
-        COCOA void DeserializeBox2D(json& j, Entity entity);
+        COCOA void DeserializeBox2D(const json& j, Entity entity);
         COCOA void Serialize(json& j, Entity entity, const Rigidbody2D& rigidbody);
-        COCOA void DeserializeRigidbody2D(json& j, Entity entity);
+        COCOA void DeserializeRigidbody2D(const json& j, Entity entity);
 	};
 }

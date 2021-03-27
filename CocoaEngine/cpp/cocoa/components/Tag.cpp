@@ -40,7 +40,7 @@ namespace Cocoa
 				}}
 			};
 		}
-		void Deserialize(json& j, Entity entity)
+		void Deserialize(const json& j, Entity entity)
 		{
 			Tag tag = { "", false, false };
 			std::string tagName = j["Tag"]["Name"];

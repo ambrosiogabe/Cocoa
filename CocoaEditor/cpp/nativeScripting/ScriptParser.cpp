@@ -291,7 +291,7 @@ namespace Cocoa
 
 		// Load Script function
 		file << "\n"
-			"		void LoadScript(entt::meta_any any, entt::meta_handle handle, json& j)\n"
+			"		void LoadScript(entt::meta_any any, entt::meta_handle handle, const json& j)\n"
 			"		{\n"
 			"			auto typeData = entt::resolve(any.type().id());\n"
 			"			auto typeName = debugNames.find(any.type().id())->second;\n"
@@ -318,7 +318,7 @@ namespace Cocoa
 			"\n";
 
 		// Try Load Script function
-		file << "\t\tvoid TryLoad(json& j, Entity entity, entt::registry& registry)\n";
+		file << "\t\tvoid TryLoad(const json& j, Entity entity, entt::registry& registry)\n";
 		file << "\t\t{\n";
 		file << "\t\t\tjson::iterator it = j.begin();\n";
 		file << "\t\t\tentt::entity e = entity.Handle;\n";

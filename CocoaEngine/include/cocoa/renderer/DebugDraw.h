@@ -16,6 +16,8 @@ namespace Cocoa
 		COCOA void BeginFrame();
 		COCOA void DrawBottomBatches(const Camera& camera);
 		COCOA void DrawTopBatches(const Camera& camera);
+		COCOA void AddDebugObjectsToBatches();
+		COCOA void ClearAllBatches();
 
 		COCOA void AddLine2D(
 			glm::vec2& from,
