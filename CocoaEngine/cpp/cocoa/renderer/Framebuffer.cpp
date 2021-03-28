@@ -3,6 +3,7 @@
 #include "cocoa/renderer/Framebuffer.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/util/Log.h"
+#include "cocoa/util/JsonExtended.h"
 #include "cocoa/core/AssetManager.h"
 
 namespace Cocoa
@@ -160,6 +161,49 @@ namespace Cocoa
 		void Unbind(const Framebuffer& framebuffer)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		json Serialize(const Framebuffer& framebuffer)
+		{
+			json res;
+			res["Width"] = framebuffer.Width;
+			res["Height"] = framebuffer.Height;
+			res["IncludeDepthStencil"] = framebuffer.IncludeDepthStencil;
+			res["DepthStencilFormat"] = framebuffer.DepthStencilFormat;
+			res["ColorAttachments"] = {};
+
+			for (int i = 0; i < framebuffer.ColorAttachments.size(); i++)
+			{
+				res["ColorAttachments"][i] = TextureUtil::Serialize(framebuffer.ColorAttachments[i]);
+			}
+
+			return res;
+		}
+
+		Framebuffer Deserialize(const json& j)
+		{
+			Framebuffer res;
+			JsonExtended::AssignIfNotNull(j, "Width", res.Width);
+			JsonExtended::AssignIfNotNull(j, "Height", res.Height);
+			JsonExtended::AssignIfNotNull(j, "IncludeDepthStencil", res.IncludeDepthStencil);
+
+			if (j["ColorAttachments"].size() > 0)
+			{
+				const int colorAttachmentSize = j["ColorAttachments"].size();
+				for (int i = 0; i < colorAttachmentSize; i++)
+				{
+					if (j["ColorAttachments"][i].is_object())
+					{
+						AddColorAttachment(res, TextureUtil::Deserialize(j["ColorAttachments"][i]));
+					}
+					else
+					{
+						Log::Warning("Invalid color attachment '%d' when deserializing framebuffer.", i);
+					}
+				}
+			}
+
+			return res;
 		}
 	}
 }

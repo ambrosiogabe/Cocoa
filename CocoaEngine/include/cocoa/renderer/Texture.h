@@ -58,9 +58,6 @@ namespace Cocoa
 		COCOA extern const Texture NullTexture;
 
 		// Namespace functions
-		COCOA json Serialize(const Texture& texture);
-		COCOA Texture Deserialize(const json& j);
-
 		COCOA void Bind(const Texture& texture);
 		COCOA void Unbind(const Texture& texture);
 		COCOA void Delete(Texture& texture);
@@ -80,5 +77,8 @@ namespace Cocoa
 		COCOA uint32 ToGlDataType(ByteFormat format);
 		COCOA bool ByteFormatIsInt(ByteFormat format);
 		COCOA bool ByteFormatIsRgb(ByteFormat format);
+
+		COCOA json Serialize(const Texture& texture);
+		COCOA Texture Deserialize(const json& j);
 	};
 }

@@ -12,16 +12,10 @@ namespace Cocoa
 
 		Camera CreateCamera()
 		{
-			Camera res;
-			res.ProjectionSize = { 6.0f, 3.0f };
-			res.ProjectionNearPlane = 0.5f;
-			res.ProjectionFarPlane = 100.0f;
-			res.Zoom = 1.0f;
-			res.ClearColor = { 0.45f, 0.55f, 0.6f };
-
-			res.Framebuffer.Width = 3840;
-			res.Framebuffer.Height = 2160;
-			res.Framebuffer.IncludeDepthStencil = false;
+			Framebuffer framebuffer;
+			framebuffer.Width = 3840;
+			framebuffer.Height = 2160;
+			framebuffer.IncludeDepthStencil = false;
 			Texture color0;
 			color0.InternalFormat = ByteFormat::RGB;
 			color0.ExternalFormat = ByteFormat::RGB;
@@ -29,11 +23,9 @@ namespace Cocoa
 			color0.MinFilter = FilterMode::Linear;
 			color0.WrapS = WrapMode::Repeat;
 			color0.WrapT = WrapMode::Repeat;
-			NFramebuffer::AddColorAttachment(res.Framebuffer, color0);
-			NFramebuffer::Generate(res.Framebuffer);
-
-			AdjustPerspective(res);
-			return res;
+			NFramebuffer::AddColorAttachment(framebuffer, color0);
+			NFramebuffer::Generate(framebuffer);
+			return CreateCamera(framebuffer);
 		}
 
 		Camera CreateCamera(Framebuffer framebuffer)
@@ -43,8 +35,9 @@ namespace Cocoa
 			res.ProjectionSize = { 6.0f, 3.0f };
 			res.ProjectionNearPlane = 0.5f;
 			res.ProjectionFarPlane = 100.0f;
-			res.Framebuffer = framebuffer;
 			res.Zoom = 1.0f;
+			res.ClearColor = { 0.45f, 0.55f, 0.6f };
+			res.Framebuffer = framebuffer;
 			AdjustPerspective(res);
 			return res;
 		}
@@ -124,6 +117,7 @@ namespace Cocoa
 				{ "X", camera.ProjectionSize.x },
 				{ "Y", camera.ProjectionSize.y }
 			};
+			res["Framebuffer"] = NFramebuffer::Serialize(camera.Framebuffer);
 
 			json& jRef = *j;
 			int size = jRef["Components"].size();
@@ -132,7 +126,15 @@ namespace Cocoa
 
 		void Deserialize(const json& j, Entity entity)
 		{
-			Camera camera = NCamera::CreateCamera();
+			Framebuffer cameraFramebuffer;
+			bool hasFramebuffer = j["Camera"].contains("Framebuffer");
+			if (hasFramebuffer)
+			{
+				cameraFramebuffer = NFramebuffer::Deserialize(j["Camera"]["Framebuffer"]);
+				NFramebuffer::Generate(cameraFramebuffer);
+			}
+
+			Camera camera = hasFramebuffer ? CreateCamera(cameraFramebuffer) : CreateCamera();
 			JsonExtended::AssignIfNotNull(j["Camera"], "Aspect", camera.Aspect);
 			JsonExtended::AssignIfNotNull(j["Camera"], "Zoom", camera.Zoom);
 			JsonExtended::AssignIfNotNull(j["Camera"], "Fov", camera.Fov);
@@ -159,7 +161,15 @@ namespace Cocoa
 			auto view = scene.Registry.view<Camera>();
 			for (auto& rawEntity : view)
 			{
-				Camera& camera = view.get<Camera>(rawEntity);
+				DeleteEntity(NEntity::CreateEntity(rawEntity));
+			}
+		}
+
+		void DeleteEntity(Entity entity)
+		{
+			if (NEntity::HasComponent<Camera>(entity))
+			{
+				Camera& camera = NEntity::GetComponent<Camera>(entity);
 				NFramebuffer::Delete(camera.Framebuffer);
 			}
 		}

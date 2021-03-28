@@ -370,15 +370,6 @@ namespace Cocoa
 				// TODO: This is kind of hacky, there's probably a better way to do it
 				Scene::DeserializeEntities(j["EditorCamera"], scene);
 				NEntity::AddComponent<NoSerialize>(m_CameraEntity);
-
-				// TODO: Serialize/Deserialize framebuffer color attachments
-				Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
-				Framebuffer& editorCameraFramebuffer = camera.Framebuffer;
-				Texture color1;
-				color1.InternalFormat = ByteFormat::R32UI;
-				color1.ExternalFormat = ByteFormat::RED_INTEGER;
-				NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color1);
-				NFramebuffer::Regenerate(editorCameraFramebuffer);
 			}
 		}
 	}

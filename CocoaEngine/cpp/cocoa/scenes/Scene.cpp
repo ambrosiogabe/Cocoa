@@ -407,6 +407,7 @@ namespace Cocoa
 
 			Physics2D::DeleteEntity(entity);
 			TransformSystem::DeleteEntity(entity);
+			CameraSystem::DeleteEntity(entity);
 			scene.Registry.destroy(entity.Handle);
 		}
 

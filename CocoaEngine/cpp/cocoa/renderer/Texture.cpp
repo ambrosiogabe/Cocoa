@@ -248,7 +248,9 @@ namespace Cocoa
 				{"MagFilter", (int)texture.MagFilter },
 				{"MinFilter", (int)texture.MinFilter },
 				{"WrapS", (int)texture.WrapS},
-				{"WrapT", (int)texture.WrapT}
+				{"WrapT", (int)texture.WrapT},
+				{"InternalFormat", (int)texture.InternalFormat},
+				{"ExternalFormat", (int)texture.ExternalFormat}
 			};
 		}
 
@@ -260,6 +262,8 @@ namespace Cocoa
 			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MinFilter", texture.MinFilter);
 			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapS", texture.WrapS);
 			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapT", texture.WrapT);
+			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "InternalFormat", texture.InternalFormat);
+			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "ExternalFormat", texture.ExternalFormat);
 			return texture;
 		}
 	}

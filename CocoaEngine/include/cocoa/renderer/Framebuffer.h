@@ -35,5 +35,8 @@ namespace Cocoa
 
 		COCOA void Bind(const Framebuffer& framebuffer);
 		COCOA void Unbind(const Framebuffer& framebuffer);
+
+		COCOA json Serialize(const Framebuffer& framebuffer);
+		COCOA Framebuffer Deserialize(const json& j);
 	};
 }
