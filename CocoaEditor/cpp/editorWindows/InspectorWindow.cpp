@@ -327,6 +327,7 @@ namespace Cocoa
 				CImGui::UndoableDragFloat2("Projection Size: ", camera.ProjectionSize);
 				CImGui::UndoableDragFloat("Near Plane: ", camera.ProjectionNearPlane);
 				CImGui::UndoableDragFloat("Far Plane: ", camera.ProjectionFarPlane);
+				CImGui::UndoableColorEdit3("Clear Color: ", camera.ClearColor);
 				CImGui::EndCollapsingHeaderGroup();
 			}
 		}

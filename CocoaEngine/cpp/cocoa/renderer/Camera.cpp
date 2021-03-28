@@ -93,7 +93,7 @@ namespace Cocoa
 		{
 			NFramebuffer::ClearColorAttachmentRgb(camera.Framebuffer, attachment, color);
 		}
-		
+
 		void ClearColorUint32(Camera& camera, int attachment, uint32 color)
 		{
 			NFramebuffer::ClearColorAttachmentUint32(camera.Framebuffer, attachment, color);
@@ -117,6 +117,10 @@ namespace Cocoa
 				{ "X", camera.ProjectionSize.x },
 				{ "Y", camera.ProjectionSize.y }
 			};
+			// TODO: Serialize clear color by adding new serialize method for freaking vectors
+			//res["ClearColor"] = { 
+			//	CMath::Serialize("ClearColor", camera.ClearColor)
+			//};
 			res["Framebuffer"] = NFramebuffer::Serialize(camera.Framebuffer);
 
 			json& jRef = *j;
@@ -141,6 +145,11 @@ namespace Cocoa
 			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionFarPlane", camera.ProjectionFarPlane);
 			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionNearPlane", camera.ProjectionNearPlane);
 			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionSize", camera.ProjectionSize);
+			// TODO: Add normal deserialize for freaking vectors
+			//if (j["Camera"].contains("ClearColor"))
+			//{
+			//	camera.ClearColor = CMath::DeserializeVec3(j["Camera"]["ClearColor"]["ClearColor"]);
+			//}
 			NEntity::AddComponent<Camera>(entity, camera);
 		}
 	}
