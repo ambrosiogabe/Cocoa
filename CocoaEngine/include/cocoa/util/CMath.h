@@ -32,12 +32,15 @@ namespace Cocoa
 
 		// Serialize math components
 		COCOA json Serialize(const std::string& name, const glm::vec4& vec);
+		COCOA json Serialize(const glm::vec4& vec);
 		COCOA glm::vec4 DeserializeVec4(const json& json);
 		COCOA glm::vec4 DeserializeVec4(const json& json, bool& success);
 		COCOA json Serialize(const std::string& name, const glm::vec3& vec);
+		COCOA json Serialize(const glm::vec3& vec);
 		COCOA glm::vec3 DeserializeVec3(const json& json);
 		COCOA glm::vec3 DeserializeVec3(const json& json, bool& success);
 		COCOA json Serialize(const std::string& name, const glm::vec2& vec);
+		COCOA json Serialize(const glm::vec2& vec);
 		COCOA glm::vec2 DeserializeVec2(const json& json);
 		COCOA glm::vec2 DeserializeVec2(const json& json, bool& success);
 

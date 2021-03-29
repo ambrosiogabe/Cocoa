@@ -88,6 +88,16 @@ namespace Cocoa
 			};
 		}
 
+		json CMath::Serialize(const glm::vec4& vec)
+		{
+			return {
+				{"X", vec.x},
+				{"Y", vec.y},
+				{"Z", vec.z},
+				{"W", vec.w}
+			};
+		}
+
 		glm::vec4 CMath::DeserializeVec4(const json& j)
 		{
 			float x = 0.0f;
@@ -118,6 +128,15 @@ namespace Cocoa
 			};
 		}
 
+		json CMath::Serialize(const glm::vec3& vec)
+		{
+			return {
+				{"X", vec.x},
+				{"Y", vec.y},
+				{"Z", vec.z}
+			};
+		}
+
 		glm::vec3 CMath::DeserializeVec3(const json& j)
 		{
 			float x = 0.0f;
@@ -142,6 +161,14 @@ namespace Cocoa
 					{"X", vec.x},
 					{"Y", vec.y},
 				}
+			};
+		}
+
+		json CMath::Serialize(const glm::vec2& vec)
+		{
+			return {
+				{"X", vec.x},
+				{"Y", vec.y}
 			};
 		}
 
