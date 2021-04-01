@@ -4,6 +4,7 @@
 #include "nativeScripting/ScriptScanner.h"
 #include "nativeScripting/ScriptParser.h"
 #include "nativeScripting/CodeGenerators.h"
+#include "nativeScripting/CppBuild.h"
 
 #include "cocoa/util/Log.h"
 #include "cocoa/file/File.h"
@@ -11,13 +12,15 @@
 
 namespace Cocoa
 {
-	static void RunPremake();
-
+	// Internal variables
 	static CPath rootDir = NCPath::CreatePath();
 	static CPath projectPremakeLua = NCPath::CreatePath();
 	static auto classes = std::vector<UClass>();
 	static bool fileModified = false;
-	static bool runningPremake = false;
+	static bool buildingCode = false;
+
+	// Internal functions
+	static void GenerateBuildFile();
 
 	SourceFileWatcher::SourceFileWatcher(CPath rootDirectory)
 		: m_RootDirectory(rootDirectory)
@@ -136,20 +139,6 @@ namespace Cocoa
 		return true;
 	}
 
-
-	static void RunPremake()
-	{
-		if (!runningPremake)
-		{
-			runningPremake = true;
-			CPath pathToPremake = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(pathToPremake, NCPath::CreatePath("premake5.exe"));
-			std::string cmdArgs = "vs2019 --file=\"" + std::string(projectPremakeLua.Path.c_str()) + "\"";
-			File::RunProgram(pathToPremake, cmdArgs);
-			runningPremake = false;
-		}
-	}
-
 	static void FileChanged(const CPath& file)
 	{
 		CPath generatedDirPath = NCPath::CreatePath(NCPath::GetDirectory(file, -1) + "generated");
@@ -159,7 +148,7 @@ namespace Cocoa
 		NCPath::Join(rootDir, generatedDirPath);
 		if (ProcessFile(filePath, generatedFilePath))
 		{
-			RunPremake();
+			CppBuild::Build(rootDir);
 		}
 	}
 
@@ -182,6 +171,15 @@ namespace Cocoa
 		GenerateInitFiles();
 	}
 
+	static void GenerateBuildFile()
+	{
+		CPath pathToBuildScript = NCPath::CreatePath(NCPath::GetDirectory(rootDir, -1));
+		NCPath::Join(pathToBuildScript, NCPath::CreatePath("build.bat"));
+		CPath pathToPremakeExe = Settings::General::s_EngineExeDirectory;
+		NCPath::Join(pathToPremakeExe, NCPath::CreatePath("premake5.exe"));
+		CodeGenerators::GenerateBuildFile(pathToBuildScript, pathToPremakeExe);
+	}
+
 	void SourceFileWatcher::StartFileWatcher()
 	{
 		if (!File::IsDirectory(m_RootDirectory))
@@ -195,11 +193,12 @@ namespace Cocoa
 		projectPremakeLua = NCPath::CreatePath(NCPath::GetDirectory(m_RootDirectory, -1));
 		NCPath::Join(projectPremakeLua, NCPath::CreatePath("premake5.lua"));
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
+		GenerateBuildFile();
 
 		Log::Log("Generating initial class information");
 		GenerateInitialClassInformation(m_RootDirectory);
 		Log::Log("Generating premake file %s", projectPremakeLua.Path.c_str());
-		RunPremake();
+		CppBuild::Build(rootDir);
 
 		m_FileWatcher.m_Path = m_RootDirectory;
 		m_FileWatcher.m_NotifyFilters = NotifyFilters::LastAccess

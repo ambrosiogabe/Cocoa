@@ -1,4 +1,5 @@
 #include "editorWindows/GameEditorViewport.h"
+#include "nativeScripting/CppBuild.h"
 #include "core/LevelEditorSystem.h"
 #include "util/Settings.h"
 
@@ -30,6 +31,9 @@ namespace Cocoa
 			if (ImGui::BeginMenuBar())
 			{
 				static bool isPlaying = false;
+				static bool compiling = false;
+				static bool setCompilingFalse = false;
+
 				if (ImGui::BeginMenu("Play", !isPlaying))
 				{
 					if (!isPlaying)
@@ -54,6 +58,12 @@ namespace Cocoa
 						isPlaying = false;
 					}
 					ImGui::EndMenu();
+				}
+				else if (ImGui::MenuItem("Compile"))
+				{
+					CPath scriptsPath = Settings::General::s_WorkingDirectory;
+					NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
+					CppBuild::Compile(scriptsPath);
 				}
 				ImGui::EndMenuBar();
 			}

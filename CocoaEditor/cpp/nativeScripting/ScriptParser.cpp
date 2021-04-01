@@ -320,7 +320,7 @@ namespace Cocoa
 		// Try Load Script function
 		file << "\t\tvoid TryLoad(const json& j, Entity entity, entt::registry& registry)\n";
 		file << "\t\t{\n";
-		file << "\t\t\tjson::iterator it = j.begin();\n";
+		file << "\t\t\tjson::const_iterator it = j.begin();\n";
 		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e))\n";
 		file << "\t\t\t{\n";
@@ -515,32 +515,32 @@ namespace Cocoa
 
 	void ScriptParser::Parse()
 	{
-		m_CurrentToken = 0;
-		m_CurrentIter = m_Tokens.begin();
-		do
-		{
-			if (Match(TokenType::STRUCT_PROP))
-			{
-				Expect(TokenType::LEFT_PAREN);
-				Expect(TokenType::RIGHT_PAREN);
-				Match(TokenType::SEMICOLON);
-				Expect(TokenType::STRUCT_KW);
-				ParseStruct();
-			}
-			else if (Match(TokenType::CLASS_PROP))
-			{
-				Expect(TokenType::LEFT_PAREN);
-				Expect(TokenType::RIGHT_PAREN);
-				Match(TokenType::SEMICOLON);
-				Expect(TokenType::CLASS_KW);
-				ParseClass();
-			}
-			else
-			{
-				m_CurrentToken++;
-				m_CurrentIter++;
-			}
-		} while (m_CurrentToken < m_Tokens.size() && m_CurrentIter->m_Type != TokenType::END_OF_FILE);
+		//m_CurrentToken = 0;
+		//m_CurrentIter = m_Tokens.begin();
+		//do
+		//{
+		//	if (Match(TokenType::UPROPERTY))
+		//	{
+		//		Expect(TokenType::LEFT_PAREN);
+		//		Expect(TokenType::RIGHT_PAREN);
+		//		Match(TokenType::SEMICOLON);
+		//		Expect(TokenType::KW_STRUCT);
+		//		ParseStruct();
+		//	}
+		//	else if (Match(TokenType::UCLASS))
+		//	{
+		//		Expect(TokenType::LEFT_PAREN);
+		//		Expect(TokenType::RIGHT_PAREN);
+		//		Match(TokenType::SEMICOLON);
+		//		Expect(TokenType::KW_CLASS);
+		//		ParseClass();
+		//	}
+		//	else
+		//	{
+		//		m_CurrentToken++;
+		//		m_CurrentIter++;
+		//	}
+		//} while (m_CurrentToken < m_Tokens.size() && m_CurrentIter->m_Type != TokenType::END_OF_FILE);
 	}
 
 	void ScriptParser::ParseClass()
@@ -578,7 +578,7 @@ namespace Cocoa
 					break;
 				}
 			}
-			else if (Match(TokenType::PROPERTY))
+			else if (Match(TokenType::UPROPERTY))
 			{
 				Expect(TokenType::LEFT_PAREN);
 				Match(TokenType::IDENTIFIER); // Consume any EditAnywhere type thing, it doesn't do anything for now...
@@ -619,7 +619,7 @@ namespace Cocoa
 					break;
 				}
 			}
-			else if (Match(TokenType::PROPERTY))
+			else if (Match(TokenType::UPROPERTY))
 			{
 				Expect(TokenType::LEFT_PAREN);
 				Match(TokenType::IDENTIFIER); // Consume any EditAnywhere type thing, it doesn't do anything for now...

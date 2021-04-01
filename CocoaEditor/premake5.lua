@@ -10,7 +10,9 @@ project "CocoaEditor"
 
     files {
         "include/**.h",
-        "cpp/**.cpp"
+        "cpp/**.cpp",
+        "tests/**.h",
+        "tests/**.cpp",
     }
 
     disablewarnings { 
@@ -24,6 +26,7 @@ project "CocoaEditor"
         "../CocoaEngine/include",
         "../CocoaEngine/vendor",
         "../%{prj.name}/include",
+        "../%{prj.name}/tests",
         "../%{IncludeDir.glm}",
         "../%{IncludeDir.entt}",
         "../%{IncludeDir.Glad}",
@@ -49,7 +52,8 @@ project "CocoaEditor"
     }
 
     filter { "system:windows", "configurations:Debug" }
-        buildoptions "/MDd"        
+        buildoptions "/MDd"       
+        defines { "COCOA_TEST" }
 
     filter { "system:windows", "configurations:Release" }
         buildoptions "/MD"
@@ -62,7 +66,8 @@ project "CocoaEditor"
             "copy /y \"$(SolutionDir)\\vendor\\premake\\premake5.exe\" \"$(OutDir)\\premake5.exe\"",
             "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.dll\" \"$(OutDir)\\ImGui.dll\"",
             "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.lib\" \"$(OutDir)\\ImGui.lib\"",
-            "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.pdb\" \"$(OutDir)\\ImGui.pdb\""
+            "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.pdb\" \"$(OutDir)\\ImGui.pdb\"",
+            "rmdir /s /q \"$(SolutionDir)\\x64"
         }
 
         defines {

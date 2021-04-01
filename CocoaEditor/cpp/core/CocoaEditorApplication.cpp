@@ -17,6 +17,10 @@
 #include <glad/glad.h>
 #include <nlohmann/json.hpp>
 
+#ifdef COCOA_TEST
+#include "cocoaTests/include/testMain.h"
+#endif
+
 #ifdef CopyFile
 #undef CopyFile
 #endif
@@ -308,6 +312,10 @@ namespace Cocoa
 		Scene::Init(m_CurrentScene);
 		Scene::Start(m_CurrentScene);
 		DebugDraw::Init();
+
+#ifdef COCOA_TEST
+		Cocoa::Tests::RunTests();
+#endif
 	}
 
 	void CocoaEditor::Shutdown()
