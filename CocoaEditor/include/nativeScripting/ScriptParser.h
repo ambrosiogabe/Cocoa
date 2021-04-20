@@ -32,8 +32,7 @@ namespace Cocoa
 	class ScriptParser
 	{
 	public:
-		ScriptParser(std::vector<Token>& tokens, CPath& fullFilepath)
-			: m_Tokens(tokens), m_FullFilepath(fullFilepath) {}
+		ScriptParser(std::vector<Token>& tokens, CPath& fullFilepath);
 
 		std::string GenerateHeaderFile();
 		void DebugPrint();
