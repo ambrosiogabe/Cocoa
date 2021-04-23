@@ -46,7 +46,7 @@ namespace Cocoa
 		STRING_LITERAL, INTEGER_LITERAL, FLOATING_POINT_LITERAL, CHARACTER_LITERAL,
 
 		// Custom Keywords (special macros)
-		UPROPERTY, UCLASS, USTRUCT, UFUNCTION,
+		USYSTEM,
 
 		// Special
 		COMMENT,

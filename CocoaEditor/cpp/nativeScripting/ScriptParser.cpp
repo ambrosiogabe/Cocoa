@@ -14,12 +14,11 @@ namespace Cocoa
 	enum class AstNodeType
 	{
 		None,
+		All,
 		BracedInitList,
-		InitList,
 		InitializerClause,
 		InitializerList,
 		OperatorFunctionId,
-		TypeParameter,
 		BinaryExpression,
 		TernaryExpression,
 		AssignmentExpression,
@@ -214,11 +213,8 @@ namespace Cocoa
 		TypeIdList,
 		NoexceptSpec,
 		NoexceptExpressionSpec,
-		PreprocessingFile,
 		NoptrAbstractDeclarator,
 		NoptrAbstractExpressionDeclarator,
-		NoptrDeclarator,
-		NoptrConstantDeclarator,
 		UnqualifiedId,
 		UnqualifiedIdDtorClass,
 		UnqualifiedIdDtorDecltype,
@@ -226,34 +222,44 @@ namespace Cocoa
 		ElaboratedSpecifierClass,
 		ElaboratedSpecifierTemplate,
 		AlignmentExpression,
+		NoPtrParenDeclarator,
+		NoPtrBracketDeclarator,
+		NoPtrParamAndQualDeclarator,
+		NoPtrDeclarator,
+		USystemDeclaration,
+		TypeTemplateParameter,
+		TypeTypenameParameter,
+		TypeClassParameter,
 
 		// Preprocessing Stuff
-		Group,
-		IfSection,
-		IfGroup,
-		IfDefGroup,
-		IfNDefGroup,
-		ElifGroups,
-		ElifGroup,
-		ElseGroup,
-		MacroInclude,
-		MacroDefine,
-		MacroDefineFunction,
-		MacroUndef,
-		MacroLine,
-		MacroError,
-		MacroPragma,
-		TextLine,
-		NonDirective,
-		Identifier,
-		IdentifierList,
-		ReplacementList,
-		PPTokens,
-		NumberLiteral,
-		StringLiteral,
-		CharacterLiteral,
-		HeaderName,
-		HeaderNameString,
+		// TODO: Add this stuff in once I get around to writing a preprocessing engine
+		//PreprocessingFile,
+		//Group,
+		//IfSection,
+		//IfGroup,
+		//IfDefGroup,
+		//IfNDefGroup,
+		//ElifGroups,
+		//ElifGroup,
+		//ElseGroup,
+		//MacroInclude,
+		//MacroDefine,
+		//MacroDefineFunction,
+		//MacroUndef,
+		//MacroLine,
+		//MacroError,
+		//MacroPragma,
+		//TextLine,
+		//NonDirective,
+		//Identifier,
+		//IdentifierList,
+		//ReplacementList,
+		//PPTokens,
+		//NumberLiteral,
+		//StringLiteral,
+		//CharacterLiteral,
+		//HeaderName,
+		//HeaderNameString,
 		Empty,
 	};
 
@@ -346,6 +352,61 @@ namespace Cocoa
 		Delete
 	};
 
+	struct TypeClassParameterNode
+	{
+		Token identifier;
+		AstNode* typeId;
+	};
+
+	struct TypeTypenameParameterNode
+	{
+		Token identifier;
+		AstNode* typeId;
+	};
+
+	struct TypeTemplateParameterNode
+	{
+		AstNode* templateParameterList;
+		Token identifier;
+		AstNode* idExpression;
+	};
+
+	struct InitializerListNode
+	{
+		AstNode* thisInitList;
+		AstNode* nextInitList;
+	};
+
+	struct USystemDeclarationNode
+	{
+		AstNode* parameterDeclarationClause;
+		AstNode* namedNamespaceDefinition;
+	};
+
+	struct NoPtrParenDeclaratorNode
+	{
+		AstNode* ptrDeclarator;
+	};
+
+	struct NoPtrBracketDeclaratorNode
+	{
+		AstNode* constantExpression;
+		AstNode* attributeSpecifierSeq;
+		AstNode* noptrDeclarator;
+	};
+
+	struct NoPtrParamAndQualDeclaratorNode
+	{
+		AstNode* parametersAndQualifiers;
+		AstNode* noptrDeclarator;
+	};
+
+	struct NoPtrDeclaratorNode
+	{
+		AstNode* declaratorId;
+		AstNode* attributeSpecifierSeq;
+	};
+
 	struct AlignmentExpressionNode
 	{
 		AstNode* typeId;
@@ -389,19 +450,6 @@ namespace Cocoa
 	struct UnqualifiedIdNode
 	{
 		Token identifier;
-	};
-
-	struct NoptrConstantDeclaratorNode
-	{
-		AstNode* noptrNewDeclarator;
-		AstNode* constantExpression;
-		AstNode* attributeSpecifierSeq;
-	};
-
-	struct NoptrDeclaratorNode
-	{
-		AstNode* expression;
-		AstNode* attributeSpecifierSeq;
 	};
 
 	struct NoptrAbstractExpressionDeclaratorNode
@@ -1740,17 +1788,12 @@ namespace Cocoa
 
 	struct BracedInitListNode
 	{
-		AstNode* initList;
+		AstNode* initializerList;
 	};
 
 	struct InitializerClauseNode
 	{
 		AstNode* clause;
-	};
-
-	struct InitializerListNode
-	{
-		std::vector<AstNode*> clauses;
 	};
 
 	struct AstNode
@@ -1764,7 +1807,6 @@ namespace Cocoa
 			UsingAliasNode usingAliasNode;
 			BracedInitListNode bracedInitList;
 			InitializerClauseNode initializerClauseNode;
-			InitializerListNode initializerList;
 			OperatorFunctionIdNode operatorFunctionId;
 			TypeParameterNode typeParameter;
 			BinaryExpressionNode binaryExpression;
@@ -1957,8 +1999,6 @@ namespace Cocoa
 			NoexceptExpressionNode noexceptExpression;
 			NoptrAbstractDeclaratorNode noptrAbstractDeclarator;
 			NoptrAbstractExpressionDeclaratorNode noptrAbstractExpressionDeclarator;
-			NoptrDeclaratorNode noptrDeclarator;
-			NoptrConstantDeclaratorNode noptrConstantDeclarator;
 			UnqualifiedIdNode unqualifiedId;
 			UnqualifiedIdDtorClassNode unqualifiedIdDtorClass;
 			UnqualifiedIdDtorDecltypeNode unqualifiedIdDtorDecltype;
@@ -1966,35 +2006,45 @@ namespace Cocoa
 			ElaboratedSpecifierTemplateNode elaboratedSpecifierTemplate;
 			ElaboratedSpecifierClassNode elaboratedSpecifierClass;
 			AlignmentExpressionNode alignmentExpression;
+			NoPtrParenDeclaratorNode noPtrParenDeclarator;
+			NoPtrBracketDeclaratorNode noPtrBracketDeclarator;
+			NoPtrParamAndQualDeclaratorNode noPtrParamAndQualDeclarator;
+			NoPtrDeclaratorNode noPtrDeclarator;
+			USystemDeclarationNode uSystemDeclaration;
+			InitializerListNode initializerList;
+			TypeTemplateParameterNode typeTemplateParameter;
+			TypeTypenameParameterNode typeTypenameParameter;
+			TypeClassParameterNode typeClassParameter;
 
 			// Preprocessing Stuff
-			PreprocessingFileNode preprocessingFile;
-			GroupNode group;
-			IfSectionNode ifSection;
-			IfGroupNode ifGroup;
-			IfDefGroupNode ifDefGroup;
-			IfNDefGroupNode ifNDefGroup;
-			ElifGroupsNode elifGroups;
-			ElifGroupNode elifGroup;
-			ElseGroupNode elseGroup;
-			MacroIncludeNode macroInclude;
-			MacroDefineNode macroDefine;
-			MacroDefineFunctionNode macroDefineFunction;
-			MacroUndefNode macroUndef;
-			MacroLineNode macroLine;
-			MacroErrorNode macroError;
-			MacroPragmaNode macroPragma;
-			TextLineNode textLine;
-			NonDirectiveNode nonDirective;
-			IdentifierListNode identifierList;
-			IdentifierNode identifier;
-			ReplacementListNode replacementList;
-			PPTokensNode ppTokens;
-			StringLiteralNode stringLiteral;
-			NumberLiteralNode numberLiteral;
-			CharacterLiteralNode characterLiteral;
-			HeaderNameNode headerName;
-			HeaderNameStringNode headerNameString;
+			// TODO: Add this stuff in once I write a preprocessing engine
+			//PreprocessingFileNode preprocessingFile;
+			//GroupNode group;
+			//IfSectionNode ifSection;
+			//IfGroupNode ifGroup;
+			//IfDefGroupNode ifDefGroup;
+			//IfNDefGroupNode ifNDefGroup;
+			//ElifGroupsNode elifGroups;
+			//ElifGroupNode elifGroup;
+			//ElseGroupNode elseGroup;
+			//MacroIncludeNode macroInclude;
+			//MacroDefineNode macroDefine;
+			//MacroDefineFunctionNode macroDefineFunction;
+			//MacroUndefNode macroUndef;
+			//MacroLineNode macroLine;
+			//MacroErrorNode macroError;
+			//MacroPragmaNode macroPragma;
+			//TextLineNode textLine;
+			//NonDirectiveNode nonDirective;
+			//IdentifierListNode identifierList;
+			//IdentifierNode identifier;
+			//ReplacementListNode replacementList;
+			//PPTokensNode ppTokens;
+			//StringLiteralNode stringLiteral;
+			//NumberLiteralNode numberLiteral;
+			//CharacterLiteralNode characterLiteral;
+			//HeaderNameNode headerName;
+			//HeaderNameStringNode headerNameString;
 		};
 	};
 
@@ -2004,9 +2054,829 @@ namespace Cocoa
 		Tokens = tokens;
 	}
 
+	static void WalkTree(AstNode* tree, void(*callbackFn)(AstNode* node), AstNodeType notificationType = AstNodeType::All)
+	{
+#define WALK(node) WalkTree(node, callbackFn, notificationType)
+		switch (tree->type)
+		{
+		case AstNodeType::BracedInitList:
+			WALK(tree->bracedInitList.initializerList);
+			break;
+		case AstNodeType::InitializerClause:
+			WALK(tree->initializerClauseNode.clause);
+			break;
+		case AstNodeType::InitializerList:
+			WALK(tree->initializerList.thisInitList);
+			WALK(tree->initializerList.nextInitList);
+			break;
+		case AstNodeType::OperatorFunctionId:
+			WALK(tree->operatorFunctionId.templateArgList);
+			break;
+		case AstNodeType::BinaryExpression:
+			WALK(tree->binaryExpression.left);
+			WALK(tree->binaryExpression.right);
+			break;
+		case AstNodeType::TernaryExpression:
+			WALK(tree->ternaryExpression.comparisonExpression);
+			WALK(tree->ternaryExpression.ifTrueNode);
+			WALK(tree->ternaryExpression.ifFalseNode);
+			break;
+		case AstNodeType::AssignmentExpression:
+			WALK(tree->assignmentExpression.leftSide);
+			WALK(tree->assignmentExpression.initializerClause);
+			break;
+		case AstNodeType::Expression:
+			WALK(tree->expressionNode.expression);
+			WALK(tree->expressionNode.nextExpression);
+			break;
+		case AstNodeType::PointerToMember:
+			WALK(tree->pointerToMember.left);
+			WALK(tree->pointerToMember.right);
+			break;
+		case AstNodeType::CastExpression:
+			WALK(tree->castExpression.expression);
+			WALK(tree->castExpression.typeId);
+			break;
+		case AstNodeType::UnaryExpression:
+			WALK(tree->unaryExpression.expression);
+			break;
+		case AstNodeType::SizeofExpression:
+			WALK(tree->sizeofExpression.expression);
+			break;
+		case AstNodeType::SizeofIdentifierExpression:
+			break;
+		case AstNodeType::AlignofExpression:
+			WALK(tree->alignofExpression.expression);
+			break;
+		case AstNodeType::Delete:
+			WALK(tree->deleteNode.expression);
+			break;
+		case AstNodeType::Literal:
+			break;
+		case AstNodeType::This:
+			break;
+		case AstNodeType::Grouping:
+			WALK(tree->grouping.expression);
+			break;
+		case AstNodeType::LambdaExpression:
+			WALK(tree->lambdaExpression.compoundStatement);
+			WALK(tree->lambdaExpression.declarator);
+			WALK(tree->lambdaExpression.introducer);
+			break;
+		case AstNodeType::LambdaIntroducer:
+			WALK(tree->lambdaIntroducer.lambdaCapture);
+			break;
+		case AstNodeType::LambdaCapture:
+			WALK(tree->lambdaCapture.captureList);
+			break;
+		case AstNodeType::Capture:
+			break;
+		case AstNodeType::LambdaCaptureList:
+			WALK(tree->lambdaCaptureList.thisCapture);
+			WALK(tree->lambdaCaptureList.nextCapture);
+			break;
+		case AstNodeType::LambdaDeclarator:
+			WALK(tree->lambdaDeclarator.attributeSpecifierSequence);
+			WALK(tree->lambdaDeclarator.exceptionSpecification);
+			WALK(tree->lambdaDeclarator.parameterDeclarationClause);
+			WALK(tree->lambdaDeclarator.trailingReturnType);
+			break;
+		case AstNodeType::TemplateArgumentList:
+			WALK(tree->templateArgumentList.thisArgument);
+			WALK(tree->templateArgumentList.nextArgument);
+			break;
+		case AstNodeType::TemplateQualifiedId:
+			WALK(tree->templateQualifiedId.nestedNamespaceSpecifier);
+			break;
+		case AstNodeType::TypeId:
+			WALK(tree->typeIdNode.abstractDeclarator);
+			WALK(tree->typeIdNode.typeSpecifierSeq);
+		case AstNodeType::EnumName:
+			break;
+		case AstNodeType::EnumSpecifier:
+			WALK(tree->enumSpecifier.enumHead);
+			WALK(tree->enumSpecifier.enumeratorList);
+			break;
+		case AstNodeType::EnumKey:
+			break;
+		case AstNodeType::EnumHead:
+			WALK(tree->enumHead.attributeSpecifierSeq);
+			WALK(tree->enumHead.enumBase);
+			WALK(tree->enumHead.enumKey);
+			WALK(tree->enumHead.nestedNameSpecifier);
+			break;
+		case AstNodeType::OpaqueEnumDecl:
+			WALK(tree->opaqueEnumDecl.attributeSpecifierSeq);
+			WALK(tree->opaqueEnumDecl.enumBase);
+			WALK(tree->opaqueEnumDecl.enumKey);
+			break;
+		case AstNodeType::EnumBase:
+			WALK(tree->enumBase.TypeSpecifierSeq);
+			break;
+		case AstNodeType::EnumeratorList:
+			WALK(tree->enumeratorList.enumDefinition);
+			WALK(tree->enumeratorList.nextEnumDefinition);
+			break;
+		case AstNodeType::EnumeratorDefinition:
+			WALK(tree->enumeratorDefinition.value);
+			break;
+		case AstNodeType::ConstantExpression:
+			WALK(tree->constantExpression.expression);
+			break;
+		case AstNodeType::IfElse:
+			WALK(tree->ifElseNode.condition);
+			WALK(tree->ifElseNode.ifStatement);
+			WALK(tree->ifElseNode.elseStatement);
+			break;
+		case AstNodeType::Switch:
+			WALK(tree->switchNode.condition);
+			WALK(tree->switchNode.statement);
+			break;
+		case AstNodeType::InitializerCondition:
+			WALK(tree->initCondition.attributeSpecifierSeq);
+			WALK(tree->initCondition.declarator);
+			WALK(tree->initCondition.declSpecifierSeq);
+			WALK(tree->initCondition.initializerClause);
+			break;
+		case AstNodeType::BracedInitCondition:
+			WALK(tree->bracedInitCondition.attributeSpecifierSeq);
+			WALK(tree->bracedInitCondition.bracedInitList);
+			WALK(tree->bracedInitCondition.declarator);
+			WALK(tree->bracedInitCondition.declSpecifierSeq);
+			break;
+		case AstNodeType::WhileLoop:
+			WALK(tree->whileLoopNode.condition);
+			WALK(tree->whileLoopNode.statement);
+			break;
+		case AstNodeType::DoWhileLoop:
+			WALK(tree->doWhileLoopNode.condition);
+			WALK(tree->doWhileLoopNode.statement);
+			break;
+		case AstNodeType::ForLoop:
+			WALK(tree->forLoopNode.condition);
+			WALK(tree->forLoopNode.expression);
+			WALK(tree->forLoopNode.forInitStatement);
+			WALK(tree->forLoopNode.statement);
+			break;
+		case AstNodeType::ForEachLoop:
+			WALK(tree->forEachLoopNode.forRangeDeclaration);
+			WALK(tree->forEachLoopNode.forRangeInitializer);
+			WALK(tree->forEachLoopNode.statement);
+			break;
+		case AstNodeType::ForRangeDeclaration:
+			WALK(tree->forRangeDeclaration.attributeSpecifierSeq);
+			WALK(tree->forRangeDeclaration.declarator);
+			WALK(tree->forRangeDeclaration.typeSpecifierSeq);
+			break;
+		case AstNodeType::ForRangeInitializer:
+			WALK(tree->forRangeInitializer.bracedInitList);
+			WALK(tree->forRangeInitializer.expression);
+			break;
+		case AstNodeType::Statement:
+			WALK(tree->statement.attributeSpecifierSeq);
+			WALK(tree->statement.statement);
+			break;
+		case AstNodeType::QualifiedId:
+			break;
+		case AstNodeType::LabeledIdentifier:
+			WALK(tree->labeledIdentifier.attributeSpecifierSeq);
+			WALK(tree->labeledIdentifier.statement);
+			break;
+		case AstNodeType::CaseLabel:
+			WALK(tree->caseLabel.attributeSpecifierSeq);
+			WALK(tree->caseLabel.constantExpression);
+			WALK(tree->caseLabel.statement);
+			break;
+		case AstNodeType::DefaultLabel:
+			WALK(tree->defaultLabel.attributeSpecifierSeq);
+			WALK(tree->defaultLabel.statement);
+			break;
+		case AstNodeType::CompoundStatement:
+			WALK(tree->compoundStatement.statementSequence);
+			break;
+		case AstNodeType::StatementSequence:
+			WALK(tree->statementSequence.thisStatement);
+			WALK(tree->statementSequence.nextStatement);
+			break;
+		case AstNodeType::Break:
+			break;
+		case AstNodeType::Continue:
+			break;
+		case AstNodeType::Goto:
+			break;
+		case AstNodeType::Return:
+			WALK(tree->returnNode.returnValue);
+			break;
+		case AstNodeType::NamespaceName:
+			break;
+		case AstNodeType::NamedNamespaceDefinition:
+			WALK(tree->namedNamespaceDefinition.namespaceBody);
+			break;
+		case AstNodeType::UnnamedNamespaceDefinition:
+			WALK(tree->unnamedNamespaceDefinition.namespaceBody);
+			break;
+		case AstNodeType::NamespaceAliasDefinition:
+			WALK(tree->namespaceAliasDefinition.qualifiedNamespaceSpecifier);
+			break;
+		case AstNodeType::QualifiedNamespaceSpecifier:
+			WALK(tree->qualifiedNamespaceSpecifier.namespaceName);
+			WALK(tree->qualifiedNamespaceSpecifier.nestedNameSpecifier);
+			break;
+		case AstNodeType::UsingDeclaration:
+			WALK(tree->usingDeclaration.unqualifiedId);
+			break;
+		case AstNodeType::UsingTypenameDeclaration:
+			WALK(tree->usingTypenameDeclaration.nestedNameSpecifier);
+			WALK(tree->usingTypenameDeclaration.unqualifiedId);
+			break;
+		case AstNodeType::UsingDirective:
+			WALK(tree->usingDirective.attributeSpecifierSeq);
+			WALK(tree->usingDirective.namespaceName);
+			WALK(tree->usingDirective.nestedNameSpecifier);
+			break;
+		case AstNodeType::Asm:
+			break;
+		case AstNodeType::LinkageSpecificationBlock:
+			WALK(tree->linkageSpecificationBlock.declarationSeq);
+			break;
+		case AstNodeType::LinkageSpecification:
+			WALK(tree->linkageSpecification.declaration);
+			break;
+		case AstNodeType::AttributeSpecifierSequence:
+			WALK(tree->attributeSpecifierSeq.thisSpec);
+			WALK(tree->attributeSpecifierSeq.nextSpec);
+			break;
+		case AstNodeType::AlignAsTypeId:
+			WALK(tree->alignAsTypeId.typeId);
+			break;
+		case AstNodeType::AlignAsExpression:
+			WALK(tree->alignAsExpression.alignmentExpression);
+			break;
+		case AstNodeType::AttributeList:
+			WALK(tree->attributeList.thisAttribute);
+			WALK(tree->attributeList.nextAttribute);
+			break;
+		case AstNodeType::EmptyAttributeList:
+			break;
+		case AstNodeType::Attribute:
+			WALK(tree->attribute.attributeArgumentClause);
+			WALK(tree->attribute.attributeToken);
+			break;
+		case AstNodeType::AttributeToken:
+			break;
+		case AstNodeType::AttributeArgumentClause:
+			WALK(tree->attributeArgumentClause.balancedTokenSequence);
+			break;
+		case AstNodeType::BalancedTokenSeq:
+			WALK(tree->balancedTokenSeq.thisToken);
+			WALK(tree->balancedTokenSeq.nextToken);
+			break;
+		case AstNodeType::BalancedToken:
+			break;
+		case AstNodeType::InitDeclaratorList:
+			WALK(tree->initDeclaratorList.thisDeclarator);
+			WALK(tree->initDeclaratorList.nextDeclarator);
+			break;
+		case AstNodeType::InitDeclarator:
+			WALK(tree->initDeclarator.declarator);
+			WALK(tree->initDeclarator.initializer);
+			break;
+		case AstNodeType::Declarator:
+			WALK(tree->declaratorNode.noPtrDeclarator);
+			WALK(tree->declaratorNode.parametersAndQualifiers);
+			WALK(tree->declaratorNode.trailingReturnType);
+			break;
+		case AstNodeType::PtrDeclarator:
+			WALK(tree->ptrDeclarator.ptrDeclarator);
+			WALK(tree->ptrDeclarator.ptrOperator);
+			break;
+		case AstNodeType::ParametersAndQualifiers:
+			WALK(tree->parametersAndQualifiersNode.attributeSpecifierSeq);
+			WALK(tree->parametersAndQualifiersNode.cvQualifierSeq);
+			WALK(tree->parametersAndQualifiersNode.exceptionSpecification);
+			WALK(tree->parametersAndQualifiersNode.parameterDeclarationClause);
+			WALK(tree->parametersAndQualifiersNode.refQualifier);
+			break;
+		case AstNodeType::TrailingReturnType:
+			WALK(tree->trailingReturnTypeNode.abstractDeclarator);
+			WALK(tree->trailingReturnTypeNode.trailingTypeSpecifierSeq);
+			break;
+		case AstNodeType::PtrStar:
+			WALK(tree->ptrStar.attributeSpecifierSeq);
+			WALK(tree->ptrStar.cvQualifierSeq);
+			break;
+		case AstNodeType::Ref:
+			WALK(tree->ref.attributeSpecifierSeq);
+			break;
+		case AstNodeType::RefRef:
+			WALK(tree->refRef.attributeSpecifierSeq);
+			break;
+		case AstNodeType::PtrNamespaceStar:
+			WALK(tree->ptrNamespaceStar.attributeSpecifierSeq);
+			WALK(tree->ptrNamespaceStar.cvQualifierSeq);
+			WALK(tree->ptrNamespaceStar.nestedNameSpecifier);
+			break;
+		case AstNodeType::CvQualifierSeq:
+			WALK(tree->cvQualifierSeq.thisQualifier);
+			WALK(tree->cvQualifierSeq.nextQualifier);
+			break;
+		case AstNodeType::CvQualifier:
+			break;
+		case AstNodeType::RefQualifier:
+			break;
+		case AstNodeType::DeclaratorId:
+			WALK(tree->declaratorId.className);
+			WALK(tree->declaratorId.nestedNameSpecifier);
+			break;
+		case AstNodeType::ClassName:
+			break;
+		case AstNodeType::ClassSpecifier:
+			WALK(tree->classSpecifier.classHead);
+			WALK(tree->classSpecifier.memberSpecification);
+			break;
+		case AstNodeType::ClassHead:
+			WALK(tree->classHead.attributeSpecifierSeq);
+			WALK(tree->classHead.baseClause);
+			WALK(tree->classHead.classKey);
+			break;
+		case AstNodeType::ClassVirtualHead:
+			WALK(tree->classVirtualHead.attributeSpecifierSeq);
+			WALK(tree->classVirtualHead.baseClause);
+			WALK(tree->classVirtualHead.classHeadName);
+			WALK(tree->classVirtualHead.classKey);
+			WALK(tree->classVirtualHead.classVirtSpecifierSeq);
+			break;
+		case AstNodeType::ClassVirtSpecifierSeq:
+			WALK(tree->classVirtSpecifierSeq.thisSpec);
+			WALK(tree->classVirtSpecifierSeq.nextSpec);
+			break;
+		case AstNodeType::ClassVirtSpecifier:
+			break;
+		case AstNodeType::ClassKey:
+			break;
+		case AstNodeType::MemberAndAccessSpecifier:
+			WALK(tree->memberAndAccessSpecifier.accessSpecifier);
+			WALK(tree->memberAndAccessSpecifier.memberSpecification);
+			break;
+		case AstNodeType::MemberSpecifier:
+			WALK(tree->memberSpecifier.memberDeclaration);
+			WALK(tree->memberSpecifier.memberSpecification);
+			break;
+		case AstNodeType::MemberFunctionDeclaration:
+			WALK(tree->memberFunctionDeclaration.functionDefinition);
+			break;
+		case AstNodeType::MemberDeclaration:
+			WALK(tree->memberDeclarationNode.attribtueSpecifierSeq);
+			WALK(tree->memberDeclarationNode.declSpecifierSeq);
+			WALK(tree->memberDeclarationNode.memberDeclaratorList);
+			break;
+		case AstNodeType::MemberDeclaratorList:
+			WALK(tree->memberDeclaratorList.thisDeclarator);
+			WALK(tree->memberDeclaratorList.nextDeclarator);
+			break;
+		case AstNodeType::MemberDeclaratorPure:
+			WALK(tree->memberDeclaratorPure.declarator);
+			WALK(tree->memberDeclaratorPure.pureSpecifier);
+			WALK(tree->memberDeclaratorPure.virtSpecifierSeq);
+			break;
+		case AstNodeType::MemberDeclaratorBrace:
+			WALK(tree->memberDeclaratorBrace.braceOrEqualInitializer);
+			WALK(tree->memberDeclaratorBrace.declarator);
+			WALK(tree->memberDeclaratorBrace.virtSpecifierSeq);
+			break;
+		case AstNodeType::MemberDeclarator:
+			WALK(tree->memberDeclarator.attributeSpecifierSeq);
+			WALK(tree->memberDeclarator.constantExpression);
+			WALK(tree->memberDeclarator.virtSpecifierSeq);
+			break;
+		case AstNodeType::VirtSpecifierSeq:
+			WALK(tree->virtSpecifierSeq.thisSpec);
+			WALK(tree->virtSpecifierSeq.nextSpec);
+			break;
+		case AstNodeType::VirtSpecifier:
+			break;
+		case AstNodeType::PureSpecifier:
+			break;
+		case AstNodeType::BaseSpecifierList:
+			WALK(tree->baseSpecifierList.thisBaseSpecifier);
+			WALK(tree->baseSpecifierList.nextBaseSpecifier);
+			break;
+		case AstNodeType::BaseSpecifier:
+			WALK(tree->baseSpecifier.accessSpecifier);
+			WALK(tree->baseSpecifier.attributeSpecifierSeq);
+			WALK(tree->baseSpecifier.baseTypeSpecifier);
+			break;
+		case AstNodeType::ClassOrDecltype:
+			WALK(tree->classOrDecltype.className);
+			WALK(tree->classOrDecltype.nestedNameSpecifier);
+			break;
+		case AstNodeType::AccessSpecifier:
+			break;
+		case AstNodeType::ConversionFunctionId:
+			WALK(tree->conversionFunctionId.conversionTypeId);
+			break;
+		case AstNodeType::ConversionTypeId:
+			WALK(tree->conversionTypeId.conversionDeclarator);
+			WALK(tree->conversionTypeId.typeSpecifierSeq);
+			break;
+		case AstNodeType::ConversionDeclarator:
+			WALK(tree->conversionDeclarator.conversionDeclarator);
+			WALK(tree->conversionDeclarator.ptrOperator);
+			break;
+		case AstNodeType::MemInitializerList:
+			WALK(tree->memInitializerList.thisMemInitializer);
+			WALK(tree->memInitializerList.nextMemInitializer);
+			break;
+		case AstNodeType::MemExpressionInitializer:
+			WALK(tree->memExpressionInitializer.expressionList);
+			WALK(tree->memExpressionInitializer.memInitializerId);
+			break;
+		case AstNodeType::MemBracedInitializer:
+			WALK(tree->memBracedInitializer.bracedInitList);
+			WALK(tree->memBracedInitializer.memInitializerId);
+			break;
+		case AstNodeType::MemInitializerId:
+			break;
+		case AstNodeType::NestedNamespaceSpecifierId:
+			WALK(tree->nestedNamespaceSpecifierId.nestedNameSpecifier);
+			break;
+		case AstNodeType::NestedNamespaceSpecifierTemplate:
+			WALK(tree->nestedNamespaceSpecifierTemplate.nestedNameSpecifier);
+			WALK(tree->nestedNamespaceSpecifierTemplate.simpleTemplateId);
+			break;
+		case AstNodeType::PostfixSimpleTypeExpressionList:
+			WALK(tree->postfixSimpleTypeExpressionList.expressionList);
+			WALK(tree->postfixSimpleTypeExpressionList.simpleTypeSpecifier);
+			break;
+		case AstNodeType::PostfixSimpleTypeBraceList:
+			WALK(tree->postfixSimpleTypeBraceList.bracedInitList);
+			WALK(tree->postfixSimpleTypeBraceList.simpleTypeSpecifier);
+			break;
+		case AstNodeType::PostfixTypenameSpecExpressionList:
+			WALK(tree->postfixSimpleTypeBraceList.bracedInitList);
+			WALK(tree->postfixSimpleTypeBraceList.simpleTypeSpecifier);
+			break;
+		case AstNodeType::PostfixTypenameSpecBraceList:
+			WALK(tree->postfixTypenameSpecBraceList.bracedInitList);
+			WALK(tree->postfixTypenameSpecBraceList.typenameSpecifier);
+			break;
+		case AstNodeType::PostfixCast:
+			WALK(tree->postfixCast.expression);
+			WALK(tree->postfixCast.typeId);
+			break;
+		case AstNodeType::PostfixTypeIdExpression:
+			WALK(tree->postfixTypeIdExpression.expression);
+			break;
+		case AstNodeType::PostfixTypeId:
+			WALK(tree->postfixTypeId.typeId);
+			break;
+		case AstNodeType::PostfixBracketExpression:
+			WALK(tree->postfixBracketExpression.expression);
+			WALK(tree->postfixBracketExpression.postfixExpression);
+			break;
+		case AstNodeType::PostfixBracketBraceList:
+			WALK(tree->postfixBracketBraceList.bracedInitList);
+			WALK(tree->postfixBracketBraceList.postfixExpression);
+			break;
+		case AstNodeType::PostfixParenExpressionList:
+			WALK(tree->postfixParenExpressionList.expressionList);
+			WALK(tree->postfixParenExpressionList.postfixExpression);
+			break;
+		case AstNodeType::PostfixMemberIdExpression:
+			WALK(tree->postfixMemberIdExpression.idExpression);
+			WALK(tree->postfixMemberIdExpression.postfixExpression);
+			break;
+		case AstNodeType::PostfixPseudoDestructor:
+			WALK(tree->postfixPseudoDestructor.postfixExpression);
+			WALK(tree->postfixPseudoDestructor.pseudoDestructorName);
+			break;
+		case AstNodeType::PostfixPlusPlus:
+			WALK(tree->postfixPlusPlus.postfixExpression);
+			break;
+		case AstNodeType::PostfixMinusMinus:
+			WALK(tree->postfixMinusMinus.postfixExpression);
+			break;
+		case AstNodeType::PseudoDestructorDecltype:
+			WALK(tree->pseudoDestructorDecltype.decltypeSpecifier);
+			break;
+		case AstNodeType::PseudoDestructorTemplate:
+			WALK(tree->pseudoDestructorTemplate.nestedNameSpecifier);
+			WALK(tree->pseudoDestructorTemplate.simpleTemplateId);
+			WALK(tree->pseudoDestructorTemplate.typeName);
+			break;
+		case AstNodeType::PseudoDestructor:
+			WALK(tree->pseudoDestructor.nestedNameSpecifier);
+			WALK(tree->pseudoDestructor.typeName);
+			break;
+		case AstNodeType::PseudoNestedDestructor:
+			WALK(tree->pseudoNestedDestructor.nestedNameSpecifier);
+			WALK(tree->pseudoNestedDestructor.nestedTypeName);
+			WALK(tree->pseudoNestedDestructor.typeName);
+			break;
+		case AstNodeType::NewTypeIdExpression:
+			WALK(tree->newTypeIdExpression.newInitializer);
+			WALK(tree->newTypeIdExpression.newPlacement);
+			WALK(tree->newTypeIdExpression.newTypeId);
+			break;
+		case AstNodeType::NewExpression:
+			WALK(tree->newExpression.newInitializer);
+			WALK(tree->newExpression.newPlacement);
+			WALK(tree->newExpression.typeId);
+			break;
+		case AstNodeType::NewPlacement:
+			WALK(tree->newPlacementNode.expressionList);
+			break;
+		case AstNodeType::NewTypeId:
+			WALK(tree->newTypeId.newDeclarator);
+			WALK(tree->newTypeId.typeSpecifierSeq);
+			break;
+		case AstNodeType::NewDeclarator:
+			WALK(tree->newDeclarator.newDeclarator);
+			WALK(tree->newDeclarator.ptrOperator);
+			break;
+		case AstNodeType::NoptrNewTailDeclarator:
+			WALK(tree->noptrNewTailDeclarator.attributeSpecifierSeq);
+			WALK(tree->noptrNewTailDeclarator.expression);
+			break;
+		case AstNodeType::NoptrNewDeclarator:
+			WALK(tree->noptrNewDeclarator.attributeSpecifierSeq);
+			WALK(tree->noptrNewDeclarator.constantExpression);
+			WALK(tree->noptrNewDeclarator.noptrNewDeclarator);
+			break;
+		case AstNodeType::NewInitializer:
+			WALK(tree->newInitializer.expressionList);
+			break;
+		case AstNodeType::DeclarationSeq:
+			WALK(tree->declarationSeq.thisDeclaration);
+			WALK(tree->declarationSeq.nextDeclaration);
+			break;
+		case AstNodeType::AliasDeclaration:
+			WALK(tree->aliasDeclaration.typeId);
+			break;
+		case AstNodeType::SimpleDeclaration:
+			WALK(tree->simpleDeclaration.attributeSpecifierSeq);
+			WALK(tree->simpleDeclaration.declSpecifierSeq);
+			WALK(tree->simpleDeclaration.initDeclaratorList);
+			break;
+		case AstNodeType::StaticAssertDeclaration:
+			WALK(tree->staticAssertDeclaration.constantExpression);
+			break;
+		case AstNodeType::SimpleDeclSpecifier:
+			break;
+		case AstNodeType::DeclSpecifier:
+			WALK(tree->declSpecifier.specifier);
+			break;
+		case AstNodeType::DeclSpecSeq:
+			WALK(tree->declSpecSeq.attributeSpecifierSeq);
+			WALK(tree->declSpecSeq.thisSpec);
+			WALK(tree->declSpecSeq.nextSpec);
+			break;
+		case AstNodeType::StorageClassSpec:
+			break;
+		case AstNodeType::FunctionSpec:
+			break;
+		case AstNodeType::TypedefName:
+			break;
+		case AstNodeType::TypeSpecSeq:
+			WALK(tree->typeSpecSeq.attributeSpecifierSeq);
+			WALK(tree->typeSpecSeq.thisTypeSpec);
+			WALK(tree->typeSpecSeq.nextTypeSpec);
+			break;
+		case AstNodeType::TrailingTypeSpecSeq:
+			WALK(tree->trailingTypeSpecSeq.attributeSpecifierSeq);
+			WALK(tree->trailingTypeSpecSeq.thisTypeSpec);
+			WALK(tree->trailingTypeSpecSeq.nextTypeSpec);
+			break;
+		case AstNodeType::SimpleTypeTokenSpec:
+			break;
+		case AstNodeType::SimpleTypeTemplateSpec:
+			WALK(tree->simpleTypeTemplateSpec.nestedNameSpec);
+			WALK(tree->simpleTypeTemplateSpec.simpleTemplateId);
+			break;
+		case AstNodeType::SimpleTypeSpec:
+			WALK(tree->simpleTypeSpec.nestedNameSpec);
+			WALK(tree->simpleTypeSpec.typeName);
+			break;
+		case AstNodeType::DecltypeSpec:
+			WALK(tree->decltypeSpec.expression);
+			break;
+		case AstNodeType::AbstractDeclarator:
+			WALK(tree->abstractDeclarator.noptrAbstractDeclarator);
+			WALK(tree->abstractDeclarator.parametersAndQualifiers);
+			WALK(tree->abstractDeclarator.trailingReturnType);
+			break;
+		case AstNodeType::AbstractElipsisDeclarator:
+			break;
+		case AstNodeType::PtrAbstractDeclarator:
+			WALK(tree->ptrAbstractDeclarator.ptrAbstractDeclarator);
+			WALK(tree->ptrAbstractDeclarator.ptrOperator);
+			break;
+		case AstNodeType::ParameterDeclarationList:
+			WALK(tree->parameterDeclarationList.thisParameter);
+			WALK(tree->parameterDeclarationList.nextParameter);
+			break;
+		case AstNodeType::ParameterDefaultDeclaration:
+			WALK(tree->parameterDefaultDeclaration.attributeSpecifierSeq);
+			WALK(tree->parameterDefaultDeclaration.declarator);
+			WALK(tree->parameterDefaultDeclaration.declSpecifierSeq);
+			WALK(tree->parameterDefaultDeclaration.initializerClause);
+			break;
+		case AstNodeType::ParameterDeclaration:
+			WALK(tree->parameterDeclaration.attributeSpecifierSeq);
+			WALK(tree->parameterDeclaration.declarator);
+			WALK(tree->parameterDeclaration.declSpecifierSeq);
+			break;
+		case AstNodeType::ParameterAbstractDefaultDeclaration:
+			WALK(tree->parameterAbstractDefaultDeclaration.abstractDeclarator);
+			WALK(tree->parameterAbstractDefaultDeclaration.attributeSpecifierSeq);
+			WALK(tree->parameterAbstractDefaultDeclaration.declSpecifierSeq);
+			WALK(tree->parameterAbstractDefaultDeclaration.initializerClause);
+			break;
+		case AstNodeType::ParameterAbstractDeclaration:
+			WALK(tree->parameterAbstractDeclaration.abstractDeclarator);
+			WALK(tree->parameterAbstractDeclaration.attributeSpecifierSeq);
+			WALK(tree->parameterAbstractDeclaration.declSpecifierSeq);
+			break;
+		case AstNodeType::FunctionDefaultDefinition:
+			WALK(tree->functionDefaultDefinition.attributeSpecifierSeq);
+			WALK(tree->functionDefaultDefinition.declarator);
+			WALK(tree->functionDefaultDefinition.declSpecifierSeq);
+			break;
+		case AstNodeType::FunctionDefinition:
+			WALK(tree->functionDefinition.attributeSpecifierSeq);
+			WALK(tree->functionDefinition.declarator);
+			WALK(tree->functionDefinition.declSpecifierSeq);
+			WALK(tree->functionDefinition.functionBody);
+			break;
+		case AstNodeType::FunctionBody:
+			WALK(tree->functionBody.compoundStatement);
+			WALK(tree->functionBody.ctorInitializer);
+			break;
+		case AstNodeType::LiteralOperatorId:
+			break;
+		case AstNodeType::TemplateDeclaration:
+			WALK(tree->templateDeclaration.declaration);
+			WALK(tree->templateDeclaration.templateParameterList);
+			break;
+		case AstNodeType::TemplateParameterList:
+			WALK(tree->templateParameterList.thisParameter);
+			WALK(tree->templateParameterList.nextParameter);
+			break;
+		case AstNodeType::SimpleTemplateId:
+			WALK(tree->simpleTemplateId.templateArgumentList);
+			WALK(tree->simpleTemplateId.templateName);
+			break;
+		case AstNodeType::LiteralOperatorTemplateId:
+			WALK(tree->literalOperatorTemplateId.literalOperatorId);
+			WALK(tree->literalOperatorTemplateId.templateArgumentList);
+			break;
+		case AstNodeType::FunctionOperatorTemplateId:
+			WALK(tree->functionOperatorTemplateId.operatorFunctionId);
+			WALK(tree->functionOperatorTemplateId.templateArgumentList);
+			break;
+		case AstNodeType::TemplateName:
+			break;
+		case AstNodeType::TypenameSpecifier:
+			WALK(tree->typenameSpecifier.nestedNameSpecifier);
+			break;
+		case AstNodeType::TypenameTemplateSpecifier:
+			WALK(tree->typenameTemplateSpecifier.nestedNameSpecifier);
+			WALK(tree->typenameTemplateSpecifier.simpleTemplateId);
+			break;
+		case AstNodeType::ExplicitInstantiation:
+			WALK(tree->explicitInstantiation.declaration);
+			break;
+		case AstNodeType::TryBlock:
+			WALK(tree->tryBlock.compoundStatement);
+			WALK(tree->tryBlock.handlerSeq);
+			break;
+		case AstNodeType::FunctionTryBlock:
+			WALK(tree->functionTryBlock.compoundStatement);
+			WALK(tree->functionTryBlock.ctorInitializer);
+			WALK(tree->functionTryBlock.handlerSeq);
+			break;
+		case AstNodeType::HandlerSeq:
+			WALK(tree->handlerSeq.thisHandler);
+			WALK(tree->handlerSeq.nextHandler);
+			break;
+		case AstNodeType::Handler:
+			WALK(tree->handler.compoundStatement);
+			WALK(tree->handler.exceptionDeclaration);
+			break;
+		case AstNodeType::ExceptionDeclaration:
+			WALK(tree->exceptionDeclaration.attributeSpecifierSeq);
+			WALK(tree->exceptionDeclaration.declarator);
+			WALK(tree->exceptionDeclaration.typeSpecifierSeq);
+			break;
+		case AstNodeType::ExceptionAbstractDeclaration:
+			WALK(tree->exceptionAbstractDeclaration.abstractDeclarator);
+			WALK(tree->exceptionAbstractDeclaration.attributeSpecifierSeq);
+			WALK(tree->exceptionAbstractDeclaration.typeSpecifierSeq);
+			break;
+		case AstNodeType::ThrowExpression:
+			WALK(tree->throwExpression.assignmentExpression);
+			break;
+		case AstNodeType::DynamicExceptionSpec:
+			WALK(tree->dynamicExceptionSpec.typeIdList);
+			break;
+		case AstNodeType::TypeIdList:
+			WALK(tree->typeIdList.thisTypeId);
+			WALK(tree->typeIdList.nextTypeId);
+			break;
+		case AstNodeType::NoexceptSpec:
+			break;
+		case AstNodeType::NoexceptExpressionSpec:
+			WALK(tree->noexceptExpression.constantExpression);
+			break;
+		case AstNodeType::NoptrAbstractDeclarator:
+			WALK(tree->noptrAbstractDeclarator.noptrAbstractDeclarator);
+			WALK(tree->noptrAbstractDeclarator.parametersAndQualifiers);
+			WALK(tree->noptrAbstractDeclarator.ptrAbstractDeclarator);
+			break;
+		case AstNodeType::NoptrAbstractExpressionDeclarator:
+			WALK(tree->noptrAbstractExpressionDeclarator.attributeSpecifierSeq);
+			WALK(tree->noptrAbstractExpressionDeclarator.constantExpression);
+			WALK(tree->noptrAbstractExpressionDeclarator.noptrAbstractDeclarator);
+			WALK(tree->noptrAbstractExpressionDeclarator.ptrAbstractDeclarator);
+			break;
+		case AstNodeType::UnqualifiedId:
+			break;
+		case AstNodeType::UnqualifiedIdDtorClass:
+			WALK(tree->unqualifiedIdDtorClass.className);
+			break;
+		case AstNodeType::UnqualifiedIdDtorDecltype:
+			WALK(tree->unqualifiedIdDtorDecltype.decltypeSpecifier);
+			break;
+		case AstNodeType::ElaboratedSpecifierEnum:
+			WALK(tree->elaboratedSpecifierEnum.nestedNameSpecifier);
+			break;
+		case AstNodeType::ElaboratedSpecifierClass:
+			WALK(tree->elaboratedSpecifierClass.attributeSpecifierSeq);
+			WALK(tree->elaboratedSpecifierClass.classKey);
+			WALK(tree->elaboratedSpecifierClass.nestedNameSpecifier);
+			break;
+		case AstNodeType::ElaboratedSpecifierTemplate:
+			WALK(tree->elaboratedSpecifierTemplate.classKey);
+			WALK(tree->elaboratedSpecifierTemplate.nestedNameSpecifier);
+			WALK(tree->elaboratedSpecifierTemplate.simpleTemplateId);
+			break;
+		case AstNodeType::AlignmentExpression:
+			WALK(tree->alignmentExpression.typeId);
+			break;
+		case AstNodeType::NoPtrParenDeclarator:
+			WALK(tree->noPtrParenDeclarator.ptrDeclarator);
+			break;
+		case AstNodeType::NoPtrBracketDeclarator:
+			WALK(tree->noPtrBracketDeclarator.attributeSpecifierSeq);
+			WALK(tree->noPtrBracketDeclarator.constantExpression);
+			WALK(tree->noPtrBracketDeclarator.noptrDeclarator);
+			break;
+		case AstNodeType::NoPtrParamAndQualDeclarator:
+			WALK(tree->noPtrParamAndQualDeclarator.noptrDeclarator);
+			WALK(tree->noPtrParamAndQualDeclarator.parametersAndQualifiers);
+			break;
+		case AstNodeType::NoPtrDeclarator:
+			WALK(tree->noPtrDeclarator.attributeSpecifierSeq);
+			WALK(tree->noPtrDeclarator.declaratorId);
+			break;
+		case AstNodeType::USystemDeclaration:
+			WALK(tree->uSystemDeclaration.namedNamespaceDefinition);
+			WALK(tree->uSystemDeclaration.parameterDeclarationClause);
+			break;
+		case AstNodeType::TypeTemplateParameter:
+			WALK(tree->typeTemplateParameter.idExpression);
+			WALK(tree->typeTemplateParameter.templateParameterList);
+			break;
+		case AstNodeType::TypeTypenameParameter:
+			WALK(tree->typeTypenameParameter.typeId);
+			break;
+		case AstNodeType::TypeClassParameter:
+			WALK(tree->typeClassParameter.typeId);
+			break;
+		case AstNodeType::Empty:
+			break;
+		case AstNodeType::None:
+			break;
+		case AstNodeType::All:
+			break;
+		default:
+			Log::Error("Unknown tree node type: '%d' while walking tree.", (int)tree->type);
+			break;
+		}
+
+		if (notificationType == AstNodeType::All || tree->type == notificationType)
+			callbackFn(tree);
+#undef WALK
+	}
+
+	static bool AtEnd()
+	{
+		return CurrentToken == Tokens.size();
+	}
+
 	static void ErrorAtToken()
 	{
-		Token& currentToken = Tokens[CurrentToken];
+		Token& currentToken = AtEnd() ? Tokens[Tokens.size() - 1] : Tokens[CurrentToken];
 		Log::Error("Unexpected token '%s' at line %d:%d", ScriptScanner::TokenName(currentToken.m_Type).c_str(), currentToken.m_Line, currentToken.m_Column);
 	}
 
@@ -2030,7 +2900,7 @@ namespace Cocoa
 
 	static bool Match(TokenType type)
 	{
-		Token& currentToken = Tokens[CurrentToken];
+		Token& currentToken = AtEnd() ? Tokens[Tokens.size() - 1] : Tokens[CurrentToken];
 		if (currentToken.m_Type == type)
 		{
 			CurrentToken++;
@@ -2042,7 +2912,7 @@ namespace Cocoa
 
 	static Token ConsumeCurrent(TokenType type)
 	{
-		Token& currentToken = Tokens[CurrentToken];
+		Token& currentToken = AtEnd() ? Tokens[Tokens.size() - 1] : Tokens[CurrentToken];
 		if (currentToken.m_Type == type)
 		{
 			CurrentToken++;
@@ -2055,7 +2925,7 @@ namespace Cocoa
 
 	static Token GetCurrentToken()
 	{
-		return Tokens[CurrentToken];
+		return AtEnd() ? Tokens[Tokens.size() - 1] : Tokens[CurrentToken];
 	}
 
 	static bool IsAssignmentOperator(TokenType type)
@@ -2065,9 +2935,15 @@ namespace Cocoa
 			type == TokenType::AND_EQUAL || type == TokenType::CARET_EQUAL || type == TokenType::PIPE_EQUAL;
 	}
 
+	static void FreeNodeCallback(AstNode* tree);
 	static void FreeNode(AstNode* node)
 	{
-		// TODO: Implement me by implementing a walk tree function
+		WalkTree(node, FreeNodeCallback);
+	}
+
+	static void FreeNodeCallback(AstNode* tree) 
+	{	
+		FreeMem(tree);
 	}
 
 	static AstNode* GenerateAstNode(AstNodeType type)
@@ -3650,7 +4526,88 @@ namespace Cocoa
 		return result;
 	}
 
-	static AstNode* GeneratePreprocessingFileNode(AstNode* group)
+	static AstNode* GenerateNoPtrParenDeclaratorNode(AstNode* ptrDeclarator)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::NoPtrParenDeclarator);
+		result->noPtrParenDeclarator.ptrDeclarator = ptrDeclarator;
+		return result;
+	}
+
+	static AstNode* GenerateNoPtrBracketDeclaratorNode(AstNode* constantExpression, AstNode* attributeSpecifierSeq, AstNode* noptrDeclarator)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::NoPtrBracketDeclarator);
+		result->noPtrBracketDeclarator.constantExpression = constantExpression;
+		result->noPtrBracketDeclarator.attributeSpecifierSeq = attributeSpecifierSeq;
+		result->noPtrBracketDeclarator.noptrDeclarator = noptrDeclarator;
+		return result;
+	}
+
+	static AstNode* GenerateNoPtrParamAndQualDeclaratorNode(AstNode* parametersAndQualifiers, AstNode* noptrDeclarator)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::NoPtrParamAndQualDeclarator);
+		result->noPtrParamAndQualDeclarator.parametersAndQualifiers = parametersAndQualifiers;
+		result->noPtrParamAndQualDeclarator.noptrDeclarator = noptrDeclarator;
+		return result;
+	}
+
+	static AstNode* GenerateNoPtrDeclaratorNode(AstNode* declaratorId, AstNode* attributeSpecifierSeq)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::NoPtrDeclarator);
+		result->noPtrDeclarator.declaratorId = declaratorId;
+		result->noPtrDeclarator.attributeSpecifierSeq = attributeSpecifierSeq;
+		return result;
+	}
+
+	static AstNode* GenerateBracedInitListNode(AstNode* initializerList)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::BracedInitList);
+		result->bracedInitList.initializerList = initializerList;
+		return result;
+	}
+
+	static AstNode* GenerateUSystemDeclarationNode(AstNode* parameterDeclarationClause, AstNode* namedNamespaceDefinition)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::USystemDeclaration);
+		result->uSystemDeclaration.parameterDeclarationClause = parameterDeclarationClause;
+		result->uSystemDeclaration.namedNamespaceDefinition = namedNamespaceDefinition;
+		return result;
+	}
+
+	static AstNode* GenerateInitializerListNode(AstNode* thisInitList, AstNode* nextInitList)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::InitializerList);
+		result->initializerList.thisInitList = thisInitList;
+		result->initializerList.nextInitList = nextInitList;
+		return result;
+	}
+
+	static AstNode* GenerateTypeTemplateParameterNode(AstNode* templateParameterList, Token identifier, AstNode* idExpression)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::TypeTemplateParameter);
+		result->typeTemplateParameter.templateParameterList = templateParameterList;
+		result->typeTemplateParameter.identifier = identifier;
+		result->typeTemplateParameter.idExpression = idExpression;
+		return result;
+	}
+
+	static AstNode* GenerateTypeTypenameParameterNode(Token identifier, AstNode* typeId)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::TypeTypenameParameter);
+		result->typeTypenameParameter.identifier = identifier;
+		result->typeTypenameParameter.typeId = typeId;
+		return result;
+	}
+
+	static AstNode* GenerateTypeClassParameterNode(Token identifier, AstNode* typeId)
+	{
+		AstNode* result = GenerateAstNode(AstNodeType::TypeClassParameter);
+		result->typeClassParameter.identifier = identifier;
+		result->typeClassParameter.typeId = typeId;
+		return result;
+	}
+
+	// TODO: Add this stuff in once I write a preprocessing engine
+	/*static AstNode* GeneratePreprocessingFileNode(AstNode* group)
 	{
 		AstNode* result = GenerateAstNode(AstNodeType::PreprocessingFile);
 		result->preprocessingFile.group = group;
@@ -3850,7 +4807,7 @@ namespace Cocoa
 		AstNode* result = GenerateAstNode(AstNodeType::HeaderNameString);
 		result->headerNameString.stringLiteral = stringLiteral;
 		return result;
-	}
+	}*/
 
 	static AstNode* GenerateNoptrAbstractDeclaratorNode(AstNode* ptrAbstractDeclarator, AstNode* parametersAndQualifiers, AstNode* noptrAbstractDeclarator)
 	{
@@ -3868,23 +4825,6 @@ namespace Cocoa
 		result->noptrAbstractExpressionDeclarator.constantExpression = constantExpression;
 		result->noptrAbstractExpressionDeclarator.attributeSpecifierSeq = attributeSpecifierSeq;
 		result->noptrAbstractExpressionDeclarator.noptrAbstractDeclarator = noptrAbstractDeclarator;
-		return result;
-	}
-
-	static AstNode* GenerateNoptrDeclaratorNode(AstNode* expression, AstNode* attributeSpecifierSeq)
-	{
-		AstNode* result = GenerateAstNode(AstNodeType::NoptrDeclarator);
-		result->noptrDeclarator.expression = expression;
-		result->noptrDeclarator.attributeSpecifierSeq = attributeSpecifierSeq;
-		return result;
-	}
-
-	static AstNode* GenerateNoptrConstantDeclaratorNode(AstNode* noptrNewDeclarator, AstNode* constantExpression, AstNode* attributeSpecifierSeq)
-	{
-		AstNode* result = GenerateAstNode(AstNodeType::NoptrConstantDeclarator);
-		result->noptrConstantDeclarator.noptrNewDeclarator = noptrNewDeclarator;
-		result->noptrConstantDeclarator.constantExpression = constantExpression;
-		result->noptrConstantDeclarator.attributeSpecifierSeq = attributeSpecifierSeq;
 		return result;
 	}
 
@@ -3956,7 +4896,7 @@ namespace Cocoa
 
 	static TokenType Peek()
 	{
-		return Tokens[CurrentToken].m_Type;
+		return AtEnd() ? Tokens[Tokens.size() - 1].m_Type : Tokens[CurrentToken].m_Type;
 	}
 
 	static bool PeekIn(std::initializer_list<TokenType> tokenTypes)
@@ -3974,7 +4914,7 @@ namespace Cocoa
 		// before the first semicolon or eof token. If it finds it, it returns true, otherwise false
 		int token = CurrentToken;
 		int tokenTypeSize = tokenTypes.size();
-		while (true)
+		while (!AtEnd())
 		{
 			Token& iter = Tokens[token];
 			if (iter.m_Type == TokenType::SEMICOLON)
@@ -4596,6 +5536,7 @@ namespace Cocoa
 	// Declarations
 	static AstNode* ParseDeclarationStatement();
 	static AstNode* ParseDeclarationSequence();
+	static AstNode* ParseUSystemDeclaration();
 	static AstNode* ParseDeclaration();
 	static AstNode* ParseBlockDeclaration();
 	static AstNode* ParseAliasDeclaration();
@@ -4768,39 +5709,40 @@ namespace Cocoa
 	static AstNode* ParseNoexceptSpecification();
 
 	// Preprocessor File
-	static AstNode* ParsePreprocessingFile();
-	static AstNode* ParseGroup();
-	static AstNode* ParseGroupPart();
-	static AstNode* ParseIfSection();
-	static AstNode* ParseIfGroup();
-	static AstNode* ParseElifGroups();
-	static AstNode* ParseElifGroup();
-	static AstNode* ParseElseGroup();
-	static AstNode* ParseControlLine();
-	static AstNode* ParseTextLine();
-	static AstNode* ParseNonDirective();
-	static AstNode* ParseIdentifierList();
-	static AstNode* ParseReplacementList();
-	static AstNode* ParsePPTokens();
-	static AstNode* ParseNumberLiteral();
+	// TODO: Add this stuff in once I write a preprocessing engine
+	//static AstNode* ParsePreprocessingFile();
+	//static AstNode* ParseGroup();
+	//static AstNode* ParseGroupPart();
+	//static AstNode* ParseIfSection();
+	//static AstNode* ParseIfGroup();
+	//static AstNode* ParseElifGroups();
+	//static AstNode* ParseElifGroup();
+	//static AstNode* ParseElseGroup();
+	//static AstNode* ParseControlLine();
+	//static AstNode* ParseTextLine();
+	//static AstNode* ParseNonDirective();
+	//static AstNode* ParseIdentifierList();
+	//static AstNode* ParseReplacementList();
+	//static AstNode* ParsePPTokens();
+	//static AstNode* ParseNumberLiteral();
 
-	// Preprocessor Stuff
-	static AstNode* ParsePreprocessingToken();
-	static AstNode* ParseHeaderName();
-	static AstNode* ParseCharacterLiteral();
-	static AstNode* ParseUserDefinedCharacterLiteral();
-	static AstNode* ParseStringLiteral();
-	static AstNode* ParseUserDefinedStringLiteral();
-	static AstNode* ParsePreprocessingOpOrPunc();
-	static AstNode* ParseHCharSequence();
-	static AstNode* ParseHChar();
-	static AstNode* ParseQCharSequence();
-	static AstNode* ParseQChar();
+	//// Preprocessor Stuff
+	//static AstNode* ParsePreprocessingToken();
+	//static AstNode* ParseHeaderName();
+	//static AstNode* ParseCharacterLiteral();
+	//static AstNode* ParseUserDefinedCharacterLiteral();
+	//static AstNode* ParseStringLiteral();
+	//static AstNode* ParseUserDefinedStringLiteral();
+	//static AstNode* ParsePreprocessingOpOrPunc();
+	//static AstNode* ParseHCharSequence();
+	//static AstNode* ParseHChar();
+	//static AstNode* ParseQCharSequence();
+	//static AstNode* ParseQChar();
 
 	void ScriptParser::Parse()
 	{
-		AstNode* node = ParseAttributeSpecifier();
-
+		AstNode* result = ParseTranslationUnit();
+		FreeNode(result);
 		return;
 	}
 
@@ -4945,27 +5887,32 @@ namespace Cocoa
 			Consume(TokenType::COLON);
 		}
 
-		AstNode* nestedNamespaceSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		bool hasTemplateKeyword = Match(TokenType::KW_TEMPLATE);
 		AstNode* unqualifiedId = ParseUnqualifiedId();
 		if (!hasNamespaceScope)
 		{
 			// This can only be a nested-namespace-specifier if it doesn't have a namespace scope
-			if (nestedNamespaceSpecifier->success && unqualifiedId->success)
+			if (nestedNameSpecifier->success && unqualifiedId->success)
 			{
-				return GenerateTemplateQualifiedIdNode(nestedNamespaceSpecifier, hasNamespaceScope, hasTemplateKeyword);
+				return GenerateTemplateQualifiedIdNode(nestedNameSpecifier, hasNamespaceScope, hasTemplateKeyword);
 			}
-			FreeNode(nestedNamespaceSpecifier);
+			FreeNode(nestedNameSpecifier);
 			FreeNode(unqualifiedId);
 			BacktrackTo(backtrackPosition);
 			return GenerateNoSuccessAstNode();
 		}
 
-		if (nestedNamespaceSpecifier->success && unqualifiedId->success)
+		if (nestedNameSpecifier->success && unqualifiedId->success)
 		{
-			return GenerateTemplateQualifiedIdNode(nestedNamespaceSpecifier, hasNamespaceScope, hasTemplateKeyword);
+			return GenerateTemplateQualifiedIdNode(nestedNameSpecifier, hasNamespaceScope, hasTemplateKeyword);
 		}
-		FreeNode(nestedNamespaceSpecifier);
+		FreeNode(nestedNameSpecifier);
 		FreeNode(unqualifiedId);
 		BacktrackTo(backtrackPosition);
 
@@ -5034,6 +5981,10 @@ namespace Cocoa
 		FreeNode(decltypeSpecifier);
 		BacktrackTo(backtrackPosition);
 
+		if (!LookAheadBeforeSemicolon({ TokenType::COLON }))
+		{
+			return GenerateNoSuccessAstNode();
+		}
 		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
 		if (Peek() == TokenType::IDENTIFIER)
 		{
@@ -5444,7 +6395,12 @@ namespace Cocoa
 			Consume(TokenType::COLON);
 		}
 
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		if (Match(TokenType::KW_TEMPLATE))
 		{
 			if (!nestedNameSpecifier->success)
@@ -6500,17 +7456,35 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
-		{
-			AstNode* nextDeclaration = ParseDeclarationSequence();
-			result = GenerateDeclarationSeqNode(result, nextDeclaration);
-			if (!nextDeclaration->success)
-			{
-				break;
-			}
-		}
+		AstNode* nextDeclaration = ParseDeclarationSequence();
+		result = GenerateDeclarationSeqNode(result, nextDeclaration);
 
 		return result;
+	}
+
+	static AstNode* ParseUSystemDeclaration()
+	{
+		int backtrackPosition = CurrentToken;
+		if (Match(TokenType::USYSTEM))
+		{
+			Consume(TokenType::LEFT_PAREN);
+			AstNode* parameterDeclarationClause = ParseParameterDeclarationClause();
+			if (parameterDeclarationClause->success)
+			{
+				Consume(TokenType::RIGHT_PAREN);
+				Match(TokenType::SEMICOLON);
+				AstNode* namedNamespaceDefinition = ParseNamedNamespaceDefinition();
+				if (namedNamespaceDefinition->success)
+				{
+					return GenerateUSystemDeclarationNode(parameterDeclarationClause, namedNamespaceDefinition);
+				}
+				FreeNode(namedNamespaceDefinition);
+			}
+			FreeNode(parameterDeclarationClause);
+		}
+
+		BacktrackTo(backtrackPosition);
+		return GenerateNoSuccessAstNode();
 	}
 
 	static AstNode* ParseDeclaration()
@@ -6586,6 +7560,14 @@ namespace Cocoa
 			return attributeDeclaration;
 		}
 		FreeNode(attributeDeclaration);
+		BacktrackTo(backtrackPosition);
+
+		AstNode* uSystemDeclaration = ParseUSystemDeclaration();
+		if (uSystemDeclaration->success)
+		{
+			return uSystemDeclaration;
+		}
+		FreeNode(uSystemDeclaration);
 		BacktrackTo(backtrackPosition);
 
 		return GenerateNoSuccessAstNode();
@@ -6700,8 +7682,16 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		Consume(TokenType::SEMICOLON);
-		return GenerateSimpleDeclarationNode(attributeSpecifierSeq, declSpecifierSeq, initDeclaratorList);
+		if (Match(TokenType::SEMICOLON))
+		{
+			return GenerateSimpleDeclarationNode(attributeSpecifierSeq, declSpecifierSeq, initDeclaratorList);
+		}
+
+		FreeNode(attributeSpecifierSeq);
+		FreeNode(declSpecifierSeq);
+		FreeNode(initDeclaratorList);
+		BacktrackTo(backtrackPosition);
+		return GenerateNoSuccessAstNode();
 	}
 
 	static AstNode* ParseStaticAssertDeclaration()
@@ -6723,9 +7713,11 @@ namespace Cocoa
 
 	static AstNode* ParseEmptyDeclaration()
 	{
-		Consume(TokenType::SEMICOLON);
-		AstNode* res = GenerateAstNode(AstNodeType::Empty);
-		return res;
+		if (Match(TokenType::SEMICOLON))
+		{
+			return GenerateEmptyStatementNode();
+		}
+		return GenerateNoSuccessAstNode();
 	}
 
 	static AstNode* ParseAttributeDeclaration()
@@ -6789,17 +7781,13 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
+		AstNode* nextDeclSpec = ParseDeclarationSpecifierSequence();
+		result = GenerateDeclSpecSeqNode(result, nextDeclSpec, GenerateNoSuccessAstNode());
+		if (!nextDeclSpec->success)
 		{
-			AstNode* nextDeclSpec = ParseDeclarationSpecifierSequence();
-			result = GenerateDeclSpecSeqNode(result, nextDeclSpec, GenerateNoSuccessAstNode());
-			if (!nextDeclSpec->success)
-			{
-				FreeNode(result->declSpecSeq.attributeSpecifierSeq);
-				// Optional
-				result->declSpecSeq.attributeSpecifierSeq = ParseAttributeSpecifierSequence();
-				break;
-			}
+			FreeNode(result->declSpecSeq.attributeSpecifierSeq);
+			// Optional
+			result->declSpecSeq.attributeSpecifierSeq = ParseAttributeSpecifierSequence();
 		}
 
 		return result;
@@ -6839,13 +7827,17 @@ namespace Cocoa
 	static AstNode* ParseTypeSpecifier()
 	{
 		int backtrackPosition = CurrentToken;
-		AstNode* trailingTypeSpecifier = ParseTrailingTypeSpecifier();
-		if (trailingTypeSpecifier->success)
+		// TODO: I'm pretty sure a trailing type specifier needs a semicolon before the next '{'
+		if (!LookAheadBeforeSemicolon({ TokenType::LEFT_CURLY_BRACKET }))
 		{
-			return trailingTypeSpecifier;
+			AstNode* trailingTypeSpecifier = ParseTrailingTypeSpecifier();
+			if (trailingTypeSpecifier->success)
+			{
+				return trailingTypeSpecifier;
+			}
+			FreeNode(trailingTypeSpecifier);
+			BacktrackTo(backtrackPosition);
 		}
-		FreeNode(trailingTypeSpecifier);
-		BacktrackTo(backtrackPosition);
 
 		AstNode* classSpecifier = ParseClassSpecifier();
 		if (classSpecifier->success)
@@ -6915,16 +7907,12 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
+		AstNode* nextTypeSpecifier = ParseTypeSpecifierSequence();
+		result = GenerateTypeSpecSeqNode(result, nextTypeSpecifier, GenerateNoSuccessAstNode());
+		if (!nextTypeSpecifier->success)
 		{
-			AstNode* nextTypeSpecifier = ParseTypeSpecifierSequence();
-			result = GenerateTypeSpecSeqNode(result, nextTypeSpecifier, GenerateNoSuccessAstNode());
-			if (!nextTypeSpecifier->success)
-			{
-				FreeNode(result->typeSpecSeq.attributeSpecifierSeq);
-				result->typeSpecSeq.attributeSpecifierSeq = ParseAttributeSpecifierSequence();
-				break;
-			}
+			FreeNode(result->typeSpecSeq.attributeSpecifierSeq);
+			result->typeSpecSeq.attributeSpecifierSeq = ParseAttributeSpecifierSequence();
 		}
 
 		return result;
@@ -6941,16 +7929,12 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
+		AstNode* nextTypeSpecifier = ParseTrailingTypeSpecifierSequence();
+		result = GenerateTrailingTypeSpecSeqNode(result, nextTypeSpecifier, GenerateNoSuccessAstNode());
+		if (!nextTypeSpecifier->success)
 		{
-			AstNode* nextTypeSpecifier = ParseTrailingTypeSpecifierSequence();
-			result = GenerateTrailingTypeSpecSeqNode(result, nextTypeSpecifier, GenerateNoSuccessAstNode());
-			if (!nextTypeSpecifier->success)
-			{
-				FreeNode(result->trailingTypeSpecSeq.attributeSpecifierSeq);
-				result->trailingTypeSpecSeq.attributeSpecifierSeq = ParseAttributeSpecifierSequence();
-				break;
-			}
+			FreeNode(result->trailingTypeSpecSeq.attributeSpecifierSeq);
+			result->trailingTypeSpecSeq.attributeSpecifierSeq = ParseAttributeSpecifierSequence();
 		}
 
 		return result;
@@ -6978,7 +7962,12 @@ namespace Cocoa
 			Consume(TokenType::COLON);
 		}
 
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		if (Match(TokenType::KW_TEMPLATE))
 		{
 			if (!nestedNameSpecifier->success)
@@ -7011,6 +8000,14 @@ namespace Cocoa
 	static AstNode* ParseTypeName()
 	{
 		int backtrackPosition = CurrentToken;
+		AstNode* simpleTemplateId = ParseSimpleTemplateId();
+		if (simpleTemplateId->success)
+		{
+			return simpleTemplateId;
+		}
+		FreeNode(simpleTemplateId);
+		BacktrackTo(backtrackPosition);
+
 		AstNode* className = ParseClassName();
 		if (className->success)
 		{
@@ -7033,14 +8030,6 @@ namespace Cocoa
 			return typedefName;
 		}
 		FreeNode(typedefName);
-		BacktrackTo(backtrackPosition);
-
-		AstNode* simpleTemplateId = ParseSimpleTemplateId();
-		if (simpleTemplateId->success)
-		{
-			return simpleTemplateId;
-		}
-		FreeNode(simpleTemplateId);
 		BacktrackTo(backtrackPosition);
 
 		return GenerateNoSuccessAstNode();
@@ -7070,7 +8059,12 @@ namespace Cocoa
 			}
 
 			// Optional
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
 			return GenerateElaboratedSpecifierEnumNode(nestedNameSpecifier, identifier, hasScopeOp);
 		}
@@ -7091,7 +8085,12 @@ namespace Cocoa
 			if (isTemplate)
 			{
 				// Optional
-				AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+				AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+				if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+				{
+					FreeNode(nestedNameSpecifier);
+					nestedNameSpecifier = ParseNestedNameSpecifier();
+				}
 				bool hasTemplateKeyword = Match(TokenType::KW_TEMPLATE);
 				AstNode* simpleTemplateId = ParseSimpleTemplateId();
 				if (simpleTemplateId->success)
@@ -7112,7 +8111,12 @@ namespace Cocoa
 			}
 
 			// Optional 
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			if (Peek() == TokenType::IDENTIFIER)
 			{
 				Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
@@ -7177,7 +8181,12 @@ namespace Cocoa
 		AstNode* attributeSpecifierSequence = ParseAttributeSpecifierSequence();
 
 		backtrackPosition = CurrentToken;
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		if (nestedNameSpecifier->success)
 		{
 			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
@@ -7320,9 +8329,9 @@ namespace Cocoa
 			}
 
 			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-			Consume(TokenType::LEFT_BRACKET);
+			Consume(TokenType::LEFT_CURLY_BRACKET);
 			AstNode* namespaceBody = ParseNamespaceBody();
-			Consume(TokenType::RIGHT_BRACKET);
+			Consume(TokenType::RIGHT_CURLY_BRACKET);
 
 			return GenerateNamedNamespaceDefinitionNode(isInline, identifier, namespaceBody);
 		}
@@ -7397,7 +8406,12 @@ namespace Cocoa
 		if (isNested) Consume(TokenType::COLON);
 
 		// This is optional
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		AstNode* namespaceName = ParseNamespaceName();
 		if (namespaceName->success)
 		{
@@ -7426,7 +8440,12 @@ namespace Cocoa
 			bool isTypename = Match(TokenType::KW_TYPENAME);
 			bool isNested = Match(TokenType::COLON);
 			if (isNested) Consume(TokenType::COLON);
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			AstNode* unqualifiedId = ParseUnqualifiedId();
 			Consume(TokenType::SEMICOLON);
 
@@ -7448,7 +8467,12 @@ namespace Cocoa
 			if (isNested) Match(TokenType::COLON);
 
 			// Optional
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			AstNode* namespaceName = ParseNamespaceName();
 			Consume(TokenType::SEMICOLON);
 
@@ -7510,15 +8534,8 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
-		{
-			AstNode* nextSpec = ParseAttributeSpecifier();
-			result = GenerateAttributeSpecifierSequenceNode(result, nextSpec);
-			if (!nextSpec->success)
-			{
-				break;
-			}
-		}
+		AstNode* nextSpec = ParseAttributeSpecifier();
+		result = GenerateAttributeSpecifierSequenceNode(result, nextSpec);
 
 		return result;
 	}
@@ -7663,15 +8680,8 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
-		{
-			AstNode* nextBalancedToken = ParseBalancedTokenSequence();
-			result = GenerateBalancedTokenSeqNode(result, nextBalancedToken);
-			if (!nextBalancedToken->success)
-			{
-				break;
-			}
-		}
+		AstNode* nextBalancedToken = ParseBalancedTokenSequence();
+		result = GenerateBalancedTokenSeqNode(result, nextBalancedToken);
 
 		return result;
 	}
@@ -7714,15 +8724,8 @@ namespace Cocoa
 			return GenerateNoSuccessAstNode();
 		}
 
-		while (true)
-		{
-			AstNode* nextDeclarator = ParseInitDeclaratorList();
-			result = GenerateInitDeclaratorListNode(result, nextDeclarator);
-			if (!nextDeclarator->success)
-			{
-				break;
-			}
-		}
+		AstNode* nextDeclarator = ParseInitDeclaratorList();
+		result = GenerateInitDeclaratorListNode(result, nextDeclarator);
 
 		return result;
 	}
@@ -7785,48 +8788,62 @@ namespace Cocoa
 		BacktrackTo(backtrackPosition);
 
 		AstNode* ptrOperator = ParsePtrOperator();
-		AstNode* ptrDeclarator = ParsePtrDeclarator();
-		if (ptrOperator->success && ptrDeclarator->success)
+		if (ptrOperator->success)
 		{
-			return GeneratePtrDeclaratorNode(ptrOperator, ptrDeclarator);
+			AstNode* ptrDeclarator = ParsePtrDeclarator();
+			if (ptrDeclarator->success)
+			{
+				return GeneratePtrDeclaratorNode(ptrOperator, ptrDeclarator);
+			}
+			FreeNode(ptrDeclarator);
 		}
 
 		FreeNode(ptrOperator);
-		FreeNode(ptrDeclarator);
 		BacktrackTo(backtrackPosition);
 		return GenerateNoSuccessAstNode();
 	}
 
 	static AstNode* ParseNoPtrDeclarator()
 	{
-		// TODO: Not sure if this works right...?
 		int backtrackPosition = CurrentToken;
-		if (Match(TokenType::LEFT_BRACKET))
+		AstNode* parametersAndQualifiers = ParseParametersAndQualifiers();
+		if (parametersAndQualifiers->success)
 		{
-			AstNode* constantExpression = ParseConstantExpression();
-			if (constantExpression->success)
+			AstNode* noptrDeclarator = ParseNoPtrDeclarator();
+			return GenerateNoPtrParamAndQualDeclaratorNode(parametersAndQualifiers, noptrDeclarator);
+		}
+		FreeNode(parametersAndQualifiers);
+		BacktrackTo(backtrackPosition);
+
+		if (Match(TokenType::LEFT_PAREN))
+		{
+			AstNode* ptrDeclarator = ParsePtrDeclarator();
+			if (ptrDeclarator->success)
 			{
-				Consume(TokenType::RIGHT_BRACKET);
-				AstNode* noptrNewDeclarator = ParseNoptrNewDeclarator();
-				AstNode* attributeSpecifierSeq = ParseAttributeSpecifierSequence();
-				return GenerateNoptrConstantDeclaratorNode(noptrNewDeclarator, constantExpression, attributeSpecifierSeq);
+				return GenerateNoPtrParenDeclaratorNode(ptrDeclarator);
 			}
-			FreeNode(constantExpression);
+			FreeNode(ptrDeclarator);
 			BacktrackTo(backtrackPosition);
 		}
 
 		if (Match(TokenType::LEFT_BRACKET))
 		{
-			AstNode* expression = ParseExpression();
-			if (expression->success)
-			{
-				Consume(TokenType::RIGHT_BRACKET);
-				AstNode* attributeSpecifierSeq = ParseAttributeSpecifierSequence();
-				return GenerateNoptrDeclaratorNode(expression, attributeSpecifierSeq);
-			}
-			FreeNode(expression);
-			BacktrackTo(backtrackPosition);
+			AstNode* constantExpression = ParseConstantExpression();
+			Consume(TokenType::RIGHT_BRACKET);
+			AstNode* attributeSpecifierSeq = ParseAttributeSpecifierSequence();
+			AstNode* noptrDeclarator = ParseNoPtrDeclarator();
+			return GenerateNoPtrBracketDeclaratorNode(constantExpression, attributeSpecifierSeq, noptrDeclarator);
 		}
+
+		AstNode* declaratorId = ParseDeclaratorId();
+		if (declaratorId->success)
+		{
+			// Optional
+			AstNode* attributeSpecifierSeq = ParseAttributeSpecifierSequence();
+			return GenerateNoPtrDeclaratorNode(declaratorId, attributeSpecifierSeq);
+		}
+		FreeNode(declaratorId);
+		BacktrackTo(backtrackPosition);
 
 		return GenerateNoSuccessAstNode();
 	}
@@ -7899,7 +8916,12 @@ namespace Cocoa
 		if (Match(TokenType::COLON))
 		{
 			Consume(TokenType::COLON);
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			if (!nestedNameSpecifier)
 			{
 				FreeNode(nestedNameSpecifier);
@@ -7977,7 +8999,12 @@ namespace Cocoa
 		{
 			Consume(TokenType::COLON);
 			// Optional
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			AstNode* className = ParseClassName();
 			if (!className->success)
 			{
@@ -8000,7 +9027,12 @@ namespace Cocoa
 		BacktrackTo(backtrackPosition);
 
 		// Optional
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		AstNode* className = ParseClassName();
 		if (className->success)
 		{
@@ -8324,9 +9356,16 @@ namespace Cocoa
 
 	static AstNode* ParseBraceOrEqualInitializer()
 	{
+		int backtrackPosition = CurrentToken;
 		if (Match(TokenType::EQUAL))
 		{
-			return ParseInitializerClause();
+			AstNode* result = ParseInitializerClause();
+			if (result->success)
+			{
+				return result;
+			}
+			FreeNode(result);
+			BacktrackTo(backtrackPosition);
 		}
 
 		return ParseBracedInitList();
@@ -8334,58 +9373,74 @@ namespace Cocoa
 
 	static AstNode* ParseInitializerClause()
 	{
-		AstNode* result = (AstNode*)AllocMem(sizeof(AstNode));
-		result->type = AstNodeType::InitializerClause;
+		int backtrackPosition = CurrentToken;
+		AstNode* bracedInitList = ParseBracedInitList();
+		if (bracedInitList->success)
+		{
+			return bracedInitList;
+		}
+		FreeNode(bracedInitList);
+		BacktrackTo(backtrackPosition);
 
-		if (Peek() == TokenType::LEFT_CURLY_BRACKET)
+		AstNode* assignmentExpression = ParseAssignmentExpression();
+		if (assignmentExpression->success)
 		{
-			result->initializerClauseNode.clause = ParseBracedInitList();
+			return assignmentExpression;
 		}
-		else
-		{
-			result->initializerClauseNode.clause = ParseAssignmentExpression();
-		}
-		return result;
+		FreeNode(assignmentExpression);
+		BacktrackTo(backtrackPosition);
+
+		return GenerateNoSuccessAstNode();
 	}
 
 	static AstNode* ParseInitializerList()
 	{
-		AstNode* result = GenerateAstNode(AstNodeType::InitializerList);
-		result->initializerList.clauses = std::vector<AstNode*>();
-		result->initializerList.clauses.push_back(ParseInitializerClause());
-
-		while (Match(TokenType::COMMA))
+		int backtrackPosition = CurrentToken;
+		AstNode* result = ParseInitializerClause();
+		if (!result->success)
 		{
-			result->initializerList.clauses.push_back(ParseInitializerClause());
+			FreeNode(result);
+			BacktrackTo(backtrackPosition);
+			return GenerateNoSuccessAstNode();
 		}
 
-		if (Match(TokenType::DOT))
+		AstNode* nextInitList = nullptr;
+		if (Match(TokenType::COMMA))
 		{
-			ConsumeCurrent(TokenType::DOT);
-			ConsumeCurrent(TokenType::DOT);
+			nextInitList = ParseInitializerList();
+		}
+		else
+		{
+			nextInitList = GenerateNoSuccessAstNode();
 		}
 
-		return result;
+		bool hasElipsis = Match(TokenType::DOT);
+		if (hasElipsis)
+		{
+			Consume(TokenType::DOT);
+			Consume(TokenType::DOT);
+		}
+
+		return GenerateInitializerListNode(result, nextInitList);
 	}
 
 	static AstNode* ParseBracedInitList()
 	{
-		AstNode* result = (AstNode*)AllocMem(sizeof(AstNode));
-		result->type = AstNodeType::BracedInitList;
-		ConsumeCurrent(TokenType::LEFT_CURLY_BRACKET);
-		if (!Match(TokenType::RIGHT_CURLY_BRACKET))
+		int backtrackPosition = CurrentToken;
+		if (Match(TokenType::LEFT_CURLY_BRACKET))
 		{
-			result->bracedInitList.initList = ParseInitializerList();
-			if (Peek() == TokenType::COMMA)
+			AstNode* initializerList = ParseInitializerList();
+			if (initializerList->success)
 			{
-				ConsumeCurrent(TokenType::COMMA);
+				bool trailingComma = Match(TokenType::COMMA);
+				Consume(TokenType::RIGHT_CURLY_BRACKET);
+				return GenerateBracedInitListNode(initializerList);
 			}
-			ConsumeCurrent(TokenType::RIGHT_CURLY_BRACKET);
-			return result;
+			FreeNode(initializerList);
 		}
 
-		ConsumeCurrent(TokenType::RIGHT_CURLY_BRACKET);
-		return result;
+		BacktrackTo(backtrackPosition);
+		return GenerateNoSuccessAstNode();
 	}
 
 	// Classes
@@ -8454,7 +9509,13 @@ namespace Cocoa
 	{
 		int backtrackPosition = CurrentToken;
 		// Optional
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::COLON }))
+		{
+			// Make sure there's a chance of a nested name before blindly consuming it
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 
 		AstNode* className = ParseClassName();
 		if (!className->success)
@@ -8827,7 +9888,12 @@ namespace Cocoa
 		}
 
 		// Optional
-		AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+		AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+		if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+		{
+			FreeNode(nestedNameSpecifier);
+			nestedNameSpecifier = ParseNestedNameSpecifier();
+		}
 		AstNode* className = ParseClassName();
 		if (className->success)
 		{
@@ -9220,69 +10286,90 @@ namespace Cocoa
 
 	static AstNode* ParseTypeParameter()
 	{
-		// TODO: I think this guy needs some work...
-		AstNode* result = GenerateAstNode(AstNodeType::TypeParameter);
-		result->typeParameter.templateParameterList = nullptr;
+		int backtrackPosition = CurrentToken;
 		if (Match(TokenType::KW_TEMPLATE))
 		{
-			Consume(TokenType::LEFT_ANGLE_BRACKET);
-			AstNode* templateParameterList = ParseTemplateParameterList();
-			Consume(TokenType::RIGHT_ANGLE_BRACKET);
-			result->typeParameter.templateParameterList = templateParameterList;
-		}
-
-		if (Match(TokenType::KW_CLASS))
-		{
-			if (Match(TokenType::DOT))
+			if (Match(TokenType::LEFT_ANGLE_BRACKET))
 			{
-				Consume(TokenType::DOT);
-				Consume(TokenType::DOT);
-				if (Peek() == TokenType::IDENTIFIER)
+				AstNode* templateParameterList = ParseTemplateParameterList();
+				if (templateParameterList->success)
 				{
-					result->typeParameter.identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+					if (Match(TokenType::KW_CLASS))
+					{
+						bool hasElipsis = Match(TokenType::DOT);
+						if (hasElipsis)
+						{
+							Consume(TokenType::DOT);
+							Consume(TokenType::DOT);
+						}
+
+						Token identifier;
+						identifier.m_Type = TokenType::None;
+						if (Peek() == TokenType::IDENTIFIER)
+						{
+							identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+						}
+
+						if (Match(TokenType::EQUAL))
+						{
+							return GenerateTypeTemplateParameterNode(templateParameterList, identifier, ParseIdExpression());
+						}
+						return GenerateTypeTemplateParameterNode(templateParameterList, identifier, GenerateNoSuccessAstNode());
+					}
 				}
-				return result;
+				FreeNode(templateParameterList);
 			}
-
-			if (Peek() == TokenType::IDENTIFIER)
-			{
-				result->typeParameter.identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-			}
-
-			Consume(TokenType::EQUAL);
-			result->typeParameter.typeId = ParseTypeId();
-			return result;
 		}
-
-		if (result->typeParameter.templateParameterList != nullptr)
-		{
-			Log::Error("Invlaid template parameter.");
-			ErrorAtToken();
-		}
+		BacktrackTo(backtrackPosition);
 
 		if (Match(TokenType::KW_TYPENAME))
 		{
-			if (Match(TokenType::DOT))
+			bool hasElipsis = Match(TokenType::DOT);
+			if (hasElipsis)
 			{
 				Consume(TokenType::DOT);
 				Consume(TokenType::DOT);
-				if (Peek() == TokenType::IDENTIFIER)
-				{
-					result->typeParameter.identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-				}
-				return result;
 			}
 
+			Token identifier;
+			identifier.m_Type = TokenType::None;
 			if (Peek() == TokenType::IDENTIFIER)
 			{
-				result->typeParameter.identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+				identifier = ConsumeCurrent(TokenType::IDENTIFIER);
 			}
 
-			Consume(TokenType::EQUAL);
-			result->typeParameter.typeId = ParseTypeId();
-			return result;
+			if (Match(TokenType::EQUAL))
+			{
+				return GenerateTypeTypenameParameterNode(identifier, ParseTypeId());
+			}
+			return GenerateTypeTypenameParameterNode(identifier, GenerateNoSuccessAstNode());
+		}
+		BacktrackTo(backtrackPosition);
+
+		if (Match(TokenType::KW_CLASS))
+		{
+			bool hasElipsis = Match(TokenType::DOT);
+			if (hasElipsis)
+			{
+				Consume(TokenType::DOT);
+				Consume(TokenType::DOT);
+			}
+
+			Token identifier;
+			identifier.m_Type = TokenType::None;
+			if (Peek() == TokenType::IDENTIFIER)
+			{
+				identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+			}
+
+			if (Match(TokenType::EQUAL))
+			{
+				return GenerateTypeClassParameterNode(identifier, ParseTypeId());
+			}
+			return GenerateTypeClassParameterNode(identifier, GenerateNoSuccessAstNode());
 		}
 
+		BacktrackTo(backtrackPosition);
 		return GenerateNoSuccessAstNode();
 	}
 
@@ -9292,12 +10379,15 @@ namespace Cocoa
 		AstNode* templateName = ParseTemplateName();
 		if (templateName->success)
 		{
-			Consume(TokenType::LEFT_ANGLE_BRACKET);
-			// Optional
-			AstNode* templateArgumentList = ParseTemplateArgumentList();
-			Consume(TokenType::RIGHT_ANGLE_BRACKET);
-
-			return GenerateSimpleTemplateIdNode(templateName, templateArgumentList);
+			if (Match(TokenType::LEFT_ANGLE_BRACKET))
+			{
+				// Optional
+				AstNode* templateArgumentList = ParseTemplateArgumentList();
+				if (Match(TokenType::RIGHT_ANGLE_BRACKET))
+				{
+					return GenerateSimpleTemplateIdNode(templateName, templateArgumentList);
+				}
+			}
 		}
 
 		FreeNode(templateName);
@@ -9374,12 +10464,12 @@ namespace Cocoa
 	static AstNode* ParseTemplateArgument()
 	{
 		int backtrackPosition = CurrentToken;
-		AstNode* constantExpression = ParseConstantExpression();
-		if (constantExpression->success)
+		AstNode* idExpression = ParseIdExpression();
+		if (idExpression->success)
 		{
-			return constantExpression;
+			return idExpression;
 		}
-		FreeNode(constantExpression);
+		FreeNode(idExpression);
 		BacktrackTo(backtrackPosition);
 
 		AstNode* typeId = ParseTypeId();
@@ -9390,12 +10480,12 @@ namespace Cocoa
 		FreeNode(typeId);
 		BacktrackTo(backtrackPosition);
 
-		AstNode* idExpression = ParseIdExpression();
-		if (idExpression->success)
+		AstNode* constantExpression = ParseConstantExpression();
+		if (constantExpression->success)
 		{
-			return idExpression;
+			return constantExpression;
 		}
-		FreeNode(idExpression);
+		FreeNode(constantExpression);
 		BacktrackTo(backtrackPosition);
 
 		return GenerateNoSuccessAstNode();
@@ -9411,7 +10501,12 @@ namespace Cocoa
 				Consume(TokenType::COLON);
 			}
 
-			AstNode* nestedNameSpecifier = ParseNestedNameSpecifier();
+			AstNode* nestedNameSpecifier = GenerateNoSuccessAstNode();
+			if (LookAheadBeforeSemicolon({ TokenType::SEMICOLON }))
+			{
+				FreeNode(nestedNameSpecifier);
+				nestedNameSpecifier = ParseNestedNameSpecifier();
+			}
 			if (nestedNameSpecifier->success)
 			{
 				if (Peek() == TokenType::IDENTIFIER)
@@ -9693,457 +10788,482 @@ namespace Cocoa
 	}
 
 	// Preprocessing Stuff
-	static AstNode* ParsePreprocessingFile()
-	{
-		return GeneratePreprocessingFileNode(ParseGroup());
-	}
+	// TODO: Most of this works, but if I want to use it I must create a preprocessing engine
+	//static AstNode* ParsePreprocessingFile()
+	//{
+	//	return GeneratePreprocessingFileNode(ParseGroup());
+	//}
 
-	static AstNode* ParseGroup()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* result = ParseGroupPart();
-		if (!result->success)
-		{
-			FreeNode(result);
-			BacktrackTo(backtrackPosition);
-		}
+	//static AstNode* ParseGroup()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* result = ParseGroupPart();
+	//	if (!result->success)
+	//	{
+	//		FreeNode(result);
+	//		BacktrackTo(backtrackPosition);
+	//	}
 
-		while (true)
-		{
-			AstNode* nextGroup = ParseGroup();
-			result = GenerateGroupNode(result, nextGroup);
-			if (!nextGroup->success)
-			{
-				break;
-			}
-		}
+	//	while (true)
+	//	{
+	//		AstNode* nextGroup = ParseGroup();
+	//		result = GenerateGroupNode(result, nextGroup);
+	//		if (!nextGroup->success)
+	//		{
+	//			break;
+	//		}
+	//	}
 
-		return result;
-	}
+	//	return result;
+	//}
 
-	static AstNode* ParseGroupPart()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* ifSection = ParseIfSection();
-		if (ifSection->success)
-		{
-			return ifSection;
-		}
-		FreeNode(ifSection);
-		BacktrackTo(backtrackPosition);
+	//static AstNode* ParseGroupPart()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* ifSection = ParseIfSection();
+	//	if (ifSection->success)
+	//	{
+	//		return ifSection;
+	//	}
+	//	FreeNode(ifSection);
+	//	BacktrackTo(backtrackPosition);
 
-		AstNode* controlLine = ParseControlLine();
-		if (controlLine->success)
-		{
-			return controlLine;
-		}
-		FreeNode(controlLine);
-		BacktrackTo(backtrackPosition);
+	//	AstNode* controlLine = ParseControlLine();
+	//	if (controlLine->success)
+	//	{
+	//		return controlLine;
+	//	}
+	//	FreeNode(controlLine);
+	//	BacktrackTo(backtrackPosition);
 
-		AstNode* textLine = ParseTextLine();
-		if (textLine->success)
-		{
-			return textLine;
-		}
-		FreeNode(textLine);
-		BacktrackTo(backtrackPosition);
+	//	AstNode* textLine = ParseTextLine();
+	//	if (textLine->success)
+	//	{
+	//		return textLine;
+	//	}
+	//	FreeNode(textLine);
+	//	BacktrackTo(backtrackPosition);
 
-		// TODO: Add support for non-directives they look like:
-		// TODO: #
-		// TODO: a pound symbol followed by a newline
-		return GenerateNoSuccessAstNode();
-	}
+	//	// TODO: Add support for non-directives they look like:
+	//	// TODO: #
+	//	// TODO: a pound symbol followed by a newline
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseIfSection()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* ifGroup = ParseIfGroup();
-		if (ifGroup->success)
-		{
-			// Optional
-			AstNode* elifGroups = ParseElifGroups();
-			AstNode* elseGroup = ParseElseGroup();
-			Consume(TokenType::MACRO_ENDIF);
-			return GenerateIfSectionNode(ifGroup, elifGroups, elseGroup);
-		}
+	//static AstNode* ParseIfSection()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* ifGroup = ParseIfGroup();
+	//	if (ifGroup->success)
+	//	{
+	//		// Optional
+	//		AstNode* elifGroups = ParseElifGroups();
+	//		AstNode* elseGroup = ParseElseGroup();
+	//		Consume(TokenType::MACRO_ENDIF);
+	//		return GenerateIfSectionNode(ifGroup, elifGroups, elseGroup);
+	//	}
 
-		FreeNode(ifGroup);
-		BacktrackTo(backtrackPosition);
-		return GenerateNoSuccessAstNode();
-	}
+	//	FreeNode(ifGroup);
+	//	BacktrackTo(backtrackPosition);
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseIfGroup()
-	{
-		int backtrackPosition = CurrentToken;
-		if (Match(TokenType::MACRO_IF))
-		{
-			AstNode* constantExpression = ParseConstantExpression();
-			if (constantExpression->success)
-			{
-				// TODO: Consume a new line here?
-				// optional
-				AstNode* group = ParseGroup();
-				return GenerateIfGroupNode(constantExpression, group);
-			}
-			FreeNode(constantExpression);
-		}
-		BacktrackTo(backtrackPosition);
+	//static AstNode* ParseIfGroup()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	if (Match(TokenType::MACRO_IF))
+	//	{
+	//		AstNode* constantExpression = ParseConstantExpression();
+	//		if (constantExpression->success)
+	//		{
+	//			// TODO: Consume a new line here?
+	//			// optional
+	//			AstNode* group = ParseGroup();
+	//			return GenerateIfGroupNode(constantExpression, group);
+	//		}
+	//		FreeNode(constantExpression);
+	//	}
+	//	BacktrackTo(backtrackPosition);
 
-		if (Match(TokenType::MACRO_IFDEF))
-		{
-			if (Peek() == TokenType::IDENTIFIER)
-			{
-				Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-				// TODO: consume newline here
-				// Optional
-				AstNode* group = ParseGroup();
-				return GenerateIfDefGroupNode(identifier, group);
-			}
-		}
+	//	if (Match(TokenType::MACRO_IFDEF))
+	//	{
+	//		if (Peek() == TokenType::IDENTIFIER)
+	//		{
+	//			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+	//			// TODO: consume newline here
+	//			// Optional
+	//			AstNode* group = ParseGroup();
+	//			return GenerateIfDefGroupNode(identifier, group);
+	//		}
+	//	}
 
-		if (Match(TokenType::MACRO_IFNDEF))
-		{
-			if (Peek() == TokenType::IDENTIFIER)
-			{
-				Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-				// TODO: consume newline here
-				// Optional
-				AstNode* group = ParseGroup();
-				return GenerateIfNDefGroupNode(identifier, group);
-			}
-		}
+	//	if (Match(TokenType::MACRO_IFNDEF))
+	//	{
+	//		if (Peek() == TokenType::IDENTIFIER)
+	//		{
+	//			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+	//			// TODO: consume newline here
+	//			// Optional
+	//			AstNode* group = ParseGroup();
+	//			return GenerateIfNDefGroupNode(identifier, group);
+	//		}
+	//	}
 
-		BacktrackTo(backtrackPosition);
-		return GenerateNoSuccessAstNode();
-	}
+	//	BacktrackTo(backtrackPosition);
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseElifGroups()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* result = ParseElifGroup();
-		if (!result->success)
-		{
-			FreeNode(result);
-			BacktrackTo(backtrackPosition);
-			return GenerateNoSuccessAstNode();
-		}
+	//static AstNode* ParseElifGroups()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* result = ParseElifGroup();
+	//	if (!result->success)
+	//	{
+	//		FreeNode(result);
+	//		BacktrackTo(backtrackPosition);
+	//		return GenerateNoSuccessAstNode();
+	//	}
 
-		while (true)
-		{
-			AstNode* nextGroup = ParseElifGroups();
-			result = GenerateElifGroupsNode(result, nextGroup);
-			if (!nextGroup->success)
-			{
-				break;
-			}
-		}
+	//	while (true)
+	//	{
+	//		AstNode* nextGroup = ParseElifGroups();
+	//		result = GenerateElifGroupsNode(result, nextGroup);
+	//		if (!nextGroup->success)
+	//		{
+	//			break;
+	//		}
+	//	}
 
-		return GenerateNoSuccessAstNode();
-	}
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseElifGroup()
-	{
-		int backtrackPosition = CurrentToken;
-		if (Match(TokenType::MACRO_ELIF))
-		{
-			AstNode* constantExpression = ParseConstantExpression();
-			if (constantExpression->success)
-			{
-				// TODO: consume newline
-				// Optional
-				AstNode* group = ParseGroup();
-				return GenerateElifGroupNode(constantExpression, group);
-			}
-			FreeNode(constantExpression);
-		}
+	//static AstNode* ParseElifGroup()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	if (Match(TokenType::MACRO_ELIF))
+	//	{
+	//		AstNode* constantExpression = ParseConstantExpression();
+	//		if (constantExpression->success)
+	//		{
+	//			// TODO: consume newline
+	//			// Optional
+	//			AstNode* group = ParseGroup();
+	//			return GenerateElifGroupNode(constantExpression, group);
+	//		}
+	//		FreeNode(constantExpression);
+	//	}
 
-		BacktrackTo(backtrackPosition);
-		return GenerateNoSuccessAstNode();
-	}
+	//	BacktrackTo(backtrackPosition);
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseElseGroup()
-	{
-		int backtrackPosition = CurrentToken;
-		if (Match(TokenType::MACRO_ELSE))
-		{
-			// TODO: consume newline
-			// Optional
-			AstNode* group = ParseGroup();
-			return GenerateElseGroupNode(group);
-		}
+	//static AstNode* ParseElseGroup()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	if (Match(TokenType::MACRO_ELSE))
+	//	{
+	//		// TODO: consume newline
+	//		// Optional
+	//		AstNode* group = ParseGroup();
+	//		return GenerateElseGroupNode(group);
+	//	}
 
-		BacktrackTo(backtrackPosition);
-		return GenerateNoSuccessAstNode();
-	}
+	//	BacktrackTo(backtrackPosition);
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseControlLine()
-	{
-		int backtrackPosition = CurrentToken;
-		if (Match(TokenType::MACRO_INCLUDE))
-		{
-			AstNode* ppTokens = ParsePPTokens();
-			if (ppTokens->success)
-			{
-				// TODO: Consume newline
-				return GenerateMacroIncludeNode(ppTokens);
-			}
-			FreeNode(ppTokens);
-		}
-		BacktrackTo(backtrackPosition);
+	//static AstNode* ParseControlLine()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	if (Match(TokenType::MACRO_INCLUDE))
+	//	{
+	//		if (Match(TokenType::LEFT_ANGLE_BRACKET))
+	//		{
+	//			AstNode* ppTokens = ParsePPTokens();
+	//			if (ppTokens->success)
+	//			{
+	//				Consume(TokenType::RIGHT_ANGLE_BRACKET);
+	//				// TODO: Consume newline
+	//				return GenerateMacroIncludeNode(ppTokens);
+	//			}
+	//			FreeNode(ppTokens);
+	//		}
+	//		else
+	//		{
+	//			AstNode* ppTokens = ParsePPTokens();
+	//			if (ppTokens->success)
+	//			{
+	//				// TODO: Consume newline
+	//				return GenerateMacroIncludeNode(ppTokens);
+	//			}
+	//			FreeNode(ppTokens);
+	//		}
+	//	}
+	//	BacktrackTo(backtrackPosition);
 
-		if (Match(TokenType::MACRO_DEFINE))
-		{
-			if (Peek() == TokenType::IDENTIFIER)
-			{
-				Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-				// TODO: make sure this left parenthisis is not preceded by whitespace
-				if (Match(TokenType::LEFT_PAREN))
-				{
-					AstNode* identifierList = ParseIdentifierList();
-					if (identifierList->success)
-					{
-						Match(TokenType::COMMA);
-						if (Match(TokenType::DOT))
-						{
-							Consume(TokenType::DOT);
-							Consume(TokenType::DOT);
-						}
-					}
+	//	if (Match(TokenType::MACRO_DEFINE))
+	//	{
+	//		if (Peek() == TokenType::IDENTIFIER)
+	//		{
+	//			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+	//			// TODO: make sure this left parenthisis is not preceded by whitespace
+	//			if (Match(TokenType::LEFT_PAREN))
+	//			{
+	//				AstNode* identifierList = ParseIdentifierList();
+	//				if (identifierList->success)
+	//				{
+	//					Match(TokenType::COMMA);
+	//					if (Match(TokenType::DOT))
+	//					{
+	//						Consume(TokenType::DOT);
+	//						Consume(TokenType::DOT);
+	//					}
+	//				}
 
-					Consume(TokenType::RIGHT_PAREN);
-					AstNode* replacementList = ParseReplacementList();
-					if (replacementList->success)
-					{
-						// TODO: Consume newline
-						return GenerateMacroDefineFunctionNode(identifier, identifierList, replacementList);
-					}
-					FreeNode(replacementList);
-					FreeNode(identifierList);
-				}
+	//				Consume(TokenType::RIGHT_PAREN);
+	//				AstNode* replacementList = ParseReplacementList();
+	//				if (replacementList->success)
+	//				{
+	//					// TODO: Consume newline
+	//					return GenerateMacroDefineFunctionNode(identifier, identifierList, replacementList);
+	//				}
+	//				FreeNode(replacementList);
+	//				FreeNode(identifierList);
+	//			}
 
-				AstNode* replacementList = ParseReplacementList();
-				if (replacementList->success)
-				{
-					// TODO: consume newline
-					return GenerateMacroDefineNode(identifier, replacementList);
-				}
-				FreeNode(replacementList);
-			}
-		}
-		BacktrackTo(backtrackPosition);
+	//			AstNode* replacementList = ParseReplacementList();
+	//			if (replacementList->success)
+	//			{
+	//				// TODO: consume newline
+	//				return GenerateMacroDefineNode(identifier, replacementList);
+	//			}
+	//			FreeNode(replacementList);
+	//		}
+	//	}
+	//	BacktrackTo(backtrackPosition);
 
-		if (Match(TokenType::MACRO_UNDEF))
-		{
-			if (Peek() == TokenType::IDENTIFIER)
-			{
-				Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-				// TODO: Consume newline
-				return GenerateMacroUndefNode(identifier);
-			}
-		}
-		BacktrackTo(backtrackPosition);
+	//	if (Match(TokenType::MACRO_UNDEF))
+	//	{
+	//		if (Peek() == TokenType::IDENTIFIER)
+	//		{
+	//			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+	//			// TODO: Consume newline
+	//			return GenerateMacroUndefNode(identifier);
+	//		}
+	//	}
+	//	BacktrackTo(backtrackPosition);
 
-		if (Match(TokenType::MACRO_LINE))
-		{
-			AstNode* ppTokens = ParsePPTokens();
-			if (ppTokens->success)
-			{
-				// TODO: consume newline
-				return GenerateMacroLineNode(ppTokens);
-			}
-			FreeNode(ppTokens);
-		}
-		BacktrackTo(backtrackPosition);
+	//	if (Match(TokenType::MACRO_LINE))
+	//	{
+	//		AstNode* ppTokens = ParsePPTokens();
+	//		if (ppTokens->success)
+	//		{
+	//			// TODO: consume newline
+	//			return GenerateMacroLineNode(ppTokens);
+	//		}
+	//		FreeNode(ppTokens);
+	//	}
+	//	BacktrackTo(backtrackPosition);
 
-		if (Match(TokenType::MACRO_ERROR))
-		{
-			// Optional
-			AstNode* ppTokens = ParsePPTokens();
-			// TODO: Consume newline
-			return GenerateMacroErrorNode(ppTokens);
-		}
+	//	if (Match(TokenType::MACRO_ERROR))
+	//	{
+	//		// Optional
+	//		AstNode* ppTokens = ParsePPTokens();
+	//		// TODO: Consume newline
+	//		return GenerateMacroErrorNode(ppTokens);
+	//	}
 
-		if (Match(TokenType::MACRO_PRAGMA))
-		{
-			// Optional
-			AstNode* ppTokens = ParsePPTokens();
-			// TODO: consume newline
-			return GenerateMacroPragmaNode(ppTokens);
-		}
+	//	if (Match(TokenType::MACRO_PRAGMA))
+	//	{
+	//		// Optional
+	//		AstNode* ppTokens = ParsePPTokens();
+	//		// TODO: consume newline
+	//		return GenerateMacroPragmaNode(ppTokens);
+	//	}
 
-		// TODO: Consume # symbol followed by newline
-		return GenerateNoSuccessAstNode();
-	}
+	//	// TODO: Consume # symbol followed by newline
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseTextLine()
-	{
-		// Optional
-		AstNode* ppTokens = ParsePPTokens();
-		// TODO: Consume newline
-		return GenerateTextLineNode(ppTokens);
-	}
+	//static AstNode* ParseTextLine()
+	//{
+	//	// Optional
+	//	AstNode* ppTokens = ParsePPTokens();
+	//	// TODO: Consume newline
+	//	return GenerateTextLineNode(ppTokens);
+	//}
 
-	static AstNode* ParseNonDirective()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* ppTokens = ParsePPTokens();
-		if (ppTokens->success)
-		{
-			// TODO: Consume newline
-			return GenerateNonDirectiveNode(ppTokens);
-		}
+	//static AstNode* ParseNonDirective()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* ppTokens = ParsePPTokens();
+	//	if (ppTokens->success)
+	//	{
+	//		// TODO: Consume newline
+	//		return GenerateNonDirectiveNode(ppTokens);
+	//	}
 
-		return GenerateNoSuccessAstNode();
-	}
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseIdentifierList()
-	{
-		if (Peek() == TokenType::IDENTIFIER)
-		{
-			AstNode* result = GenerateIdentifierNode(ConsumeCurrent(TokenType::IDENTIFIER));
+	//static AstNode* ParseIdentifierList()
+	//{
+	//	if (Peek() == TokenType::IDENTIFIER)
+	//	{
+	//		AstNode* result = GenerateIdentifierNode(ConsumeCurrent(TokenType::IDENTIFIER));
 
-			while (Match(TokenType::COMMA))
-			{
-				result = GenerateIdentifierListNode(result, ParseIdentifierList());
-			}
+	//		while (Match(TokenType::COMMA))
+	//		{
+	//			result = GenerateIdentifierListNode(result, ParseIdentifierList());
+	//		}
 
-			return result;
-		}
+	//		return result;
+	//	}
 
-		return GenerateNoSuccessAstNode();
-	}
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	static AstNode* ParseReplacementList()
-	{
-		// Optional
-		AstNode* ppTokens = ParsePPTokens();
-		return GenerateReplacementListNode(ppTokens);
-	}
+	//static AstNode* ParseReplacementList()
+	//{
+	//	// Optional
+	//	AstNode* ppTokens = ParsePPTokens();
+	//	return GenerateReplacementListNode(ppTokens);
+	//}
 
-	static AstNode* ParsePPTokens()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* result = ParsePreprocessingToken();
-		if (!result->success)
-		{
-			FreeNode(result);
-			BacktrackTo(backtrackPosition);
-			return GenerateNoSuccessAstNode();
-		}
+	//static AstNode* ParsePPTokens()
+	//{
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* result = ParsePreprocessingToken();
+	//	if (!result->success)
+	//	{
+	//		FreeNode(result);
+	//		BacktrackTo(backtrackPosition);
+	//		return GenerateNoSuccessAstNode();
+	//	}
 
-		while (true)
-		{
-			AstNode* nextPPToken = ParsePPTokens();
-			result = GeneratePPTokensNode(result, nextPPToken);
-			if (!nextPPToken->success)
-			{
-				break;
-			}
-		}
+	//	while (true)
+	//	{
+	//		AstNode* nextPPToken = ParsePPTokens();
+	//		result = GeneratePPTokensNode(result, nextPPToken);
+	//		if (!nextPPToken->success)
+	//		{
+	//			break;
+	//		}
+	//	}
 
-		return result;
-	}
+	//	return result;
+	//}
 
-	static AstNode* ParseNumberLiteral()
-	{
-		if (Peek() == TokenType::FLOATING_POINT_LITERAL || Peek() == TokenType::INTEGER_LITERAL)
-		{
-			return GenerateNumberLiteralNode(ConsumeCurrent(Peek()));
-		}
+	//static AstNode* ParseNumberLiteral()
+	//{
+	//	if (Peek() == TokenType::FLOATING_POINT_LITERAL || Peek() == TokenType::INTEGER_LITERAL)
+	//	{
+	//		return GenerateNumberLiteralNode(ConsumeCurrent(Peek()));
+	//	}
 
-		return GenerateNoSuccessAstNode();
-	}
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-	// Preprocessor Stuff
-	static AstNode* ParsePreprocessingToken()
-	{
-		int backtrackPosition = CurrentToken;
-		AstNode* headerName = ParseHeaderName();
-		if (headerName->success)
-		{
-			return headerName;
-		}
-		FreeNode(headerName);
-		BacktrackTo(backtrackPosition);
+	//// Preprocessor Stuff
+	//static AstNode* ParsePreprocessingToken()
+	//{
+	//	//if (Match(TokenType::NEWLINE))
+	//	//{
+	//	//	return GenerateNoSuccessAstNode();
+	//	//}
 
-		if (Peek() == TokenType::IDENTIFIER)
-		{
-			return GenerateIdentifierNode(ConsumeCurrent(TokenType::IDENTIFIER));
-		}
+	//	int backtrackPosition = CurrentToken;
+	//	AstNode* headerName = ParseHeaderName();
+	//	if (headerName->success)
+	//	{
+	//		return headerName;
+	//	}
+	//	FreeNode(headerName);
+	//	BacktrackTo(backtrackPosition);
 
-		AstNode* numberLiteral = ParseNumberLiteral();
-		if (numberLiteral->success)
-		{
-			return numberLiteral;
-		}
-		FreeNode(numberLiteral);
-		BacktrackTo(backtrackPosition);
+	//	if (Peek() == TokenType::IDENTIFIER)
+	//	{
+	//		return GenerateIdentifierNode(ConsumeCurrent(TokenType::IDENTIFIER));
+	//	}
 
-		AstNode* characterLiteral = ParseCharacterLiteral();
-		if (characterLiteral->success)
-		{
-			return characterLiteral;
-		}
-		FreeNode(characterLiteral);
-		BacktrackTo(backtrackPosition);
+	//	AstNode* numberLiteral = ParseNumberLiteral();
+	//	if (numberLiteral->success)
+	//	{
+	//		return numberLiteral;
+	//	}
+	//	FreeNode(numberLiteral);
+	//	BacktrackTo(backtrackPosition);
 
-		AstNode* stringLiteral = ParseStringLiteral();
-		if (stringLiteral->success)
-		{
-			return stringLiteral;
-		}
-		FreeNode(stringLiteral);
-		BacktrackTo(backtrackPosition);
+	//	AstNode* characterLiteral = ParseCharacterLiteral();
+	//	if (characterLiteral->success)
+	//	{
+	//		return characterLiteral;
+	//	}
+	//	FreeNode(characterLiteral);
+	//	BacktrackTo(backtrackPosition);
 
-		// TODO: Should I do this...?
-		//AstNode* preprocessingOpOrPunc = ParsePreprocessingOpOrPunc();
-		//if (preprocessingOpOrPunc->success)
-		//{
-		//	return preprocessingOpOrPunc;
-		//}
-		//FreeNode(preprocessingOpOrPunc);
-		//BacktrackTo(backtrackPosition);
+	//	AstNode* stringLiteral = ParseStringLiteral();
+	//	if (stringLiteral->success)
+	//	{
+	//		return stringLiteral;
+	//	}
+	//	FreeNode(stringLiteral);
+	//	BacktrackTo(backtrackPosition);
 
-		return GenerateNoSuccessAstNode();
-	}
+	//	if (Match(TokenType::DOT))
+	//	{
+	//		return GenerateEmptyStatementNode();
+	//	}
 
-	static AstNode* ParseHeaderName()
-	{
-		if (Peek() == TokenType::LEFT_ANGLE_BRACKET)
-		{
-			Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
-			Consume(TokenType::RIGHT_ANGLE_BRACKET);
-			return GenerateHeaderNameNode(identifier);
-		}
+	//	// TODO: Should I do this...?
+	//	//AstNode* preprocessingOpOrPunc = ParsePreprocessingOpOrPunc();
+	//	//if (preprocessingOpOrPunc->success)
+	//	//{
+	//	//	return preprocessingOpOrPunc;
+	//	//}
+	//	//FreeNode(preprocessingOpOrPunc);
+	//	//BacktrackTo(backtrackPosition);
 
-		if (Peek() == TokenType::STRING_LITERAL)
-		{
-			Token stringLiteral = ConsumeCurrent(TokenType::STRING_LITERAL);
-			return GenerateHeaderNameStringNode(stringLiteral);
-		}
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-		return GenerateNoSuccessAstNode();
-	}
+	//static AstNode* ParseHeaderName()
+	//{
+	//	if (Peek() == TokenType::LEFT_ANGLE_BRACKET)
+	//	{
+	//		Token identifier = ConsumeCurrent(TokenType::IDENTIFIER);
+	//		Consume(TokenType::RIGHT_ANGLE_BRACKET);
+	//		return GenerateHeaderNameNode(identifier);
+	//	}
 
-	static AstNode* ParseCharacterLiteral()
-	{
-		if (Peek() == TokenType::CHARACTER_LITERAL)
-		{
-			return GenerateCharacterLiteralNode(ConsumeCurrent(TokenType::CHARACTER_LITERAL));
-		}
-		return GenerateNoSuccessAstNode();
-	}
+	//	if (Peek() == TokenType::STRING_LITERAL)
+	//	{
+	//		Token stringLiteral = ConsumeCurrent(TokenType::STRING_LITERAL);
+	//		return GenerateHeaderNameStringNode(stringLiteral);
+	//	}
 
-	static AstNode* ParseStringLiteral()
-	{
-		if (Peek() == TokenType::STRING_LITERAL)
-		{
-			Token stringLiteral = ConsumeCurrent(TokenType::STRING_LITERAL);
-			return GenerateStringLiteralNode(stringLiteral);
-		}
+	//	return GenerateNoSuccessAstNode();
+	//}
 
-		return GenerateNoSuccessAstNode();
-	}
+	//static AstNode* ParseCharacterLiteral()
+	//{
+	//	if (Peek() == TokenType::CHARACTER_LITERAL)
+	//	{
+	//		return GenerateCharacterLiteralNode(ConsumeCurrent(TokenType::CHARACTER_LITERAL));
+	//	}
+	//	return GenerateNoSuccessAstNode();
+	//}
+
+	//static AstNode* ParseStringLiteral()
+	//{
+	//	if (Peek() == TokenType::STRING_LITERAL)
+	//	{
+	//		Token stringLiteral = ConsumeCurrent(TokenType::STRING_LITERAL);
+	//		return GenerateStringLiteralNode(stringLiteral);
+	//	}
+
+	//	return GenerateNoSuccessAstNode();
+	//}
 
 	// TODO: Should I do these...?
 	// static AstNode* ParsePreprocessingOpOrPunc();

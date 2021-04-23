@@ -127,8 +127,8 @@ namespace Cocoa
 		ScriptScanner fileScanner = ScriptScanner(file);
 		std::vector<Token> fileTokens = fileScanner.ScanTokens();
 		ScriptParser fileParser = ScriptParser(fileTokens, file);
-		fileParser.Parse();
-		MergeNewClasses(fileParser.GetClasses(), file);
+		//fileParser.Parse();
+		//MergeNewClasses(fileParser.GetClasses(), file);
 
 		std::string generatedHFilename = NCPath::GetFilenameWithoutExt(file) + "-generated.h";
 		CPath path = generatedDirPath;

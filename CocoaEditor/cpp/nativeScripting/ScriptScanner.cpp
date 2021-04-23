@@ -10,10 +10,7 @@ namespace Cocoa
 	// TODO: And we can also try to recompile on engine start up, and if it fails we can use the cached dll
 	static const std::map<std::string, TokenType> keywords = {
 		// Custom Keywords for Cocoa Engine
-		{ "UPROPERTY",     TokenType::UPROPERTY },
-		{ "UCLASS",        TokenType::UCLASS },
-		{ "USTRUCT",       TokenType::USTRUCT },
-		{ "UFUNCTION",     TokenType::UFUNCTION },
+		{ "USYSTEM",     TokenType::USYSTEM },
 
 		// Standard C++ Keywords (up to a subset of C++17)
 		{ "alignas",       TokenType::KW_ALIGN_AS },
@@ -111,10 +108,7 @@ namespace Cocoa
 
 	static const std::map<TokenType, std::string> tokenTypeToString = {
 		// Custom Keywords for Cocoa Engine
-		{ TokenType::UPROPERTY,        "UPROPERTY" },
-		{ TokenType::UCLASS,           "UCLASS" },
-		{ TokenType::USTRUCT,          "USTRUCT" },
-		{ TokenType::UFUNCTION,        "UFUNCTION" },
+		{ TokenType::USYSTEM,        "USYSTEM" },
 
 		// Standard C++ Keywords
 		{ TokenType::KW_ALIGN_AS,      "kw_alignas" },
@@ -506,6 +500,23 @@ namespace Cocoa
 				return GenerateToken(TokenType::ARROW, "->");
 			}
 			return GenerateToken(TokenType::MINUS, "-");
+		}
+		case '#':
+		{
+			char prevToken = c;
+			while (!AtEnd() && !(Peek() == '\n' && prevToken != '\\'))
+			{
+				prevToken = c;
+				c = Advance();
+				if (c == '\n')
+				{
+					m_Column = 0;
+					m_Line++;
+				}
+			}
+
+			// All preprocessor tokens will be considered COMMENTS for now :)
+			return GenerateCommentToken();
 		}
 		case '/':
 		{
