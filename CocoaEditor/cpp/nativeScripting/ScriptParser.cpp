@@ -5739,9 +5739,16 @@ namespace Cocoa
 	//static AstNode* ParseQCharSequence();
 	//static AstNode* ParseQChar();
 
+	void VisitClasses(AstNode* node)
+	{
+		printf("d\n");
+
+	}
+
 	void ScriptParser::Parse()
 	{
 		AstNode* result = ParseTranslationUnit();
+		WalkTree(result, VisitClasses, AstNodeType::IfElse);
 		FreeNode(result);
 		return;
 	}

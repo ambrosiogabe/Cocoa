@@ -1,0 +1,53 @@
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+
+DOXYFILE_ENCODING = UTF-8
+PROJECT_NAME = "Cocoa Engine"
+PROJECT_NUMBER = 1.0
+PROJECT_BRIEF = 2D Lite Game Engine
+
+PROJECT_LOGO =
+OUTPUT_DIRECTORY = ../CocoaEngineDocs/docs
+CREATE_SUBDIRS = NO
+
+GENERATE_TREEVIEW = YES
+HTML_HEADER = docs/header.html
+HTML_FOOTER = docs/footer.html
+HTML_EXTRA_STYLESHEET = docs/doxygen-awesome.css  docs/doxygen-awesome-sidebar-only.css docs/custom.css docs/simple-scrollbar.css
+HTML_EXTRA_FILES = docs/custom.js docs/simple-scrollbar.min.js
+
+ALLOW_UNICODE_NAMES = NO
+OUTPUT_LANGUAGE = English
+OUTPUT_TEXT_DIRECTION = None
+BRIEF_MEMBER_DESC = YES
+REPEAT_BRIEF = YES
+
+ABBREVIATE_BRIEF       = "The $name class" \
+                         "The $name widget" \
+                         "The $name file" \
+                         is \
+                         provides \
+                         specifies \
+                         contains \
+                         represents \
+                         a \
+                         an \
+                         the
+
+ALWAYS_DETAILED_SEC = NO
+INLINE_INHERITED_MEMB = NO
+FULL_PATH_NAMES = YES
+SHORT_NAMES = NO
+JAVADOC_AUTOBRIEF = YES
+
+OPTIMIZE_OUTPUT_FOR_C = YES
+MARKDOWN_SUPPORT       = YES
+TOC_INCLUDE_HEADINGS   = 5
+AUTOLINK_SUPPORT       = YES
+
+INPUT = CocoaEngine/ docs/README.cpp
+EXCLUDE_PATTERNS = */bin/* */bin-int/* */vendor/*
+RECURSIVE = YES
+
+EXTRACT_ALL = YES

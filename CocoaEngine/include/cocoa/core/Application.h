@@ -16,14 +16,27 @@ namespace Cocoa
 	typedef void (*AppOnRenderFn)(SceneData& scene);
 	typedef void (*AppOnEventFn)(SceneData& scene, Event& e);
 
+	/**
+	* The main application's DLL data
+	* 
+	* This data is used by the main executable to call the
+	* main events for the application (update, attach, render, event).
+	*/
 	struct ApplicationData
 	{
-		AppOnUpdateFn AppOnUpdate = nullptr;
-		AppOnAttachFn AppOnAttach = nullptr;
-		AppOnRenderFn AppOnRender = nullptr;
-		AppOnEventFn AppOnEvent = nullptr;
+		AppOnUpdateFn AppOnUpdate = nullptr; /**< Callback function to update the app. */
+		AppOnAttachFn AppOnAttach = nullptr; /**< Callback function to attach the app. */
+		AppOnRenderFn AppOnRender = nullptr; /**< Callback function to render the app. */
+		AppOnEventFn AppOnEvent = nullptr; /**< Callback function to forward events to the app. */
 	};
 
+	/**
+	* The main application class.
+	* 
+	* This class represents the application and holds is the main entry point for
+	* the application. It links into the DLL and calls all the callbacks at the appropriate
+	* times.
+	*/
 	class COCOA Application
 	{
 	public:
