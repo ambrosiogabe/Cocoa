@@ -23,11 +23,11 @@ namespace CImGui
 		bool result = ImGui::ColorEdit4((std::string("##") + std::string(label)).c_str(), glm::value_ptr(tmp));
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeVec4Command(color, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeVec4Command(color, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 
 		return result;
@@ -47,11 +47,11 @@ namespace CImGui
 		bool result = ImGui::ColorEdit3((std::string("##") + std::string(label)).c_str(), glm::value_ptr(tmp));
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeVec3Command(color, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeVec3Command(color, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}
@@ -145,11 +145,11 @@ namespace CImGui
 		bool result = ImGui::DragFloat4(label, glm::value_ptr(tmp));
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeVec4Command(vector, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeVec4Command(vector, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}
@@ -169,11 +169,11 @@ namespace CImGui
 		bool result = ImGui::DragFloat3((std::string("##") + std::string(label)).c_str(), glm::value_ptr(tmp));
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeVec3Command(vector, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeVec3Command(vector, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}
@@ -192,11 +192,11 @@ namespace CImGui
 		bool result = ImGui::DragFloat2((std::string("##") + std::string(label)).c_str(), glm::value_ptr(tmp));
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeVec2Command(vector, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeVec2Command(vector, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}
@@ -215,11 +215,11 @@ namespace CImGui
 		bool result = ImGui::DragFloat((std::string("##") + std::string(label)).c_str(), &tmp);
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeFloatCommand(val, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeFloatCommand(val, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}
@@ -238,11 +238,11 @@ namespace CImGui
 		bool result = ImGui::DragInt2((std::string("##") + std::string(label)).c_str(), glm::value_ptr(tmp));
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeInt2Command(vector, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeInt2Command(vector, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}
@@ -261,11 +261,11 @@ namespace CImGui
 		bool result = ImGui::DragInt((std::string("##") + std::string(label)).c_str(), &tmp);
 		if (result)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeIntCommand(val, tmp));
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeIntCommand(val, tmp));
 		}
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return result;
 	}

@@ -1,35 +1,36 @@
-#pragma once
+#ifndef COCOA_ENGINE_CHANGE_UINT8_COMMAND_H
+#define COCOA_ENGINE_CHANGE_UINT8_COMMAND_H
 #include "cocoa/commands/ICommand.h"
 
 namespace Cocoa
 {
-    class COCOA ChangeUint8Command : public ICommand
+    class COCOA ChangeUint8Command final : public ICommand
     {
     public:
         ChangeUint8Command(uint8& originalUint8, uint8 newUint8)
-            : m_Uint8(originalUint8), m_NewUint8(newUint8), m_OldUint8(0)
+            : mUint8(originalUint8), mNewUint8(newUint8), mOldUint8(0)
         {
         }
 
-        virtual void execute() override
+        void execute() override
         {
-            m_OldUint8 = m_Uint8;
-            m_Uint8 = m_NewUint8;
+            mOldUint8 = mUint8;
+            mUint8 = mNewUint8;
         }
 
-        virtual void undo() override
+        void undo() override
         {
-            m_Uint8 = m_OldUint8;
+            mUint8 = mOldUint8;
         }
 
-        virtual bool mergeWith(ICommand* other) override
+        bool mergeWith(ICommand* other) override
         {
             ChangeUint8Command* changeUint8Command = dynamic_cast<ChangeUint8Command*>(other);
             if (changeUint8Command != nullptr)
             {
-                if (&changeUint8Command->m_Uint8 == &this->m_Uint8)
+                if (&changeUint8Command->mUint8 == &this->mUint8)
                 {
-                    changeUint8Command->m_NewUint8 = this->m_NewUint8;
+                    changeUint8Command->mNewUint8 = this->mNewUint8;
                     return true;
                 }
             }
@@ -39,8 +40,10 @@ namespace Cocoa
 
 
     private:
-        uint8& m_Uint8;
-        uint8 m_NewUint8;
-        uint8 m_OldUint8;
+        uint8& mUint8;
+        uint8 mNewUint8;
+        uint8 mOldUint8;
     };
 }
+
+#endif

@@ -2,62 +2,62 @@
 
 namespace Cocoa
 {
-	ICommand* CommandHistory::m_Commands[1000] = {};
-	int CommandHistory::m_CommandSize = 0;
-	int CommandHistory::m_CommandPtr = 0;
+	ICommand* CommandHistory::mCommands[1000] = {};
+	int CommandHistory::mCommandSize = 0;
+	int CommandHistory::mCommandPtr = 0;
 
-	void CommandHistory::AddCommand(ICommand* cmd)
+	void CommandHistory::addCommand(ICommand* cmd)
 	{
 		cmd->execute();
 
-		if (m_CommandPtr < m_CommandSize - 1)
+		if (mCommandPtr < mCommandSize - 1)
 		{
-			for (int i = m_CommandSize - 1; i > m_CommandPtr; i--)
+			for (int i = mCommandSize - 1; i > mCommandPtr; i--)
 			{
-				delete m_Commands[i];
+				delete mCommands[i];
 			}
-			m_CommandSize = m_CommandPtr + 1;
+			mCommandSize = mCommandPtr + 1;
 		}
 
-		m_Commands[m_CommandSize] = cmd;
-		m_CommandSize++;
+		mCommands[mCommandSize] = cmd;
+		mCommandSize++;
 
-		if (m_CommandSize > 1 && m_Commands[m_CommandSize - 1]->CanMerge() && m_Commands[m_CommandSize - 2]->CanMerge())
+		if (mCommandSize > 1 && mCommands[mCommandSize - 1]->canMerge() && mCommands[mCommandSize - 2]->canMerge())
 		{
-			if (m_Commands[m_CommandSize - 1]->mergeWith(m_Commands[m_CommandSize - 2]))
+			if (mCommands[mCommandSize - 1]->mergeWith(mCommands[mCommandSize - 2]))
 			{
-				delete m_Commands[m_CommandSize - 1];
-				m_CommandSize--;
+				delete mCommands[mCommandSize - 1];
+				mCommandSize--;
 			}
 		}
 
-		m_CommandPtr = m_CommandSize - 1;
+		mCommandPtr = mCommandSize - 1;
 	}
 
-	void CommandHistory::SetNoMergeMostRecent()
+	void CommandHistory::setNoMergeMostRecent()
 	{
-		if (m_CommandSize - 1 >= 0)
+		if (mCommandSize - 1 >= 0)
 		{
-			m_Commands[m_CommandSize - 1]->SetNoMerge();
+			mCommands[mCommandSize - 1]->setNoMerge();
 		}
 	}
 
-	void CommandHistory::Undo()
+	void CommandHistory::undo()
 	{
-		if (m_CommandPtr >= 0)
+		if (mCommandPtr >= 0)
 		{
-			m_Commands[m_CommandPtr]->undo();
-			m_CommandPtr--;
+			mCommands[mCommandPtr]->undo();
+			mCommandPtr--;
 		}
 	}
 
-	void CommandHistory::Redo()
+	void CommandHistory::redo()
 	{
-		int redoCommand = m_CommandPtr + 1;
-		if (redoCommand < m_CommandSize && redoCommand >= 0)
+		int redoCommand = mCommandPtr + 1;
+		if (redoCommand < mCommandSize && redoCommand >= 0)
 		{
-			m_Commands[redoCommand]->execute();
-			m_CommandPtr++;
+			mCommands[redoCommand]->execute();
+			mCommandPtr++;
 		}
 	}
 }

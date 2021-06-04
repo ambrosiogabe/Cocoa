@@ -155,12 +155,12 @@ namespace Cocoa
 
 			if (NEntity::IsNull(transform.Parent))
 			{
-				CommandHistory::AddCommand(new ChangeVec3Command(transform.Position, newPos));
+				CommandHistory::addCommand(new ChangeVec3Command(transform.Position, newPos));
 			}
 			else
 			{
 				glm::vec3 newRelPos = (newPos - transform.Position) + transform.LocalPosition;
-				CommandHistory::AddCommand(new ChangeVec3Command(transform.LocalPosition, newRelPos));
+				CommandHistory::addCommand(new ChangeVec3Command(transform.LocalPosition, newRelPos));
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Cocoa
 				delta = glm::vec3(delta.x, 0, 0);
 			}
 
-			CommandHistory::AddCommand(new ChangeVec3Command(transform.Scale, originalScale + delta));
+			CommandHistory::addCommand(new ChangeVec3Command(transform.Scale, originalScale + delta));
 		}
 	}
 
@@ -432,7 +432,7 @@ namespace Cocoa
 			if (m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
 				m_MouseDragging = false;
-				CommandHistory::SetNoMergeMostRecent();
+				CommandHistory::setNoMergeMostRecent();
 			}
 			return false;
 		}

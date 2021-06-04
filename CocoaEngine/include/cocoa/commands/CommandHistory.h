@@ -1,17 +1,20 @@
-#pragma once
+#ifndef COCOA_ENGINE_COMMAND_HISTORY
+#define COCOA_ENGINE_COMMAND_HISTORY
 #include "cocoa/commands/ICommand.h"
 
 namespace Cocoa {
     class COCOA CommandHistory {
     public:
-        static void AddCommand(ICommand* cmd);
-        static void SetNoMergeMostRecent();
-        static void Undo();
-        static void Redo();
+        static void addCommand(ICommand* cmd);
+        static void setNoMergeMostRecent();
+        static void undo();
+        static void redo();
 
     private:
-        static ICommand* m_Commands[1000];
-        static int m_CommandSize;
-        static int m_CommandPtr;
+        static ICommand* mCommands[1000];
+        static int mCommandSize;
+        static int mCommandPtr;
     };
 }
+
+#endif

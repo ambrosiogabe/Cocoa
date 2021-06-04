@@ -248,12 +248,12 @@ namespace Cocoa
 			{
 				if (e.GetKeyCode() == COCOA_KEY_Z)
 				{
-					CommandHistory::Undo();
+					CommandHistory::undo();
 				}
 
 				if (e.GetKeyCode() == COCOA_KEY_R)
 				{
-					CommandHistory::Redo();
+					CommandHistory::redo();
 				}
 
 				if (e.GetKeyCode() == COCOA_KEY_S)

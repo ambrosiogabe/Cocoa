@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_ICOMMAND_H
+#define COCOA_ENGINE_ICOMMAND_H
 #include "externalLibs.h"
 
 #include "cocoa/core/Core.h"
@@ -11,14 +12,14 @@ namespace Cocoa {
         virtual void undo() = 0;
         virtual bool mergeWith(ICommand* other) = 0;
 
-        void SetNoMerge() { m_CanMerge = false; }
-        bool CanMerge() const { return m_CanMerge; }
+        void setNoMerge() { mCanMerge = false; }
+        bool canMerge() const { return mCanMerge; }
 
     private:
-        static int64 m_Id;
+        static int64 mId;
 
     protected:
-        bool m_CanMerge = true;
+        bool mCanMerge = true;
     };
 }
 
@@ -33,3 +34,5 @@ namespace Cocoa {
 #include "cocoa/commands/ChangeIntCommand.h"
 #include "cocoa/commands/ChangeUint8Command.h"
 #include "cocoa/commands/ChangeEnumCommand.h"
+
+#endif

@@ -77,8 +77,8 @@ namespace CImGui
 
 		if (value_changed)
 		{
-			Cocoa::CommandHistory::AddCommand(new Cocoa::ChangeEnumCommand<T>(enumVal, static_cast<T>(current_item)));
-			Cocoa::CommandHistory::SetNoMergeMostRecent();
+			Cocoa::CommandHistory::addCommand(new Cocoa::ChangeEnumCommand<T>(enumVal, static_cast<T>(current_item)));
+			Cocoa::CommandHistory::setNoMergeMostRecent();
 		}
 		return value_changed;
 	}
