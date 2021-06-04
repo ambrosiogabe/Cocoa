@@ -65,7 +65,7 @@ namespace Cocoa
 
 		void Free(RenderBatchData& data)
 		{
-			data.BatchShader = NHandle::CreateHandle<Shader>();
+			data.BatchShader = NHandle::createHandle<Shader>();
 			data.VertexBufferBase = nullptr;
 			data.VertexStackPointer = nullptr;
 			data.Indices = nullptr;
@@ -145,7 +145,7 @@ namespace Cocoa
 
 			const Sprite& sprite = spr.sprite;
 			Handle<Texture> tex = sprite.texture;
-			if (!tex.IsNull())
+			if (!tex.isNull())
 			{
 				if (!HasTexture(data, tex))
 				{
@@ -159,11 +159,11 @@ namespace Cocoa
 
 		void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer)
 		{
-			const Font& font = AssetManager::GetFont(fontRenderer.font.AssetId);
+			const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
 			Handle<Texture> tex = font.m_FontTexture;
-			const Texture& texture = AssetManager::GetTexture(tex.AssetId);
+			const Texture& texture = AssetManager::getTexture(tex.assetId);
 
-			if (!tex.IsNull())
+			if (!tex.isNull())
 			{
 				if (!HasTexture(data, tex))
 				{
@@ -182,8 +182,8 @@ namespace Cocoa
 				}
 			}
 
-			Entity res = NEntity::FromComponent<TransformData>(transform);
-			uint32 entityId = NEntity::GetID(res);
+			Entity res = NEntity::fromComponent<TransformData>(transform);
+			uint32 entityId = NEntity::getId(res);
 
 			const std::string& str = fontRenderer.text;
 			float x = transform.position.x;
@@ -287,7 +287,7 @@ namespace Cocoa
 			float rotation = transform.eulerRotation.z;
 
 			int texId = 0;
-			if (!sprite.texture.IsNull())
+			if (!sprite.texture.isNull())
 			{
 				for (int i = 0; i < RenderBatch::TEXTURE_SIZE; i++)
 				{
@@ -299,8 +299,8 @@ namespace Cocoa
 				}
 			}
 
-			Entity res = NEntity::FromComponent<TransformData>(transform);
-			LoadVertexProperties(data, transform.position, transform.scale, texCoords, rotation, color, texId, NEntity::GetID(res));
+			Entity res = NEntity::fromComponent<TransformData>(transform);
+			LoadVertexProperties(data, transform.position, transform.scale, texCoords, rotation, color, texId, NEntity::getId(res));
 		}
 
 		void LoadVertexProperties(
@@ -397,7 +397,7 @@ namespace Cocoa
 			for (int i = 0; i < data.NumTextures; i++)
 			{
 				glActiveTexture(GL_TEXTURE0 + i + 1);
-				TextureUtil::Bind(AssetManager::GetTexture(data.Textures[i].AssetId));
+				TextureUtil::Bind(AssetManager::getTexture(data.Textures[i].assetId));
 			}
 
 			glBindVertexArray(data.VAO);
@@ -408,7 +408,7 @@ namespace Cocoa
 
 			for (int i = 0; i < data.NumTextures; i++)
 			{
-				TextureUtil::Unbind(AssetManager::GetTexture(data.Textures[i].AssetId));
+				TextureUtil::Unbind(AssetManager::getTexture(data.Textures[i].assetId));
 			}
 		}
 
@@ -449,7 +449,7 @@ namespace Cocoa
 			data.NumTextures = 0;
 			for (int i = 0; i < data.NumTextures; i++)
 			{
-				data.Textures[i] = NHandle::CreateHandle<Texture>();
+				data.Textures[i] = NHandle::createHandle<Texture>();
 			}
 		}
 

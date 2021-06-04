@@ -76,23 +76,23 @@ namespace Cocoa
 		Logger::Warning("---------------------opengl-callback-end--------------\n");
 	}
 
-	CWindow* CWindow::Create(uint32 width, uint32 height, const std::string& name)
+	CWindow* CWindow::create(uint32 width, uint32 height, const std::string& name)
 	{
 		return new CWindow(width, height, name);
 	}
 
 	CWindow::CWindow(uint32 width, uint32 height, const std::string& name)
 	{
-		Init(width, height, name);
+		init(width, height, name);
 	}
 
-	void CWindow::Init(uint32 width, uint32 height, const std::string& name)
+	void CWindow::init(uint32 width, uint32 height, const std::string& name)
 	{
 		Logger::Assert(glfwInit(), "Unable to initialize GLFW");
 
 		GLFWwindow* window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
-		m_WindowHandle = window;
-		Logger::Assert(m_WindowHandle != nullptr, "GLFW unable to create window.");
+		mWindowHandle = window;
+		Logger::Assert(mWindowHandle != nullptr, "GLFW unable to create window.");
 
 		glfwMakeContextCurrent(window);
 
@@ -105,11 +105,11 @@ namespace Cocoa
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
 				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
-				userWin->SetWidth(width);
-				userWin->SetHeight(height);
+				userWin->setWidth(width);
+				userWin->setHeight(height);
 
 				WindowResizeEvent e(width, height);
-				userWin->m_EventCallback(e);
+				userWin->mEventCallback(e);
 			});
 
 		glfwSetWindowCloseCallback(window, [](GLFWwindow* window)
@@ -118,7 +118,7 @@ namespace Cocoa
 				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				WindowCloseEvent e;
-				userWin->m_EventCallback(e);
+				userWin->mEventCallback(e);
 			});
 
 		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -131,17 +131,17 @@ namespace Cocoa
 				{
 				case COCOA_PRESS: {
 					KeyPressedEvent e(key, 0);
-					userWin->m_EventCallback(e);
+					userWin->mEventCallback(e);
 					break;
 				}
 				case COCOA_RELEASE: {
 					KeyReleasedEvent e(key);
-					userWin->m_EventCallback(e);
+					userWin->mEventCallback(e);
 					break;
 				}
 				case COCOA_REPEAT: {
 					KeyPressedEvent e(key, 1);
-					userWin->m_EventCallback(e);
+					userWin->mEventCallback(e);
 					break;
 				}
 				}
@@ -166,12 +166,12 @@ namespace Cocoa
 				{
 				case COCOA_PRESS: {
 					MouseButtonPressedEvent e(button);
-					userWin->m_EventCallback(e);
+					userWin->mEventCallback(e);
 					break;
 				}
 				case COCOA_RELEASE: {
 					MouseButtonReleasedEvent e(button);
-					userWin->m_EventCallback(e);
+					userWin->mEventCallback(e);
 					break;
 				}
 				}
@@ -184,7 +184,7 @@ namespace Cocoa
 
 				Input::ScrollCallback(xoffset, yoffset);
 				MouseScrolledEvent e((float)xoffset, (float)yoffset);
-				userWin->m_EventCallback(e);
+				userWin->mEventCallback(e);
 			});
 
 		glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)
@@ -194,35 +194,35 @@ namespace Cocoa
 
 				Input::CursorCallback(xpos, ypos);
 				MouseMovedEvent e((float)xpos, (float)ypos);
-				userWin->m_EventCallback(e);
+				userWin->mEventCallback(e);
 			});
 
 		// During init, enable debug output
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(MessageCallback, 0);
 
-		SetVSync(true);
+		setVSync(true);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	void CWindow::SetEventCallback(const EventCallbackFn& e)
+	void CWindow::setEventCallback(const EventCallbackFn& callback)
 	{
-		m_EventCallback = e;
+		mEventCallback = callback;
 	}
 
-	void CWindow::OnUpdate()
+	void CWindow::onUpdate()
 	{
 		glfwPollEvents();
 	}
 
-	void CWindow::Render()
+	void CWindow::render()
 	{
-		glfwSwapBuffers((GLFWwindow*)m_WindowHandle);
+		glfwSwapBuffers((GLFWwindow*)mWindowHandle);
 	}
 
 	// Window Attributes
-	void CWindow::SetVSync(bool enabled)
+	void CWindow::setVSync(bool enabled)
 	{
 		if (enabled)
 		{
@@ -233,53 +233,53 @@ namespace Cocoa
 			glfwSwapInterval(0);
 		}
 
-		m_VSync = enabled;
+		mVSync = enabled;
 	}
 
-	bool CWindow::IsVSync() const
+	bool CWindow::isVSync() const
 	{
-		return m_VSync;
+		return mVSync;
 	}
 
-	void* CWindow::GetNativeWindow() const
+	void* CWindow::getNativeWindow() const
 	{
-		return m_WindowHandle;
+		return mWindowHandle;
 	}
 
-	glm::vec2 CWindow::GetWindowPos()
+	glm::vec2 CWindow::getWindowPos()
 	{
-		GLFWwindow* win = static_cast<GLFWwindow*>(m_WindowHandle);
+		GLFWwindow* win = static_cast<GLFWwindow*>(mWindowHandle);
 		int x, y;
 		glfwGetWindowPos(win, &x, &y);
 		return {x, y};
 	}
 
-	void CWindow::SetSize(const glm::vec2& size)
+	void CWindow::setSize(const glm::vec2& size)
 	{
-		GLFWwindow* win = static_cast<GLFWwindow*>(m_WindowHandle);
+		GLFWwindow* win = static_cast<GLFWwindow*>(mWindowHandle);
 		Logger::Assert(size.x >= 0 && size.y >= 0, "Window width or height cannot be 0.");
 		glfwSetWindowSize(win, (int)size.x, (int)size.y);
 	}
 
-	void CWindow::SetTitle(const char* newTitle)
+	void CWindow::setTitle(const char* newTitle)
 	{
-		GLFWwindow* win = static_cast<GLFWwindow*>(m_WindowHandle);
+		GLFWwindow* win = static_cast<GLFWwindow*>(mWindowHandle);
 		glfwSetWindowTitle(win, newTitle);
 	}
 
-	glm::vec2 CWindow::GetMonitorSize()
+	glm::vec2 CWindow::getMonitorSize()
 	{
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		return { mode->width, mode->height };
 	}
 
-	void CWindow::Destroy()
+	void CWindow::destroy()
 	{
-		glfwDestroyWindow((GLFWwindow*)m_WindowHandle);
+		glfwDestroyWindow((GLFWwindow*)mWindowHandle);
 	}
 
-	bool CWindow::IsRunning()
+	bool CWindow::isRunning()
 	{
-		return m_Running;
+		return mRunning;
 	}
 }

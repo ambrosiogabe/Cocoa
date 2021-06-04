@@ -109,8 +109,8 @@ namespace Cocoa
 			for (int i = 0; i < orderedEntities.size(); i++)
 			{
 				SceneTreeMetadata& element = orderedEntities[i];
-				TransformData& transform = NEntity::GetComponent<TransformData>(element.entity);
-				Tag& tag = NEntity::GetComponent<Tag>(element.entity);
+				TransformData& transform = NEntity::getComponent<TransformData>(element.entity);
+				Tag& tag = NEntity::getComponent<Tag>(element.entity);
 
 				// Next element wraps around to 0, which plays nice with all of our sorting logic
 				SceneTreeMetadata& nextElement = orderedEntities[(i + 1) % orderedEntities.size()];
@@ -153,7 +153,7 @@ namespace Cocoa
 					int childIndex = *(int*)payload->Data;
 					Logger::Assert(childIndex >= 0 && childIndex < orderedEntities.size(), "Invalid payload.");
 					SceneTreeMetadata& childMetadata = orderedEntitiesCopy[childIndex];
-					Logger::Assert(!NEntity::IsNull(childMetadata.entity), "Invalid payload.");
+					Logger::Assert(!NEntity::isNull(childMetadata.entity), "Invalid payload.");
 					MoveTreeTo(childIndex, inBetweenIndex);
 				}
 				ImGui::EndDragDropTarget();
@@ -189,7 +189,7 @@ namespace Cocoa
 
 		static bool DoTreeNode(SceneTreeMetadata& element, TransformData& parentTransform, Tag& parentTag, SceneData& scene, SceneTreeMetadata& nextElement)
 		{
-			TransformData& nextTransform = NEntity::GetComponent<TransformData>(nextElement.entity);
+			TransformData& nextTransform = NEntity::getComponent<TransformData>(nextElement.entity);
 			ImGui::PushID(element.index);
 			ImGui::SetNextItemOpen(element.isOpen);
 			bool open = ImGui::TreeNodeEx(parentTag.name,
@@ -234,7 +234,7 @@ namespace Cocoa
 					int childIndex = *(int*)payload->Data;
 					Logger::Assert(childIndex >= 0 && childIndex < orderedEntities.size(), "Invalid payload.");
 					SceneTreeMetadata& childMetadata = orderedEntitiesCopy[childIndex];
-					if (!NEntity::IsNull(childMetadata.entity) && !IsDescendantOf(element.entity, childMetadata.entity))
+					if (!NEntity::isNull(childMetadata.entity) && !IsDescendantOf(element.entity, childMetadata.entity))
 					{
 						AddElementAsChild(element.index, childIndex);
 					}
@@ -258,8 +258,8 @@ namespace Cocoa
 
 			SceneTreeMetadata& parent = orderedEntitiesCopy[parentIndex];
 			SceneTreeMetadata& newChild = orderedEntitiesCopy[newChildIndex];
-			TransformData& childTransform = NEntity::GetComponent<TransformData>(newChild.entity);
-			TransformData& parentTransform = NEntity::GetComponent<TransformData>(parent.entity);
+			TransformData& childTransform = NEntity::getComponent<TransformData>(newChild.entity);
+			TransformData& parentTransform = NEntity::getComponent<TransformData>(parent.entity);
 
 			childTransform.parent = parent.entity;
 			childTransform.localPosition = childTransform.position - parentTransform.position;
@@ -295,14 +295,14 @@ namespace Cocoa
 
 			if (reparent)
 			{
-				TransformData& treeToMoveTransform = NEntity::GetComponent<TransformData>(treeToMove.entity);
-				TransformData& placeToMoveToTransform = NEntity::GetComponent<TransformData>(placeToMoveTo.entity);
-				TransformData& newParentTransform = !NEntity::IsNull(placeToMoveToTransform.parent) ?
-					NEntity::GetComponent<TransformData>(placeToMoveToTransform.parent) :
+				TransformData& treeToMoveTransform = NEntity::getComponent<TransformData>(treeToMove.entity);
+				TransformData& placeToMoveToTransform = NEntity::getComponent<TransformData>(placeToMoveTo.entity);
+				TransformData& newParentTransform = !NEntity::isNull(placeToMoveToTransform.parent) ?
+					NEntity::getComponent<TransformData>(placeToMoveToTransform.parent) :
 					Transform::createTransform();
 
 				// Check if parent is open or closed, if they are closed then we want to use their parent and level
-				if (!NEntity::IsNull(placeToMoveToTransform.parent))
+				if (!NEntity::isNull(placeToMoveToTransform.parent))
 				{
 					// Need to start at the root and go down until you find a closed parent and thats the correct new parent
 					// TODO: Not sure if this is the actual root of the problem
@@ -427,7 +427,7 @@ namespace Cocoa
 			{
 				SceneTreeMetadata metadata = orderedEntities[i];
 				json entityId = {
-					{ "Id", NEntity::GetID(metadata.entity) },
+					{ "Id", NEntity::getId(metadata.entity) },
 					{ "Level", metadata.level },
 					{ "Index", metadata.index },
 					{ "Selected", metadata.selected },
@@ -514,13 +514,13 @@ namespace Cocoa
 
 		static bool IsDescendantOf(Entity childEntity, Entity parentEntity)
 		{
-			TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
-			Tag& childTag = NEntity::GetComponent<Tag>(childEntity);
+			TransformData& childTransform = NEntity::getComponent<TransformData>(childEntity);
+			Tag& childTag = NEntity::getComponent<Tag>(childEntity);
 			if (childTransform.parent == parentEntity || childEntity == parentEntity)
 			{
 				return true;
 			}
-			else if (!NEntity::IsNull(childTransform.parent))
+			else if (!NEntity::isNull(childTransform.parent))
 			{
 				return IsDescendantOf(childTransform.parent, parentEntity);
 			}

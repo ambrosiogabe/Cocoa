@@ -8,7 +8,7 @@ namespace Cocoa
 	{
 		entt::entity* rawHandleARef = (entt::entity*)contact->GetFixtureA()->GetBody()->GetUserData();
 		entt::entity* rawHandleBRef = (entt::entity*)contact->GetFixtureB()->GetBody()->GetUserData();
-		ScriptSystem::NotifyBeginContact(NEntity::CreateEntity(*rawHandleARef), NEntity::CreateEntity(*rawHandleBRef));
+		ScriptSystem::NotifyBeginContact(NEntity::createEntity(*rawHandleARef), NEntity::createEntity(*rawHandleBRef));
 	}
 
 	void ContactListener::EndContact(b2Contact* contact)
@@ -20,7 +20,7 @@ namespace Cocoa
 		{
 			entt::entity* rawHandleARef = (entt::entity*)userDataA;
 			entt::entity* rawHandleBRef = (entt::entity*)userDataB;
-			ScriptSystem::NotifyEndContact(NEntity::CreateEntity(*rawHandleARef), NEntity::CreateEntity(*rawHandleBRef));
+			ScriptSystem::NotifyEndContact(NEntity::createEntity(*rawHandleARef), NEntity::createEntity(*rawHandleBRef));
 		}
 	}
 

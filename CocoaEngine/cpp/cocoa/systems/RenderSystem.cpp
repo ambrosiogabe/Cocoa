@@ -15,8 +15,8 @@ namespace Cocoa
 	namespace RenderSystem
 	{
 		// Internal Variables
-		static Handle<Shader> m_SpriteShader = NHandle::CreateHandle<Shader>();
-		static Handle<Shader> m_FontShader = NHandle::CreateHandle<Shader>();
+		static Handle<Shader> m_SpriteShader = NHandle::createHandle<Shader>();
+		static Handle<Shader> m_FontShader = NHandle::createHandle<Shader>();
 
 		static int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		static const int MAX_BATCH_SIZE = 1000;
@@ -29,13 +29,13 @@ namespace Cocoa
 
 			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
 			spriteShaderPath.Join(CPath::Create("shaders/SpriteRenderer.glsl"));
-			m_SpriteShader = AssetManager::LoadShaderFromFile(spriteShaderPath, true);
+			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath, true);
 			CPath fontShaderPath = Settings::General::s_EngineAssetsPath;
 			fontShaderPath.Join(CPath::Create("shaders/FontRenderer.glsl"));
-			m_FontShader = AssetManager::LoadShaderFromFile(fontShaderPath, true);
+			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath, true);
 			CPath pickingShaderPath = Settings::General::s_EngineAssetsPath;
 			pickingShaderPath.Join(CPath::Create("shaders/Picking.glsl"));
-			AssetManager::LoadShaderFromFile(pickingShaderPath, true);
+			AssetManager::loadShaderFromFile(pickingShaderPath, true);
 		}
 
 		void Destroy()
@@ -77,7 +77,7 @@ namespace Cocoa
 
 		void AddEntity(const TransformData& transform, const FontRenderer& fontRenderer)
 		{
-			const Font& font = AssetManager::GetFont(fontRenderer.font.AssetId);
+			const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
 			bool wasAdded = false;
 			for (int i = 0; i < m_Batches.size(); i++)
 			{
@@ -134,8 +134,8 @@ namespace Cocoa
 				for (int i = 0; i < m_Batches.size(); i++)
 				{
 					RenderBatchData& batch = m_Batches[i];
-					Logger::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
-					const Shader& shader = AssetManager::GetShader(batch.BatchShader.AssetId);
+					Logger::Assert(!batch.BatchShader.isNull(), "Cannot render with a null shader.");
+					const Shader& shader = AssetManager::getShader(batch.BatchShader.assetId);
 					NShader::Bind(shader);
 					NShader::UploadMat4(shader, "uProjection", camera.ProjectionMatrix);
 					NShader::UploadMat4(shader, "uView", camera.ViewMatrix);
@@ -161,13 +161,13 @@ namespace Cocoa
 			json zIndex = { "ZIndex", spriteRenderer.zIndex };
 			if (spriteRenderer.sprite.texture)
 			{
-				assetId = { "AssetId", spriteRenderer.sprite.texture.AssetId };
+				assetId = { "AssetId", spriteRenderer.sprite.texture.assetId };
 			}
 
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"SpriteRenderer", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					assetId,
 					zIndex,
 					color
@@ -183,7 +183,7 @@ namespace Cocoa
 			{
 				if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 				{
-					spriteRenderer.sprite.texture = NHandle::CreateHandle<Texture>(j["SpriteRenderer"]["AssetId"]);
+					spriteRenderer.sprite.texture = NHandle::createHandle<Texture>(j["SpriteRenderer"]["AssetId"]);
 				}
 			}
 
@@ -191,7 +191,7 @@ namespace Cocoa
 			{
 				spriteRenderer.zIndex = j["SpriteRenderer"]["ZIndex"];
 			}
-			NEntity::AddComponent<SpriteRenderer>(entity, spriteRenderer);
+			NEntity::addComponent<SpriteRenderer>(entity, spriteRenderer);
 		}
 
 		void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
@@ -203,13 +203,13 @@ namespace Cocoa
 			json fontSize = { "FontSize", fontRenderer.fontSize };
 			if (fontRenderer.font)
 			{
-				assetId = { "AssetId", fontRenderer.font.AssetId };
+				assetId = { "AssetId", fontRenderer.font.assetId };
 			}
 
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"FontRenderer", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					assetId,
 					zIndex,
 					color,
@@ -227,7 +227,7 @@ namespace Cocoa
 			{
 				if (j["FontRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 				{
-					fontRenderer.font = NHandle::CreateHandle<Font>(j["FontRenderer"]["AssetId"]);
+					fontRenderer.font = NHandle::createHandle<Font>(j["FontRenderer"]["AssetId"]);
 				}
 			}
 
@@ -245,7 +245,7 @@ namespace Cocoa
 			{
 				fontRenderer.fontSize = j["FontRenderer"]["FontSize"];
 			}
-			NEntity::AddComponent<FontRenderer>(entity, fontRenderer);
+			NEntity::addComponent<FontRenderer>(entity, fontRenderer);
 		}
 	}
 }

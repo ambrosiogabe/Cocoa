@@ -105,7 +105,7 @@ namespace Cocoa
 
 		static void ShowTextureBrowser()
 		{
-			const List<Texture>& textures = AssetManager::GetAllTextures();
+			const List<Texture>& textures = AssetManager::getAllTextures();
 			int i = -1;
 			for (auto& tex : textures)
 			{
@@ -146,14 +146,14 @@ namespace Cocoa
 					texSpec.MinFilter = FilterMode::Nearest;
 					texSpec.WrapS = WrapMode::Repeat;
 					texSpec.WrapT = WrapMode::Repeat;
-					AssetManager::LoadTextureFromFile(texSpec, CPath::Create(result.filepath));
+					AssetManager::loadTextureFromFile(texSpec, CPath::Create(result.filepath));
 				}
 			}
 		}
 
 		static void ShowFontBrowser()
 		{
-			const List<Font>& fonts = AssetManager::GetAllFonts();
+			const List<Font>& fonts = AssetManager::getAllFonts();
 			int i = -1;
 			for (auto& font : fonts)
 			{
@@ -165,7 +165,7 @@ namespace Cocoa
 
 				int fontResourceId = i;
 				ImGui::PushID(fontResourceId);
-				const Texture& fontTexture = AssetManager::GetTexture(font.m_FontTexture.AssetId);
+				const Texture& fontTexture = AssetManager::getTexture(font.m_FontTexture.assetId);
 
 				if (ImageButton(fontTexture, font.m_Path.Filename(), m_ButtonSize))
 				{
@@ -234,7 +234,7 @@ namespace Cocoa
 				ImGui::NewLine();
 				if (CImGui::Button("Generate Font", { 0, 0 }, false))
 				{
-					AssetManager::LoadFontFromTtfFile(CPath::Create(fontPath), fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+					AssetManager::loadFontFromTtfFile(CPath::Create(fontPath), fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();

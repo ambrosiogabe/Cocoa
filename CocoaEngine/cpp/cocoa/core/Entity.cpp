@@ -1,5 +1,6 @@
 #include "cocoa/core/Entity.h"
 #include "cocoa/core/Application.h"
+#include "cocoa/scenes/Scene.h"
 
 namespace Cocoa
 {
@@ -14,22 +15,22 @@ namespace Cocoa
 			return Scene::CreateEntity(*scene);
 		}
 
-		Entity CreateEntity(entt::entity raw)
+		Entity createEntity(entt::entity raw)
 		{
 			return Entity{ raw };
 		}
 
-		void SetScene(SceneData* scene)
+		void setScene(SceneData* scene)
 		{
 			m_Scene = scene;
 		}
 
-		SceneData* GetScene()
+		SceneData* getScene()
 		{
 			return m_Scene;
 		}
 
-		Entity CreateNull()
+		Entity createNull()
 		{
 			return Null;
 		}
@@ -37,12 +38,12 @@ namespace Cocoa
 
 	bool operator==(const Entity& a, const Entity& b)
 	{
-		return a.Handle == b.Handle;
+		return a.handle == b.handle;
 	}
 
 	bool operator==(Entity& a, Entity& b)
 	{
-		return a.Handle == b.Handle;
+		return a.handle == b.handle;
 	}
 
 	bool operator!=(const Entity& a, const Entity& b)

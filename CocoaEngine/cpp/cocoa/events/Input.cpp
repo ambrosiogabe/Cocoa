@@ -24,7 +24,7 @@ namespace Cocoa
 	{
 		Logger::Assert(!s_Initialized, "Input already initialized.");
 		s_Initialized = true;
-		const glm::vec2& windowSize = Application::get()->getWindow()->GetSize();
+		const glm::vec2& windowSize = Application::get()->getWindow()->getSize();
 	}
 
 	void Input::KeyCallback(int key, int scancode, int action, int mods)

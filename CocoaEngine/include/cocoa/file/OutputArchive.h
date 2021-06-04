@@ -35,37 +35,37 @@ namespace Cocoa
 			if (info.seq() == entt::type_id<TransformData>().seq())
 			{
 				const TransformData* transform = reinterpret_cast<const TransformData*>(&component);
-				Transform::serialize(m_Json, NEntity::CreateEntity(entity), *transform);
+				Transform::serialize(m_Json, NEntity::createEntity(entity), *transform);
 			} 
 			else if (info.seq() == entt::type_id<SpriteRenderer>().seq())
 			{
 				const SpriteRenderer* renderer = reinterpret_cast<const SpriteRenderer*>(&component);
-				RenderSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *renderer);
+				RenderSystem::Serialize(m_Json, NEntity::createEntity(entity), *renderer);
 			}
 			else if (info.seq() == entt::type_id<FontRenderer>().seq())
 			{
 				const FontRenderer* fontRenderer = reinterpret_cast<const FontRenderer*>(&component);
-				RenderSystem::Serialize(m_Json, NEntity::CreateEntity(entity), *fontRenderer);
+				RenderSystem::Serialize(m_Json, NEntity::createEntity(entity), *fontRenderer);
 			}
 			else if (info.seq() == entt::type_id<Box2D>().seq())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
-				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box2D);
+				Physics2D::Serialize(m_Json, NEntity::createEntity(entity), *box2D);
 			}
 			else if (info.seq() == entt::type_id<Rigidbody2D>().seq())
 			{
 				const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
-				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *rb);
+				Physics2D::Serialize(m_Json, NEntity::createEntity(entity), *rb);
 			}
 			else if (info.seq() == entt::type_id<AABB>().seq())
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
-				Physics2D::Serialize(m_Json, NEntity::CreateEntity(entity), *box);
+				Physics2D::Serialize(m_Json, NEntity::createEntity(entity), *box);
 			}
 			else if (info.seq() == entt::type_id<Tag>().seq())
 			{
 				const Tag* tag = reinterpret_cast<const Tag*>(&component);
-				NTag::serialize(m_Json, NEntity::CreateEntity(entity), *tag);
+				NTag::serialize(m_Json, NEntity::createEntity(entity), *tag);
 			}
 			else
 			{

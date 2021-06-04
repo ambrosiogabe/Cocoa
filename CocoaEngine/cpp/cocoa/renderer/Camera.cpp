@@ -63,7 +63,7 @@ namespace Cocoa
 
 		void CalculateViewMatrix(Entity entity, Camera& camera)
 		{
-			const TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+			const TransformData& transform = NEntity::getComponent<TransformData>(entity);
 			glm::vec3 cameraForward;
 			cameraForward.x = glm::cos(glm::radians(transform.eulerRotation.y)) * glm::cos(glm::radians(transform.eulerRotation.x));
 			cameraForward.y = glm::sin(glm::radians(transform.eulerRotation.x));
@@ -81,7 +81,7 @@ namespace Cocoa
 
 		void CalculateOrthoViewMatrix(Entity entity, Camera& camera)
 		{
-			const TransformData& transform = NEntity::GetComponent<TransformData>(entity);
+			const TransformData& transform = NEntity::getComponent<TransformData>(entity);
 			glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(transform.position.x, transform.position.y, 0.0f);
 			glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
 
@@ -107,7 +107,7 @@ namespace Cocoa
 		void Serialize(json* j, Entity entity, const Camera& camera)
 		{
 			json res;
-			res["Entity"] = NEntity::GetID(entity);
+			res["Entity"] = NEntity::getId(entity);
 			res["Aspect"] = camera.Aspect;
 			res["Zoom"] = camera.Zoom;
 			res["Fov"] = camera.Fov;
@@ -143,7 +143,7 @@ namespace Cocoa
 			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionNearPlane", camera.ProjectionNearPlane);
 			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionSize", camera.ProjectionSize);
 			JsonExtended::AssignIfNotNull(j["Camera"], "ClearColor", camera.ClearColor);
-			NEntity::AddComponent<Camera>(entity, camera);
+			NEntity::addComponent<Camera>(entity, camera);
 		}
 	}
 
@@ -154,7 +154,7 @@ namespace Cocoa
 			auto view = scene.Registry.view<Camera>();
 			for (auto& rawEntity : view)
 			{
-				NCamera::Update(NEntity::CreateEntity(rawEntity), view.get<Camera>(rawEntity));
+				NCamera::Update(NEntity::createEntity(rawEntity), view.get<Camera>(rawEntity));
 			}
 		}
 
@@ -163,15 +163,15 @@ namespace Cocoa
 			auto view = scene.Registry.view<Camera>();
 			for (auto& rawEntity : view)
 			{
-				DeleteEntity(NEntity::CreateEntity(rawEntity));
+				DeleteEntity(NEntity::createEntity(rawEntity));
 			}
 		}
 
 		void DeleteEntity(Entity entity)
 		{
-			if (NEntity::HasComponent<Camera>(entity))
+			if (NEntity::hasComponent<Camera>(entity))
 			{
-				Camera& camera = NEntity::GetComponent<Camera>(entity);
+				Camera& camera = NEntity::getComponent<Camera>(entity);
 				NFramebuffer::Delete(camera.Framebuffer);
 			}
 		}

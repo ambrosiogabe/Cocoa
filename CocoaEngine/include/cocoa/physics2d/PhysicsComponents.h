@@ -37,7 +37,7 @@ namespace Cocoa
         glm::vec2 m_Origin = glm::vec2();
         glm::vec2 m_Direction = glm::vec2();
         float m_MaxDistance = 0.0f;
-        Entity m_Ignore = NEntity::CreateNull();
+        Entity m_Ignore = NEntity::createNull();
     };
 
     struct Rigidbody2D

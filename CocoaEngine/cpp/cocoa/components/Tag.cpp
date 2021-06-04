@@ -34,7 +34,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Tag", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					{"Name", tag.name}
 				}}
 			};
@@ -53,7 +53,7 @@ namespace Cocoa
 				tag.size = tagNameSize;
 			}
 
-			NEntity::AddComponent<Tag>(entity, tag);
+			NEntity::addComponent<Tag>(entity, tag);
 		}
 	}
 }

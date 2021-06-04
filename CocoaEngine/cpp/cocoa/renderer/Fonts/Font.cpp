@@ -80,7 +80,7 @@ namespace Cocoa
 			};
 		}
 
-		res["FontTextureId"] = m_FontTexture.AssetId;
+		res["FontTextureId"] = m_FontTexture.assetId;
 		res["GlyphRangeStart"] = m_GlyphRangeStart;
 		res["GlyphRangeEnd"] = m_GlyphRangeEnd;
 		res["Filepath"] = m_Path.Path;
@@ -117,7 +117,7 @@ namespace Cocoa
 			}
 		}
 
-		JsonExtended::AssignIfNotNull(j, "FontTextureId", m_FontTexture.AssetId);
+		JsonExtended::AssignIfNotNull(j, "FontTextureId", m_FontTexture.assetId);
 		JsonExtended::AssignIfNotNull(j, "GlyphRangeStart", m_GlyphRangeStart);
 		JsonExtended::AssignIfNotNull(j, "GlyphRangeEnd", m_GlyphRangeEnd);
 		JsonExtended::AssignIfNotNull(j, "Filepath", m_Path);

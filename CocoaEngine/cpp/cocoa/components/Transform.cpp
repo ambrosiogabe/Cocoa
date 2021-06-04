@@ -6,7 +6,7 @@ namespace Cocoa
 	namespace Transform
 	{
 		// Internal Functions
-		static TransformData Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, Entity parent = NEntity::CreateNull())
+		static TransformData Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, Entity parent = NEntity::createNull())
 		{
 			TransformData data;
 			data.position = position;
@@ -33,10 +33,10 @@ namespace Cocoa
 
 		void update(TransformData& data, float dt)
 		{
-			if (!NEntity::IsNull(data.parent))
+			if (!NEntity::isNull(data.parent))
 			{
 				// TODO: This logic is probably flawed because it assumes that the parent is updated before the child
-				const TransformData& parentTransform = NEntity::GetComponent<TransformData>(data.parent);
+				const TransformData& parentTransform = NEntity::getComponent<TransformData>(data.parent);
 				data.position = parentTransform.position + data.localPosition;
 				data.scale = parentTransform.scale + data.localScale;
 				data.eulerRotation = parentTransform.eulerRotation + data.localEulerRotation;
@@ -58,11 +58,11 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Transform", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					position,
 					scale,
 					rotation,
-					{"Parent", NEntity::GetID(transform.parent)},
+					{"Parent", NEntity::getId(transform.parent)},
 					localPos,
 					localScale,
 					localRotation
@@ -88,7 +88,7 @@ namespace Cocoa
 			{
 				transform.localEulerRotation = CMath::DeserializeVec3(j["Transform"]["LocalRotation"]);
 			}
-			NEntity::AddComponent<TransformData>(entity, transform);
+			NEntity::addComponent<TransformData>(entity, transform);
 		}
 
 		void serialize(json& j, const TransformData& transform)
@@ -102,7 +102,7 @@ namespace Cocoa
 				position,
 				scale,
 				rotation,
-				{"Parent", NEntity::GetID(transform.parent)},
+				{"Parent", NEntity::getId(transform.parent)},
 				localPos
 			};
 		}

@@ -140,7 +140,7 @@ namespace Cocoa
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			glViewport(0, 0, Application::get()->getWindow()->GetWidth(), Application::get()->getWindow()->GetHeight());
+			glViewport(0, 0, Application::get()->getWindow()->getWidth(), Application::get()->getWindow()->getHeight());
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 

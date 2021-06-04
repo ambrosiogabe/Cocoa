@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_CORE_H
+#define COCOA_ENGINE_CORE_H
 
 #include <cstdint>
 
@@ -291,3 +292,5 @@ namespace Cocoa
     typedef uint32_t uint32;
     typedef uint64_t uint64;
 }
+
+#endif

@@ -30,7 +30,7 @@ namespace Cocoa
 			FileDialogResult& fileResult,
 			std::vector<std::pair<std::string, std::string>> extensionFilters)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 
 			std::string filters = "";
@@ -80,7 +80,7 @@ namespace Cocoa
 			std::vector<std::pair<std::string, std::string>> extensionFilters,
 			std::string extToAppend)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 
 			std::string filters = "";
@@ -133,7 +133,7 @@ namespace Cocoa
 			const std::string initialPath,
 			FileDialogResult& fileResult)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 
 			LPWSTR g_path{};
@@ -192,7 +192,7 @@ namespace Cocoa
 
 		void DisplayMessageBox(const std::string& title, const std::string& message)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 			int messageBoxId = MessageBoxA(wnd, message.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_OK);
 		}

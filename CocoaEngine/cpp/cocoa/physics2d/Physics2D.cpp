@@ -49,10 +49,10 @@ namespace Cocoa
 
 		void AddEntity(Entity entity)
 		{
-			if (NEntity::HasComponent<TransformData, Rigidbody2D>(entity))
+			if (NEntity::hasComponent<TransformData, Rigidbody2D>(entity))
 			{
-				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
-				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+				TransformData& transform = NEntity::getComponent<TransformData>(entity);
+				Rigidbody2D& rb = NEntity::getComponent<Rigidbody2D>(entity);
 
 				b2BodyDef bodyDef;
 				bodyDef.position.Set(transform.position.x, transform.position.y);
@@ -75,25 +75,25 @@ namespace Cocoa
 					bodyDef.type = b2BodyType::b2_kinematicBody;
 				}
 
-				entt::entity* staticRef = (entt::entity*)AllocMem(sizeof(entity.Handle));
-				*staticRef = entity.Handle;
+				entt::entity* staticRef = (entt::entity*)AllocMem(sizeof(entity.handle));
+				*staticRef = entity.handle;
 				bodyDef.userData = (void*)staticRef;
 
 				b2Body* body = m_World->CreateBody(&bodyDef);
 				rb.m_RawRigidbody = body;
 
 				b2PolygonShape shape;
-				if (NEntity::HasComponent<Box2D>(entity))
+				if (NEntity::hasComponent<Box2D>(entity))
 				{
-					Box2D& box = NEntity::GetComponent<Box2D>(entity);
+					Box2D& box = NEntity::getComponent<Box2D>(entity);
 					shape.SetAsBox(box.m_HalfSize.x * transform.scale.x, box.m_HalfSize.y * transform.scale.y);
 					b2Vec2 pos = bodyDef.position;
 					bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.scale.x, pos.y - box.m_HalfSize.y * transform.scale.y);
 				}
-				else if (NEntity::HasComponent<Circle>(entity))
+				else if (NEntity::hasComponent<Circle>(entity))
 				{
 					// TODO: IMPLEMENT ME
-					Circle& circle = NEntity::GetComponent<Circle>(entity);
+					Circle& circle = NEntity::getComponent<Circle>(entity);
 				}
 
 				body->CreateFixture(&shape, rb.m_Mass);
@@ -102,9 +102,9 @@ namespace Cocoa
 
 		void DeleteEntity(Entity entity)
 		{
-			if (NEntity::HasComponent<Rigidbody2D>(entity))
+			if (NEntity::hasComponent<Rigidbody2D>(entity))
 			{
-				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+				Rigidbody2D& rb = NEntity::getComponent<Rigidbody2D>(entity);
 
 				if (rb.m_RawRigidbody)
 				{
@@ -140,8 +140,8 @@ namespace Cocoa
 			for (entt::entity rawEntity : view)
 			{
 				Entity entity = { rawEntity };
-				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
-				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
+				TransformData& transform = NEntity::getComponent<TransformData>(entity);
+				Rigidbody2D& rb = NEntity::getComponent<Rigidbody2D>(entity);
 				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
 				b2Vec2 position = body->GetPosition();
 				transform.position.x = position.x;
@@ -185,7 +185,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"AABB", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					halfSize,
 					offset
 				}}
@@ -198,7 +198,7 @@ namespace Cocoa
 			box.m_HalfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
 			box.m_Size = box.m_HalfSize * 2.0f;
 			box.m_Offset = CMath::DeserializeVec2(j["AABB"]["Offset"]);
-			NEntity::AddComponent<AABB>(entity, box);
+			NEntity::addComponent<AABB>(entity, box);
 		}
 
 		void Serialize(json& j, Entity entity, const Box2D& box)
@@ -207,7 +207,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Box2D", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					halfSize,
 				}}
 			};
@@ -218,7 +218,7 @@ namespace Cocoa
 			Box2D box;
 			box.m_HalfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
 			box.m_Size = box.m_HalfSize * 2.0f;
-			NEntity::AddComponent<Box2D>(entity, box);
+			NEntity::addComponent<Box2D>(entity, box);
 		}
 
 		void Serialize(json& j, Entity entity, const Rigidbody2D& rb)
@@ -232,7 +232,7 @@ namespace Cocoa
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Rigidbody2D", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					angularDamping,
 					linearDamping,
 					mass,
@@ -252,7 +252,7 @@ namespace Cocoa
 			rb.m_Velocity = CMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
 			rb.m_ContinuousCollision = j["Rigidbody2D"]["ContinousCollision"];
 			rb.m_FixedRotation = j["Rigidbody2D"]["FixedRotation"];
-			NEntity::AddComponent<Rigidbody2D>(entity, rb);
+			NEntity::addComponent<Rigidbody2D>(entity, rb);
 		}
 	}
 }

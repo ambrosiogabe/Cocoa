@@ -167,7 +167,7 @@ namespace Cocoa
 					if (CImGui::MenuButton("Add Sprite Object"))
 					{
 						Entity entity = Scene::CreateEntity(scene);
-						NEntity::AddComponent<SpriteRenderer>(entity);
+						NEntity::addComponent<SpriteRenderer>(entity);
 						SceneHeirarchyWindow::AddNewEntity(entity);
 					}
 

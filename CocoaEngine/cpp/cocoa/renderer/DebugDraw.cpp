@@ -46,7 +46,7 @@ namespace Cocoa
 			m_Lines = List<Line2D>();
 			m_Sprites = List<DebugSprite>();
 			m_Shapes = List<DebugShape>();
-			m_Shader = NHandle::CreateHandle<Shader>();
+			m_Shader = NHandle::createHandle<Shader>();
 		}
 
 		void Destroy()
@@ -64,11 +64,11 @@ namespace Cocoa
 
 		void BeginFrame()
 		{
-			if (m_Shader.IsNull())
+			if (m_Shader.isNull())
 			{
 				CPath shaderPath = Settings::General::s_EngineAssetsPath;
 				shaderPath.Join(CPath::Create("shaders/SpriteRenderer.glsl"));
-				m_Shader = AssetManager::GetShader(shaderPath);
+				m_Shader = AssetManager::getShader(shaderPath);
 			}
 
 			RemoveDeadLines();
@@ -85,7 +85,7 @@ namespace Cocoa
 
 		void DrawBottomBatches(const Camera& camera)
 		{
-			const Shader& shaderRef = AssetManager::GetShader(m_Shader.AssetId);
+			const Shader& shaderRef = AssetManager::getShader(m_Shader.assetId);
 			NShader::Bind(shaderRef);
 			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
 			NShader::UploadMat4(shaderRef, "uView", camera.ViewMatrix);
@@ -112,7 +112,7 @@ namespace Cocoa
 
 		void DrawTopBatches(const Camera& camera)
 		{
-			const Shader& shaderRef = AssetManager::GetShader(m_Shader.AssetId);
+			const Shader& shaderRef = AssetManager::getShader(m_Shader.assetId);
 			NShader::Bind(shaderRef);
 			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
 			NShader::UploadMat4(shaderRef, "uView", camera.ViewMatrix);

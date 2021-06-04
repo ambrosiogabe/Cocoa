@@ -9,7 +9,7 @@ namespace Cocoa
 		{
 			Spritesheet res;
 			res.textureHandle = textureHandle;
-			const Texture& texture = AssetManager::GetTexture(textureHandle.AssetId);
+			const Texture& texture = AssetManager::getTexture(textureHandle.assetId);
 
 			// NOTE: If you don't reserve the space before hand, when the vector grows it will
 			// change the pointers it holds

@@ -36,7 +36,7 @@ namespace Cocoa
 		static void InitComponentIds(SceneData& scene);
 		void Init(SceneData& data)
 		{
-			NEntity::SetScene(&data);
+			NEntity::setScene(&data);
 
 			InitComponentIds(data);
 			LoadDefaultAssets();
@@ -50,16 +50,16 @@ namespace Cocoa
 
 		static void InitComponentIds(SceneData& scene)
 		{
-			NEntity::RegisterComponentType<TransformData>();
-			NEntity::RegisterComponentType<Tag>();
-			NEntity::RegisterComponentType<SpriteRenderer>();
-			NEntity::RegisterComponentType<FontRenderer>();
-			NEntity::RegisterComponentType<Rigidbody2D>();
-			NEntity::RegisterComponentType<Box2D>();
-			NEntity::RegisterComponentType<Circle>();
-			NEntity::RegisterComponentType<AABB>();
-			NEntity::RegisterComponentType<Camera>();
-			NEntity::RegisterComponentType<NoSerialize>();
+			NEntity::registerComponentType<TransformData>();
+			NEntity::registerComponentType<Tag>();
+			NEntity::registerComponentType<SpriteRenderer>();
+			NEntity::registerComponentType<FontRenderer>();
+			NEntity::registerComponentType<Rigidbody2D>();
+			NEntity::registerComponentType<Box2D>();
+			NEntity::registerComponentType<Circle>();
+			NEntity::registerComponentType<AABB>();
+			NEntity::registerComponentType<Camera>();
+			NEntity::registerComponentType<NoSerialize>();
 		}
 
 		void Start(SceneData& data)
@@ -97,7 +97,7 @@ namespace Cocoa
 		void FreeResources(SceneData& data)
 		{
 			Logger::Log("Freeing scene resources"); 
-			AssetManager::Clear();
+			AssetManager::clear();
 
 			TransformSystem::Destroy(data);
 			RenderSystem::Destroy();
@@ -134,37 +134,37 @@ namespace Cocoa
 			Logger::Assert(j->contains("Components"), "Cannot deserialize entity in json object that does not have components array");
 
 			// Only serialize if we can
-			if (NEntity::HasComponent<TransformData>(entity))
+			if (NEntity::hasComponent<TransformData>(entity))
 			{
-				Transform::serialize(*j, entity, NEntity::GetComponent<TransformData>(entity));
+				Transform::serialize(*j, entity, NEntity::getComponent<TransformData>(entity));
 			}
-			if (NEntity::HasComponent<SpriteRenderer>(entity))
+			if (NEntity::hasComponent<SpriteRenderer>(entity))
 			{
-				RenderSystem::Serialize(*j, entity, NEntity::GetComponent<SpriteRenderer>(entity));
+				RenderSystem::Serialize(*j, entity, NEntity::getComponent<SpriteRenderer>(entity));
 			}
-			if (NEntity::HasComponent<FontRenderer>(entity))
+			if (NEntity::hasComponent<FontRenderer>(entity))
 			{
-				RenderSystem::Serialize(*j, entity, NEntity::GetComponent<FontRenderer>(entity));
+				RenderSystem::Serialize(*j, entity, NEntity::getComponent<FontRenderer>(entity));
 			}
-			if (NEntity::HasComponent<Box2D>(entity))
+			if (NEntity::hasComponent<Box2D>(entity))
 			{
-				Physics2D::Serialize(*j, entity, NEntity::GetComponent<Box2D>(entity));
+				Physics2D::Serialize(*j, entity, NEntity::getComponent<Box2D>(entity));
 			}
-			if (NEntity::HasComponent<Rigidbody2D>(entity))
+			if (NEntity::hasComponent<Rigidbody2D>(entity))
 			{
-				Physics2D::Serialize(*j, entity, NEntity::GetComponent<Rigidbody2D>(entity));
+				Physics2D::Serialize(*j, entity, NEntity::getComponent<Rigidbody2D>(entity));
 			}
-			if (NEntity::HasComponent<AABB>(entity))
+			if (NEntity::hasComponent<AABB>(entity))
 			{
-				Physics2D::Serialize(*j, entity, NEntity::GetComponent<AABB>(entity));
+				Physics2D::Serialize(*j, entity, NEntity::getComponent<AABB>(entity));
 			}
-			if (NEntity::HasComponent<Tag>(entity))
+			if (NEntity::hasComponent<Tag>(entity))
 			{
-				NTag::serialize(*j, entity, NEntity::GetComponent<Tag>(entity));
+				NTag::serialize(*j, entity, NEntity::getComponent<Tag>(entity));
 			}
-			if (NEntity::HasComponent<Camera>(entity))
+			if (NEntity::hasComponent<Camera>(entity))
 			{
-				NCamera::Serialize(j, entity, NEntity::GetComponent<Camera>(entity));
+				NCamera::Serialize(j, entity, NEntity::getComponent<Camera>(entity));
 			}
 		}
 
@@ -241,14 +241,14 @@ namespace Cocoa
 			data.SaveDataJson = {
 				{"Components", {}},
 				{"Project", Settings::General::s_CurrentProject.Path},
-				{"Assets", AssetManager::Serialize()}
+				{"Assets", AssetManager::serialize()}
 			};
 
 			data.Registry.each([&](auto rawEntity)
 				{
-					Entity entity = NEntity::CreateEntity(rawEntity);
+					Entity entity = NEntity::createEntity(rawEntity);
 					// Only serialize if we can
-					if (!NEntity::HasComponent<NoSerialize>(entity))
+					if (!NEntity::hasComponent<NoSerialize>(entity))
 					{
 						SerializeEntity(&data.SaveDataJson, entity);
 					}
@@ -285,8 +285,8 @@ namespace Cocoa
 
 			if (j.contains("Assets"))
 			{
-				AssetManager::LoadTexturesFrom(j["Assets"]);
-				AssetManager::LoadFontsFrom(j["Assets"]);
+				AssetManager::loadTexturesFrom(j["Assets"]);
+				AssetManager::loadFontsFrom(j["Assets"]);
 			}
 
 			DeserializeEntities(j, data);
@@ -331,8 +331,8 @@ namespace Cocoa
 			Entity entity = Entity{ e };
 			// TODO: Make transform's optional with entities
 			TransformData defaultTransform = Transform::createTransform();
-			NEntity::AddComponent<TransformData>(entity, defaultTransform);
-			NEntity::AddComponent<Tag>(entity, NTag::createTag("New Entity"));
+			NEntity::addComponent<TransformData>(entity, defaultTransform);
+			NEntity::addComponent<Tag>(entity, NTag::createTag("New Entity"));
 			return entity;
 		}
 
@@ -340,32 +340,32 @@ namespace Cocoa
 		{
 			entt::entity newEntEntity = data.Registry.create();
 			Entity newEntity = Entity{ newEntEntity };
-			if (NEntity::HasComponent<TransformData>(entity))
+			if (NEntity::hasComponent<TransformData>(entity))
 			{
-				NEntity::AddComponent<TransformData>(newEntity, NEntity::GetComponent<TransformData>(entity));
+				NEntity::addComponent<TransformData>(newEntity, NEntity::getComponent<TransformData>(entity));
 			}
 
-			if (NEntity::HasComponent<SpriteRenderer>(entity))
+			if (NEntity::hasComponent<SpriteRenderer>(entity))
 			{
-				NEntity::AddComponent<SpriteRenderer>(newEntity, NEntity::GetComponent<SpriteRenderer>(entity));
+				NEntity::addComponent<SpriteRenderer>(newEntity, NEntity::getComponent<SpriteRenderer>(entity));
 			}
 
-			if (NEntity::HasComponent<Rigidbody2D>(entity))
+			if (NEntity::hasComponent<Rigidbody2D>(entity))
 			{
-				NEntity::AddComponent<Rigidbody2D>(newEntity, NEntity::GetComponent<Rigidbody2D>(entity));
+				NEntity::addComponent<Rigidbody2D>(newEntity, NEntity::getComponent<Rigidbody2D>(entity));
 			}
 
-			if (NEntity::HasComponent<Box2D>(entity))
+			if (NEntity::hasComponent<Box2D>(entity))
 			{
-				NEntity::AddComponent<Box2D>(newEntity, NEntity::GetComponent<Box2D>(entity));
+				NEntity::addComponent<Box2D>(newEntity, NEntity::getComponent<Box2D>(entity));
 			}
 
-			if (NEntity::HasComponent<Tag>(entity))
+			if (NEntity::hasComponent<Tag>(entity))
 			{
-				Tag& tag = NEntity::GetComponent<Tag>(entity);
+				Tag& tag = NEntity::getComponent<Tag>(entity);
 				char* newTagName = (char*)AllocMem((tag.size + 1) * sizeof(char));
 				memcpy(newTagName, tag.name, (tag.size + 1) * sizeof(char));
-				NEntity::AddComponent<Tag>(newEntity, NTag::createTag(newTagName, true));
+				NEntity::addComponent<Tag>(newEntity, NTag::createTag(newTagName, true));
 			}
 
 			return newEntity;
@@ -388,7 +388,7 @@ namespace Cocoa
 
 		bool IsValid(SceneData& scene, Entity entity)
 		{
-			return scene.Registry.valid(entity.Handle);
+			return scene.Registry.valid(entity.handle);
 		}
 
 		void DeleteEntity(SceneData& scene, Entity entity)
@@ -397,8 +397,8 @@ namespace Cocoa
 			auto view = scene.Registry.view<TransformData>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity potentialChild = NEntity::CreateEntity(rawEntity);
-				TransformData& transformData = NEntity::GetComponent<TransformData>(potentialChild);
+				Entity potentialChild = NEntity::createEntity(rawEntity);
+				TransformData& transformData = NEntity::getComponent<TransformData>(potentialChild);
 				if (transformData.parent == entity)
 				{
 					DeleteEntity(scene, potentialChild);
@@ -408,7 +408,7 @@ namespace Cocoa
 			Physics2D::DeleteEntity(entity);
 			TransformSystem::DeleteEntity(entity);
 			CameraSystem::DeleteEntity(entity);
-			scene.Registry.destroy(entity.Handle);
+			scene.Registry.destroy(entity.handle);
 		}
 
 		static void LoadDefaultAssets()
@@ -421,7 +421,7 @@ namespace Cocoa
 			gizmoSpec.IsDefault = true;
 			CPath gizmoPath = Settings::General::s_EngineAssetsPath;
 			gizmoPath.Join(CPath::Create("images/gizmos.png"));
-			auto asset = AssetManager::LoadTextureFromFile(gizmoSpec, gizmoPath);
+			auto asset = AssetManager::loadTextureFromFile(gizmoSpec, gizmoPath);
 		}
 
 		static Entity FindOrCreateEntity(int id, SceneData& scene, entt::registry& registry)
@@ -429,7 +429,7 @@ namespace Cocoa
 			Entity entity;
 			if (entt::entity(id) == entt::null)
 			{
-				return NEntity::CreateNull();
+				return NEntity::createNull();
 			}
 
 			if (registry.valid(entt::entity(id)))

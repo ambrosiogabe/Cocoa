@@ -153,7 +153,7 @@ namespace Cocoa
 				newPos = startToMouse + originalDragClickPos - mouseOffset;
 			}
 
-			if (NEntity::IsNull(transform.parent))
+			if (NEntity::isNull(transform.parent))
 			{
 				CommandHistory::addCommand(new ChangeVec3Command(transform.position, newPos));
 			}
@@ -221,7 +221,7 @@ namespace Cocoa
 		{
 			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
 			gizmoTexPath.Join(CPath::Create("images/gizmos.png"));
-			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
+			m_GizmoTexture = AssetManager::getTexture(gizmoTexPath);
 			m_GizmoSpritesheet = NSpritesheet::createSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
 
 			glm::vec3 redColor = { 227.0f / 255.0f, 68.0f / 255.0f, 68.0f / 255.0f };
@@ -274,10 +274,10 @@ namespace Cocoa
 		void EditorUpdate(SceneData& scene, float dt)
 		{
 			Entity activeEntity = InspectorWindow::GetActiveEntity();
-			if (!NEntity::IsNull(activeEntity) && NEntity::HasComponent<TransformData>(activeEntity))
+			if (!NEntity::isNull(activeEntity) && NEntity::hasComponent<TransformData>(activeEntity))
 			{
 				ImGui();
-				TransformData& entityTransform = NEntity::GetComponent<TransformData>(activeEntity);
+				TransformData& entityTransform = NEntity::getComponent<TransformData>(activeEntity);
 				Camera& camera = LevelEditorSystem::GetCamera();
 
 				if (m_MouseDragging && m_ActiveGizmo >= 0)
@@ -407,11 +407,11 @@ namespace Cocoa
 				m_OriginalDragClickPos = CMath::Vector3From2(mousePosWorld);
 				m_ActiveGizmo = -1;
 
-				if (!NEntity::IsNull(selectedEntity))
+				if (!NEntity::isNull(selectedEntity))
 				{
 					InspectorWindow::ClearAllEntities();
 					InspectorWindow::AddEntity(selectedEntity);
-					const TransformData& transform = NEntity::GetComponent<TransformData>(selectedEntity);
+					const TransformData& transform = NEntity::getComponent<TransformData>(selectedEntity);
 					m_ActiveGizmo = m_HotGizmo;
 					m_MouseDragging = true;
 					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.position;

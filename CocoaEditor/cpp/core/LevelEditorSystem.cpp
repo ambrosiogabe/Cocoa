@@ -90,8 +90,8 @@ namespace Cocoa
 			Camera editorCamera = NCamera::CreateCamera(editorCameraFramebuffer);
 
 			m_CameraEntity = Scene::CreateEntity(scene);
-			NEntity::AddComponent<Camera>(m_CameraEntity, editorCamera);
-			NEntity::AddComponent<NoSerialize>(m_CameraEntity);
+			NEntity::addComponent<Camera>(m_CameraEntity, editorCamera);
+			NEntity::addComponent<NoSerialize>(m_CameraEntity);
 		}
 
 		void Destroy(SceneData& scene)
@@ -101,16 +101,16 @@ namespace Cocoa
 
 		static void InitComponentIds(SceneData& scene)
 		{
-			NEntity::RegisterComponentType<TransformData>();
-			NEntity::RegisterComponentType<Tag>();
-			NEntity::RegisterComponentType<SpriteRenderer>();
-			NEntity::RegisterComponentType<FontRenderer>();
-			NEntity::RegisterComponentType<Rigidbody2D>();
-			NEntity::RegisterComponentType<Box2D>();
-			NEntity::RegisterComponentType<Circle>();
-			NEntity::RegisterComponentType<AABB>();
-			NEntity::RegisterComponentType<Camera>();
-			NEntity::RegisterComponentType<NoSerialize>();
+			NEntity::registerComponentType<TransformData>();
+			NEntity::registerComponentType<Tag>();
+			NEntity::registerComponentType<SpriteRenderer>();
+			NEntity::registerComponentType<FontRenderer>();
+			NEntity::registerComponentType<Rigidbody2D>();
+			NEntity::registerComponentType<Box2D>();
+			NEntity::registerComponentType<Circle>();
+			NEntity::registerComponentType<AABB>();
+			NEntity::registerComponentType<Camera>();
+			NEntity::registerComponentType<NoSerialize>();
 		}
 
 		static float lerp(float a, float b, float t)
@@ -152,10 +152,10 @@ namespace Cocoa
 				File::DeleteFile(tmpScriptDll);
 			}
 
-			Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
+			Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 			// TODO: Make an OnRender function and call this in there
 			NCamera::ClearColorUint32(camera, 1, (uint32)-1);
-			TransformData& cameraTransform = NEntity::GetComponent<TransformData>(m_CameraEntity);
+			TransformData& cameraTransform = NEntity::getComponent<TransformData>(m_CameraEntity);
 			if (m_IsDragging)
 			{
 				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
@@ -206,7 +206,7 @@ namespace Cocoa
 
 		Camera& GetCamera()
 		{
-			return NEntity::GetComponent<Camera>(m_CameraEntity);;
+			return NEntity::getComponent<Camera>(m_CameraEntity);;
 		}
 
 		// TODO: Move this into CImGui?
@@ -265,7 +265,7 @@ namespace Cocoa
 				if (e.GetKeyCode() == COCOA_KEY_D)
 				{
 					Entity activeEntity = InspectorWindow::GetActiveEntity();
-					if (!NEntity::IsNull(activeEntity))
+					if (!NEntity::isNull(activeEntity))
 					{
 						Entity duplicated = Scene::DuplicateEntity(scene, activeEntity);
 						InspectorWindow::ClearAllEntities();
@@ -278,7 +278,7 @@ namespace Cocoa
 			if (e.GetKeyCode() == COCOA_KEY_DELETE)
 			{
 				Entity activeEntity = InspectorWindow::GetActiveEntity();
-				if (!NEntity::IsNull(activeEntity))
+				if (!NEntity::isNull(activeEntity))
 				{
 					SceneHeirarchyWindow::DeleteEntity(activeEntity);
 					Scene::DeleteEntity(scene, activeEntity);
@@ -313,7 +313,7 @@ namespace Cocoa
 			float yOffset = -e.GetYOffset();
 			if (yOffset != 0)
 			{
-				Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
+				Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 				if (step < 0)
 				{
 					step = (glm::log(camera.Zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
@@ -334,8 +334,8 @@ namespace Cocoa
 			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = true;
-				const Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
-				const TransformData& transform = NEntity::GetComponent<TransformData>(m_CameraEntity);
+				const Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
+				const TransformData& transform = NEntity::getComponent<TransformData>(m_CameraEntity);
 				m_OriginalCameraPos = transform.position;
 				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 			}
@@ -354,7 +354,7 @@ namespace Cocoa
 
 		void Serialize(json& j)
 		{
-			Camera& editorCamera = NEntity::GetComponent<Camera>(m_CameraEntity);
+			Camera& editorCamera = NEntity::getComponent<Camera>(m_CameraEntity);
 			j["EditorCamera"] = { 
 				{"Components", {}} 
 			};
@@ -369,7 +369,7 @@ namespace Cocoa
 				Scene::DeleteEntity(scene, m_CameraEntity);
 				// TODO: This is kind of hacky, there's probably a better way to do it
 				Scene::DeserializeEntities(j["EditorCamera"], scene);
-				NEntity::AddComponent<NoSerialize>(m_CameraEntity);
+				NEntity::addComponent<NoSerialize>(m_CameraEntity);
 			}
 		}
 	}

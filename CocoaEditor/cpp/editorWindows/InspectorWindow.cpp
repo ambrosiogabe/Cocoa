@@ -73,35 +73,35 @@ namespace Cocoa
 			for (auto& entity: ActiveEntities)
 			{
 				Logger::Assert(Scene::IsValid(scene, entity), "Invalid active entity in inspector window");
-				doTag &= NEntity::HasComponent<Tag>(entity);
-				doTransform &= NEntity::HasComponent<TransformData>(entity);
-				doSpriteRenderer &= NEntity::HasComponent<SpriteRenderer>(entity);
-				doFontRenderer &= NEntity::HasComponent<FontRenderer>(entity);
-				doRigidbody2D &= NEntity::HasComponent<Rigidbody2D>(entity);
-				doAABB &= NEntity::HasComponent<AABB>(entity);
-				doBox2D &= NEntity::HasComponent<Box2D>(entity);
-				doCircle &= NEntity::HasComponent<Circle>(entity);
-				doCamera &= NEntity::HasComponent<Camera>(entity);
+				doTag &= NEntity::hasComponent<Tag>(entity);
+				doTransform &= NEntity::hasComponent<TransformData>(entity);
+				doSpriteRenderer &= NEntity::hasComponent<SpriteRenderer>(entity);
+				doFontRenderer &= NEntity::hasComponent<FontRenderer>(entity);
+				doRigidbody2D &= NEntity::hasComponent<Rigidbody2D>(entity);
+				doAABB &= NEntity::hasComponent<AABB>(entity);
+				doBox2D &= NEntity::hasComponent<Box2D>(entity);
+				doCircle &= NEntity::hasComponent<Circle>(entity);
+				doCamera &= NEntity::hasComponent<Camera>(entity);
 			}
 
 			if (doTag)
-				ImGuiTag(NEntity::GetComponent<Tag>(ActiveEntities[0]));
+				ImGuiTag(NEntity::getComponent<Tag>(ActiveEntities[0]));
 			if (doTransform)
-				ImGuiTransform(NEntity::GetComponent<TransformData>(ActiveEntities[0]));
+				ImGuiTransform(NEntity::getComponent<TransformData>(ActiveEntities[0]));
 			if (doSpriteRenderer)
-				ImGuiSpriteRenderer(NEntity::GetComponent<SpriteRenderer>(ActiveEntities[0]));
+				ImGuiSpriteRenderer(NEntity::getComponent<SpriteRenderer>(ActiveEntities[0]));
 			if (doFontRenderer)
-				ImGuiFontRenderer(NEntity::GetComponent<FontRenderer>(ActiveEntities[0]));
+				ImGuiFontRenderer(NEntity::getComponent<FontRenderer>(ActiveEntities[0]));
 			if (doRigidbody2D)
-				ImGuiRigidbody2D(NEntity::GetComponent<Rigidbody2D>(ActiveEntities[0]));
+				ImGuiRigidbody2D(NEntity::getComponent<Rigidbody2D>(ActiveEntities[0]));
 			if (doBox2D)
-				ImGuiBox2D(NEntity::GetComponent<Box2D>(ActiveEntities[0]));
+				ImGuiBox2D(NEntity::getComponent<Box2D>(ActiveEntities[0]));
 			if (doAABB)
-				ImGuiAABB(NEntity::GetComponent<AABB>(ActiveEntities[0]));
+				ImGuiAABB(NEntity::getComponent<AABB>(ActiveEntities[0]));
 			if (doCircle)
-				ImGuiCircle(NEntity::GetComponent<Circle>(ActiveEntities[0]));
+				ImGuiCircle(NEntity::getComponent<Circle>(ActiveEntities[0]));
 			if (doCamera)
-				ImGuiCamera(NEntity::GetComponent<Camera>(ActiveEntities[0]));
+				ImGuiCamera(NEntity::getComponent<Camera>(ActiveEntities[0]));
 			ScriptSystem::ImGui(scene, ActiveEntities[0]);
 
 			ImGuiAddComponentButton();
@@ -110,7 +110,7 @@ namespace Cocoa
 
 		void AddEntity(Entity entity)
 		{
-			if (!NEntity::IsNull(entity) && std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
+			if (!NEntity::isNull(entity) && std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
 				ActiveEntities.push_back(entity);
 		}
 
@@ -129,7 +129,7 @@ namespace Cocoa
 		Entity GetActiveEntity()
 		{
 			if (ActiveEntities.size() == 0)
-				return NEntity::CreateNull();
+				return NEntity::createNull();
 			return ActiveEntities[0];
 		}
 
@@ -162,29 +162,29 @@ namespace Cocoa
 				switch (itemPressed)
 				{
 				case 0:
-					NEntity::AddComponent<SpriteRenderer>(activeEntity);
+					NEntity::addComponent<SpriteRenderer>(activeEntity);
 					break;
 				case 1:
-					NEntity::AddComponent<FontRenderer>(activeEntity);
+					NEntity::addComponent<FontRenderer>(activeEntity);
 					break;
 				case 2:
-					NEntity::AddComponent<Rigidbody2D>(activeEntity);
+					NEntity::addComponent<Rigidbody2D>(activeEntity);
 					break;
 				case 3:
-					NEntity::AddComponent<Box2D>(activeEntity);
+					NEntity::addComponent<Box2D>(activeEntity);
 					break;
 				case 4:
-					NEntity::AddComponent<Circle>(activeEntity);
+					NEntity::addComponent<Circle>(activeEntity);
 					break;
 				case 5:
 				{
 					Camera camera = NCamera::CreateCamera();
-					NEntity::AddComponent<Camera>(activeEntity, camera);
+					NEntity::addComponent<Camera>(activeEntity, camera);
 					break;
 				}
 				default:
-					Logger::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
-					ScriptSystem::AddComponentFromString(StringPointerBuffer[itemPressed], activeEntity.Handle, NEntity::GetScene()->Registry);
+					Logger::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.handle));
+					ScriptSystem::AddComponentFromString(StringPointerBuffer[itemPressed], activeEntity.handle, NEntity::getScene()->Registry);
 					break;
 				}
 			}
@@ -251,7 +251,7 @@ namespace Cocoa
 
 				if (spr.sprite.texture)
 				{
-					const Texture& tex = AssetManager::GetTexture(spr.sprite.texture.AssetId);
+					const Texture& tex = AssetManager::getTexture(spr.sprite.texture.assetId);
 					CImGui::InputText("##SpriteRendererTexture", (char*)tex.Path.Filename(),
 						tex.Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
@@ -265,7 +265,7 @@ namespace Cocoa
 					{
 						IM_ASSERT(payload->DataSize == sizeof(int));
 						int textureResourceId = *(const int*)payload->Data;
-						spr.sprite.texture = NHandle::CreateHandle<Texture>(textureResourceId);
+						spr.sprite.texture = NHandle::createHandle<Texture>(textureResourceId);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -293,7 +293,7 @@ namespace Cocoa
 
 				if (fontRenderer.font)
 				{
-					const Font& font = AssetManager::GetFont(fontRenderer.font.AssetId);
+					const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
 					CImGui::InputText("##FontRendererTexture", (char*)font.m_Path.Filename(),
 						font.m_Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
@@ -307,7 +307,7 @@ namespace Cocoa
 					{
 						IM_ASSERT(payload->DataSize == sizeof(int));
 						int fontResourceId = *(const int*)payload->Data;
-						fontRenderer.font = NHandle::CreateHandle<Font>(fontResourceId);
+						fontRenderer.font = NHandle::createHandle<Font>(fontResourceId);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -388,7 +388,7 @@ namespace Cocoa
 			}
 
 			// Draw box highlight
-			const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
+			const TransformData& transform = NEntity::getComponent<TransformData>(ActiveEntities[0]);
 			DebugDraw::AddBox2D(CMath::Vector2From3(transform.position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.scale), transform.eulerRotation.z);
 		}
 

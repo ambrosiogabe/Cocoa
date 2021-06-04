@@ -28,7 +28,7 @@ namespace Cocoa
 		void Init()
 		{
 			mTmpFilename[0] = '\0';
-			mIdealSize = Application::get()->getWindow()->GetMonitorSize() / 2.0f;
+			mIdealSize = Application::get()->getWindow()->getMonitorSize() / 2.0f;
 
 			mJadeLogo.MagFilter = FilterMode::Linear;
 			mJadeLogo.MinFilter = FilterMode::Linear;
@@ -54,8 +54,8 @@ namespace Cocoa
 				mVersionPos.y = mTexturePos.y + mJadeLogo.Height + textSize.y / 2.0f;
 			}
 
-			Application::get()->getWindow()->SetSize(mIdealSize);
-			glm::vec2 winPos = Application::get()->getWindow()->GetWindowPos();
+			Application::get()->getWindow()->setSize(mIdealSize);
+			glm::vec2 winPos = Application::get()->getWindow()->getWindowPos();
 			ImGui::SetNextWindowPos(ImVec2(winPos.x, winPos.y));
 			ImGui::SetNextWindowSize(ImVec2(mIdealSize.x, mIdealSize.y), ImGuiCond_Once);
 			ImGui::Begin("Create or Open Project", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);

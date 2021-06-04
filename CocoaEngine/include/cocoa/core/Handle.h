@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_HANDLE_H
+#define COCOA_ENGINE_HANDLE_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
@@ -12,33 +13,33 @@ namespace Cocoa
 	template<typename T>
 	struct Handle
 	{
-		uint32 AssetId;
+		uint32 assetId;
 
-		inline bool operator==(Handle other) const
+		bool operator==(Handle other) const
 		{
-			return AssetId == other.AssetId;
+			return assetId == other.assetId;
 		}
 
-		inline bool operator!=(Handle other) const
+		bool operator!=(Handle other) const
 		{
 			return !(*this == other);
 		}
 
-		inline operator bool() const
+		operator bool() const
 		{
-			return !IsNull();
+			return !isNull();
 		}
 
-		inline bool IsNull() const
+		bool isNull() const
 		{
-			return AssetId == NHandle::NULL_ID;
+			return assetId == NHandle::NULL_ID;
 		}
 	};
 
 	namespace NHandle
 	{
 		template<typename T>
-		Handle<T> CreateHandle()
+		Handle<T> createHandle()
 		{
 			return Handle<T> {
 				NULL_ID
@@ -46,7 +47,7 @@ namespace Cocoa
 		}
 
 		template<typename T>
-		Handle<T> CreateHandle(uint32 id)
+		Handle<T> createHandle(uint32 id)
 		{
 			return Handle<T> {
 				id
@@ -54,3 +55,5 @@ namespace Cocoa
 		}
 	}
 }
+
+#endif

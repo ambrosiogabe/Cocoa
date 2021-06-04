@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_APPLICATION_H
+#define COCOA_ENGINE_APPLICATION_H
 #include "externalLibs.h"
 
 #include "cocoa/core/Core.h"
@@ -24,10 +25,10 @@ namespace Cocoa
 	*/
 	struct ApplicationData
 	{
-		AppOnUpdateFn AppOnUpdate = nullptr; /**< Callback function to update the app. */
-		AppOnAttachFn AppOnAttach = nullptr; /**< Callback function to attach the app. */
-		AppOnRenderFn AppOnRender = nullptr; /**< Callback function to render the app. */
-		AppOnEventFn AppOnEvent = nullptr; /**< Callback function to forward events to the app. */
+		AppOnUpdateFn appOnUpdate = nullptr; /**< Callback function to update the app. */
+		AppOnAttachFn appOnAttach = nullptr; /**< Callback function to attach the app. */
+		AppOnRenderFn appOnRender = nullptr; /**< Callback function to render the app. */
+		AppOnEventFn appOnEvent = nullptr; /**< Callback function to forward events to the app. */
 	};
 
 	/**
@@ -61,18 +62,20 @@ namespace Cocoa
 	private:
 		bool onWindowClose(WindowCloseEvent& e);
 
-		static Application* s_Instance;
+		static Application* sInstance;
 
 		bool mRunning;
 
 		float mLastFrameTime = 0;
 
 	protected:
-		SceneData m_CurrentScene;
-		CWindow* m_Window;
-		ApplicationData m_AppData;
+		SceneData mCurrentScene;
+		CWindow* mWindow;
+		ApplicationData mAppData;
 	};
 
 	// To be defined in CLIENT
 	Application* createApplication();
 }
+
+#endif

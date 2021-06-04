@@ -188,7 +188,7 @@ namespace Cocoa
 					winTitle.Append(Settings::General::s_CurrentProject.Filename());
 					winTitle.Append(" -- ");
 					winTitle.Append(Settings::General::s_CurrentScene.Filename());
-					Application::get()->getWindow()->SetTitle(winTitle.c_str());
+					Application::get()->getWindow()->setTitle(winTitle.c_str());
 
 					CPath scriptsPath = Settings::General::s_WorkingDirectory;
 					scriptsPath.Join(CPath::Create("scripts"));
@@ -297,17 +297,17 @@ namespace Cocoa
 		}
 
 		// Engine initialization
-		AssetManager::Init(0);
+		AssetManager::init(0);
 		ProjectWizard::Init();
 		Input::Init();
 
 		// Application Initialization
 		EditorLayer::init();
-		ImGuiLayer::Init(getWindow()->GetNativeWindow());
+		ImGuiLayer::Init(getWindow()->getNativeWindow());
 
-		m_CurrentScene = Scene::Create(new LevelEditorSceneInitializer());
-		Scene::Init(m_CurrentScene);
-		Scene::Start(m_CurrentScene);
+		mCurrentScene = Scene::Create(new LevelEditorSceneInitializer());
+		Scene::Init(mCurrentScene);
+		Scene::Start(mCurrentScene);
 		DebugDraw::Init();
 	}
 
@@ -322,7 +322,7 @@ namespace Cocoa
 		// In debug builds free all the memory to make sure there are no leaks
 		ImGuiLayer::Destroy();
 		DebugDraw::Destroy();
-		Scene::FreeResources(m_CurrentScene);
+		Scene::FreeResources(mCurrentScene);
 #endif
 		
 		// This won't really do anything in release builds
@@ -331,7 +331,7 @@ namespace Cocoa
 
 	void CocoaEditor::beginFrame()
 	{
-		ImGuiLayer::BeginFrame(m_CurrentScene);
+		ImGuiLayer::BeginFrame(mCurrentScene);
 	}
 
 	void CocoaEditor::endFrame()
@@ -341,10 +341,10 @@ namespace Cocoa
 
 	void CocoaEditor::setAppData(AppOnAttachFn attachFn, AppOnUpdateFn updateFn, AppOnRenderFn renderFn, AppOnEventFn eventFn)
 	{
-		m_AppData.AppOnAttach = attachFn;
-		m_AppData.AppOnUpdate = updateFn;
-		m_AppData.AppOnRender = renderFn;
-		m_AppData.AppOnEvent = eventFn;
+		mAppData.appOnAttach = attachFn;
+		mAppData.appOnUpdate = updateFn;
+		mAppData.appOnRender = renderFn;
+		mAppData.appOnEvent = eventFn;
 	}
 
 	// TODO: Remove me

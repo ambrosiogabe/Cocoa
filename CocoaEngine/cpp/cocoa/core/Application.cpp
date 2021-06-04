@@ -16,20 +16,20 @@ namespace Cocoa
 		mRunning = true;
 
 		Logger::Info("Initializing GLAD functions in DLL.");
-		m_Window = CWindow::Create(1920, 1080, "Test Window");
-		s_Instance = this;
+		mWindow = CWindow::create(1920, 1080, "Test Window");
+		sInstance = this;
 
-		m_Window->SetEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
+		mWindow->setEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
 	}
 
 	void Application::run()
 	{
-		if (!m_AppData.AppOnAttach) { m_AppData.AppOnAttach = AppOnAttach; }
-		if (!m_AppData.AppOnEvent) { m_AppData.AppOnEvent = AppOnEvent; }
-		if (!m_AppData.AppOnRender) { m_AppData.AppOnRender = AppOnRender; }
-		if (!m_AppData.AppOnUpdate) { m_AppData.AppOnUpdate = AppOnUpdate; }
+		if (!mAppData.appOnAttach) { mAppData.appOnAttach = AppOnAttach; }
+		if (!mAppData.appOnEvent) { mAppData.appOnEvent = AppOnEvent; }
+		if (!mAppData.appOnRender) { mAppData.appOnRender = AppOnRender; }
+		if (!mAppData.appOnUpdate) { mAppData.appOnUpdate = AppOnUpdate; }
 
-		m_AppData.AppOnAttach(m_CurrentScene);
+		mAppData.appOnAttach(mCurrentScene);
 
 		while (mRunning)
 		{
@@ -38,12 +38,12 @@ namespace Cocoa
 			mLastFrameTime = time;
 
 			beginFrame();
-			m_AppData.AppOnUpdate(m_CurrentScene, dt);
-			m_AppData.AppOnRender(m_CurrentScene);
+			mAppData.appOnUpdate(mCurrentScene, dt);
+			mAppData.appOnRender(mCurrentScene);
 			endFrame();
 
-			m_Window->OnUpdate();
-			m_Window->Render();
+			mWindow->onUpdate();
+			mWindow->render();
 		}
 
 		// TODO: Should this be a thing? (probably, add support at some point...)
@@ -52,7 +52,7 @@ namespace Cocoa
 		//	layer->OnDetach();
 		//}
 
-		m_Window->Destroy();
+		mWindow->destroy();
 	}
 
 	bool Application::onWindowClose(WindowCloseEvent& e)
@@ -66,7 +66,7 @@ namespace Cocoa
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::onWindowClose, this, std::placeholders::_1));
 
-		m_AppData.AppOnEvent(m_CurrentScene, e);
+		mAppData.appOnEvent(mCurrentScene, e);
 	}
 
 	void Application::stop()
@@ -76,16 +76,16 @@ namespace Cocoa
 
 	CWindow* Application::getWindow() const
 	{
-		return m_Window;
+		return mWindow;
 	}
 
-	Application* Application::s_Instance = nullptr;
+	Application* Application::sInstance = nullptr;
 	Application* Application::get()
 	{
-		if (!s_Instance)
+		if (!sInstance)
 		{
 			Logger::Error("Cannot get application. It is nullptr.");
 		}
-		return s_Instance;
+		return sInstance;
 	}
 }

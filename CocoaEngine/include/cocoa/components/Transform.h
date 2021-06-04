@@ -14,7 +14,7 @@ namespace Cocoa
 		COCOA void update(TransformData& data, float dt);
 
 		COCOA void serialize(json& j, Entity entity, const TransformData& transform);
-		COCOA void deserialize(const json& j, Entity entity, Entity parent = NEntity::CreateNull());
+		COCOA void deserialize(const json& j, Entity entity, Entity parent = NEntity::createNull());
 		COCOA void serialize(json& j, const TransformData& transform);
 		COCOA void deserialize(const json& j, TransformData& transform);
 	}
