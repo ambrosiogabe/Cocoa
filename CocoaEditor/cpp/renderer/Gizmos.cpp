@@ -220,7 +220,7 @@ namespace Cocoa
 		void Init(SceneData& scene)
 		{
 			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(gizmoTexPath, NCPath::CreatePath("images/gizmos.png"));
+			gizmoTexPath.Join(CPath::Create("images/gizmos.png"));
 			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
 			m_GizmoSpritesheet = NSpritesheet::CreateSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
 

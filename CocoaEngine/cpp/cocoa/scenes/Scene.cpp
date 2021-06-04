@@ -420,7 +420,7 @@ namespace Cocoa
 			gizmoSpec.WrapT = WrapMode::Repeat;
 			gizmoSpec.IsDefault = true;
 			CPath gizmoPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(gizmoPath, NCPath::CreatePath("images/gizmos.png"));
+			gizmoPath.Join(CPath::Create("images/gizmos.png"));
 			auto asset = AssetManager::LoadTextureFromFile(gizmoSpec, gizmoPath);
 		}
 

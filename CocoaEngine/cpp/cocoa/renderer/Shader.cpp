@@ -31,7 +31,7 @@ namespace Cocoa
 				(uint32)-1,
 				-1,
 				false,
-				NCPath::CreatePath()
+				CPath::Create()
 			};
 		}
 

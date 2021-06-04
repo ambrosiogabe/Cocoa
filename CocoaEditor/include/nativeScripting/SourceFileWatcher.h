@@ -9,7 +9,7 @@ namespace Cocoa
 	{
 	public:
 		SourceFileWatcher() 
-			: m_RootDirectory(NCPath::CreatePath()) {}
+			: m_RootDirectory(CPath::Create()) {}
 		SourceFileWatcher(CPath path);
 		~SourceFileWatcher() { m_FileWatcher.Stop(); }
 

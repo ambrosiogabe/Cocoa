@@ -11,16 +11,16 @@ namespace Cocoa
 			// =======================================================================
 			// TODO: This is a bit misleading because none of these defaults are actually ever used. See 'CocoaEditorApplication.cpp' to see how they
 			// TODO: are overwritten
-			extern CPath General::s_ImGuiConfigPath = NCPath::CreatePath("default.ini");
-			extern CPath General::s_EngineAssetsPath = NCPath::CreatePath("assets");
-			extern CPath General::s_EngineExeDirectory = NCPath::CreatePath();
-			extern CPath General::s_EngineSourceDirectory = NCPath::CreatePath();
-			extern CPath General::s_CurrentScene = NCPath::CreatePath("New Scene.cocoa");
-			extern CPath General::s_CurrentProject = NCPath::CreatePath("New Project.cprj");
-			extern CPath General::s_StylesDirectory = NCPath::CreatePath("assets\\styles");
-			extern CPath General::s_WorkingDirectory = NCPath::CreatePath();
-			extern CPath General::s_EditorSaveData = NCPath::CreatePath("EditorSaveData.json");
-			extern CPath General::s_EditorStyleData = NCPath::CreatePath("EditorStyle.json");
+			extern CPath General::s_ImGuiConfigPath = CPath::Create("default.ini");
+			extern CPath General::s_EngineAssetsPath = CPath::Create("assets");
+			extern CPath General::s_EngineExeDirectory = CPath::Create();
+			extern CPath General::s_EngineSourceDirectory = CPath::Create();
+			extern CPath General::s_CurrentScene = CPath::Create("New Scene.cocoa");
+			extern CPath General::s_CurrentProject = CPath::Create("New Project.cprj");
+			extern CPath General::s_StylesDirectory = CPath::Create("assets\\styles");
+			extern CPath General::s_WorkingDirectory = CPath::Create();
+			extern CPath General::s_EditorSaveData = CPath::Create("EditorSaveData.json");
+			extern CPath General::s_EditorStyleData = CPath::Create("EditorStyle.json");
 		}
 
 		namespace Physics2D

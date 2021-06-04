@@ -11,8 +11,8 @@
 namespace Cocoa
 {
 	// Internal variables
-	static CPath rootDir = NCPath::CreatePath();
-	static CPath projectPremakeLua = NCPath::CreatePath();
+	static CPath rootDir = CPath::Create();
+	static CPath projectPremakeLua = CPath::Create();
 	static auto classes = std::vector<UClass>();
 	static bool fileModified = false;
 	static bool buildingCode = false;
@@ -28,12 +28,12 @@ namespace Cocoa
 
 	static bool IsHeaderFile(const CPath& file)
 	{
-		return strcmp(NCPath::FileExt(file), ".h") == 0 || strcmp(NCPath::FileExt(file), ".hpp") == 0;
+		return strcmp(file.FileExt(), ".h") == 0 || strcmp(file.FileExt(), ".hpp") == 0;
 	}
 
 	static bool IsReflectionHeaderFile(const CPath& file)
 	{
-		return strcmp(NCPath::Filename(file), "Reflection") == 0;
+		return strcmp(file.Filename(), "Reflection") == 0;
 	}
 
 	static void AddClassIfNotExist(UClass clazz)
@@ -98,20 +98,20 @@ namespace Cocoa
 	static void GenerateInitFiles()
 	{
 		CPath generatedDir = rootDir;
-		NCPath::Join(generatedDir, NCPath::CreatePath("generated"));
+		generatedDir.Join(CPath::Create("generated"));
 		File::CreateDirIfNotExists(generatedDir);
 
 		CPath initH = generatedDir;
-		NCPath::Join(initH, NCPath::CreatePath("init.h"));
+		initH.Join(CPath::Create("init.h"));
 		CPath initCpp = generatedDir;
-		NCPath::Join(initCpp, NCPath::CreatePath("init.pp"));
+		initCpp.Join(CPath::Create("init.pp"));
 		CodeGenerators::GenerateInitFile(classes, initH);
 		File::WriteFile("#include \"init.h\"\n", initCpp);
 	}
 
 	static bool ProcessFile(CPath& file, CPath generatedDirPath)
 	{
-		if (!File::IsFile(file) || NCPath::Contains(file, "generated") || File::IsHidden(file) || !IsHeaderFile(file))
+		if (!File::IsFile(file) || file.Contains("generated") || File::IsHidden(file) || !IsHeaderFile(file))
 		{
 			return false;
 		}
@@ -123,9 +123,9 @@ namespace Cocoa
 		//fileParser.Parse();
 		//MergeNewClasses(fileParser.GetClasses(), file);
 
-		std::string generatedHFilename = NCPath::GetFilenameWithoutExt(file) + "-generated.h";
+		std::string generatedHFilename = file.GetFilenameWithoutExt() + "-generated.h";
 		CPath path = generatedDirPath;
-		NCPath::Join(path, NCPath::CreatePath(generatedHFilename));
+		path.Join(CPath::Create(generatedHFilename));
 		//File::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
 
 		GenerateInitFiles();
@@ -134,11 +134,11 @@ namespace Cocoa
 
 	static void FileChanged(const CPath& file)
 	{
-		CPath generatedDirPath = NCPath::CreatePath(NCPath::GetDirectory(file, -1) + "generated");
+		CPath generatedDirPath = CPath::Create(file.GetDirectory(-1) + "generated");
 		CPath filePath = generatedDirPath;
-		NCPath::Join(filePath, file);
+		filePath.Join(file);
 		CPath generatedFilePath = rootDir;
-		NCPath::Join(rootDir, generatedDirPath);
+		rootDir.Join(generatedDirPath);
 		if (ProcessFile(filePath, generatedFilePath))
 		{
 			CppBuild::Build(rootDir);
@@ -155,7 +155,7 @@ namespace Cocoa
 
 		auto files = File::GetFilesInDir(directory);
 		CPath generatedDir = directory;
-		NCPath::Join(generatedDir, NCPath::CreatePath("generated"));
+		generatedDir.Join(CPath::Create("generated"));
 		for (auto file : files)
 		{
 			ProcessFile(file, generatedDir);
@@ -166,10 +166,10 @@ namespace Cocoa
 
 	static void GenerateBuildFile()
 	{
-		CPath pathToBuildScript = NCPath::CreatePath(NCPath::GetDirectory(rootDir, -1));
-		NCPath::Join(pathToBuildScript, NCPath::CreatePath("build.bat"));
+		CPath pathToBuildScript = CPath::Create(rootDir.GetDirectory(-1));
+		pathToBuildScript.Join(CPath::Create("build.bat"));
 		CPath pathToPremakeExe = Settings::General::s_EngineExeDirectory;
-		NCPath::Join(pathToPremakeExe, NCPath::CreatePath("premake5.exe"));
+		pathToPremakeExe.Join(CPath::Create("premake5.exe"));
 		CodeGenerators::GenerateBuildFile(pathToBuildScript, pathToPremakeExe);
 	}
 
@@ -183,8 +183,8 @@ namespace Cocoa
 		rootDir = m_RootDirectory;
 		Logger::Log("Monitoring directory '%s'", File::GetAbsolutePath(m_RootDirectory).Path);
 
-		projectPremakeLua = NCPath::CreatePath(NCPath::GetDirectory(m_RootDirectory, -1));
-		NCPath::Join(projectPremakeLua, NCPath::CreatePath("premake5.lua"));
+		projectPremakeLua = CPath::Create(m_RootDirectory.GetDirectory(-1));
+		projectPremakeLua.Join(CPath::Create("premake5.lua"));
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
 		GenerateBuildFile();
 

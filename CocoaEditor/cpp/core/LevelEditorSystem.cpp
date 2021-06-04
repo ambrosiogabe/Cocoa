@@ -62,9 +62,9 @@ namespace Cocoa
 		{
 			InitComponentIds(scene);
 			tmpScriptDll = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
+			tmpScriptDll.Join(CPath::Create("ScriptModuleTmp.dll"));
 			scriptDll = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(scriptDll, NCPath::CreatePath("ScriptModule.dll"));
+			scriptDll.Join(CPath::Create("ScriptModule.dll"));
 			initImGui = false;
 
 			Logger::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
@@ -138,14 +138,14 @@ namespace Cocoa
 			if (File::IsFile(tmpScriptDll))
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
-				EditorLayer::SaveProject();
+				EditorLayer::saveProject();
 
 				// This should free the scripts too so we can delete the old dll
 				Scene::FreeResources(scene);
 
 				// Now copy new dll and reload the scene
 				File::DeleteFile(scriptDll);
-				File::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
+				File::CopyFile(tmpScriptDll, CPath::Create(scriptDll.GetDirectory(-1)), "ScriptModule");
 				Scene::Load(scene, Settings::General::s_CurrentScene);
 
 				// Then delete temporary file of new dll
@@ -259,7 +259,7 @@ namespace Cocoa
 				if (e.GetKeyCode() == COCOA_KEY_S)
 				{
 					Scene::Save(scene, Settings::General::s_CurrentScene);
-					EditorLayer::SaveProject();
+					EditorLayer::saveProject();
 				}
 
 				if (e.GetKeyCode() == COCOA_KEY_D)

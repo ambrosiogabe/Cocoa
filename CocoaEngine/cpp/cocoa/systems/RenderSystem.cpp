@@ -28,13 +28,13 @@ namespace Cocoa
 			m_Batches = List<RenderBatchData>(1);
 
 			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(spriteShaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
+			spriteShaderPath.Join(CPath::Create("shaders/SpriteRenderer.glsl"));
 			m_SpriteShader = AssetManager::LoadShaderFromFile(spriteShaderPath, true);
 			CPath fontShaderPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(fontShaderPath, NCPath::CreatePath("shaders/FontRenderer.glsl"));
+			fontShaderPath.Join(CPath::Create("shaders/FontRenderer.glsl"));
 			m_FontShader = AssetManager::LoadShaderFromFile(fontShaderPath, true);
 			CPath pickingShaderPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(pickingShaderPath, NCPath::CreatePath("shaders/Picking.glsl"));
+			pickingShaderPath.Join(CPath::Create("shaders/Picking.glsl"));
 			AssetManager::LoadShaderFromFile(pickingShaderPath, true);
 		}
 

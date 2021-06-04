@@ -2,6 +2,7 @@
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/InspectorWindow.h"
 #include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/ProjectWizard.h"
 #include "editorWindows/GameViewport.h"
 #include "editorWindows/GameEditorViewport.h"
 #include "gui/ImGuiExtended.h"
@@ -116,7 +117,7 @@ namespace Cocoa
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-			if (CocoaEditor::IsProjectLoaded())
+			if (CocoaEditor::isProjectLoaded())
 			{
 				SetupDockspace(scene);
 				GameEditorViewport::ImGui(scene, &m_HoveringGameEditorWindow);
@@ -139,7 +140,7 @@ namespace Cocoa
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			glViewport(0, 0, Application::Get()->GetWindow()->GetWidth(), Application::Get()->GetWindow()->GetHeight());
+			glViewport(0, 0, Application::get()->getWindow()->GetWidth(), Application::get()->getWindow()->GetHeight());
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -251,7 +252,7 @@ namespace Cocoa
 			else
 			{
 				CPath defaultStylePath = Settings::General::s_StylesDirectory;
-				NCPath::Join(defaultStylePath, NCPath::CreatePath("Default.json"));
+				defaultStylePath.Join(CPath::Create("Default.json"));
 				ExportCurrentStyle(defaultStylePath);
 			}
 			File::CloseFile(styleData);

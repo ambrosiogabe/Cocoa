@@ -97,9 +97,9 @@ namespace Cocoa
 		bool CreateFile(const CPath& filename, const char* extToAppend)
 		{
 			CPath fileToWrite = filename;
-			if (NCPath::FileExt(filename) == nullptr || NCPath::FileExt(filename)[0] == '\0')
+			if (filename.FileExt() == nullptr || filename.FileExt()[0] == '\0')
 			{
-				fileToWrite = NCPath::CreatePath(filename.Path + std::string(extToAppend));
+				fileToWrite = CPath::Create(filename.Path + std::string(extToAppend));
 			}
 			HANDLE fileHandle = CreateFileA(fileToWrite.Path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			bool res = fileHandle != INVALID_HANDLE_VALUE;
@@ -115,7 +115,7 @@ namespace Cocoa
 		bool CopyFile(const CPath& fileToCopy, const CPath& newFileLocation, const char* newFilename)
 		{
 			CPath newFilepath = newFileLocation;
-			NCPath::Join(newFilepath, NCPath::CreatePath(std::string(newFilename) + NCPath::FileExt(fileToCopy)));
+			newFilepath.Join(CPath::Create(std::string(newFilename) + fileToCopy.FileExt()));
 			if (!CopyFileExA(fileToCopy.Path, newFilepath.Path, NULL, NULL, false, NULL))
 			{
 				Logger::Warning("Could not copy file error code: %d", GetLastError());
@@ -140,13 +140,13 @@ namespace Cocoa
 			{
 				char* tmp = (char*)AllocMem(sizeof(char) * 256);
 				wcstombs(tmp, pszPath, 256);
-				CPath result = NCPath::CreatePath(tmp);
+				CPath result = CPath::Create(tmp);
 				FreeMem(tmp);
 				return result;
 			}
 
 			Logger::Assert(false, "Could not retrieve AppRoamingData folder.");
-			return NCPath::CreatePath();
+			return CPath::Create();
 		}
 
 		CPath GetExecutableDirectory()
@@ -155,7 +155,7 @@ namespace Cocoa
 			DWORD res = GetModuleFileNameA(NULL, filepath, MAX_PATH);
 			Logger::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
 
-			return NCPath::CreatePath(filepath);
+			return CPath::Create(filepath);
 		}
 
 		void CreateDirIfNotExists(const CPath& directory)
@@ -174,7 +174,7 @@ namespace Cocoa
 
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
-			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
+			wildcardMatch.Join(CPath::Create("*"));
 			if ((dir = FindFirstFileA(wildcardMatch.Path, &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
@@ -183,9 +183,9 @@ namespace Cocoa
 
 			do
 			{
-				CPath filename = NCPath::CreatePath(fileData.cFileName);
+				CPath filename = CPath::Create(fileData.cFileName);
 				CPath fullFilename = dirPath;
-				NCPath::Join(fullFilename, filename);
+				fullFilename.Join(filename);
 				const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
 				if (filename.Path[0] == '.')
@@ -212,7 +212,7 @@ namespace Cocoa
 
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
-			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
+			wildcardMatch.Join(CPath::Create("*"));
 			if ((dir = FindFirstFileA(wildcardMatch.Path, &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
@@ -221,7 +221,7 @@ namespace Cocoa
 
 			do
 			{
-				CPath filename = NCPath::CreatePath(fileData.cFileName);
+				CPath filename = CPath::Create(fileData.cFileName);
 				bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
 				if (filename.Path[0] == '.')
@@ -245,7 +245,7 @@ namespace Cocoa
 			int bufferLength = GetFullPathNameA(path.Path, 0, NULL, NULL);
 			char* buffer = (char*)AllocMem(sizeof(char) * bufferLength);
 			GetFullPathNameA(path.Path, bufferLength, buffer, NULL);
-			CPath result = NCPath::CreatePath(buffer);
+			CPath result = CPath::Create(buffer);
 			FreeMem(buffer);
 			return result;
 		}

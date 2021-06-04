@@ -37,7 +37,7 @@ namespace Cocoa
 		static bool CPathVectorGetter(void* data, int n, const char** out_text)
 		{
 			const std::vector<CPath>* v = (std::vector<CPath>*)data;
-			*out_text = NCPath::Filename(v->at(n));
+			*out_text = v->at(n).Filename();
 			return true;
 		}
 
@@ -78,7 +78,7 @@ namespace Cocoa
 					FileDialogResult result;
 					if (FileDialog::GetSaveFileName(Settings::General::s_StylesDirectory.Path, result))
 					{
-						ImGuiLayer::ExportCurrentStyle(NCPath::CreatePath(result.filepath));
+						ImGuiLayer::ExportCurrentStyle(CPath::Create(result.filepath));
 					}
 				}
 			}
@@ -125,7 +125,7 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (FileDialog::GetOpenFileName(".", result, { {"Cocoa Projects *.cocoa", "*.cprj"}, {"All Files", "*.*"} }))
 						{
-							EditorLayer::LoadProject(scene, NCPath::CreatePath(result.filepath));
+							EditorLayer::loadProject(scene, CPath::Create(result.filepath));
 						}
 					}
 
@@ -134,7 +134,7 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (FileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
-							Settings::General::s_CurrentScene = NCPath::CreatePath(result.filepath);
+							Settings::General::s_CurrentScene = CPath::Create(result.filepath);
 							Scene::Save(scene, Settings::General::s_CurrentScene);
 						}
 					}

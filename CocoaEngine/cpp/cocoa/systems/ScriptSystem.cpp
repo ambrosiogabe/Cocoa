@@ -96,7 +96,7 @@ namespace Cocoa
 			}
 
 			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(scriptDllPath, NCPath::CreatePath("ScriptModule.dll"));
+			scriptDllPath.Join(CPath::Create("ScriptModule.dll"));
 			if (File::IsFile(scriptDllPath))
 			{
 				m_Module = LoadLibraryA(scriptDllPath.Path);

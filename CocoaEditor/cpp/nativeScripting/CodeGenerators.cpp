@@ -39,16 +39,16 @@ namespace Cocoa
 			source << "#include \"cocoa/core/Entity.h\"\n";
 			source << "#include \"cocoa/core/EntityStruct.h\"\n";
 
-			const std::filesystem::path base = NCPath::GetDirectory(filepath, -1);
+			const std::filesystem::path base = filepath.GetDirectory(-1);
 			for (auto clazz : classes)
 			{
 				const std::filesystem::path otherPath = clazz.m_FullFilepath.Path;
 				source << "#include \"" << std::filesystem::relative(otherPath, base).generic_string().c_str() << "\"\n";
 
-				std::string genFilename = NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath) + "-generated" + NCPath::FileExt(clazz.m_FullFilepath);
-				CPath otherGenCPath = NCPath::CreatePath(NCPath::GetDirectory(clazz.m_FullFilepath, -1));
-				NCPath::Join(otherGenCPath, NCPath::CreatePath("generated"));
-				NCPath::Join(otherGenCPath, NCPath::CreatePath(genFilename));
+				std::string genFilename = clazz.m_FullFilepath.GetFilenameWithoutExt() + "-generated" + clazz.m_FullFilepath.FileExt();
+				CPath otherGenCPath = CPath::Create(clazz.m_FullFilepath.GetDirectory(-1));
+				otherGenCPath.Join(CPath::Create("generated"));
+				otherGenCPath.Join(CPath::Create(genFilename));
 				const std::filesystem::path otherGenPath = otherGenCPath.Path;
 				source << "#include \"" << std::filesystem::relative(otherGenPath, base).generic_string().c_str() << "\"\n\n";
 			}
@@ -102,7 +102,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\tfor (auto strClass : " << namespaceName.c_str() << "::stringToMap)\n";
 					source << "\t\t\t{\n";
 					source << "\t\t\t\tif (strClass.first == className)\n";
@@ -200,7 +200,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registryRef, sceneData);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -218,7 +218,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::TryLoad(j, entity, registryRef);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -239,7 +239,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::Init();\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -266,7 +266,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registryRef);\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -286,7 +286,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath));
+					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.GetFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts();\n";
 
 					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
@@ -330,9 +330,9 @@ namespace Cocoa
 				"		\"**.cpp\",\n"
 				"		\"**.hpp\",\n";
 
-			CPath engineSource = NCPath::CreatePath(Settings::General::s_EngineSourceDirectory.Path, true);
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/include/gui/**.h\"\n";
+			CPath engineSource = CPath::Create(Settings::General::s_EngineSourceDirectory.Path, true);
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEditor/include/gui/**.h\"\n";
 
 			stream << ""
 				"	}\n"
@@ -344,16 +344,16 @@ namespace Cocoa
 				"	includedirs {\n"
 				"		\"%{prj.name}/scripts\",\n";
 
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/include\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/glmVendor\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/enttVendor/src\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/glad/include\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/imguiVendor\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/box2DVendor/include\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/nlohmann-json/single_include\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEngine/vendor/GLFW/include\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/include/gui\"\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/include\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/glmVendor\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/enttVendor/src\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/glad/include\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/imguiVendor\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/box2DVendor/include\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/nlohmann-json/single_include\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEngine/vendor/GLFW/include\",\n";
+			stream << "\t\t\"" << engineSource.LinuxStyle() << "/CocoaEditor/include/gui\"\n";
 
 			stream << ""
 				"	}\n"
@@ -362,11 +362,11 @@ namespace Cocoa
 				"\n"
 				"	links {\n";
 
-			CPath engineExeDir = NCPath::CreatePath(Settings::General::s_EngineExeDirectory.Path, true);
-			CPath engineDllDir = NCPath::CreatePath(NCPath::GetDirectory(Settings::General::s_EngineExeDirectory, -1), true);
-			NCPath::Join(engineDllDir, NCPath::CreatePath("CocoaEngine"));
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineDllDir).c_str() << "/CocoaEngine.lib\",\n";
-			stream << "\t\t\"" << NCPath::LinuxStyle(engineExeDir).c_str() << "/ImGui.lib\"\n";
+			CPath engineExeDir = CPath::Create(Settings::General::s_EngineExeDirectory.Path, true);
+			CPath engineDllDir = CPath::Create(Settings::General::s_EngineExeDirectory.GetDirectory(-1), true);
+			engineDllDir.Join(CPath::Create("CocoaEngine"));
+			stream << "\t\t\"" << engineDllDir.LinuxStyle() << "/CocoaEngine.lib\",\n";
+			stream << "\t\t\"" << engineExeDir.LinuxStyle() << "/ImGui.lib\"\n";
 
 			stream << ""
 				"	}\n"
@@ -383,7 +383,7 @@ namespace Cocoa
 				"\n"
 				"	postbuildcommands {\n";
 
-			stream << "\t\t\"copy /y \\\"$(SolutionDir)bin\\\\ScriptModule\\\\ScriptModule.dll\\\" \\\"" << NCPath::LinuxStyle(engineExeDir).c_str() << "/ScriptModuleTmp.dll\\\"\"\n";
+			stream << "\t\t\"copy /y \\\"$(SolutionDir)bin\\\\ScriptModule\\\\ScriptModule.dll\\\" \\\"" << engineExeDir.LinuxStyle() << "/ScriptModuleTmp.dll\\\"\"\n";
 
 			stream << ""
 				"	}\n"
@@ -407,8 +407,8 @@ namespace Cocoa
 
 		void GenerateBuildFile(const CPath& filepath, const CPath& premakeFilepath)
 		{
-			CPath projectPremakeLua = NCPath::CreatePath(NCPath::GetDirectory(filepath, -1));
-			NCPath::Join(projectPremakeLua, NCPath::CreatePath("premake5.lua"));
+			CPath projectPremakeLua = CPath::Create(filepath.GetDirectory(-1));
+			projectPremakeLua.Join(CPath::Create("premake5.lua"));
 
 			std::ostringstream stream;
 
@@ -460,8 +460,8 @@ if not defined DevEnvDir (
 
 set solutionFile=")";
 			// TODO: Maybe set scripting workspace to project name?
-			CPath solutionFile = NCPath::CreatePath(NCPath::GetDirectory(filepath, -1));
-			NCPath::Join(solutionFile, NCPath::CreatePath("ScriptingWorkspace.sln"));
+			CPath solutionFile = CPath::Create(filepath.GetDirectory(-1));
+			solutionFile.Join(CPath::Create("ScriptingWorkspace.sln"));
 			stream << solutionFile.Path << "\"";
 			
 			stream << R"(

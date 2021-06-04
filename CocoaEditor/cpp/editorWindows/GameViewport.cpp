@@ -31,12 +31,12 @@ namespace Cocoa
 
 			// Figure out the largest area that fits this target aspect ratio
 			float aspectWidth = windowSize.x;
-			float aspectHeight = (float)aspectWidth / Application::Get()->GetWindow()->GetTargetAspectRatio();
+			float aspectHeight = (float)aspectWidth / Application::get()->getWindow()->GetTargetAspectRatio();
 			if (aspectHeight > windowSize.y)
 			{
 				// It doesn't fit our height, we must switch to pillarbox
 				aspectHeight = windowSize.y;
-				aspectWidth = (float)aspectHeight * Application::Get()->GetWindow()->GetTargetAspectRatio();
+				aspectWidth = (float)aspectHeight * Application::get()->getWindow()->GetTargetAspectRatio();
 			}
 
 			// Center rectangle

@@ -39,7 +39,7 @@ namespace Cocoa
 					if (!isPlaying)
 					{
 						CPath tmpPath = Settings::General::s_EngineAssetsPath;
-						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
+						tmpPath.Join(CPath::Create("tmp.jade"));
 						Scene::Save(scene, tmpPath);
 						Scene::Play(scene);
 						isPlaying = true;
@@ -52,7 +52,7 @@ namespace Cocoa
 					{
 						Scene::Stop(scene);
 						CPath tmpPath = Settings::General::s_EngineAssetsPath;
-						NCPath::Join(tmpPath, NCPath::CreatePath("tmp.jade"));
+						tmpPath.Join(CPath::Create("tmp.jade"));
 						Scene::FreeResources(scene);
 						Scene::Load(scene, tmpPath, false);
 						isPlaying = false;
@@ -62,7 +62,7 @@ namespace Cocoa
 				else if (ImGui::MenuItem("Compile"))
 				{
 					CPath scriptsPath = Settings::General::s_WorkingDirectory;
-					NCPath::Join(scriptsPath, NCPath::CreatePath("scripts"));
+					scriptsPath.Join(CPath::Create("scripts"));
 					CppBuild::Compile(scriptsPath);
 				}
 				ImGui::EndMenuBar();
@@ -75,12 +75,12 @@ namespace Cocoa
 
 			// Figure out the largest area that fits this target aspect ratio
 			float aspectWidth = windowSize.x;
-			float aspectHeight = (float)aspectWidth / Application::Get()->GetWindow()->GetTargetAspectRatio();
+			float aspectHeight = (float)aspectWidth / Application::get()->getWindow()->GetTargetAspectRatio();
 			if (aspectHeight > windowSize.y)
 			{
 				// It doesn't fit our height, we must switch to pillarbox
 				aspectHeight = windowSize.y;
-				aspectWidth = (float)aspectHeight * Application::Get()->GetWindow()->GetTargetAspectRatio();
+				aspectWidth = (float)aspectHeight * Application::get()->getWindow()->GetTargetAspectRatio();
 			}
 
 			// Center rectangle

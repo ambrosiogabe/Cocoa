@@ -1,4 +1,4 @@
-#pragma once
+#include "editorWindows/ProjectWizard.h"
 #include "gui/ImGuiExtended.h"
 #include "gui/FontAwesome.h"
 #include "core/CocoaEditorApplication.h"
@@ -23,18 +23,18 @@ namespace Cocoa
 		
 		static bool mCreatingProject = false;
 		static char mTmpFilename[256];
-		static CPath mNewProjectPath = NCPath::CreatePath();
+		static CPath mNewProjectPath = CPath::Create();
 
 		void Init()
 		{
 			mTmpFilename[0] = '\0';
-			mIdealSize = Application::Get()->GetWindow()->GetMonitorSize() / 2.0f;
+			mIdealSize = Application::get()->getWindow()->GetMonitorSize() / 2.0f;
 
 			mJadeLogo.MagFilter = FilterMode::Linear;
 			mJadeLogo.MinFilter = FilterMode::Linear;
 			mJadeLogo.WrapS = WrapMode::Repeat;
 			mJadeLogo.WrapT = WrapMode::Repeat;
-			TextureUtil::Generate(mJadeLogo, NCPath::CreatePath("assets/jadeLogo.png"));
+			TextureUtil::Generate(mJadeLogo, CPath::Create("assets/jadeLogo.png"));
 
 			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.Width / 2.0f);
 			mTexturePos.y = mIdealSize.y / 10.0f;
@@ -54,8 +54,8 @@ namespace Cocoa
 				mVersionPos.y = mTexturePos.y + mJadeLogo.Height + textSize.y / 2.0f;
 			}
 
-			Application::Get()->GetWindow()->SetSize(mIdealSize);
-			glm::vec2 winPos = Application::Get()->GetWindow()->GetWindowPos();
+			Application::get()->getWindow()->SetSize(mIdealSize);
+			glm::vec2 winPos = Application::get()->getWindow()->GetWindowPos();
 			ImGui::SetNextWindowPos(ImVec2(winPos.x, winPos.y));
 			ImGui::SetNextWindowSize(ImVec2(mIdealSize.x, mIdealSize.y), ImGuiCond_Once);
 			ImGui::Begin("Create or Open Project", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
@@ -77,7 +77,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (FileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
-					if (!EditorLayer::LoadProject(scene, NCPath::CreatePath(res.filepath)))
+					if (!EditorLayer::loadProject(scene, CPath::Create(res.filepath)))
 					{
 						Logger::Warning("Unable to load project: %s", res.filepath.c_str());
 					}
@@ -108,7 +108,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (FileDialog::GetOpenFolderName(".", res))
 				{
-					mNewProjectPath = NCPath::CreatePath(res.filepath);
+					mNewProjectPath = CPath::Create(res.filepath);
 				}
 			}
 
@@ -119,10 +119,10 @@ namespace Cocoa
 			ImGui::SameLine();
 			if (CImGui::Button("Create"))
 			{
-				if (EditorLayer::CreateProject(scene, mNewProjectPath, mTmpFilename))
+				if (EditorLayer::createProject(scene, mNewProjectPath, mTmpFilename))
 				{
-					CocoaEditor* e = static_cast<CocoaEditor*>(Application::Get());
-					e->SetProjectLoaded();
+					CocoaEditor* e = static_cast<CocoaEditor*>(Application::get());
+					e->setProjectLoaded();
 					windowOpen = false;
 				}
 			}

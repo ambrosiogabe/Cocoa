@@ -361,10 +361,10 @@ namespace Cocoa
 					uint32 resourceId = -1;
 					JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
 
-					CPath path = NCPath::CreatePath();
+					CPath path = CPath::Create();
 					if (assetJson.contains("Filepath"))
 					{
-						path = NCPath::CreatePath(assetJson["Filepath"], false);
+						path = CPath::Create(assetJson["Filepath"], false);
 					}
 
 					if (resourceId >= 0)

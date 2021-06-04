@@ -6,17 +6,17 @@
 
 #include "cocoa/core/Application.h"
 
-extern Cocoa::Application* Cocoa::CreateApplication();
+extern Cocoa::Application* Cocoa::createApplication();
 
 int main() 
 {
-    Cocoa::Application* application = Cocoa::CreateApplication();
+    Cocoa::Application* application = Cocoa::createApplication();
 
-    application->Init();
+    application->init();
 
-    application->Run();
+    application->run();
 
-    application->Shutdown();
+    application->shutdown();
 
     delete application;
     return 0;

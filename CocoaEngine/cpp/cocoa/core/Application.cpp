@@ -2,8 +2,6 @@
 #include "cocoa/core/Core.h"
 
 #include "cocoa/core/Application.h"
-#include "cocoa/renderer/DebugDraw.h"
-#include "cocoa/core/Entity.h"
 
 namespace Cocoa
 {
@@ -15,22 +13,16 @@ namespace Cocoa
 
 	Application::Application()
 	{
-		m_Running = true;
+		mRunning = true;
 
-		std::string title = std::string("Test Window");
 		Logger::Info("Initializing GLAD functions in DLL.");
-		m_Window = CWindow::Create(1920, 1080, title);
+		m_Window = CWindow::Create(1920, 1080, "Test Window");
 		s_Instance = this;
 
-		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+		m_Window->SetEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
 	}
 
-	Application::~Application()
-	{
-
-	}
-
-	void Application::Run()
+	void Application::run()
 	{
 		if (!m_AppData.AppOnAttach) { m_AppData.AppOnAttach = AppOnAttach; }
 		if (!m_AppData.AppOnEvent) { m_AppData.AppOnEvent = AppOnEvent; }
@@ -39,16 +31,16 @@ namespace Cocoa
 
 		m_AppData.AppOnAttach(m_CurrentScene);
 
-		while (m_Running)
+		while (mRunning)
 		{
 			float time = (float)glfwGetTime();
-			float dt = time - m_LastFrameTime;
-			m_LastFrameTime = time;
+			float dt = time - mLastFrameTime;
+			mLastFrameTime = time;
 
-			BeginFrame();
+			beginFrame();
 			m_AppData.AppOnUpdate(m_CurrentScene, dt);
 			m_AppData.AppOnRender(m_CurrentScene);
-			EndFrame();
+			endFrame();
 
 			m_Window->OnUpdate();
 			m_Window->Render();
@@ -63,32 +55,32 @@ namespace Cocoa
 		m_Window->Destroy();
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	bool Application::onWindowClose(WindowCloseEvent& e)
 	{
-		m_Running = false;
+		mRunning = false;
 		return true;
 	}
 
-	void Application::OnEvent(Event& e)
+	void Application::onEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
+		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::onWindowClose, this, std::placeholders::_1));
 
 		m_AppData.AppOnEvent(m_CurrentScene, e);
 	}
 
-	void Application::Stop()
+	void Application::stop()
 	{
-		m_Running = false;
+		mRunning = false;
 	}
 
-	CWindow* Application::GetWindow() const
+	CWindow* Application::getWindow() const
 	{
 		return m_Window;
 	}
 
 	Application* Application::s_Instance = nullptr;
-	Application* Application::Get()
+	Application* Application::get()
 	{
 		if (!s_Instance)
 		{

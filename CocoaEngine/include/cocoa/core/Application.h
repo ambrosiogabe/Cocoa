@@ -41,31 +41,31 @@ namespace Cocoa
 	{
 	public:
 		Application();
-		virtual ~Application();
+		virtual ~Application() = default;
 
-		virtual void Init() {}
-		virtual void Shutdown() {}
+		virtual void init() {}
+		virtual void shutdown() {}
 
-		void Run();
-		void Stop();
+		void run();
+		void stop();
 
-		virtual void OnEvent(Event& e);
-		CWindow* GetWindow() const;
+		virtual void onEvent(Event& e);
+		CWindow* getWindow() const;
 
-		static Application* Get();
+		static Application* get();
 
 	protected:
-		virtual void BeginFrame() {}
-		virtual void EndFrame() {}
+		virtual void beginFrame() {}
+		virtual void endFrame() {}
 
 	private:
-		bool OnWindowClose(WindowCloseEvent& e);
+		bool onWindowClose(WindowCloseEvent& e);
 
 		static Application* s_Instance;
 
-		bool m_Running;
+		bool mRunning;
 
-		float m_LastFrameTime = 0;
+		float mLastFrameTime = 0;
 
 	protected:
 		SceneData m_CurrentScene;
@@ -74,5 +74,5 @@ namespace Cocoa
 	};
 
 	// To be defined in CLIENT
-	Application* CreateApplication();
+	Application* createApplication();
 }

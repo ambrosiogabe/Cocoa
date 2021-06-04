@@ -280,7 +280,7 @@ namespace Cocoa
 			res.InternalFormat = ByteFormat::None;
 			res.ExternalFormat = ByteFormat::None;
 
-			res.Path = NCPath::CreatePath();
+			res.Path = CPath::Create();
 			res.IsDefault = false;
 
 			return res;
