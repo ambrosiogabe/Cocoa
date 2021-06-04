@@ -6,7 +6,7 @@ namespace Cocoa
 {
 	namespace TransformSystem
 	{
-		COCOA void Update(SceneData& scene, float dt);
+		COCOA void update(SceneData& scene, float dt);
 		COCOA void Destroy(SceneData& scene);
 		COCOA void DeleteEntity(Entity entity);
 	}

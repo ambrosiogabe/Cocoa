@@ -143,8 +143,8 @@ namespace Cocoa
 			// 6 elments per sprite
 			data.NumUsedElements += 6;
 
-			const Sprite& sprite = spr.m_Sprite;
-			Handle<Texture> tex = sprite.m_Texture;
+			const Sprite& sprite = spr.sprite;
+			Handle<Texture> tex = sprite.texture;
 			if (!tex.IsNull())
 			{
 				if (!HasTexture(data, tex))
@@ -159,7 +159,7 @@ namespace Cocoa
 
 		void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer)
 		{
-			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.AssetId);
+			const Font& font = AssetManager::GetFont(fontRenderer.font.AssetId);
 			Handle<Texture> tex = font.m_FontTexture;
 			const Texture& texture = AssetManager::GetTexture(tex.AssetId);
 
@@ -186,16 +186,16 @@ namespace Cocoa
 			uint32 entityId = NEntity::GetID(res);
 
 			const std::string& str = fontRenderer.text;
-			float x = transform.Position.x;
-			float y = transform.Position.y;
+			float x = transform.position.x;
+			float y = transform.position.y;
 			int strLength = str.size();
 			for (int i = 0; i < strLength; i++)
 			{
 				// 6 elements per sprite
 				data.NumUsedElements += 6;
 				const CharInfo& charInfo = font.GetCharacterInfo(str[i]);
-				float scaleX = transform.Scale.x * fontRenderer.fontSize;
-				float scaleY = transform.Scale.y * fontRenderer.fontSize;
+				float scaleX = transform.scale.x * fontRenderer.fontSize;
+				float scaleY = transform.scale.y * fontRenderer.fontSize;
 				float x0 = x + (charInfo.bearingX * scaleX);
 				float y0 = y + charInfo.bearingY * scaleY;
 				float x1 = x + (charInfo.bearingX * scaleX) + (charInfo.chScaleX * scaleX);
@@ -217,9 +217,9 @@ namespace Cocoa
 				glm::vec2 quadSize = { charInfo.chScaleX * fontRenderer.fontSize, charInfo.chScaleY * fontRenderer.fontSize };
 				//glm::vec3 pos = { xPos, yPos, 0.0f };
 
-				LoadVertexProperties(data, vertices, texCoords, fontRenderer.m_Color, { 0.0f, 0.0f }, texId, 4, entityId);
+				LoadVertexProperties(data, vertices, texCoords, fontRenderer.color, { 0.0f, 0.0f }, texId, 4, entityId);
 
-				x += charInfo.advance * fontRenderer.fontSize * transform.Scale.x;
+				x += charInfo.advance * fontRenderer.fontSize * transform.scale.x;
 			}
 		}
 
@@ -281,17 +281,17 @@ namespace Cocoa
 
 		void LoadVertexProperties(RenderBatchData& data, const TransformData& transform, const SpriteRenderer& spr)
 		{
-			glm::vec4 color = spr.m_Color;
-			const Sprite& sprite = spr.m_Sprite;
-			const glm::vec2* texCoords = spr.m_Sprite.m_TexCoords;
-			float rotation = transform.EulerRotation.z;
+			glm::vec4 color = spr.color;
+			const Sprite& sprite = spr.sprite;
+			const glm::vec2* texCoords = spr.sprite.texCoords;
+			float rotation = transform.eulerRotation.z;
 
 			int texId = 0;
-			if (!sprite.m_Texture.IsNull())
+			if (!sprite.texture.IsNull())
 			{
 				for (int i = 0; i < RenderBatch::TEXTURE_SIZE; i++)
 				{
-					if (data.Textures[i] == sprite.m_Texture)
+					if (data.Textures[i] == sprite.texture)
 					{
 						texId = i + 1;
 						break;
@@ -300,7 +300,7 @@ namespace Cocoa
 			}
 
 			Entity res = NEntity::FromComponent<TransformData>(transform);
-			LoadVertexProperties(data, transform.Position, transform.Scale, texCoords, rotation, color, texId, NEntity::GetID(res));
+			LoadVertexProperties(data, transform.position, transform.scale, texCoords, rotation, color, texId, NEntity::GetID(res));
 		}
 
 		void LoadVertexProperties(

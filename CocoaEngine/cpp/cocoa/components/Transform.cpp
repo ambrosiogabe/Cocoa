@@ -9,52 +9,52 @@ namespace Cocoa
 		static TransformData Init(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation, Entity parent = NEntity::CreateNull())
 		{
 			TransformData data;
-			data.Position = position;
-			data.Scale = scale;
-			data.EulerRotation = eulerRotation;
-			data.Orientation = glm::toQuat(glm::orientate3(data.EulerRotation));
-			data.Parent = parent;
-			data.LocalPosition = glm::vec3();
-			data.LocalScale = glm::vec3(1, 1, 1);
-			data.LocalEulerRotation = glm::vec3();
+			data.position = position;
+			data.scale = scale;
+			data.eulerRotation = eulerRotation;
+			data.orientation = glm::toQuat(glm::orientate3(data.eulerRotation));
+			data.parent = parent;
+			data.localPosition = glm::vec3();
+			data.localScale = glm::vec3(1, 1, 1);
+			data.localEulerRotation = glm::vec3();
 
 			return data;
 		}
 
-		TransformData CreateTransform()
+		TransformData createTransform()
 		{
 			return Init(glm::vec3(0), glm::vec3(1), glm::vec3(0));
 		}
 
-		TransformData CreateTransform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation)
+		TransformData createTransform(glm::vec3 position, glm::vec3 scale, glm::vec3 eulerRotation)
 		{
 			return Init(position, scale, eulerRotation);
 		}
 
-		void Update(TransformData& data, float dt)
+		void update(TransformData& data, float dt)
 		{
-			if (!NEntity::IsNull(data.Parent))
+			if (!NEntity::IsNull(data.parent))
 			{
 				// TODO: This logic is probably flawed because it assumes that the parent is updated before the child
-				const TransformData& parentTransform = NEntity::GetComponent<TransformData>(data.Parent);
-				data.Position = parentTransform.Position + data.LocalPosition;
-				data.Scale = parentTransform.Scale + data.LocalScale;
-				data.EulerRotation = parentTransform.EulerRotation + data.LocalEulerRotation;
+				const TransformData& parentTransform = NEntity::GetComponent<TransformData>(data.parent);
+				data.position = parentTransform.position + data.localPosition;
+				data.scale = parentTransform.scale + data.localScale;
+				data.eulerRotation = parentTransform.eulerRotation + data.localEulerRotation;
 			}
 
-			data.ModelMatrix = glm::translate(glm::mat4(1.0f), data.Position);
-			data.ModelMatrix = data.ModelMatrix * glm::toMat4(data.Orientation);
-			data.ModelMatrix = glm::scale(data.ModelMatrix, data.Scale);
+			data.modelMatrix = glm::translate(glm::mat4(1.0f), data.position);
+			data.modelMatrix = data.modelMatrix * glm::toMat4(data.orientation);
+			data.modelMatrix = glm::scale(data.modelMatrix, data.scale);
 		}
 
-		void Serialize(json& j, Entity entity, const TransformData& transform)
+		void serialize(json& j, Entity entity, const TransformData& transform)
 		{
-			json position = CMath::Serialize("Position", transform.Position);
-			json scale = CMath::Serialize("Scale", transform.Scale);
-			json rotation = CMath::Serialize("Rotation", transform.EulerRotation);
-			json localPos = CMath::Serialize("LocalPosition", transform.LocalPosition);
-			json localScale = CMath::Serialize("LocalScale", transform.LocalScale);
-			json localRotation = CMath::Serialize("LocalRotation", transform.LocalEulerRotation);
+			json position = CMath::Serialize("Position", transform.position);
+			json scale = CMath::Serialize("Scale", transform.scale);
+			json rotation = CMath::Serialize("Rotation", transform.eulerRotation);
+			json localPos = CMath::Serialize("LocalPosition", transform.localPosition);
+			json localScale = CMath::Serialize("LocalScale", transform.localScale);
+			json localRotation = CMath::Serialize("LocalRotation", transform.localEulerRotation);
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Transform", {
@@ -62,7 +62,7 @@ namespace Cocoa
 					position,
 					scale,
 					rotation,
-					{"Parent", NEntity::GetID(transform.Parent)},
+					{"Parent", NEntity::GetID(transform.parent)},
 					localPos,
 					localScale,
 					localRotation
@@ -70,49 +70,49 @@ namespace Cocoa
 			};
 		}
 
-		void Deserialize(const json& j, Entity entity, Entity parent)
+		void deserialize(const json& j, Entity entity, Entity parent)
 		{
-			TransformData transform = CreateTransform();
-			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
-			transform.Scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
-			transform.EulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
-			transform.Parent = parent;
-			transform.LocalPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
+			TransformData transform = createTransform();
+			transform.position = CMath::DeserializeVec3(j["Transform"]["Position"]);
+			transform.scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
+			transform.eulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
+			transform.parent = parent;
+			transform.localPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
 
 			if (j["Transform"].contains("LocalScale"))
 			{
-				transform.LocalScale = CMath::DeserializeVec3(j["Transform"]["LocalScale"]);
+				transform.localScale = CMath::DeserializeVec3(j["Transform"]["LocalScale"]);
 			}
 
 			if (j["Transform"].contains("LocalRotation"))
 			{
-				transform.LocalEulerRotation = CMath::DeserializeVec3(j["Transform"]["LocalRotation"]);
+				transform.localEulerRotation = CMath::DeserializeVec3(j["Transform"]["LocalRotation"]);
 			}
 			NEntity::AddComponent<TransformData>(entity, transform);
 		}
 
-		void Serialize(json& j, const TransformData& transform)
+		void serialize(json& j, const TransformData& transform)
 		{
-			json position = CMath::Serialize("Position", transform.Position);
-			json scale = CMath::Serialize("Scale", transform.Scale);
-			json rotation = CMath::Serialize("Rotation", transform.EulerRotation);
-			json localPos = CMath::Serialize("LocalPosition", transform.LocalPosition);
+			json position = CMath::Serialize("Position", transform.position);
+			json scale = CMath::Serialize("Scale", transform.scale);
+			json rotation = CMath::Serialize("Rotation", transform.eulerRotation);
+			json localPos = CMath::Serialize("LocalPosition", transform.localPosition);
 			int size = j["Components"].size();
 			j["Transform"] = {
 				position,
 				scale,
 				rotation,
-				{"Parent", NEntity::GetID(transform.Parent)},
+				{"Parent", NEntity::GetID(transform.parent)},
 				localPos
 			};
 		}
 
-		void Deserialize(const json& j, TransformData& transform)
+		void deserialize(const json& j, TransformData& transform)
 		{
-			transform.Position = CMath::DeserializeVec3(j["Transform"]["Position"]);
-			transform.Scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
-			transform.EulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
-			transform.LocalPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
+			transform.position = CMath::DeserializeVec3(j["Transform"]["Position"]);
+			transform.scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
+			transform.eulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
+			transform.localPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
 		}
 	}
 }

@@ -28,7 +28,7 @@ namespace Cocoa
 		template<>
 		Tag DefaultConstructor<Tag>()
 		{
-			return NTag::CreateTag("Default");
+			return NTag::createTag("Default");
 		}
 	}
 

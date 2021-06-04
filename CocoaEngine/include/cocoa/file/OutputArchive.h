@@ -35,7 +35,7 @@ namespace Cocoa
 			if (info.seq() == entt::type_id<TransformData>().seq())
 			{
 				const TransformData* transform = reinterpret_cast<const TransformData*>(&component);
-				Transform::Serialize(m_Json, NEntity::CreateEntity(entity), *transform);
+				Transform::serialize(m_Json, NEntity::CreateEntity(entity), *transform);
 			} 
 			else if (info.seq() == entt::type_id<SpriteRenderer>().seq())
 			{
@@ -65,7 +65,7 @@ namespace Cocoa
 			else if (info.seq() == entt::type_id<Tag>().seq())
 			{
 				const Tag* tag = reinterpret_cast<const Tag*>(&component);
-				NTag::Serialize(m_Json, NEntity::CreateEntity(entity), *tag);
+				NTag::serialize(m_Json, NEntity::CreateEntity(entity), *tag);
 			}
 			else
 			{

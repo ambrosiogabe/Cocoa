@@ -192,13 +192,13 @@ namespace Cocoa
 			TransformData& nextTransform = NEntity::GetComponent<TransformData>(nextElement.entity);
 			ImGui::PushID(element.index);
 			ImGui::SetNextItemOpen(element.isOpen);
-			bool open = ImGui::TreeNodeEx(parentTag.Name,
+			bool open = ImGui::TreeNodeEx(parentTag.name,
 				ImGuiTreeNodeFlags_FramePadding |
 				(element.selected ? ImGuiTreeNodeFlags_Selected : 0) |
-				(nextTransform.Parent == element.entity ? 0 : ImGuiTreeNodeFlags_Leaf) |
+				(nextTransform.parent == element.entity ? 0 : ImGuiTreeNodeFlags_Leaf) |
 				ImGuiTreeNodeFlags_OpenOnArrow |
 				ImGuiTreeNodeFlags_SpanFullWidth,
-				"%s", parentTag.Name);
+				"%s", parentTag.name);
 			ImGui::PopID();
 			element.isOpen = open;
 
@@ -222,7 +222,7 @@ namespace Cocoa
 			{
 				// Set payload to carry the address of transform (could be anything)
 				ImGui::SetDragDropPayload(SCENE_HEIRARCHY_PAYLOAD, &element.index, sizeof(int));
-				ImGui::Text("%s", parentTag.Name);
+				ImGui::Text("%s", parentTag.name);
 				ImGui::EndDragDropSource();
 			}
 
@@ -261,10 +261,10 @@ namespace Cocoa
 			TransformData& childTransform = NEntity::GetComponent<TransformData>(newChild.entity);
 			TransformData& parentTransform = NEntity::GetComponent<TransformData>(parent.entity);
 
-			childTransform.Parent = parent.entity;
-			childTransform.LocalPosition = childTransform.Position - parentTransform.Position;
-			childTransform.LocalEulerRotation = childTransform.EulerRotation - parentTransform.EulerRotation;
-			childTransform.LocalScale = childTransform.Scale - parentTransform.Scale;
+			childTransform.parent = parent.entity;
+			childTransform.localPosition = childTransform.position - parentTransform.position;
+			childTransform.localEulerRotation = childTransform.eulerRotation - parentTransform.eulerRotation;
+			childTransform.localScale = childTransform.scale - parentTransform.scale;
 			UpdateLevel(newChildIndex, parent.level + 1);
 			int placeToMoveToIndex = parent.index < newChild.index ?
 				parent.index + 1 :
@@ -297,20 +297,20 @@ namespace Cocoa
 			{
 				TransformData& treeToMoveTransform = NEntity::GetComponent<TransformData>(treeToMove.entity);
 				TransformData& placeToMoveToTransform = NEntity::GetComponent<TransformData>(placeToMoveTo.entity);
-				TransformData& newParentTransform = !NEntity::IsNull(placeToMoveToTransform.Parent) ?
-					NEntity::GetComponent<TransformData>(placeToMoveToTransform.Parent) :
-					Transform::CreateTransform();
+				TransformData& newParentTransform = !NEntity::IsNull(placeToMoveToTransform.parent) ?
+					NEntity::GetComponent<TransformData>(placeToMoveToTransform.parent) :
+					Transform::createTransform();
 
 				// Check if parent is open or closed, if they are closed then we want to use their parent and level
-				if (!NEntity::IsNull(placeToMoveToTransform.Parent))
+				if (!NEntity::IsNull(placeToMoveToTransform.parent))
 				{
 					// Need to start at the root and go down until you find a closed parent and thats the correct new parent
 					// TODO: Not sure if this is the actual root of the problem
 				}
 
 				UpdateLevel(treeToMove.index, placeToMoveTo.level);
-				treeToMoveTransform.Parent = placeToMoveToTransform.Parent;
-				treeToMoveTransform.LocalPosition = treeToMoveTransform.Position - newParentTransform.Position;
+				treeToMoveTransform.parent = placeToMoveToTransform.parent;
+				treeToMoveTransform.localPosition = treeToMoveTransform.position - newParentTransform.position;
 			}
 
 			// Temporarily copy the tree we are about to move
@@ -516,13 +516,13 @@ namespace Cocoa
 		{
 			TransformData& childTransform = NEntity::GetComponent<TransformData>(childEntity);
 			Tag& childTag = NEntity::GetComponent<Tag>(childEntity);
-			if (childTransform.Parent == parentEntity || childEntity == parentEntity)
+			if (childTransform.parent == parentEntity || childEntity == parentEntity)
 			{
 				return true;
 			}
-			else if (!NEntity::IsNull(childTransform.Parent))
+			else if (!NEntity::IsNull(childTransform.parent))
 			{
-				return IsDescendantOf(childTransform.Parent, parentEntity);
+				return IsDescendantOf(childTransform.parent, parentEntity);
 			}
 			return false;
 		}

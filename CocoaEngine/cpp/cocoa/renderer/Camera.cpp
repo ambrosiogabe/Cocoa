@@ -65,27 +65,27 @@ namespace Cocoa
 		{
 			const TransformData& transform = NEntity::GetComponent<TransformData>(entity);
 			glm::vec3 cameraForward;
-			cameraForward.x = glm::cos(glm::radians(transform.EulerRotation.y)) * glm::cos(glm::radians(transform.EulerRotation.x));
-			cameraForward.y = glm::sin(glm::radians(transform.EulerRotation.x));
-			cameraForward.z = glm::sin(glm::radians(transform.EulerRotation.y)) * glm::cos(glm::radians(transform.EulerRotation.x));
+			cameraForward.x = glm::cos(glm::radians(transform.eulerRotation.y)) * glm::cos(glm::radians(transform.eulerRotation.x));
+			cameraForward.y = glm::sin(glm::radians(transform.eulerRotation.x));
+			cameraForward.z = glm::sin(glm::radians(transform.eulerRotation.y)) * glm::cos(glm::radians(transform.eulerRotation.x));
 			cameraForward = glm::normalize(cameraForward);
 
 			glm::vec3 cameraRight = glm::cross(cameraForward, glm::vec3(1, 0, 0));
 			glm::vec3 cameraUp = glm::cross(cameraRight, cameraForward);
 
-			glm::vec3 front = glm::vec3(transform.Position.x, transform.Position.y, transform.Position.z) + cameraForward;
+			glm::vec3 front = glm::vec3(transform.position.x, transform.position.y, transform.position.z) + cameraForward;
 
-			camera.ViewMatrix = glm::lookAt(transform.Position, front, cameraUp);
+			camera.ViewMatrix = glm::lookAt(transform.position, front, cameraUp);
 			camera.InverseView = glm::inverse(camera.ViewMatrix);
 		}
 
 		void CalculateOrthoViewMatrix(Entity entity, Camera& camera)
 		{
 			const TransformData& transform = NEntity::GetComponent<TransformData>(entity);
-			glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(transform.Position.x, transform.Position.y, 0.0f);
+			glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(transform.position.x, transform.position.y, 0.0f);
 			glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
 
-			camera.ViewMatrix = glm::lookAt(glm::vec3(transform.Position.x, transform.Position.y, 20), cameraFront, cameraUp);
+			camera.ViewMatrix = glm::lookAt(glm::vec3(transform.position.x, transform.position.y, 20), cameraFront, cameraUp);
 			camera.InverseView = glm::inverse(camera.ViewMatrix);
 		}
 

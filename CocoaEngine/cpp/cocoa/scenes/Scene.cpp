@@ -69,7 +69,7 @@ namespace Cocoa
 
 		void Update(SceneData& data, float dt)
 		{
-			TransformSystem::Update(data, dt);
+			TransformSystem::update(data, dt);
 			Physics2D::Update(data, dt);
 			ScriptSystem::Update(data, dt);
 			CameraSystem::Update(data, dt);
@@ -79,7 +79,7 @@ namespace Cocoa
 		{
 			// There are certain systems that use the same update loop for the editor and the actual game, so there's no 
 			// sense in creating a unique update loop if the logic is the same (TransformSystem, and NCamera are examples of this)
-			TransformSystem::Update(data, dt);
+			TransformSystem::update(data, dt);
 			ScriptSystem::EditorUpdate(data, dt);
 			CameraSystem::Update(data, dt);
 		}
@@ -136,7 +136,7 @@ namespace Cocoa
 			// Only serialize if we can
 			if (NEntity::HasComponent<TransformData>(entity))
 			{
-				Transform::Serialize(*j, entity, NEntity::GetComponent<TransformData>(entity));
+				Transform::serialize(*j, entity, NEntity::GetComponent<TransformData>(entity));
 			}
 			if (NEntity::HasComponent<SpriteRenderer>(entity))
 			{
@@ -160,7 +160,7 @@ namespace Cocoa
 			}
 			if (NEntity::HasComponent<Tag>(entity))
 			{
-				NTag::Serialize(*j, entity, NEntity::GetComponent<Tag>(entity));
+				NTag::serialize(*j, entity, NEntity::GetComponent<Tag>(entity));
 			}
 			if (NEntity::HasComponent<Camera>(entity))
 			{
@@ -200,7 +200,7 @@ namespace Cocoa
 				{
 					Entity entity = FindOrCreateEntity(component["Transform"]["Entity"], scene, scene.Registry);
 					Entity parentEntity = FindOrCreateEntity(component["Transform"]["Parent"], scene, scene.Registry);
-					Transform::Deserialize(component, entity, parentEntity);
+					Transform::deserialize(component, entity, parentEntity);
 				}
 				else if (it.key() == "Rigidbody2D")
 				{
@@ -220,7 +220,7 @@ namespace Cocoa
 				else if (it.key() == "Tag")
 				{
 					Entity entity = FindOrCreateEntity(component["Tag"]["Entity"], scene, scene.Registry);
-					NTag::Deserialize(component, entity);
+					NTag::deserialize(component, entity);
 				}
 				else if (it.key() == "Camera")
 				{
@@ -330,9 +330,9 @@ namespace Cocoa
 			entt::entity e = data.Registry.create();
 			Entity entity = Entity{ e };
 			// TODO: Make transform's optional with entities
-			TransformData defaultTransform = Transform::CreateTransform();
+			TransformData defaultTransform = Transform::createTransform();
 			NEntity::AddComponent<TransformData>(entity, defaultTransform);
-			NEntity::AddComponent<Tag>(entity, NTag::CreateTag("New Entity"));
+			NEntity::AddComponent<Tag>(entity, NTag::createTag("New Entity"));
 			return entity;
 		}
 
@@ -363,9 +363,9 @@ namespace Cocoa
 			if (NEntity::HasComponent<Tag>(entity))
 			{
 				Tag& tag = NEntity::GetComponent<Tag>(entity);
-				char* newTagName = (char*)AllocMem((tag.Size + 1) * sizeof(char));
-				memcpy(newTagName, tag.Name, (tag.Size + 1) * sizeof(char));
-				NEntity::AddComponent<Tag>(newEntity, NTag::CreateTag(newTagName, true));
+				char* newTagName = (char*)AllocMem((tag.size + 1) * sizeof(char));
+				memcpy(newTagName, tag.name, (tag.size + 1) * sizeof(char));
+				NEntity::AddComponent<Tag>(newEntity, NTag::createTag(newTagName, true));
 			}
 
 			return newEntity;
@@ -399,7 +399,7 @@ namespace Cocoa
 			{
 				Entity potentialChild = NEntity::CreateEntity(rawEntity);
 				TransformData& transformData = NEntity::GetComponent<TransformData>(potentialChild);
-				if (transformData.Parent == entity)
+				if (transformData.parent == entity)
 				{
 					DeleteEntity(scene, potentialChild);
 				}

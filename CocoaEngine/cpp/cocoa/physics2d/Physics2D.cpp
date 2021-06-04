@@ -55,8 +55,8 @@ namespace Cocoa
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 
 				b2BodyDef bodyDef;
-				bodyDef.position.Set(transform.Position.x, transform.Position.y);
-				bodyDef.angle = CMath::ToRadians(transform.EulerRotation.z);
+				bodyDef.position.Set(transform.position.x, transform.position.y);
+				bodyDef.angle = CMath::ToRadians(transform.eulerRotation.z);
 				bodyDef.angularDamping = rb.m_AngularDamping;
 				bodyDef.linearDamping = rb.m_LinearDamping;
 				bodyDef.fixedRotation = rb.m_FixedRotation;
@@ -86,9 +86,9 @@ namespace Cocoa
 				if (NEntity::HasComponent<Box2D>(entity))
 				{
 					Box2D& box = NEntity::GetComponent<Box2D>(entity);
-					shape.SetAsBox(box.m_HalfSize.x * transform.Scale.x, box.m_HalfSize.y * transform.Scale.y);
+					shape.SetAsBox(box.m_HalfSize.x * transform.scale.x, box.m_HalfSize.y * transform.scale.y);
 					b2Vec2 pos = bodyDef.position;
-					bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.Scale.x, pos.y - box.m_HalfSize.y * transform.Scale.y);
+					bodyDef.position.Set(pos.x - box.m_HalfSize.x * transform.scale.x, pos.y - box.m_HalfSize.y * transform.scale.y);
 				}
 				else if (NEntity::HasComponent<Circle>(entity))
 				{
@@ -144,9 +144,9 @@ namespace Cocoa
 				Rigidbody2D& rb = NEntity::GetComponent<Rigidbody2D>(entity);
 				b2Body* body = static_cast<b2Body*>(rb.m_RawRigidbody);
 				b2Vec2 position = body->GetPosition();
-				transform.Position.x = position.x;
-				transform.Position.y = position.y;
-				transform.EulerRotation.z = CMath::ToDegrees(body->GetAngle());
+				transform.position.x = position.x;
+				transform.position.y = position.y;
+				transform.eulerRotation.z = CMath::ToDegrees(body->GetAngle());
 			}
 		}
 

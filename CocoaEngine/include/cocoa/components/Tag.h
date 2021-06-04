@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_TAG_H
+#define COCOA_ENGINE_TAG_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 #include "cocoa/core/Entity.h"
@@ -7,17 +8,19 @@ namespace Cocoa
 {
 	struct Tag
 	{
-		const char* Name;
-		int Size;
-		bool IsHeapAllocated;
+		const char* name;
+		int size;
+		bool isHeapAllocated;
 	};
 
 	namespace NTag
 	{
-		COCOA Tag CreateTag(const char* name, bool isHeapAllocated = false);
-		COCOA void Destroy(Tag& tag);
+		COCOA Tag createTag(const char* name, bool isHeapAllocated = false);
+		COCOA void destroy(Tag& tag);
 
-		COCOA void Serialize(json& j, Entity entity, const Tag& transform);
-		COCOA void Deserialize(const json& j, Entity entity);
+		COCOA void serialize(json& j, Entity entity, const Tag& transform);
+		COCOA void deserialize(const json& j, Entity entity);
 	}
 }
+
+#endif

@@ -198,8 +198,8 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader("Tag"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				Logger::Assert(tag.Size < STRING_BUFFER_MAX, "Entity Name only supports text sizes up to 100 characters.");
-				strcpy(StringBuffer, tag.Name);
+				Logger::Assert(tag.size < STRING_BUFFER_MAX, "Entity Name only supports text sizes up to 100 characters.");
+				strcpy(StringBuffer, tag.name);
 				if (CImGui::InputText("Entity Name: ", StringBuffer, sizeof(StringBuffer)))
 				{
 					int newTextSize = strlen(StringBuffer);
@@ -207,17 +207,17 @@ namespace Cocoa
 					// We keep it as char* until we the new string over the pointer, then we assign a new immutable 
 					// const char* to the tag
 					char* newTagName = nullptr;
-					if (tag.IsHeapAllocated)
+					if (tag.isHeapAllocated)
 					{
-						newTagName = (char*)ReallocMem((void*)tag.Name, sizeof(char) * newTextSizeWithNullChar);
+						newTagName = (char*)ReallocMem((void*)tag.name, sizeof(char) * newTextSizeWithNullChar);
 					}
 					else
 					{
 						newTagName = (char*)AllocMem(sizeof(char) * newTextSizeWithNullChar);
-						tag.IsHeapAllocated = true;
+						tag.isHeapAllocated = true;
 					}
 					strcpy(newTagName, StringBuffer);
-					tag.Name = newTagName;
+					tag.name = newTagName;
 				}
 				CImGui::EndCollapsingHeaderGroup();
 			}
@@ -229,9 +229,9 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragFloat3("Position: ", transform.Position);
-				CImGui::UndoableDragFloat3("Scale: ", transform.Scale);
-				CImGui::UndoableDragFloat3("Rotation: ", transform.EulerRotation);
+				CImGui::UndoableDragFloat3("Position: ", transform.position);
+				CImGui::UndoableDragFloat3("Scale: ", transform.scale);
+				CImGui::UndoableDragFloat3("Rotation: ", transform.eulerRotation);
 				CImGui::EndCollapsingHeaderGroup();
 			}
 		}
@@ -246,12 +246,12 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader("Sprite Renderer"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragInt("Z-Index: ", spr.m_ZIndex);
-				CImGui::UndoableColorEdit4("Sprite Color: ", spr.m_Color);
+				CImGui::UndoableDragInt("Z-Index: ", spr.zIndex);
+				CImGui::UndoableColorEdit4("Sprite Color: ", spr.color);
 
-				if (spr.m_Sprite.m_Texture)
+				if (spr.sprite.texture)
 				{
-					const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.AssetId);
+					const Texture& tex = AssetManager::GetTexture(spr.sprite.texture.AssetId);
 					CImGui::InputText("##SpriteRendererTexture", (char*)tex.Path.Filename(),
 						tex.Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
@@ -265,7 +265,7 @@ namespace Cocoa
 					{
 						IM_ASSERT(payload->DataSize == sizeof(int));
 						int textureResourceId = *(const int*)payload->Data;
-						spr.m_Sprite.m_Texture = NHandle::CreateHandle<Texture>(textureResourceId);
+						spr.sprite.texture = NHandle::CreateHandle<Texture>(textureResourceId);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -280,8 +280,8 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader("Font Renderer"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragInt("Z-Index: ##fonts", fontRenderer.m_ZIndex);
-				CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.m_Color);
+				CImGui::UndoableDragInt("Z-Index: ##fonts", fontRenderer.zIndex);
+				CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.color);
 				CImGui::UndoableDragInt("Font Size: ", fontRenderer.fontSize);
 
 				Logger::Assert(fontRenderer.text.size() < STRING_BUFFER_MAX, "Font Renderer only supports text sizes up to 100 characters.");
@@ -291,9 +291,9 @@ namespace Cocoa
 					fontRenderer.text = StringBuffer;
 				}
 
-				if (fontRenderer.m_Font)
+				if (fontRenderer.font)
 				{
-					const Font& font = AssetManager::GetFont(fontRenderer.m_Font.AssetId);
+					const Font& font = AssetManager::GetFont(fontRenderer.font.AssetId);
 					CImGui::InputText("##FontRendererTexture", (char*)font.m_Path.Filename(),
 						font.m_Path.FilenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
@@ -307,7 +307,7 @@ namespace Cocoa
 					{
 						IM_ASSERT(payload->DataSize == sizeof(int));
 						int fontResourceId = *(const int*)payload->Data;
-						fontRenderer.m_Font = NHandle::CreateHandle<Font>(fontResourceId);
+						fontRenderer.font = NHandle::CreateHandle<Font>(fontResourceId);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -389,7 +389,7 @@ namespace Cocoa
 
 			// Draw box highlight
 			const TransformData& transform = NEntity::GetComponent<TransformData>(ActiveEntities[0]);
-			DebugDraw::AddBox2D(CMath::Vector2From3(transform.Position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.Scale), transform.EulerRotation.z);
+			DebugDraw::AddBox2D(CMath::Vector2From3(transform.position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.scale), transform.eulerRotation.z);
 		}
 
 		static void ImGuiCircle(Circle& circle)

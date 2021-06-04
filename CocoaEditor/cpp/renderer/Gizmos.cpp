@@ -153,14 +153,14 @@ namespace Cocoa
 				newPos = startToMouse + originalDragClickPos - mouseOffset;
 			}
 
-			if (NEntity::IsNull(transform.Parent))
+			if (NEntity::IsNull(transform.parent))
 			{
-				CommandHistory::addCommand(new ChangeVec3Command(transform.Position, newPos));
+				CommandHistory::addCommand(new ChangeVec3Command(transform.position, newPos));
 			}
 			else
 			{
-				glm::vec3 newRelPos = (newPos - transform.Position) + transform.LocalPosition;
-				CommandHistory::addCommand(new ChangeVec3Command(transform.LocalPosition, newRelPos));
+				glm::vec3 newRelPos = (newPos - transform.position) + transform.localPosition;
+				CommandHistory::addCommand(new ChangeVec3Command(transform.localPosition, newRelPos));
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Cocoa
 				delta = glm::vec3(delta.x, 0, 0);
 			}
 
-			CommandHistory::addCommand(new ChangeVec3Command(transform.Scale, originalScale + delta));
+			CommandHistory::addCommand(new ChangeVec3Command(transform.scale, originalScale + delta));
 		}
 	}
 
@@ -222,7 +222,7 @@ namespace Cocoa
 			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
 			gizmoTexPath.Join(CPath::Create("images/gizmos.png"));
 			m_GizmoTexture = AssetManager::GetTexture(gizmoTexPath);
-			m_GizmoSpritesheet = NSpritesheet::CreateSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
+			m_GizmoSpritesheet = NSpritesheet::createSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
 
 			glm::vec3 redColor = { 227.0f / 255.0f, 68.0f / 255.0f, 68.0f / 255.0f };
 			glm::vec3 greenColor = { 68.0f / 255.0f, 227.0f / 255.0f, 68.0f / 255.0f };
@@ -311,7 +311,7 @@ namespace Cocoa
 				{
 					GizmoData& gizmo = Gizmos[i];
 					float cameraZoom = camera.Zoom * 2;
-					gizmo.Position = entityTransform.Position + gizmo.Offset * cameraZoom;
+					gizmo.Position = entityTransform.position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = CMath::Vector3From2(gizmo.Position);
 
 					// Uncomment me to visualize the gizmo box bounds
@@ -414,8 +414,8 @@ namespace Cocoa
 					const TransformData& transform = NEntity::GetComponent<TransformData>(selectedEntity);
 					m_ActiveGizmo = m_HotGizmo;
 					m_MouseDragging = true;
-					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.Position;
-					m_OriginalScale = transform.Scale;
+					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.position;
+					m_OriginalScale = transform.scale;
 				}
 				else
 				{

@@ -162,7 +162,7 @@ namespace Cocoa
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				// TODO: Make this an editor setting
 				static const float sharpness = 15.0f;
-				cameraTransform.Position = lerp(cameraTransform.Position, cameraTransform.Position + delta, dt * sharpness);
+				cameraTransform.position = lerp(cameraTransform.position, cameraTransform.position + delta, dt * sharpness);
 			}
 
 			// Draw grid lines
@@ -174,8 +174,8 @@ namespace Cocoa
 				float projectionWidth = camera.ProjectionSize.x;
 				float projectionHeight = camera.ProjectionSize.y;
 
-				float firstX = (float)(((int)(cameraTransform.Position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
-				float firstY = (float)(((int)(cameraTransform.Position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
+				float firstX = (float)(((int)(cameraTransform.position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
+				float firstY = (float)(((int)(cameraTransform.position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
 
 				int yLinesNeeded = (int)((cameraZoom * projectionWidth + gridWidth) / gridWidth);
 				int xLinesNeeded = (int)((cameraZoom * projectionHeight + gridHeight) / gridHeight);
@@ -336,7 +336,7 @@ namespace Cocoa
 				m_IsDragging = true;
 				const Camera& camera = NEntity::GetComponent<Camera>(m_CameraEntity);
 				const TransformData& transform = NEntity::GetComponent<TransformData>(m_CameraEntity);
-				m_OriginalCameraPos = transform.Position;
+				m_OriginalCameraPos = transform.position;
 				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
 			}
 
