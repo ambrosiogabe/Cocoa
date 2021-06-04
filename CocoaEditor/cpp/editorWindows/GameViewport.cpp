@@ -49,7 +49,7 @@ namespace Cocoa
 			int i = 0;
 			for (auto& rawEntity : view)
 			{
-				Log::Assert(i == 0, "Game viewport does not support multiple cameras yet.");
+				Logger::Assert(i == 0, "Game viewport does not support multiple cameras yet.");
 				const Camera& camera = scene.Registry.get<Camera>(rawEntity);
 				uint32 texId = NFramebuffer::GetColorAttachment(camera.Framebuffer, 0).GraphicsId;
 				ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));

@@ -2,7 +2,6 @@
 #ifdef _WIN32
 #include "cocoa/file/FileDialog.h"
 #include "cocoa/core/Application.h"
-#include "cocoa/util/Log.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -168,7 +167,7 @@ namespace Cocoa
 						{
 							wcstombs(ResultBuffer, g_path, 256);
 							fileResult.filepath = std::string(ResultBuffer);
-							Log::Info("Selected folder: %s", fileResult.filepath.c_str());
+							Logger::Info("Selected folder: %s", fileResult.filepath.c_str());
 						}
 						psi->Release();
 					}

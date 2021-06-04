@@ -2,7 +2,6 @@
 #include "externalLibs.h"
 
 #include "cocoa/core/Core.h"
-#include "cocoa/util/Log.h"
 
 namespace Cocoa
 {

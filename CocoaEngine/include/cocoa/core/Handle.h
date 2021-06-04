@@ -4,30 +4,19 @@
 
 namespace Cocoa
 {
-	class AssetManager;
+	namespace NHandle
+	{
+		const uint32 NULL_ID = UINT32_MAX;
+	}
 
 	template<typename T>
-	class COCOA Handle
+	struct Handle
 	{
-	public:
-		Handle()
-		{
-			m_AssetId = m_NullId;
-		}
-
-		Handle(uint32 id)
-		{
-			m_AssetId = id;
-		}
-
-		Handle(const Handle& other)
-		{
-			m_AssetId = other.m_AssetId;
-		}
+		uint32 AssetId;
 
 		inline bool operator==(Handle other) const
 		{
-			return m_AssetId == other.m_AssetId;
+			return AssetId == other.AssetId;
 		}
 
 		inline bool operator!=(Handle other) const
@@ -42,13 +31,26 @@ namespace Cocoa
 
 		inline bool IsNull() const
 		{
-			return m_AssetId == m_NullId;
+			return AssetId == NHandle::NULL_ID;
+		}
+	};
+
+	namespace NHandle
+	{
+		template<typename T>
+		Handle<T> CreateHandle()
+		{
+			return Handle<T> {
+				NULL_ID
+			};
 		}
 
-	public:
-		uint32 m_AssetId;
-
-	private:
-		uint32 m_NullId = -1;
-	};
+		template<typename T>
+		Handle<T> CreateHandle(uint32 id)
+		{
+			return Handle<T> {
+				id
+			};
+		}
+	}
 }

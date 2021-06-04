@@ -1,5 +1,4 @@
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/file/File.h"
 #include "cocoa/util/JsonExtended.h"
@@ -36,12 +35,12 @@ namespace Cocoa
 		{
 			if (shader.Filepath == path)
 			{
-				return Handle<Shader>(i);
+				return NHandle::CreateHandle<Shader>(i);
 			}
 			i++;
 		}
 
-		return Handle<Shader>();
+		return NHandle::CreateHandle<Shader>();
 	}
 
 	Handle<Shader> AssetManager::LoadShaderFromFile(const CPath& path, bool isDefault, int id)
@@ -49,7 +48,7 @@ namespace Cocoa
 		Handle<Shader> shader = GetShader(path);
 		if (!shader.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
+			Logger::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
 			return shader;
 		}
 
@@ -65,19 +64,19 @@ namespace Cocoa
 		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 		else
 		{
-			Log::Assert(index < s_Shaders.size(), "Id must be smaller then shader size.");
-			Log::Assert(NShader::IsNull(s_Shaders[index]), "Texture slot must be free to place a texture at the specified id.");
+			Logger::Assert(index < s_Shaders.size(), "Id must be smaller then shader size.");
+			Logger::Assert(NShader::IsNull(s_Shaders[index]), "Texture slot must be free to place a texture at the specified id.");
 			if (NShader::IsNull(s_Shaders[index]))
 			{
 				s_Shaders[index] = NShader::CreateShader(absPath, isDefault);
 			}
 			else
 			{
-				Log::Error("Could not place shader at requested id. The slot is already taken.");
+				Logger::Error("Could not place shader at requested id. The slot is already taken.");
 			}
 		}
 
-		return Handle<Shader>(index);
+		return NHandle::CreateHandle<Shader>(index);
 	}
 
 	const Texture& AssetManager::GetTexture(uint32 resourceId)
@@ -97,12 +96,12 @@ namespace Cocoa
 		{
 			if (tex.Path == path)
 			{
-				return Handle<Texture>(i);
+				return NHandle::CreateHandle<Texture>(i);
 			}
 			i++;
 		}
 
-		return Handle<Texture>();
+		return NHandle::CreateHandle<Texture>();
 	}
 
 	Handle<Texture> AssetManager::LoadTextureFromJson(const json& j, bool isDefault, int id)
@@ -113,7 +112,7 @@ namespace Cocoa
 		Handle<Texture> textureHandle = GetTexture(texture.Path);
 		if (!textureHandle.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Path.c_str());
+			Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Path.c_str());
 			return textureHandle;
 		}
 
@@ -132,19 +131,19 @@ namespace Cocoa
 		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
 		else
 		{
-			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
-			Log::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
+			Logger::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
+			Logger::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
 			if (TextureUtil::IsNull(s_Textures[index]))
 			{
 				s_Textures[index] = texture;
 			}
 			else
 			{
-				Log::Error("Could not place texture at requested id. The slot is already taken.");
+				Logger::Error("Could not place texture at requested id. The slot is already taken.");
 			}
 		}
 
-		return Handle<Texture>(index);
+		return NHandle::CreateHandle<Texture>(index);
 	}
 
 	Handle<Texture> AssetManager::LoadTextureFromFile(Texture& texture, const CPath& path, int id)
@@ -152,7 +151,7 @@ namespace Cocoa
 		Handle<Texture> textureHandle = GetTexture(path);
 		if (!textureHandle.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
+			Logger::Warning("Tried to load asset that has already been loaded '%s'", path.Path.c_str());
 			return textureHandle;
 		}
 
@@ -170,19 +169,19 @@ namespace Cocoa
 		// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 		else
 		{
-			Log::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
-			Log::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
+			Logger::Assert(index < s_Textures.size(), "Id must be smaller then texture size.");
+			Logger::Assert(TextureUtil::IsNull(s_Textures[index]), "Texture slot must be free to place a texture at the specified id.");
 			if (TextureUtil::IsNull(s_Textures[index]))
 			{
 				s_Textures[index] = texture;
 			}
 			else
 			{
-				Log::Error("Could not place texture at requested id. The slot is already taken.");
+				Logger::Error("Could not place texture at requested id. The slot is already taken.");
 			}
 		}
 
-		return Handle<Texture>(index);
+		return NHandle::CreateHandle<Texture>(index);
 	}
 
 	const Font& AssetManager::GetFont(uint32 resourceId)
@@ -202,12 +201,12 @@ namespace Cocoa
 		{
 			if (font.m_Path == path)
 			{
-				return Handle<Font>(i);
+				return NHandle::CreateHandle<Font>(i);
 			}
 			i++;
 		}
 
-		return Handle<Font>();
+		return NHandle::CreateHandle<Font>();
 	}
 
 	Handle<Font> AssetManager::LoadFontFromJson(const CPath& path, const json& j, bool isDefault, int id)
@@ -215,7 +214,7 @@ namespace Cocoa
 		Handle<Font> font = GetFont(path);
 		if (!font.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'.", path.Path.c_str());
+			Logger::Warning("Tried to load asset that has already been loaded '%s'.", path.Path.c_str());
 			return font;
 		}
 
@@ -231,21 +230,21 @@ namespace Cocoa
 		// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
 		else
 		{
-			Log::Assert(index < s_Fonts.size(), "Id must be smaller then texture size.");
-			Log::Assert(s_Fonts[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
+			Logger::Assert(index < s_Fonts.size(), "Id must be smaller then texture size.");
+			Logger::Assert(s_Fonts[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
 			if (s_Fonts[index].IsNull())
 			{
 				s_Fonts[index] = Font{ absPath, isDefault };
 			}
 			else
 			{
-				Log::Error("Could not place font at requested id. The slot is already taken.");
+				Logger::Error("Could not place font at requested id. The slot is already taken.");
 			}
 		}
 
 		Font& newFont = s_Fonts.at(index);
 		newFont.Deserialize(j);
-		return Handle<Font>(index);
+		return NHandle::CreateHandle<Font>(index);
 	}
 
 	Handle<Font> AssetManager::LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
@@ -253,7 +252,7 @@ namespace Cocoa
 		Handle<Font> font = GetFont(fontFile);
 		if (!font.IsNull())
 		{
-			Log::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Path.c_str());
+			Logger::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Path.c_str());
 			return font;
 		}
 
@@ -272,7 +271,7 @@ namespace Cocoa
 		fontTexSpec.WrapT = WrapMode::Repeat;
 		newFont.m_FontTexture = AssetManager::LoadTextureFromFile(fontTexSpec, outputFile);
 
-		return Handle<Font>(index);
+		return NHandle::CreateHandle<Font>(index);
 	}
 
 	json AssetManager::Serialize()

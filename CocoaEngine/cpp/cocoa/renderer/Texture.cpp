@@ -1,7 +1,6 @@
 #include "externalLibs.h"
 
 #include "cocoa/renderer/Texture.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/util/JsonExtended.h"
 #include "cocoa/core/AssetManager.h"
 
@@ -22,7 +21,7 @@ namespace Cocoa
 			case WrapMode::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glWrapMode '%d'", wrapMode);
+				Logger::Warning("Unknown glWrapMode '%d'", wrapMode);
 			}
 
 			return GL_NONE;
@@ -39,7 +38,7 @@ namespace Cocoa
 			case FilterMode::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glFilterMode '%d'", filterMode);
+				Logger::Warning("Unknown glFilterMode '%d'", filterMode);
 			}
 
 			return GL_NONE;
@@ -66,7 +65,7 @@ namespace Cocoa
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'", format);
 			}
 
 			return GL_NONE;
@@ -91,7 +90,7 @@ namespace Cocoa
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'", format);
 			}
 
 			return GL_NONE;
@@ -116,7 +115,7 @@ namespace Cocoa
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'", format);
 			}
 
 			return false;
@@ -141,7 +140,7 @@ namespace Cocoa
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Log::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'", format);
 			}
 
 			return false;
@@ -172,7 +171,7 @@ namespace Cocoa
 			int channels;
 
 			unsigned char* pixels = stbi_load(path.Path.c_str(), &texture.Width, &texture.Height, &channels, 0);
-			Log::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Path.c_str(), stbi_failure_reason());
+			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Path.c_str(), stbi_failure_reason());
 
 			int bytesPerPixel = channels;
 			if (bytesPerPixel == 4)
@@ -187,7 +186,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Warning("Unknown number of channels '%d' in image '%s'.", path.Path.c_str(), channels);
+				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.Path.c_str(), channels);
 				return;
 			}
 
@@ -198,7 +197,7 @@ namespace Cocoa
 
 			uint32 internalFormat = ToGl(texture.InternalFormat);
 			uint32 externalFormat = ToGl(texture.ExternalFormat);
-			Log::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Path.c_str());
+			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Path.c_str());
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
 
 			stbi_image_free(pixels);
@@ -206,8 +205,8 @@ namespace Cocoa
 
 		void Generate(Texture& texture)
 		{
-			Log::Assert(texture.InternalFormat != ByteFormat::None, "Cannot generate texture without internal format.");
-			Log::Assert(texture.ExternalFormat != ByteFormat::None, "Cannot generate texture without external format.");
+			Logger::Assert(texture.InternalFormat != ByteFormat::None, "Cannot generate texture without internal format.");
+			Logger::Assert(texture.ExternalFormat != ByteFormat::None, "Cannot generate texture without external format.");
 			glGenTextures(1, &texture.GraphicsId);
 			glBindTexture(GL_TEXTURE_2D, texture.GraphicsId);
 

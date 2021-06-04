@@ -96,7 +96,7 @@ namespace Cocoa
 
 		void FreeResources(SceneData& data)
 		{
-			Log::Log("Freeing scene resources");
+			Logger::Log("Freeing scene resources"); 
 			AssetManager::Clear();
 
 			TransformSystem::Destroy(data);
@@ -131,7 +131,7 @@ namespace Cocoa
 
 		void SerializeEntity(json* j, Entity entity)
 		{
-			Log::Assert(j->contains("Components"), "Cannot deserialize entity in json object that does not have components array");
+			Logger::Assert(j->contains("Components"), "Cannot deserialize entity in json object that does not have components array");
 
 			// Only serialize if we can
 			if (NEntity::HasComponent<TransformData>(entity))
@@ -172,7 +172,7 @@ namespace Cocoa
 		{
 			if (!j.contains("Components"))
 			{
-				Log::Warning("Tried to deserialize entities on json that did not contain any valid entities.");
+				Logger::Warning("Tried to deserialize entities on json that did not contain any valid entities.");
 			}
 
 			int size = !j.contains("Components") ? 0 : j["Components"].size();
@@ -180,7 +180,7 @@ namespace Cocoa
 			{
 				if (!j["Components"][i].is_object())
 				{
-					Log::Warning("Skipped array element when deserializing entities because it was not a valid json object.");
+					Logger::Warning("Skipped array element when deserializing entities because it was not a valid json object.");
 					continue;
 				}
 
@@ -237,7 +237,7 @@ namespace Cocoa
 
 		void Save(SceneData& data, const CPath& filename)
 		{
-			Log::Log("Saving scene '%s'", filename.Path.c_str());
+			Logger::Log("Saving scene '%s'", filename.Path.c_str());
 			data.SaveDataJson = {
 				{"Components", {}},
 				{"Project", Settings::General::s_CurrentProject.Path.c_str()},
@@ -263,7 +263,7 @@ namespace Cocoa
 
 		void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene)
 		{
-			Log::Log("Loading scene %s", filename.Path.c_str());
+			Logger::Log("Loading scene %s", filename.Path.c_str());
 			Init(data);
 
 			if (setAsCurrentScene)
@@ -306,7 +306,7 @@ namespace Cocoa
 				return;
 			}
 
-			Log::Info("Loading scripts only for %s", filename.Path.c_str());
+			Logger::Info("Loading scripts only for %s", filename.Path.c_str());
 			json j = json::parse(file->m_Data);
 			int size = !j.contains("Components") ? 0 : j["Components"].size();
 			for (int i = 0; i < size; i++)

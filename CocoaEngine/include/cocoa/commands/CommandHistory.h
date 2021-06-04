@@ -1,6 +1,5 @@
 #pragma once
 #include "cocoa/commands/ICommand.h"
-#include "cocoa/util/Log.h"
 
 namespace Cocoa {
     class COCOA CommandHistory {

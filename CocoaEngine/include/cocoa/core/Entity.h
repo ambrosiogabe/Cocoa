@@ -2,7 +2,6 @@
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "cocoa/util/Log.h"
 #include "cocoa/scenes/SceneData.h"
 #include "cocoa/core/EntityStruct.h"
 
@@ -41,7 +40,7 @@ namespace Cocoa
 		template<typename T, typename ... Args>
 		T& AddComponent(Entity entity, Args&&... args)
 		{
-			Log::Assert(!HasComponent<T>(entity), "Entity already has component.");
+			Logger::Assert(!HasComponent<T>(entity), "Entity already has component.");
 			SceneData* scene = GetScene();
 			return scene->Registry.emplace<T>(entity.Handle, std::forward<Args>(args)...);
 		}
@@ -49,7 +48,7 @@ namespace Cocoa
 		template<typename T>
 		T& GetComponent(Entity entity)
 		{
-			Log::Assert(HasComponent<T>(entity), "Entity does not have component.");
+			Logger::Assert(HasComponent<T>(entity), "Entity does not have component.");
 			SceneData* scene = GetScene();
 			return scene->Registry.get<T>(entity.Handle);
 		}
@@ -57,7 +56,7 @@ namespace Cocoa
 		template<typename T>
 		void RemoveComponent(Entity entity)
 		{
-			Log::Assert(HasComponent<T>(entity), "Entity does not have component.");
+			Logger::Assert(HasComponent<T>(entity), "Entity does not have component.");
 			SceneData* scene = GetScene();
 			scene->Registry.remove<T>(entity.Handle);
 		}
@@ -77,7 +76,7 @@ namespace Cocoa
 		{
 			SceneData* scene = GetScene();
 			size_t offset = &component - scene->Registry.raw<T>();
-			Log::Assert(offset < scene->Registry.size(), "Tried to get nonexistent entity.");
+			Logger::Assert(offset < scene->Registry.size(), "Tried to get nonexistent entity.");
 			return Entity{*(scene->Registry.data<T>() + offset)};
 		}
 	}

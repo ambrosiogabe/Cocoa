@@ -1,7 +1,5 @@
 #include "cocoa/renderer/Fonts/FontUtil.h"
 #include "cocoa/util/CMath.h"
-#include "cocoa/util/Log.h"
-#include "cocoa/core/Memory.h"
 
 #include "stb/stb_image_write.h"
 
@@ -57,7 +55,7 @@ namespace Cocoa
 			FT_Set_Pixel_Sizes(font, 0, upscaleResolution);
 			if (FT_Load_Char(font, codepoint, FT_LOAD_RENDER))
 			{
-				Log::Warning("Could not generate '%c'.\n", codepoint);
+				Logger::Warning("Could not generate '%c'.\n", codepoint);
 				return {
 					0, 0, 0, 0, 0, 0, 0, 0, 0, nullptr
 				};
@@ -76,7 +74,7 @@ namespace Cocoa
 			float scaleX = (float)width / (float)characterWidth;
 			float scaleY = (float)height / (float)characterHeight;
 			unsigned char* sdfBitmap = (unsigned char*)AllocMem(sizeof(unsigned char) * bitmapHeight * bitmapWidth);
-			Log::Assert(sdfBitmap != nullptr, "Ran out of memory. Could not allocate memory to generate a font.");
+			Logger::Assert(sdfBitmap != nullptr, "Ran out of memory. Could not allocate memory to generate a font.");
 
 			for (int y = -padding; y < bitmapHeight - padding; y++)
 			{
@@ -115,14 +113,14 @@ namespace Cocoa
 			FT_Library ft;
 			if (FT_Init_FreeType(&ft))
 			{
-				Log::Warning("Could not initialize freetype.\n");
+				Logger::Warning("Could not initialize freetype.\n");
 				return;
 			}
 
 			FT_Face font;
 			if (FT_New_Face(ft, fontFile, 0, &font))
 			{
-				Log::Warning("Could not load font %s.\n", fontFile);
+				Logger::Warning("Could not load font %s.\n", fontFile);
 				return;
 			}
 
@@ -140,14 +138,14 @@ namespace Cocoa
 			FT_Library ft;
 			if (FT_Init_FreeType(&ft))
 			{
-				Log::Warning("Could not initialize freetype.\n");
+				Logger::Warning("Could not initialize freetype.\n");
 				return;
 			}
 
 			FT_Face font;
 			if (FT_New_Face(ft, fontFile.Path.c_str(), 0, &font))
 			{
-				Log::Warning("Could not load font %s.\n", fontFile.Path.c_str());
+				Logger::Warning("Could not load font %s.\n", fontFile.Path.c_str());
 				return;
 			}
 
@@ -155,7 +153,7 @@ namespace Cocoa
 			FT_Set_Pixel_Sizes(font, 0, lowResFontSize);
 			if (FT_Load_Char(font, 'M', FT_LOAD_RENDER))
 			{
-				Log::Warning("Failed to load glyph.\n");
+				Logger::Warning("Failed to load glyph.\n");
 				return;
 			}
 
@@ -195,7 +193,7 @@ namespace Cocoa
 				if (FT_Load_Char(font, codepoint, FT_LOAD_RENDER))
 				{
 					sdfBitmaps[codepoint - glyphOffset] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, nullptr };
-					Log::Warning("Failed to load glyph.\n");
+					Logger::Warning("Failed to load glyph.\n");
 					continue;
 				}
 
@@ -231,7 +229,7 @@ namespace Cocoa
 			// Write all the image data to the final sdf
 			int bitmapLength = sdfWidth * sdfHeight * 4;
 			uint8* finalSdf = (uint8*)AllocMem(sizeof(uint8) * bitmapLength);
-			Log::Assert(finalSdf != nullptr, "Out of memory. Could not allocate memory to generate font.");
+			Logger::Assert(finalSdf != nullptr, "Out of memory. Could not allocate memory to generate font.");
 			memset(finalSdf, 0, bitmapLength);
 			int endBitmap = bitmapLength + 1;
 
@@ -272,7 +270,7 @@ namespace Cocoa
 					{
 						unsigned char pixelData = sdf.bitmap[imgX + imgY * width];
 						int index = (x + imgX) * 4 + (y + imgY) * sdfWidth * 4;
-						Log::Assert(index + 3 < endBitmap, "Index overflow when generating SDF");
+						Logger::Assert(index + 3 < endBitmap, "Index overflow when generating SDF");
 						finalSdf[index] = pixelData;
 						finalSdf[index + 1] = pixelData;
 						finalSdf[index + 2] = pixelData;
@@ -283,7 +281,7 @@ namespace Cocoa
 				FreeMem(sdf.bitmap);
 			}
 
-			Log::Info("Writing png for font at '%s'\n", outputFile.Path.c_str());
+			Logger::Info("Writing png for font at '%s'\n", outputFile.Path.c_str());
 			stbi_write_png(outputFile.Path.c_str(), sdfWidth, sdfHeight, 4, finalSdf, sdfWidth * 4);
 
 			FreeMem(sdfBitmaps);

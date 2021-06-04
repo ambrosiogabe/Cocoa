@@ -22,7 +22,7 @@ namespace Cocoa
 
 	void Input::Init()
 	{
-		Log::Assert(!s_Initialized, "Input already initialized.");
+		Logger::Assert(!s_Initialized, "Input already initialized.");
 		s_Initialized = true;
 		const glm::vec2& windowSize = Application::Get()->GetWindow()->GetSize();
 	}

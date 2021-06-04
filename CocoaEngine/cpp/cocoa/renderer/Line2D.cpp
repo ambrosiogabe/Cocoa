@@ -22,7 +22,7 @@ namespace Cocoa
 			float testLength = glm::length(testVec);
 			if (!CMath::Compare(stroke, testLength, 0.001f))
 			{
-				Log::Warning("Invalid result when computing line2D position. Stroke width does not match. Stroke %2.3f, Actual Length: %2.3f", stroke, testLength);
+				Logger::Warning("Invalid result when computing line2D position. Stroke width does not match. Stroke %2.3f, Actual Length: %2.3f", stroke, testLength);
 			}
 #endif
 

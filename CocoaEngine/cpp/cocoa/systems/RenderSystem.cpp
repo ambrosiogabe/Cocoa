@@ -1,12 +1,10 @@
 #include "externalLibs.h"
 
-#include "cocoa/util/Log.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/commands/ICommand.h"
 #include "cocoa/util/CMath.h"
-#include "cocoa/util/DynamicArray.h"
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/renderer/CameraStruct.h"
 
@@ -17,17 +15,17 @@ namespace Cocoa
 	namespace RenderSystem
 	{
 		// Internal Variables
-		static Handle<Shader> m_SpriteShader = Handle<Shader>();
-		static Handle<Shader> m_FontShader = Handle<Shader>();
+		static Handle<Shader> m_SpriteShader = NHandle::CreateHandle<Shader>();
+		static Handle<Shader> m_FontShader = NHandle::CreateHandle<Shader>();
 
 		static int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		static const int MAX_BATCH_SIZE = 1000;
 
-		static DynamicArray<RenderBatchData> m_Batches;
+		static List<RenderBatchData> m_Batches;
 
 		void Init()
 		{
-			m_Batches = NDynamicArray::Create<RenderBatchData>(1);
+			m_Batches = List<RenderBatchData>(1);
 
 			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
 			NCPath::Join(spriteShaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
@@ -42,21 +40,19 @@ namespace Cocoa
 
 		void Destroy()
 		{
-			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatchData& data = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-				RenderBatch::Free(data);
+				RenderBatch::Free(m_Batches[i]);
 			}
-			NDynamicArray::Free<RenderBatchData>(m_Batches);
 		}
 
 		void AddEntity(const TransformData& transform, const SpriteRenderer& spr)
 		{
 			const Sprite& sprite = spr.m_Sprite;
 			bool wasAdded = false;
-			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
+				RenderBatchData& batch = m_Batches[i];
 				if (RenderBatch::HasRoom(batch) && spr.m_ZIndex == batch.ZIndex && batch.BatchShader == m_SpriteShader)
 				{
 					Handle<Texture> tex = sprite.m_Texture;
@@ -74,18 +70,18 @@ namespace Cocoa
 				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, spr.m_ZIndex, m_SpriteShader);
 				RenderBatch::Start(newBatch);
 				RenderBatch::Add(newBatch, transform, spr);
-				NDynamicArray::Add(m_Batches, newBatch);
-				std::sort(NDynamicArray::Begin<RenderBatchData>(m_Batches), NDynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
+				m_Batches.push(newBatch);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
 			}
 		}
 
 		void AddEntity(const TransformData& transform, const FontRenderer& fontRenderer)
 		{
-			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.AssetId);
 			bool wasAdded = false;
-			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
+				RenderBatchData& batch = m_Batches[i];
 				if (RenderBatch::HasRoom(batch, fontRenderer) && fontRenderer.m_ZIndex == batch.ZIndex && batch.BatchShader == m_FontShader)
 				{
 					Handle<Texture> tex = font.m_FontTexture;
@@ -103,8 +99,8 @@ namespace Cocoa
 				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, fontRenderer.m_ZIndex, m_FontShader);
 				RenderBatch::Start(newBatch);
 				RenderBatch::Add(newBatch, transform, fontRenderer);
-				NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
-				std::sort(NDynamicArray::Begin<RenderBatchData>(m_Batches), NDynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
+				m_Batches.push(newBatch);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
 			}
 		}
 
@@ -135,11 +131,11 @@ namespace Cocoa
 
 				DebugDraw::DrawBottomBatches(camera);
 
-				for (int i = 0; i < m_Batches.m_NumElements; i++)
+				for (int i = 0; i < m_Batches.size(); i++)
 				{
-					RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-					Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
-					const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
+					RenderBatchData& batch = m_Batches[i];
+					Logger::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
+					const Shader& shader = AssetManager::GetShader(batch.BatchShader.AssetId);
 					NShader::Bind(shader);
 					NShader::UploadMat4(shader, "uProjection", camera.ProjectionMatrix);
 					NShader::UploadMat4(shader, "uView", camera.ViewMatrix);
@@ -151,9 +147,9 @@ namespace Cocoa
 				DebugDraw::DrawTopBatches(camera);
 			}
 
-			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatch::Clear(m_Batches.m_Data[i]);
+				RenderBatch::Clear(m_Batches[i]);
 				DebugDraw::ClearAllBatches();
 			}
 		}
@@ -165,7 +161,7 @@ namespace Cocoa
 			json zIndex = { "ZIndex", spriteRenderer.m_ZIndex };
 			if (spriteRenderer.m_Sprite.m_Texture)
 			{
-				assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture.m_AssetId };
+				assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture.AssetId };
 			}
 
 			int size = j["Components"].size();
@@ -187,7 +183,7 @@ namespace Cocoa
 			{
 				if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 				{
-					spriteRenderer.m_Sprite.m_Texture = Handle<Texture>(j["SpriteRenderer"]["AssetId"]);
+					spriteRenderer.m_Sprite.m_Texture = NHandle::CreateHandle<Texture>(j["SpriteRenderer"]["AssetId"]);
 				}
 			}
 
@@ -207,7 +203,7 @@ namespace Cocoa
 			json fontSize = { "FontSize", fontRenderer.fontSize };
 			if (fontRenderer.m_Font)
 			{
-				assetId = { "AssetId", fontRenderer.m_Font.m_AssetId };
+				assetId = { "AssetId", fontRenderer.m_Font.AssetId };
 			}
 
 			int size = j["Components"].size();
@@ -231,7 +227,7 @@ namespace Cocoa
 			{
 				if (j["FontRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 				{
-					fontRenderer.m_Font = Handle<Font>(j["FontRenderer"]["AssetId"]);
+					fontRenderer.m_Font = NHandle::CreateHandle<Font>(j["FontRenderer"]["AssetId"]);
 				}
 			}
 

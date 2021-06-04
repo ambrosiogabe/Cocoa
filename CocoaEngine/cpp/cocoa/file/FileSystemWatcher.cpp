@@ -1,5 +1,4 @@
 #include "cocoa/file/FileSystemWatcher.h"
-#include "cocoa/util/Log.h"
 
 namespace Cocoa
 {
@@ -27,7 +26,7 @@ namespace Cocoa
 			NULL);
 		if (dirHandle == INVALID_HANDLE_VALUE)
 		{
-			Log::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Path.c_str());
+			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Path.c_str());
 			return;
 		}
 
@@ -83,7 +82,7 @@ namespace Cocoa
 		pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 		if (pollingOverlap.hEvent == NULL)
 		{
-			Log::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Path.c_str());
+			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Path.c_str());
 			return;
 		}
 
@@ -142,7 +141,7 @@ namespace Cocoa
 					}
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
-					// Log::Info("The file was renamed and this is the old name: [%s]", filename);
+					// Logger::Info("The file was renamed and this is the old name: [%s]", filename);
 					break;
 				case FILE_ACTION_RENAMED_NEW_NAME:
 					if (m_OnRenamed != nullptr)
@@ -151,7 +150,7 @@ namespace Cocoa
 					}
 					break;
 				default:
-					Log::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Path.c_str());
+					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Path.c_str());
 					break;
 				}
 

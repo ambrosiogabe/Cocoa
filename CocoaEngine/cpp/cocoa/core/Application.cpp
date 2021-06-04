@@ -18,7 +18,7 @@ namespace Cocoa
 		m_Running = true;
 
 		std::string title = std::string("Test Window");
-		Log::Info("Initializing GLAD functions in DLL.");
+		Logger::Info("Initializing GLAD functions in DLL.");
 		m_Window = CWindow::Create(1920, 1080, title);
 		s_Instance = this;
 
@@ -92,7 +92,7 @@ namespace Cocoa
 	{
 		if (!s_Instance)
 		{
-			Log::Error("Cannot get application. It is nullptr.");
+			Logger::Error("Cannot get application. It is nullptr.");
 		}
 		return s_Instance;
 	}

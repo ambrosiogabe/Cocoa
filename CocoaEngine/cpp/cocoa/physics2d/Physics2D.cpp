@@ -122,7 +122,7 @@ namespace Cocoa
 				}
 				else
 				{
-					Log::Warning("Removed entity from physics engine that wasn't registered.");
+					Logger::Warning("Removed entity from physics engine that wasn't registered.");
 				}
 			}
 		}
@@ -153,28 +153,28 @@ namespace Cocoa
 		void ApplyForceToCenter(const Rigidbody2D& rigidbody, const glm::vec2& force)
 		{
 			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
-			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force to center.");
+			Logger::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force to center.");
 			rawBody->ApplyForceToCenter(b2Vec2(force.x, force.y), true);
 		}
 
 		void ApplyForce(const Rigidbody2D& rigidbody, const glm::vec2& force, const glm::vec2& point)
 		{
 			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
-			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force.");
+			Logger::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force.");
 			rawBody->ApplyForce(b2Vec2(force.x, force.y), b2Vec2(point.x, point.y), true);
 		}
 
 		void ApplyLinearImpulseToCenter(const Rigidbody2D& rigidbody, const glm::vec2& impulse)
 		{
 			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
-			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply impulse to center.");
+			Logger::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply impulse to center.");
 			rawBody->ApplyLinearImpulseToCenter(b2Vec2(impulse.x, impulse.y), true);
 		}
 
 		void ApplyLinearImpulse(const Rigidbody2D& rigidbody, const glm::vec2& impulse, const glm::vec2& point)
 		{
 			b2Body* rawBody = static_cast<b2Body*>(rigidbody.m_RawRigidbody);
-			Log::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force.");
+			Logger::Assert(rawBody != nullptr, "Invalid rigidbody. Cannot apply force.");
 			rawBody->ApplyLinearImpulse(b2Vec2(impulse.x, impulse.y), b2Vec2(point.x, point.y), true);
 		}
 

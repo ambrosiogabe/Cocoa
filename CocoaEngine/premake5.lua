@@ -39,7 +39,8 @@ project "CocoaEngine"
         "../%{IncludeDir.stb}",
         "../%{IncludeDir.entt}",
         "../%{IncludeDir.Json}",
-		"../%{IncludeDir.Freetype}"
+		"../%{IncludeDir.Freetype}",
+		"../%{IncludeDir.CppUtils}"
 	}
 
 	links {

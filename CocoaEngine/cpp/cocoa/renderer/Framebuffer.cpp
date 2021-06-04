@@ -2,7 +2,6 @@
 
 #include "cocoa/renderer/Framebuffer.h"
 #include "cocoa/renderer/Texture.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/util/JsonExtended.h"
 #include "cocoa/core/AssetManager.h"
 
@@ -12,15 +11,15 @@ namespace Cocoa
 	{
 		void Generate(Framebuffer& framebuffer)
 		{
-			Log::Assert(framebuffer.Fbo == (uint32)-1, "Cannot generate framebuffer that has with Fbo id == (uint32)-1.");
-			Log::Assert(framebuffer.Rbo == (uint32)-1, "Cannot generate framebuffer that has with Rbo id == (uint32)-1.");
+			Logger::Assert(framebuffer.Fbo == (uint32)-1, "Cannot generate framebuffer that has with Fbo id == (uint32)-1.");
+			Logger::Assert(framebuffer.Rbo == (uint32)-1, "Cannot generate framebuffer that has with Rbo id == (uint32)-1.");
 
 			glGenFramebuffers(1, &framebuffer.Fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo);
 
 			if (framebuffer.ColorAttachments.size() > 1)
 			{
-				Log::Assert(framebuffer.ColorAttachments.size() < 8, "Too many framebuffer attachments. Only 8 attachments supported.");
+				Logger::Assert(framebuffer.ColorAttachments.size() < 8, "Too many framebuffer attachments. Only 8 attachments supported.");
 				static GLenum colorBufferAttachments[8] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
 				glDrawBuffers(framebuffer.ColorAttachments.size(), colorBufferAttachments);
 			}
@@ -37,7 +36,7 @@ namespace Cocoa
 
 			if (framebuffer.IncludeDepthStencil)
 			{
-				Log::Assert(framebuffer.DepthStencilFormat != ByteFormat::None, "Cannot add depth stencil information with no byte format.");
+				Logger::Assert(framebuffer.DepthStencilFormat != ByteFormat::None, "Cannot add depth stencil information with no byte format.");
 
 				// Create renderbuffer to store depth_stencil info
 				glGenRenderbuffers(1, &framebuffer.Rbo);
@@ -49,7 +48,7 @@ namespace Cocoa
 
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			{
-				Log::Assert(false, "Framebuffer is not complete.");
+				Logger::Assert(false, "Framebuffer is not complete.");
 			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -57,10 +56,10 @@ namespace Cocoa
 
 		void Regenerate(Framebuffer& framebuffer)
 		{
-			Log::Assert(framebuffer.Fbo != (uint32)-1, "Cannot regenerate framebuffer that has with Fbo id != (uint32)-1.");
+			Logger::Assert(framebuffer.Fbo != (uint32)-1, "Cannot regenerate framebuffer that has with Fbo id != (uint32)-1.");
 			if (framebuffer.IncludeDepthStencil)
 			{
-				Log::Assert(framebuffer.Rbo != (uint32)-1, "Cannot regenerate framebuffer that has with Rbo id != (uint32)-1.");
+				Logger::Assert(framebuffer.Rbo != (uint32)-1, "Cannot regenerate framebuffer that has with Rbo id != (uint32)-1.");
 			}
 
 			Delete(framebuffer, false);
@@ -69,7 +68,7 @@ namespace Cocoa
 
 		void Delete(Framebuffer& framebuffer, bool clearColorAttachmentSpecs)
 		{
-			Log::Assert(framebuffer.Fbo != (uint32)-1, "Tried to delete invalid framebuffer.");
+			Logger::Assert(framebuffer.Fbo != (uint32)-1, "Tried to delete invalid framebuffer.");
 			glDeleteFramebuffers(1, &framebuffer.Fbo);
 			framebuffer.Fbo = (uint32)-1;
 
@@ -86,7 +85,7 @@ namespace Cocoa
 
 			if (framebuffer.IncludeDepthStencil)
 			{
-				Log::Assert(framebuffer.Rbo != (uint32)-1, "Tried to delete invalid renderbuffer.");
+				Logger::Assert(framebuffer.Rbo != (uint32)-1, "Tried to delete invalid renderbuffer.");
 				glDeleteRenderbuffers(1, &framebuffer.Rbo);
 				framebuffer.Rbo = (uint32)-1;
 			}
@@ -104,9 +103,9 @@ namespace Cocoa
 
 		void ClearColorAttachmentRgb(const Framebuffer& framebuffer, int colorAttachment, glm::vec3 clearColor)
 		{
-			Log::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
+			Logger::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
 			const Texture& texture = framebuffer.ColorAttachments[colorAttachment];
-			Log::Assert(TextureUtil::ByteFormatIsRgb(texture.InternalFormat) && TextureUtil::ByteFormatIsRgb(texture.ExternalFormat), "Cannot clear non-rgb texture as if it were a rgb texture.");
+			Logger::Assert(TextureUtil::ByteFormatIsRgb(texture.InternalFormat) && TextureUtil::ByteFormatIsRgb(texture.ExternalFormat), "Cannot clear non-rgb texture as if it were a rgb texture.");
 
 			uint32 externalFormat = TextureUtil::ToGl(texture.ExternalFormat);
 			uint32 formatType = TextureUtil::ToGlDataType(texture.ExternalFormat);
@@ -115,9 +114,9 @@ namespace Cocoa
 
 		void ClearColorAttachmentUint32(const Framebuffer& framebuffer, int colorAttachment, uint32 clearColor)
 		{
-			Log::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
+			Logger::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
 			const Texture& texture = framebuffer.ColorAttachments[colorAttachment];
-			Log::Assert(TextureUtil::ByteFormatIsInt(texture.InternalFormat) && TextureUtil::ByteFormatIsInt(texture.ExternalFormat), "Cannot clear non-uint texture as if it were a uint texture.");
+			Logger::Assert(TextureUtil::ByteFormatIsInt(texture.InternalFormat) && TextureUtil::ByteFormatIsInt(texture.ExternalFormat), "Cannot clear non-uint texture as if it were a uint texture.");
 
 			uint32 externalFormat = TextureUtil::ToGl(texture.ExternalFormat);
 			uint32 formatType = TextureUtil::ToGlDataType(texture.ExternalFormat);
@@ -126,9 +125,9 @@ namespace Cocoa
 
 		uint32 ReadPixelUint32(const Framebuffer& framebuffer, int colorAttachment, int x, int y)
 		{
-			Log::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
+			Logger::Assert(colorAttachment >= 0 && colorAttachment < framebuffer.ColorAttachments.size(), "Index out of bounds. Color attachment does not exist '%d'.", colorAttachment);
 			const Texture& texture = framebuffer.ColorAttachments[colorAttachment];
-			Log::Assert(TextureUtil::ByteFormatIsInt(texture.InternalFormat) && TextureUtil::ByteFormatIsInt(texture.ExternalFormat), "Cannot read non-uint texture as if it were a uint texture.");
+			Logger::Assert(TextureUtil::ByteFormatIsInt(texture.InternalFormat) && TextureUtil::ByteFormatIsInt(texture.ExternalFormat), "Cannot read non-uint texture as if it were a uint texture.");
 
 			// If we are requesting an out of bounds pixel, return max uint32 which should be a good flag I guess
 			// TODO: Create clearColor member variable in color attachments and return that instead here
@@ -154,7 +153,7 @@ namespace Cocoa
 
 		void Bind(const Framebuffer& framebuffer)
 		{
-			Log::Assert(framebuffer.Fbo != (uint32)-1, "Tried to bind invalid framebuffer.");
+			Logger::Assert(framebuffer.Fbo != (uint32)-1, "Tried to bind invalid framebuffer.");
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo);
 		}
 
@@ -198,7 +197,7 @@ namespace Cocoa
 					}
 					else
 					{
-						Log::Warning("Invalid color attachment '%d' when deserializing framebuffer.", i);
+						Logger::Warning("Invalid color attachment '%d' when deserializing framebuffer.", i);
 					}
 				}
 			}

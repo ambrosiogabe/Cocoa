@@ -55,7 +55,7 @@ namespace Cocoa
 				ShowFontBrowser();
 				break;
 			default:
-				Log::Warning("Unkown asset view: %d", (int)m_CurrentView);
+				Logger::Warning("Unkown asset view: %d", (int)m_CurrentView);
 				break;
 			}
 
@@ -165,7 +165,7 @@ namespace Cocoa
 
 				int fontResourceId = i;
 				ImGui::PushID(fontResourceId);
-				const Texture& fontTexture = AssetManager::GetTexture(font.m_FontTexture.m_AssetId);
+				const Texture& fontTexture = AssetManager::GetTexture(font.m_FontTexture.AssetId);
 
 				if (ImageButton(fontTexture, NCPath::Filename(font.m_Path), m_ButtonSize))
 				{
@@ -204,7 +204,7 @@ namespace Cocoa
 					}
 					else
 					{
-						Log::Warning("Unable to get file name for font.");
+						Logger::Warning("Unable to get file name for font.");
 					}
 				}
 
@@ -285,7 +285,7 @@ namespace Cocoa
 				ImGui::PushID(scriptCount++);
 				if (IconButton(ICON_FA_FILE, NCPath::Filename(script), m_ButtonSize))
 				{
-					Log::Warning("TODO: Create a way to load a script in visual studio.");
+					Logger::Warning("TODO: Create a way to load a script in visual studio.");
 				}
 				ImGui::SameLine();
 				ImGui::PopID();

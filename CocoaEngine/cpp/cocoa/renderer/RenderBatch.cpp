@@ -4,7 +4,6 @@
 #include "cocoa/renderer/Shader.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/core/Memory.h"
 #include "cocoa/util/CMath.h"
 
 namespace Cocoa
@@ -41,6 +40,9 @@ namespace Cocoa
 		RenderBatchData CreateRenderBatch(int maxBatchSize, int zIndex, Handle<Shader> shader, bool batchOnTop)
 		{
 			RenderBatchData data;
+			data.NumTextures = 0;
+			data.NumUsedElements = 0;
+
 			data.BatchShader = shader;
 			data.ZIndex = zIndex;
 			data.MaxBatchSize = maxBatchSize;
@@ -48,14 +50,14 @@ namespace Cocoa
 			data.VertexStackPointer = data.VertexBufferBase;
 			data.Indices = (uint32*)AllocMem(sizeof(uint32) * data.MaxBatchSize * 2);
 
-			for (int i = 0; i < data.Textures.size(); i++)
+			for (int i = 0; i < RenderBatch::TEXTURE_SIZE; i++)
 			{
 				data.Textures[i] = {};
 			}
 
-			data.VAO = -1;
-			data.VBO = -1;
-			data.EBO = -1;
+			data.VAO = UINT32_MAX;
+			data.VBO = UINT32_MAX;
+			data.EBO = UINT32_MAX;
 
 			data.BatchOnTop = batchOnTop;
 			return data;
@@ -63,6 +65,14 @@ namespace Cocoa
 
 		void Free(RenderBatchData& data)
 		{
+			data.BatchShader = NHandle::CreateHandle<Shader>();
+			data.VertexBufferBase = nullptr;
+			data.VertexStackPointer = nullptr;
+			data.Indices = nullptr;
+			data.VAO = UINT32_MAX;
+			data.VBO = UINT32_MAX;
+			data.EBO = UINT32_MAX;
+
 			if (data.VertexBufferBase)
 			{
 				FreeMem(data.VertexBufferBase);
@@ -70,7 +80,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Warning("Failed to free render batches vertex data, invalid pointer.");
+				Logger::Warning("Failed to free render batches vertex data, invalid pointer.");
 			}
 
 			if (data.Indices)
@@ -80,7 +90,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Warning("Failed to free render batches indices, invalid pointer.");
+				Logger::Warning("Failed to free render batches indices, invalid pointer.");
 			}
 
 			if (data.VAO != -1)
@@ -91,7 +101,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Warning("Destroyed render batch, but it did not have any valid vao, vbo, or ebo");
+				Logger::Warning("Destroyed render batch, but it did not have any valid vao, vbo, or ebo");
 			}
 		}
 
@@ -149,9 +159,9 @@ namespace Cocoa
 
 		void Add(RenderBatchData& data, const TransformData& transform, const FontRenderer& fontRenderer)
 		{
-			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.AssetId);
 			Handle<Texture> tex = font.m_FontTexture;
-			const Texture& texture = AssetManager::GetTexture(tex.m_AssetId);
+			const Texture& texture = AssetManager::GetTexture(tex.AssetId);
 
 			if (!tex.IsNull())
 			{
@@ -163,7 +173,7 @@ namespace Cocoa
 			}
 
 			int texId = 0;
-			for (int i = 0; i < data.Textures.size(); i++)
+			for (int i = 0; i < RenderBatch::TEXTURE_SIZE; i++)
 			{
 				if (data.Textures[i] == tex)
 				{
@@ -279,7 +289,7 @@ namespace Cocoa
 			int texId = 0;
 			if (!sprite.m_Texture.IsNull())
 			{
-				for (int i = 0; i < data.Textures.size(); i++)
+				for (int i = 0; i < RenderBatch::TEXTURE_SIZE; i++)
 				{
 					if (data.Textures[i] == sprite.m_Texture)
 					{
@@ -387,7 +397,7 @@ namespace Cocoa
 			for (int i = 0; i < data.NumTextures; i++)
 			{
 				glActiveTexture(GL_TEXTURE0 + i + 1);
-				TextureUtil::Bind(AssetManager::GetTexture(data.Textures[i].m_AssetId));
+				TextureUtil::Bind(AssetManager::GetTexture(data.Textures[i].AssetId));
 			}
 
 			glBindVertexArray(data.VAO);
@@ -398,7 +408,7 @@ namespace Cocoa
 
 			for (int i = 0; i < data.NumTextures; i++)
 			{
-				TextureUtil::Unbind(AssetManager::GetTexture(data.Textures[i].m_AssetId));
+				TextureUtil::Unbind(AssetManager::GetTexture(data.Textures[i].AssetId));
 			}
 		}
 
@@ -439,7 +449,7 @@ namespace Cocoa
 			data.NumTextures = 0;
 			for (int i = 0; i < data.NumTextures; i++)
 			{
-				data.Textures[i] = Handle<Texture>();
+				data.Textures[i] = NHandle::CreateHandle<Texture>();
 			}
 		}
 
@@ -456,7 +466,7 @@ namespace Cocoa
 
 		bool HasTextureRoom(const RenderBatchData& data)
 		{
-			return data.NumTextures < data.Textures.size();
+			return data.NumTextures < RenderBatch::TEXTURE_SIZE;
 		}
 
 		bool HasTexture(const RenderBatchData& data, Handle<Texture> texture)

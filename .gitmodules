@@ -19,3 +19,6 @@
 [submodule "CocoaEngine/vendor/freetypeVendor"]
 	path = CocoaEngine/vendor/freetypeVendor
 	url = https://github.com/ambrosiogabe/FreetypeFork
+[submodule "CocoaEngine/vendor/CppUtils"]
+	path = CocoaEngine/vendor/CppUtils
+	url = https://github.com/ambrosiogabe/CppUtils

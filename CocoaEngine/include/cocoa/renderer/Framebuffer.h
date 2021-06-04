@@ -1,8 +1,6 @@
 #pragma once
-
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/core/Handle.h"
-#include "cocoa/util/DynamicArray.h"
 
 namespace Cocoa
 {

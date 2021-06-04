@@ -1,12 +1,10 @@
 #include "nativeScripting/SourceFileWatcher.h"
 
 #include "util/Settings.h"
-#include "nativeScripting/ScriptScanner.h"
 #include "nativeScripting/ScriptParser.h"
 #include "nativeScripting/CodeGenerators.h"
 #include "nativeScripting/CppBuild.h"
 
-#include "cocoa/util/Log.h"
 #include "cocoa/file/File.h"
 #include "cocoa/util/Settings.h"
 
@@ -26,11 +24,6 @@ namespace Cocoa
 		: m_RootDirectory(rootDirectory)
 	{
 		StartFileWatcher();
-	}
-
-	const std::vector<UClass>& SourceFileWatcher::GetClasses()
-	{
-		return classes;
 	}
 
 	static bool IsHeaderFile(const CPath& file)
@@ -124,16 +117,16 @@ namespace Cocoa
 		}
 		File::CreateDirIfNotExists(generatedDirPath);
 
-		ScriptScanner fileScanner = ScriptScanner(file);
-		std::vector<Token> fileTokens = fileScanner.ScanTokens();
-		ScriptParser fileParser = ScriptParser(fileTokens, file);
+		//ScriptScanner fileScanner = ScriptScanner(file);
+		//std::vector<Token> fileTokens = fileScanner.ScanTokens();
+		//ScriptParser fileParser = ScriptParser(fileTokens, file);
 		//fileParser.Parse();
 		//MergeNewClasses(fileParser.GetClasses(), file);
 
 		std::string generatedHFilename = NCPath::GetFilenameWithoutExt(file) + "-generated.h";
 		CPath path = generatedDirPath;
 		NCPath::Join(path, NCPath::CreatePath(generatedHFilename));
-		File::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
+		//File::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
 
 		GenerateInitFiles();
 		return true;
@@ -184,20 +177,20 @@ namespace Cocoa
 	{
 		if (!File::IsDirectory(m_RootDirectory))
 		{
-			Log::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Path.c_str());
+			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Path.c_str());
 			return;
 		}
 		rootDir = m_RootDirectory;
-		Log::Log("Monitoring directory '%s'", File::GetAbsolutePath(m_RootDirectory).Path.c_str());
+		Logger::Log("Monitoring directory '%s'", File::GetAbsolutePath(m_RootDirectory).Path.c_str());
 
 		projectPremakeLua = NCPath::CreatePath(NCPath::GetDirectory(m_RootDirectory, -1));
 		NCPath::Join(projectPremakeLua, NCPath::CreatePath("premake5.lua"));
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
 		GenerateBuildFile();
 
-		Log::Log("Generating initial class information");
+		Logger::Log("Generating initial class information");
 		GenerateInitialClassInformation(m_RootDirectory);
-		Log::Log("Generating premake file %s", projectPremakeLua.Path.c_str());
+		Logger::Log("Generating premake file %s", projectPremakeLua.Path.c_str());
 		CppBuild::Build(rootDir);
 
 		m_FileWatcher.m_Path = m_RootDirectory;

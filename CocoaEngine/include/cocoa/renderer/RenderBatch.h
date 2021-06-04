@@ -10,6 +10,11 @@
 
 namespace Cocoa
 {
+    namespace RenderBatch
+    {
+        const int TEXTURE_SIZE = 16;
+    }
+
     struct Vertex
     {
         glm::vec3 position;
@@ -25,12 +30,12 @@ namespace Cocoa
         Vertex* VertexBufferBase;
         Vertex* VertexStackPointer;
         uint32* Indices;
-        std::array<Handle<Texture>, 16> Textures;
+        Handle<Texture> Textures[RenderBatch::TEXTURE_SIZE];
 
         uint32 VAO, VBO, EBO;
-        int16 ZIndex = 0;
-        uint16 NumUsedElements = 0;
-        uint16 NumTextures = 0;
+        int16 ZIndex;
+        uint16 NumUsedElements;
+        uint16 NumTextures;
 
         int MaxBatchSize;
         bool BatchOnTop;

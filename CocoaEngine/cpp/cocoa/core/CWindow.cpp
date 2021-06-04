@@ -2,7 +2,6 @@
 #include "cocoa/core/Core.h"
 
 #include "cocoa/core/CWindow.h"
-#include "cocoa/util/Log.h"
 
 namespace Cocoa
 {
@@ -29,52 +28,52 @@ namespace Cocoa
 			break;
 		}
 
-		Log::Warning("---------------------opengl-callback-start------------\n");
-		Log::Warning("message: %s\n", message);
-		Log::Warning("type: ");
+		Logger::Warning("---------------------opengl-callback-start------------\n");
+		Logger::Warning("message: %s\n", message);
+		Logger::Warning("type: ");
 		switch (type)
 		{
 		case GL_DEBUG_TYPE_ERROR:
-			Log::Warning("ERROR\n");
+			Logger::Warning("ERROR\n");
 			break;
 		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-			Log::Warning("DEPRECATED_BEHAVIOR\n");
+			Logger::Warning("DEPRECATED_BEHAVIOR\n");
 			break;
 		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-			Log::Warning("UNDEFINED_BEHAVIOR\n");
+			Logger::Warning("UNDEFINED_BEHAVIOR\n");
 			break;
 		case GL_DEBUG_TYPE_PORTABILITY:
-			Log::Warning("PORTABILITY\n");
+			Logger::Warning("PORTABILITY\n");
 			break;
 		case GL_DEBUG_TYPE_PERFORMANCE:
-			Log::Warning("PERFORMANCE\n");
+			Logger::Warning("PERFORMANCE\n");
 			break;
 		case GL_DEBUG_TYPE_OTHER:
-			Log::Warning("OTHER\n");
+			Logger::Warning("OTHER\n");
 			break;
 		}
 
-		Log::Warning("id: %u\n", id);
-		Log::Warning("severity: ");
+		Logger::Warning("id: %u\n", id);
+		Logger::Warning("severity: ");
 		switch (severity)
 		{
 		case GL_DEBUG_SEVERITY_LOW:
-			Log::Warning("LOW\n");
+			Logger::Warning("LOW\n");
 			break;
 		case GL_DEBUG_SEVERITY_MEDIUM:
-			Log::Warning("MEDIUM\n");
+			Logger::Warning("MEDIUM\n");
 			break;
 		case GL_DEBUG_SEVERITY_HIGH:
-			Log::Warning("HIGH\n");
+			Logger::Warning("HIGH\n");
 			break;
 		case GL_DEBUG_SEVERITY_NOTIFICATION:
-			Log::Warning("NOTIFICATION\n");
+			Logger::Warning("NOTIFICATION\n");
 			break;
 		default:
-			Log::Warning("Unkown\n");
+			Logger::Warning("Unkown\n");
 			break;
 		}
-		Log::Warning("---------------------opengl-callback-end--------------\n");
+		Logger::Warning("---------------------opengl-callback-end--------------\n");
 	}
 
 	CWindow* CWindow::Create(uint32 width, uint32 height, const std::string& name)
@@ -89,22 +88,22 @@ namespace Cocoa
 
 	void CWindow::Init(uint32 width, uint32 height, const std::string& name)
 	{
-		Log::Assert(glfwInit(), "Unable to initialize GLFW");
+		Logger::Assert(glfwInit(), "Unable to initialize GLFW");
 
 		GLFWwindow* window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
 		m_WindowHandle = window;
-		Log::Assert(m_WindowHandle != nullptr, "GLFW unable to create window.");
+		Logger::Assert(m_WindowHandle != nullptr, "GLFW unable to create window.");
 
 		glfwMakeContextCurrent(window);
 
-		Log::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLAD.");
+		Logger::Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Unable to initialize GLAD.");
 		glfwSetWindowUserPointer(window, this);
 
 		// Set up event callbacks
 		glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				userWin->SetWidth(width);
 				userWin->SetHeight(height);
@@ -116,7 +115,7 @@ namespace Cocoa
 		glfwSetWindowCloseCallback(window, [](GLFWwindow* window)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				WindowCloseEvent e;
 				userWin->m_EventCallback(e);
@@ -125,7 +124,7 @@ namespace Cocoa
 		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				Input::KeyCallback(key, scancode, action, mods);
 				switch (action)
@@ -151,7 +150,7 @@ namespace Cocoa
 		glfwSetCharCallback(window, [](GLFWwindow* window, uint32 keycode)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				// Event& e = KeyTypedEvent(keycode);
 				// userWin->EventCallback(e);
@@ -160,7 +159,7 @@ namespace Cocoa
 		glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				Input::MouseButtonCallback(button, action, mods);
 				switch (action)
@@ -181,7 +180,7 @@ namespace Cocoa
 		glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				Input::ScrollCallback(xoffset, yoffset);
 				MouseScrolledEvent e((float)xoffset, (float)yoffset);
@@ -191,7 +190,7 @@ namespace Cocoa
 		glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)
 			{
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
-				Log::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
+				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
 				Input::CursorCallback(xpos, ypos);
 				MouseMovedEvent e((float)xpos, (float)ypos);
@@ -258,7 +257,7 @@ namespace Cocoa
 	void CWindow::SetSize(const glm::vec2& size)
 	{
 		GLFWwindow* win = static_cast<GLFWwindow*>(m_WindowHandle);
-		Log::Assert(size.x >= 0 && size.y >= 0, "Window width or height cannot be 0.");
+		Logger::Assert(size.x >= 0 && size.y >= 0, "Window width or height cannot be 0.");
 		glfwSetWindowSize(win, (int)size.x, (int)size.y);
 	}
 

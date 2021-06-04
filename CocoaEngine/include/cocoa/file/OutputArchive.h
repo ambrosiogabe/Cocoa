@@ -5,7 +5,6 @@
 #include "cocoa/components/Tag.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/physics2d/Physics2D.h"
-#include "cocoa/util/Log.h"
 
 #include <nlohmann/json.hpp>
 #include <entt/core/type_info.hpp>
@@ -20,12 +19,12 @@ namespace Cocoa
 
 		void operator()(entt::entity entity)
 		{
-			//Log::Info("Archiving entity: %d", entt::to_integral(entity));
+			//Logger::Info("Archiving entity: %d", entt::to_integral(entity));
 		}
 
 		void operator()(std::underlying_type_t<entt::entity> underlyingType)
 		{
-			//Log::Info("Archiving underlying type entity: %d", underlyingType);
+			//Logger::Info("Archiving underlying type entity: %d", underlyingType);
 		}
 
 		template <class T>
@@ -70,7 +69,7 @@ namespace Cocoa
 			}
 			else
 			{
-				//Log::Info("Archiving entity: %d  DEFAULT", entt::to_integral(entity));
+				//Logger::Info("Archiving entity: %d  DEFAULT", entt::to_integral(entity));
 			}
 		}
 

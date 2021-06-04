@@ -15,7 +15,6 @@
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/systems/ScriptSystem.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/core/Memory.h"
 #include "cocoa/scenes/Scene.h"
 
 namespace Cocoa
@@ -73,7 +72,7 @@ namespace Cocoa
 
 			for (auto& entity: ActiveEntities)
 			{
-				Log::Assert(Scene::IsValid(scene, entity), "Invalid active entity in inspector window");
+				Logger::Assert(Scene::IsValid(scene, entity), "Invalid active entity in inspector window");
 				doTag &= NEntity::HasComponent<Tag>(entity);
 				doTransform &= NEntity::HasComponent<TransformData>(entity);
 				doSpriteRenderer &= NEntity::HasComponent<SpriteRenderer>(entity);
@@ -139,15 +138,15 @@ namespace Cocoa
 		// =====================================================================
 		static void ImGuiAddComponentButton()
 		{
-			const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
+			//const std::vector<UClass> classes = SourceFileWatcher::GetClasses();
 			int defaultComponentSize = 6;
-			int size = classes.size() + defaultComponentSize;
-			auto classIter = classes.begin();
-			for (int i = 0; i < classes.size(); i++)
-			{
-				StringPointerBuffer[i + defaultComponentSize] = classIter->m_ClassName.c_str();
-				classIter++;
-			}
+			int size = defaultComponentSize;// +classes.size();
+			////auto classIter = classes.begin();
+			//for (int i = 0; i < classes.size(); i++)
+			//{
+			//	StringPointerBuffer[i + defaultComponentSize] = classIter->m_ClassName.c_str();
+			//	classIter++;
+			//}
 
 			StringPointerBuffer[0] = "Sprite Renderer";
 			StringPointerBuffer[1] = "Font Renderer";
@@ -184,7 +183,7 @@ namespace Cocoa
 					break;
 				}
 				default:
-					Log::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
+					Logger::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.Handle));
 					ScriptSystem::AddComponentFromString(StringPointerBuffer[itemPressed], activeEntity.Handle, NEntity::GetScene()->Registry);
 					break;
 				}
@@ -199,7 +198,7 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader("Tag"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				Log::Assert(tag.Size < STRING_BUFFER_MAX, "Entity Name only supports text sizes up to 100 characters.");
+				Logger::Assert(tag.Size < STRING_BUFFER_MAX, "Entity Name only supports text sizes up to 100 characters.");
 				strcpy(StringBuffer, tag.Name);
 				if (CImGui::InputText("Entity Name: ", StringBuffer, sizeof(StringBuffer)))
 				{
@@ -252,7 +251,7 @@ namespace Cocoa
 
 				if (spr.m_Sprite.m_Texture)
 				{
-					const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.m_AssetId);
+					const Texture& tex = AssetManager::GetTexture(spr.m_Sprite.m_Texture.AssetId);
 					CImGui::InputText("##SpriteRendererTexture", (char*)NCPath::Filename(tex.Path),
 						NCPath::FilenameSize(tex.Path), ImGuiInputTextFlags_ReadOnly);
 				}
@@ -266,7 +265,7 @@ namespace Cocoa
 					{
 						IM_ASSERT(payload->DataSize == sizeof(int));
 						int textureResourceId = *(const int*)payload->Data;
-						spr.m_Sprite.m_Texture = textureResourceId;
+						spr.m_Sprite.m_Texture = NHandle::CreateHandle<Texture>(textureResourceId);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -285,7 +284,7 @@ namespace Cocoa
 				CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.m_Color);
 				CImGui::UndoableDragInt("Font Size: ", fontRenderer.fontSize);
 
-				Log::Assert(fontRenderer.text.size() < STRING_BUFFER_MAX, "Font Renderer only supports text sizes up to 100 characters.");
+				Logger::Assert(fontRenderer.text.size() < STRING_BUFFER_MAX, "Font Renderer only supports text sizes up to 100 characters.");
 				strcpy(StringBuffer, fontRenderer.text.c_str());
 				if (CImGui::InputText("Text: ", StringBuffer, sizeof(StringBuffer)))
 				{
@@ -294,7 +293,7 @@ namespace Cocoa
 
 				if (fontRenderer.m_Font)
 				{
-					const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+					const Font& font = AssetManager::GetFont(fontRenderer.m_Font.AssetId);
 					CImGui::InputText("##FontRendererTexture", (char*)NCPath::Filename(font.m_Path),
 						NCPath::FilenameSize(font.m_Path), ImGuiInputTextFlags_ReadOnly);
 				}
@@ -308,7 +307,7 @@ namespace Cocoa
 					{
 						IM_ASSERT(payload->DataSize == sizeof(int));
 						int fontResourceId = *(const int*)payload->Data;
-						fontRenderer.m_Font = fontResourceId;
+						fontRenderer.m_Font = NHandle::CreateHandle<Font>(fontResourceId);
 					}
 					ImGui::EndDragDropTarget();
 				}

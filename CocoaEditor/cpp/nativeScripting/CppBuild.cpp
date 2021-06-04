@@ -1,6 +1,5 @@
 #include "nativeScripting/CppBuild.h"
 
-#include "cocoa/util/Log.h"
 #include "cocoa/file/File.h"
 
 namespace Cocoa
@@ -19,7 +18,7 @@ namespace Cocoa
 				CPath pathToBuildScript = NCPath::CreatePath(NCPath::GetDirectory(projectDirectory, -1));
 				NCPath::Join(pathToBuildScript, NCPath::CreatePath("build.bat"));
 				std::string cmdArgs = "vs2019";
-				Log::Info("CMD Args: %s", cmdArgs.c_str());
+				Logger::Info("CMD Args: %s", cmdArgs.c_str());
 				File::RunProgram(pathToBuildScript, cmdArgs);
 				buildingCode = false;
 			}
@@ -33,7 +32,7 @@ namespace Cocoa
 				CPath pathToBuildScript = NCPath::CreatePath(NCPath::GetDirectory(projectDirectory, -1));
 				NCPath::Join(pathToBuildScript, NCPath::CreatePath("build.bat"));
 				std::string cmdArgs = "compile";
-				Log::Info("CMD Args: %s", cmdArgs.c_str());
+				Logger::Info("CMD Args: %s", cmdArgs.c_str());
 				File::RunProgram(pathToBuildScript, cmdArgs);
 				compiling = false;
 			}

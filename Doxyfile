@@ -14,8 +14,6 @@ CREATE_SUBDIRS = NO
 GENERATE_TREEVIEW = YES
 HTML_HEADER = docs/header.html
 HTML_FOOTER = docs/footer.html
-HTML_EXTRA_STYLESHEET = docs/doxygen-awesome.css  docs/doxygen-awesome-sidebar-only.css docs/custom.css docs/simple-scrollbar.css
-HTML_EXTRA_FILES = docs/custom.js docs/simple-scrollbar.min.js
 
 ALLOW_UNICODE_NAMES = NO
 OUTPUT_LANGUAGE = English

@@ -67,7 +67,7 @@ namespace Cocoa
 			NCPath::Join(scriptDll, NCPath::CreatePath("ScriptModule.dll"));
 			initImGui = false;
 
-			Log::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
+			Logger::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
 			// Create editor camera's framebuffer
 			Framebuffer editorCameraFramebuffer;
 			editorCameraFramebuffer.Width = 3840;
@@ -363,7 +363,7 @@ namespace Cocoa
 
 		void Deserialize(const json& j, SceneData& scene)
 		{
-			Log::Assert(Scene::IsValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
+			Logger::Assert(Scene::IsValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
 			if (j.contains("EditorCamera") && Scene::IsValid(scene, m_CameraEntity))
 			{
 				Scene::DeleteEntity(scene, m_CameraEntity);

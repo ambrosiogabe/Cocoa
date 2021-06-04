@@ -1,7 +1,6 @@
 #pragma once
 #include "externalLibs.h"
 #include "cocoa/file/CPath.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/renderer/Shader.h"

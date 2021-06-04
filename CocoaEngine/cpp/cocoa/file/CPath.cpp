@@ -1,5 +1,4 @@
 #include "cocoa/file/CPath.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/file/File.h"
 
 namespace Cocoa

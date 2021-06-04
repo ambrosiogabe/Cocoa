@@ -1,9 +1,6 @@
 #pragma once
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
-
-#include "nativeScripting/ScriptParser.h"
-
 #include "cocoa/file/FileSystemWatcher.h"
 
 namespace Cocoa
@@ -15,8 +12,6 @@ namespace Cocoa
 			: m_RootDirectory(NCPath::CreatePath()) {}
 		SourceFileWatcher(CPath path);
 		~SourceFileWatcher() { m_FileWatcher.Stop(); }
-
-		static const std::vector<UClass>& GetClasses();
 
 	private:
 		void StartFileWatcher();

@@ -1,6 +1,5 @@
 #include "cocoa/components/Tag.h"
 #include "cocoa/util/JsonExtended.h"
-#include "cocoa/core/Memory.h"
 
 namespace Cocoa
 {

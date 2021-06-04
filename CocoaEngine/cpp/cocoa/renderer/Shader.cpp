@@ -1,10 +1,8 @@
 #include "externalLibs.h"
 
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/core/Core.h"
-#include "cocoa/core/Memory.h"
 
 namespace Cocoa
 {
@@ -55,10 +53,10 @@ namespace Cocoa
 			while (pos != std::string::npos)
 			{
 				size_t eol = fileSource.find_first_of("\r\n", pos);
-				Log::Assert(eol != std::string::npos, "Syntax error");
+				Logger::Assert(eol != std::string::npos, "Syntax error");
 				size_t begin = pos + typeTokenLength + 1;
 				std::string type = fileSource.substr(begin, eol - begin);
-				Log::Assert(ShaderTypeFromString(type), "Invalid shader type specified.");
+				Logger::Assert(ShaderTypeFromString(type), "Invalid shader type specified.");
 
 				size_t nextLinePos = fileSource.find_first_not_of("\r\n", eol);
 				pos = fileSource.find(typeToken, nextLinePos);
@@ -66,7 +64,7 @@ namespace Cocoa
 			}
 
 			GLuint program = glCreateProgram();
-			Log::Assert(shaderSources.size() <= 2, "Shader source must be less than 2.");
+			Logger::Assert(shaderSources.size() <= 2, "Shader source must be less than 2.");
 			std::array<GLenum, 2> glShaderIDs;
 			int glShaderIDIndex = 0;
 
@@ -94,14 +92,14 @@ namespace Cocoa
 					glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
 					// The maxLength includes the NULL character
-					std::vector<GLchar> infoLog(maxLength);
-					glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+					std::vector<GLchar> infoLogger(maxLength);
+					glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLogger[0]);
 
 					// We don't need the shader anymore.
 					glDeleteShader(shader);
 
-					Log::Error("%s", infoLog.data());
-					Log::Assert(false, "Shader compilation failed!");
+					Logger::Error("%s", infoLogger.data());
+					Logger::Assert(false, "Shader compilation failed!");
 					return CreateShader();
 				}
 
@@ -121,8 +119,8 @@ namespace Cocoa
 				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
 				// The maxLength includes the NULL character
-				std::vector<GLchar> infoLog(maxLength);
-				glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+				std::vector<GLchar> infoLogger(maxLength);
+				glGetProgramInfoLog(program, maxLength, &maxLength, &infoLogger[0]);
 
 				// We don't need the program anymore.
 				glDeleteProgram(program);
@@ -130,8 +128,8 @@ namespace Cocoa
 				for (auto id : glShaderIDs)
 					glDeleteShader(id);
 
-				Log::Error("%s", infoLog.data());
-				Log::Assert(false, "Shader linking failed!");
+				Logger::Error("%s", infoLogger.data());
+				Logger::Assert(false, "Shader linking failed!");
 				return NShader::CreateShader();
 			}
 
@@ -258,7 +256,7 @@ namespace Cocoa
 		// Private functions
 		static GLint GetVariableLocation(const Shader& shader, const char* varName)
 		{
-			Log::Assert(shader.StartIndex >= 0 && shader.StartIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
+			Logger::Assert(shader.StartIndex >= 0 && shader.StartIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
 			uint32 hash = CMath::HashString(varName);
 
 			for (int i = shader.StartIndex; i < m_AllShaderVariables.size(); i++)
@@ -266,7 +264,7 @@ namespace Cocoa
 				const ShaderVariable& shaderVar = m_AllShaderVariables[i];
 				if (shaderVar.ShaderProgramId != shader.ProgramId)
 				{
-					Log::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.Filepath.Path.c_str());
+					Logger::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.Filepath.Path.c_str());
 					break;
 				}
 
@@ -286,7 +284,7 @@ namespace Cocoa
 			else if (type == "fragment" || type == "pixel")
 				return GL_FRAGMENT_SHADER;
 
-			Log::Assert(false, "Unkown shader type.");
+			Logger::Assert(false, "Unkown shader type.");
 			return 0;
 		}
 
@@ -304,7 +302,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Error("Could not open file: '%s'", filepath);
+				Logger::Error("Could not open file: '%s'", filepath);
 			}
 
 			return result;

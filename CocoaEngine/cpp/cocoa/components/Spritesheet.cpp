@@ -9,7 +9,7 @@ namespace Cocoa
 		{
 			Spritesheet res;
 			res.TextureHandle = textureHandle;
-			const Texture& texture = AssetManager::GetTexture(textureHandle.m_AssetId);
+			const Texture& texture = AssetManager::GetTexture(textureHandle.AssetId);
 
 			// NOTE: If you don't reserve the space before hand, when the vector grows it will
 			// change the pointers it holds
@@ -48,7 +48,7 @@ namespace Cocoa
 
 		Sprite GetSprite(const Spritesheet& spritesheet, int index)
 		{
-			Log::Assert(index >= 0 && index < spritesheet.Sprites.size(), "Index out of bounds exception.");
+			Logger::Assert(index >= 0 && index < spritesheet.Sprites.size(), "Index out of bounds exception.");
 			return spritesheet.Sprites[index];
 		}
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cocoa/core/Application.h"
-#include "cocoa/util/Log.h"
 
 #include "cocoa/commands/CommandHistory.h"
 #include "cocoa/commands/ChangeVec3Command.h"

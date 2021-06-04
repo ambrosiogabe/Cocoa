@@ -282,7 +282,7 @@ namespace Cocoa
 
 				if (m_MouseDragging && m_ActiveGizmo >= 0)
 				{
-					Log::Assert((m_ActiveGizmo >= 0 && m_ActiveGizmo < 6), "Active gizmo out of array bounds.");
+					Logger::Assert((m_ActiveGizmo >= 0 && m_ActiveGizmo < 6), "Active gizmo out of array bounds.");
 					switch (m_Mode)
 					{
 					case GizmoMode::Translate:

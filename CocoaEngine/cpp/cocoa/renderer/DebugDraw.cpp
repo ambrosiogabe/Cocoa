@@ -1,6 +1,5 @@
 #include "cocoa/renderer/DebugDraw.h"
 
-#include "cocoa/util/DynamicArray.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/renderer/RenderBatch.h"
@@ -24,10 +23,10 @@ namespace Cocoa
 		};
 
 		// Internal Variables
-		static DynamicArray<RenderBatchData> m_Batches;
-		static DynamicArray<Line2D> m_Lines;
-		static DynamicArray<DebugSprite> m_Sprites;
-		static DynamicArray<DebugShape> m_Shapes;
+		static List<RenderBatchData> m_Batches;
+		static List<Line2D> m_Lines;
+		static List<DebugSprite> m_Sprites;
+		static List<DebugShape> m_Shapes;
 		static Handle<Shader> m_Shader;
 
 		static const int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
@@ -43,28 +42,24 @@ namespace Cocoa
 
 		void Init()
 		{
-			m_Batches = NDynamicArray::Create<RenderBatchData>();
-			m_Lines = NDynamicArray::Create<Line2D>();
-			m_Sprites = NDynamicArray::Create<DebugSprite>();
-			m_Shapes = NDynamicArray::Create<DebugShape>();
-			m_Shader = Handle<Shader>();
+			m_Batches = List<RenderBatchData>();
+			m_Lines = List<Line2D>();
+			m_Sprites = List<DebugSprite>();
+			m_Shapes = List<DebugShape>();
+			m_Shader = NHandle::CreateHandle<Shader>();
 		}
 
 		void Destroy()
 		{
-			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatch::Free(m_Batches.m_Data[i]);
+				RenderBatch::Free(m_Batches[i]);
 			}
-			NDynamicArray::Free<RenderBatchData>(m_Batches);
-			NDynamicArray::Free<Line2D>(m_Lines);
-			NDynamicArray::Free<DebugSprite>(m_Sprites);
 
-			for (int i = 0; i < m_Shapes.m_NumElements; i++)
+			for (int i = 0; i < m_Shapes.size(); i++)
 			{
-				FreeMem(m_Shapes.m_Data[i].Vertices);
+				FreeMem(m_Shapes[i].Vertices);
 			}
-			NDynamicArray::Free<DebugShape>(m_Shapes);
 		}
 
 		void BeginFrame()
@@ -90,13 +85,13 @@ namespace Cocoa
 
 		void DrawBottomBatches(const Camera& camera)
 		{
-			const Shader& shaderRef = AssetManager::GetShader(m_Shader.m_AssetId);
+			const Shader& shaderRef = AssetManager::GetShader(m_Shader.AssetId);
 			NShader::Bind(shaderRef);
 			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
 			NShader::UploadMat4(shaderRef, "uView", camera.ViewMatrix);
 			NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, m_TexSlots);
 
-			for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+			for (auto batch = m_Batches.begin(); batch != m_Batches.end(); batch++)
 			{
 				if (!batch->BatchOnTop)
 				{
@@ -109,7 +104,7 @@ namespace Cocoa
 
 		void ClearAllBatches()
 		{
-			for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+			for (auto batch = m_Batches.begin(); batch != m_Batches.end(); batch++)
 			{
 				RenderBatch::Clear(*batch);
 			}
@@ -117,13 +112,13 @@ namespace Cocoa
 
 		void DrawTopBatches(const Camera& camera)
 		{
-			const Shader& shaderRef = AssetManager::GetShader(m_Shader.m_AssetId);
+			const Shader& shaderRef = AssetManager::GetShader(m_Shader.AssetId);
 			NShader::Bind(shaderRef);
 			NShader::UploadMat4(shaderRef, "uProjection", camera.ProjectionMatrix);
 			NShader::UploadMat4(shaderRef, "uView", camera.ViewMatrix);
 			NShader::UploadIntArray(shaderRef, "uTextures[0]", 16, m_TexSlots);
 
-			for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+			for (auto batch = m_Batches.begin(); batch != m_Batches.end(); batch++)
 			{
 				if (batch->BatchOnTop)
 				{
@@ -139,7 +134,7 @@ namespace Cocoa
 		// ===================================================================================================================
 		void AddLine2D(glm::vec2& from, glm::vec2& to, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
 		{
-			NDynamicArray::Add<Line2D>(m_Lines, NLine2D::Create(from, to, color, strokeWidth, lifetime, onTop));
+			m_Lines.push(NLine2D::Create(from, to, color, strokeWidth, lifetime, onTop));
 		}
 
 		void AddBox2D(glm::vec2& center, glm::vec2& dimensions, float rotation, float strokeWidth, glm::vec3 color, int lifetime, bool onTop)
@@ -188,7 +183,7 @@ namespace Cocoa
 			int lifetime,
 			bool onTop)
 		{
-			NDynamicArray::Add<DebugSprite>(m_Sprites, DebugSprite{ spriteTexture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
+			m_Sprites.push(DebugSprite{ spriteTexture, size, position, tint, texCoordMin, texCoordMax, rotation, lifetime, onTop });
 		}
 
 		void AddShape(
@@ -216,7 +211,7 @@ namespace Cocoa
 					vertsCopy[i] = glm::vec2(transformedPos.x, transformedPos.y);
 				}
 			}
-			NDynamicArray::Add<DebugShape>(m_Shapes, DebugShape{ vertsCopy, numVertices, numElements, glm::vec3(color), glm::vec2(position), rotation, lifetime, onTop });
+			m_Shapes.push(DebugShape{ vertsCopy, numVertices, numElements, glm::vec3(color), glm::vec2(position), rotation, lifetime, onTop });
 		}
 
 
@@ -226,13 +221,13 @@ namespace Cocoa
 		static void RemoveDeadSprites()
 		{
 			int index = 0;
-			while (index < m_Sprites.m_NumElements)
+			while (index < m_Sprites.size())
 			{
-				DebugSprite& spriteIter = m_Sprites.m_Data[index];
+				DebugSprite& spriteIter = m_Sprites[index];
 				spriteIter.Lifetime--;
 				if (spriteIter.Lifetime <= 0)
 				{
-					NDynamicArray::Remove<DebugSprite>(m_Sprites, index);
+					m_Sprites.removeByIndex(index);
 				}
 				else
 				{
@@ -244,14 +239,14 @@ namespace Cocoa
 		static void RemoveDeadLines()
 		{
 			auto index = 0;
-			while (index != m_Lines.m_NumElements)
+			while (index != m_Lines.size())
 			{
-				Line2D& lineIter = m_Lines.m_Data[index];
+				Line2D& lineIter = m_Lines[index];
 				lineIter.Lifetime--;
 				// TODO: Investigate why this needs < but RemoveDeadShapes only needs <=
 				if (lineIter.Lifetime < 0)
 				{
-					NDynamicArray::Remove<Line2D>(m_Lines, index);
+					m_Lines.removeByIndex(index);
 				}
 				else
 				{
@@ -263,14 +258,14 @@ namespace Cocoa
 		static void RemoveDeadShapes()
 		{
 			auto index = 0;
-			while (index != m_Shapes.m_NumElements)
+			while (index != m_Shapes.size())
 			{
-				DebugShape& shapeIter = m_Shapes.m_Data[index];
+				DebugShape& shapeIter = m_Shapes[index];
 				shapeIter.Lifetime--;
 				if (shapeIter.Lifetime <= 0)
 				{
-					FreeMem(m_Shapes.m_Data[index].Vertices);
-					NDynamicArray::Remove<DebugShape>(m_Shapes, index);
+					FreeMem(m_Shapes[index].Vertices);
+					m_Shapes.removeByIndex(index);
 				}
 				else
 				{
@@ -281,12 +276,12 @@ namespace Cocoa
 
 		static void AddSpritesToBatches()
 		{
-			for (int i = 0; i < m_Sprites.m_NumElements; i++)
+			for (int i = 0; i < m_Sprites.size(); i++)
 			{
-				const DebugSprite& sprite = m_Sprites.m_Data[i];
+				const DebugSprite& sprite = m_Sprites[i];
 				bool wasAdded = false;
 				bool spriteOnTop = sprite.OnTop;
-				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+				for (auto batch = m_Batches.begin(); batch != m_Batches.end(); batch++)
 				{
 					if (RenderBatch::HasRoom(*batch) && spriteOnTop == batch->BatchOnTop)
 					{
@@ -322,18 +317,18 @@ namespace Cocoa
 						sprite.TexCoordMax, 
 						sprite.Rotation);
 
-					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+					m_Batches.push(newBatch);
 				}
 			}
 		}
 
 		static void AddLinesToBatches()
 		{
-			for (auto line = NDynamicArray::Begin<Line2D>(m_Lines); line != NDynamicArray::End<Line2D>(m_Lines); line++)
+			for (auto line = m_Lines.begin(); line != m_Lines.end(); line++)
 			{
 				bool wasAdded = false;
 				bool lineOnTop = line->OnTop;
-				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+				for (auto batch = m_Batches.begin(); batch != m_Batches.end(); batch++)
 				{
 					if (RenderBatch::HasRoom(*batch) && (lineOnTop == batch->BatchOnTop))
 					{
@@ -348,18 +343,18 @@ namespace Cocoa
 					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, lineOnTop);
 					RenderBatch::Start(newBatch);
 					RenderBatch::Add(newBatch, line->Verts, line->Color);
-					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+					m_Batches.push(newBatch);
 				}
 			}
 		}
 
 		static void AddShapesToBatches()
 		{
-			for (auto shape = NDynamicArray::Begin<DebugShape>(m_Shapes); shape != NDynamicArray::End<DebugShape>(m_Shapes); shape++)
+			for (auto shape = m_Shapes.begin(); shape != m_Shapes.end(); shape++)
 			{
 				bool wasAdded = false;
 				bool shapeOnTop = shape->OnTop;
-				for (auto batch = NDynamicArray::Begin<RenderBatchData>(m_Batches); batch != NDynamicArray::End<RenderBatchData>(m_Batches); batch++)
+				for (auto batch = m_Batches.begin(); batch != m_Batches.end(); batch++)
 				{
 					if (RenderBatch::HasRoom(*batch, shape->NumVertices) && (shapeOnTop == batch->BatchOnTop))
 					{
@@ -374,7 +369,7 @@ namespace Cocoa
 					RenderBatchData newBatch = RenderBatch::CreateRenderBatch(m_MaxBatchSize, 0, m_Shader, shapeOnTop);
 					RenderBatch::Start(newBatch);
 					RenderBatch::Add(newBatch, shape->Vertices, shape->Color, shape->Position, shape->NumVertices, shape->NumElements);
-					NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
+					m_Batches.push(newBatch);
 				}
 			}
 		}

@@ -3,7 +3,6 @@
 #include "cocoa/core/Core.h"
 
 #include "cocoa/components/Transform.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/renderer/CameraStruct.h"
 #include "cocoa/renderer/Framebuffer.h"
 

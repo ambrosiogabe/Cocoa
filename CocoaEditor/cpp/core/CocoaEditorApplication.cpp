@@ -12,14 +12,12 @@
 #include "cocoa/util/Settings.h"
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/core/Memory.h"
 
 #include <glad/glad.h>
 #include <nlohmann/json.hpp>
 
-#ifdef COCOA_TEST
-#include "cocoaTests/include/testMain.h"
-#endif
+// TODO: REMOVE ME
+#include <clang-c/Index.h>
 
 #ifdef CopyFile
 #undef CopyFile
@@ -43,7 +41,7 @@ namespace Cocoa
 		{
 			Settings::General::s_EngineExeDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -1));
 			Settings::General::s_EngineSourceDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -4));
-			Log::Info("%s", Settings::General::s_EngineExeDirectory.Path.c_str());
+			Logger::Info("%s", Settings::General::s_EngineExeDirectory.Path.c_str());
 
 			// Set the assets path as CWD (which should be where the exe is currently located)
 			Settings::General::s_EngineAssetsPath = File::GetCwd();
@@ -289,14 +287,11 @@ namespace Cocoa
 
 	void CocoaEditor::Init()
 	{
-		// This won't really do anything in release builds
-		Cocoa::Memory::Init();
-
 		// Initialize GLAD here, so that it works in DLL and exe
-		Log::Info("Initializing GLAD functions in exe.");
+		Logger::Info("Initializing GLAD functions in exe.");
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			Log::Error("Unable to initialize GLAD.");
+			Logger::Error("Unable to initialize GLAD.");
 		}
 
 		// Engine initialization
@@ -312,10 +307,6 @@ namespace Cocoa
 		Scene::Init(m_CurrentScene);
 		Scene::Start(m_CurrentScene);
 		DebugDraw::Init();
-
-#ifdef COCOA_TEST
-		Cocoa::Tests::RunTests();
-#endif
 	}
 
 	void CocoaEditor::Shutdown()
@@ -333,7 +324,7 @@ namespace Cocoa
 #endif
 		
 		// This won't really do anything in release builds
-		Cocoa::Memory::Destroy();
+		Memory::DumpMemoryLeaks();
 	}
 
 	void CocoaEditor::BeginFrame()
@@ -354,11 +345,50 @@ namespace Cocoa
 		m_AppData.AppOnEvent = eventFn;
 	}
 
+	// TODO: Remove me
+	static void printCXString(const CXString& str)
+	{
+		const char* cStr = clang_getCString(str);
+		printf("%s", cStr);
+		clang_disposeString(str);
+	}
+
 	// ===================================================================================
 	// Create application entry point
 	// ===================================================================================
 	Application* CreateApplication()
 	{
+		CXIndex index = clang_createIndex(0, 0);
+		CXTranslationUnit unit = clang_parseTranslationUnit(
+			index,
+			"C:\\Users\\Gabe\\Downloads\\test.hpp", nullptr, 0,
+			nullptr, 0,
+			CXTranslationUnit_None
+		);
+		if (unit == nullptr)
+		{
+			printf("Unable to parse translation unit.");
+			exit(-1);
+		}
+
+		CXCursor cursor = clang_getTranslationUnitCursor(unit);
+		clang_visitChildren(
+			cursor,
+			[](CXCursor c, CXCursor parent, CXClientData clientData)
+			{
+				//printf("Cursor '");
+				//printCXString(clang_getCursorSpelling(c));
+				//printf("' of kind '");
+				//printCXString(clang_getCursorKindSpelling(clang_getCursorKind(c)));
+				//printf("'\n");
+				return CXChildVisit_Recurse;
+			},
+			nullptr
+		);
+
+		clang_disposeTranslationUnit(unit);
+		clang_disposeIndex(index);
+
 		CocoaEditor* editor = new CocoaEditor();
 		editor->SetAppData(
 			EditorLayer::OnAttach,

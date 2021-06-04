@@ -1,7 +1,5 @@
 #ifdef _WIN32
 #include "cocoa/file/File.h"
-#include "cocoa/util/Log.h"
-#include "cocoa/core/Memory.h"
 
 #include <direct.h>
 #include <shobjidl_core.h>
@@ -39,7 +37,7 @@ namespace Cocoa
 				if (!file->m_Data)
 				{
 					fclose(filePointer);
-					Log::Warning("Memory allocation failed.");
+					Logger::Warning("Memory allocation failed.");
 					return file;
 				}
 
@@ -49,7 +47,7 @@ namespace Cocoa
 					fclose(filePointer);
 					FreeMem(file->m_Data);
 					file->m_Data = nullptr;
-					Log::Warning("Failed to read file properly.");
+					Logger::Warning("Failed to read file properly.");
 					return file;
 				}
 
@@ -77,14 +75,14 @@ namespace Cocoa
 				}
 				else
 				{
-					Log::Warning("Tried to free invalid file.");
+					Logger::Warning("Tried to free invalid file.");
 				}
 				FreeMem(file);
 				file = nullptr;
 			}
 			else
 			{
-				Log::Warning("Tried to free invalid file.");
+				Logger::Warning("Tried to free invalid file.");
 			}
 		}
 
@@ -120,7 +118,7 @@ namespace Cocoa
 			NCPath::Join(newFilepath, NCPath::CreatePath(std::string(newFilename) + NCPath::FileExt(fileToCopy)));
 			if (!CopyFileExA(fileToCopy.Path.c_str(), newFilepath.Path.c_str(), NULL, NULL, false, NULL))
 			{
-				Log::Warning("Could not copy file error code: %d", GetLastError());
+				Logger::Warning("Could not copy file error code: %d", GetLastError());
 				return false;
 			}
 
@@ -131,7 +129,7 @@ namespace Cocoa
 		{
 			char buff[FILENAME_MAX];
 			char* success = _getcwd(buff, FILENAME_MAX);
-			Log::Assert(success != NULL, "Unable to get Current Working Directory.");
+			Logger::Assert(success != NULL, "Unable to get Current Working Directory.");
 			return { buff };
 		}
 
@@ -147,7 +145,7 @@ namespace Cocoa
 				return result;
 			}
 
-			Log::Assert(false, "Could not retrieve AppRoamingData folder.");
+			Logger::Assert(false, "Could not retrieve AppRoamingData folder.");
 			return NCPath::CreatePath();
 		}
 
@@ -155,7 +153,7 @@ namespace Cocoa
 		{
 			char filepath[MAX_PATH];
 			DWORD res = GetModuleFileNameA(NULL, filepath, MAX_PATH);
-			Log::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
+			Logger::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
 
 			return NCPath::CreatePath(filepath);
 		}
@@ -164,7 +162,7 @@ namespace Cocoa
 		{
 			if (!(CreateDirectoryA(directory.Path.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 			{
-				Log::Assert(false, "Failed to create directory %s", directory.Path.c_str());
+				Logger::Assert(false, "Failed to create directory %s", directory.Path.c_str());
 			}
 		}
 
@@ -303,7 +301,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Warning("Unsuccessfully started process '%s'", pathToExe.Path.c_str());
+				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.Path.c_str());
 			}
 
 			return res;

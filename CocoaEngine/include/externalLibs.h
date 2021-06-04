@@ -71,6 +71,11 @@ using json = nlohmann::json;
 #include <glad/glad.h>
 #include <GLFW/include/GLFW/glfw3.h>
 
+// ===================================================================
+// Cpp Utils
+// ===================================================================
+#include <CppUtils/CppUtils.h>
+using namespace CppUtils;
 
 // Some core defines and stuff
 #include "cocoa/core/Core.h"

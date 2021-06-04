@@ -21,6 +21,10 @@ project "CocoaEditor"
         "4267"
     }
 
+    libdirs {
+        fullOutputDir
+    }
+
     includedirs {
         "../CocoaEngine",
         "../CocoaEngine/include",
@@ -35,6 +39,8 @@ project "CocoaEditor"
         "../%{IncludeDir.Json}",
         "../%{IncludeDir.GLFW}",
         "../%{IncludeDir.Freetype}",
+        "../%{IncludeDir.Libclang}",
+		"../%{IncludeDir.CppUtils}"
     }
 
     links {
@@ -44,7 +50,8 @@ project "CocoaEditor"
         "opengl32.lib",
         "Glad",
         "Box2D",
-        "Freetype"
+        "Freetype",
+        "libclang.lib"
     }
 
     defines {

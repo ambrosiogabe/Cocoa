@@ -28,7 +28,7 @@ namespace Cocoa
 		static HMODULE m_Module;
 
 		// Forward Declarations
-		static void AddComponentStub(entt::registry&, std::string, entt::entity) { Log::Warning("Adding component from STUB"); }
+		static void AddComponentStub(entt::registry&, std::string, entt::entity) { Logger::Warning("Adding component from STUB"); }
 		static void UpdateScriptStub(entt::registry&, float) {}
 		static void EditorUpdateScriptStub(entt::registry&, float) {}
 		static void SaveScriptsStub(entt::registry&, json&, SceneData*) {}
@@ -45,7 +45,7 @@ namespace Cocoa
 			auto func = GetProcAddress(module, functionName);
 			if (func == NULL)
 			{
-				Log::Warning("Could not load dll function '%s'", functionName);
+				Logger::Warning("Could not load dll function '%s'", functionName);
 			}
 
 			return func;
@@ -153,7 +153,7 @@ namespace Cocoa
 			if (!FreeLibrary(m_Module))
 			{
 				DWORD errorCode = GetLastError();
-				Log::Warning("Could not free script dll. Error Code: %d", errorCode);
+				Logger::Warning("Could not free script dll. Error Code: %d", errorCode);
 				return false;
 			}
 
@@ -182,7 +182,7 @@ namespace Cocoa
 		{
 			if (m_SaveScripts)
 			{
-				Log::Info("Saving scripts!");
+				Logger::Info("Saving scripts!");
 				m_SaveScripts(scene.Registry, j, &scene);
 			}
 		}

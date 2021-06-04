@@ -79,7 +79,7 @@ namespace Cocoa
 				{
 					if (!EditorLayer::LoadProject(scene, NCPath::CreatePath(res.filepath)))
 					{
-						Log::Warning("Unable to load project: %s", res.filepath.c_str());
+						Logger::Warning("Unable to load project: %s", res.filepath.c_str());
 					}
 				}
 			}

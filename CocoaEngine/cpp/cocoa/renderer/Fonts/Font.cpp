@@ -1,7 +1,6 @@
 #include "cocoa/renderer/fonts/Font.h"
 #include "cocoa/renderer/fonts/FontUtil.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/core/Memory.h"
 #include "cocoa/util/JsonExtended.h"
 
 #include <stb/stb_image.h>
@@ -70,7 +69,7 @@ namespace Cocoa
 			};
 		}
 
-		res["FontTextureId"] = m_FontTexture.m_AssetId;
+		res["FontTextureId"] = m_FontTexture.AssetId;
 		res["GlyphRangeStart"] = m_GlyphRangeStart;
 		res["GlyphRangeEnd"] = m_GlyphRangeEnd;
 		res["Filepath"] = m_Path.Path.c_str();
@@ -107,7 +106,7 @@ namespace Cocoa
 			}
 		}
 
-		JsonExtended::AssignIfNotNull(j, "FontTextureId", m_FontTexture.m_AssetId);
+		JsonExtended::AssignIfNotNull(j, "FontTextureId", m_FontTexture.AssetId);
 		JsonExtended::AssignIfNotNull(j, "GlyphRangeStart", m_GlyphRangeStart);
 		JsonExtended::AssignIfNotNull(j, "GlyphRangeEnd", m_GlyphRangeEnd);
 		JsonExtended::AssignIfNotNull(j, "Filepath", m_Path);
