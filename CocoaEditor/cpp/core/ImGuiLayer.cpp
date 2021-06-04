@@ -106,7 +106,7 @@ namespace Cocoa
 
 			if (!m_HoveringGameEditorWindow && ImGui::GetIO().WantCaptureMouse)
 			{
-				e.m_Handled = e.IsInCategory(EventCategoryMouse) ? true : false;
+				e.handled = e.isInCategory(EventCategoryMouse) ? true : false;
 			}
 		}
 

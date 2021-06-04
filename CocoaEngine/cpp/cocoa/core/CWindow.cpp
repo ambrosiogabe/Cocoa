@@ -126,7 +126,7 @@ namespace Cocoa
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
 				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
-				Input::KeyCallback(key, scancode, action, mods);
+				Input::keyCallback(key, scancode, action, mods);
 				switch (action)
 				{
 				case COCOA_PRESS: {
@@ -161,7 +161,7 @@ namespace Cocoa
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
 				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
-				Input::MouseButtonCallback(button, action, mods);
+				Input::mouseButtonCallback(button, action, mods);
 				switch (action)
 				{
 				case COCOA_PRESS: {
@@ -182,7 +182,7 @@ namespace Cocoa
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
 				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
-				Input::ScrollCallback(xoffset, yoffset);
+				Input::scrollCallback(xoffset, yoffset);
 				MouseScrolledEvent e((float)xoffset, (float)yoffset);
 				userWin->mEventCallback(e);
 			});
@@ -192,7 +192,7 @@ namespace Cocoa
 				CWindow* userWin = static_cast<CWindow*>(glfwGetWindowUserPointer(window));
 				Logger::Assert(userWin != nullptr, "CWindow is nullpointer in callback.");
 
-				Input::CursorCallback(xpos, ypos);
+				Input::cursorCallback(xpos, ypos);
 				MouseMovedEvent e((float)xpos, (float)ypos);
 				userWin->mEventCallback(e);
 			});

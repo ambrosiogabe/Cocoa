@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_MOUSE_EVENT_H
+#define COCOA_ENGINE_MOUSE_EVENT_H
 
 #include "cocoa/events/Event.h"
 
@@ -12,17 +13,17 @@ namespace Cocoa
 	public:
 		MouseMovedEvent(float x, float y);
 
-		inline float GetX() const;
-		inline float GetY() const;
+		inline float getX() const;
+		inline float getY() const;
 
-		std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(MouseMoved)
 			EVENT_CLASS_CATEGORY_HEADER(EventCategoryInput | EventCategoryMouse)
 
 	private:
-		float m_MouseX;
-		float m_MouseY;
+		float mMouseX;
+		float mMouseY;
 	};
 
 	// ===============================================================
@@ -31,20 +32,20 @@ namespace Cocoa
 	class COCOA MouseScrolledEvent : public Event
 	{
 	public:
-		MouseScrolledEvent(float xoffset, float yoffset);
+		MouseScrolledEvent(float xOffset, float yOffset);
 
 		// TODO: Make these inline somehow
-		float GetXOffset() const;
-		float GetYOffset() const;
+		float getXOffset() const;
+		float getYOffset() const;
 
-		std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(MouseScrolled)
 			EVENT_CLASS_CATEGORY_HEADER(EventCategoryMouse | EventCategoryInput)
 
 	private:
-		float m_XOffset;
-		float m_YOffset;
+		float mXOffset;
+		float mYOffset;
 	};
 
 	// ===============================================================
@@ -54,14 +55,14 @@ namespace Cocoa
 	{
 	public:
 		// TODO: Make this inline somehow
-		int GetMouseButton() const;
+		int getMouseButton() const;
 
 		EVENT_CLASS_CATEGORY_HEADER(EventCategoryInput | EventCategoryMouse)
 
 	protected:
 		MouseButtonEvent(int button);
 
-		int m_Button;
+		int mButton;
 	};
 
 	// ===============================================================
@@ -72,7 +73,7 @@ namespace Cocoa
 	public:
 		MouseButtonPressedEvent(int button);
 
-		std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(MouseButtonPressed)
 	};
@@ -85,8 +86,10 @@ namespace Cocoa
 	public:
 		MouseButtonReleasedEvent(int button);
 
-		std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(MouseButtonReleased)
 	};
 }
+
+#endif

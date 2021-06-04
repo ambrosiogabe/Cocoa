@@ -101,7 +101,7 @@ namespace Cocoa
 
 		glm::vec2 ScreenToOrtho(const Camera& camera)
 		{
-			return Input::ScreenToOrtho(camera);
+			return Input::screenToOrtho(camera);
 		}
 
 		void Serialize(json* j, Entity entity, const Camera& camera)

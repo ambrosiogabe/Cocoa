@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_KEY_EVENT_H
+#define COCOA_ENGINE_KEY_EVENT_H
 
 #include "cocoa/events/Event.h"
 
@@ -11,7 +12,7 @@ namespace Cocoa
 	{
 	public:
 		// TODO: Make this inline somehow
-		int GetKeyCode() const;
+		int getKeyCode() const;
 
 		EVENT_CLASS_CATEGORY_HEADER(EventCategoryKeyboard | EventCategoryInput)
 
@@ -19,7 +20,7 @@ namespace Cocoa
 		// Abstract class, should not be instantiated
 		KeyEvent(int keycode);
 
-		int m_KeyCode;
+		int mKeyCode;
 	};
 
 	// ============================================================
@@ -30,14 +31,14 @@ namespace Cocoa
 	public:
 		KeyPressedEvent(int keycode, int repeatCount);
 
-		inline int GetRepeatCount() const;
+		inline int getRepeatCount() const;
 
-		virtual std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(KeyPressed)
 
 	private:
-		int m_RepeatCount;
+		int mRepeatCount;
 	};
 
 	// ============================================================
@@ -48,7 +49,7 @@ namespace Cocoa
 	public:
 		KeyReleasedEvent(int keycode);
 
-		virtual std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(KeyReleased);
 	};
@@ -60,8 +61,10 @@ namespace Cocoa
 	{
 		KeyTypedEvent(int keycode);
 
-		virtual std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(KeyTyped);
 	};
 }
+
+#endif

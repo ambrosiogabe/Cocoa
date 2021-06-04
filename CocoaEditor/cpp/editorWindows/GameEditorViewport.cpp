@@ -92,15 +92,15 @@ namespace Cocoa
 			ImVec2 topLeft = ImGui::GetCursorScreenPos();
 			m_GameviewPos.x = topLeft.x;
 			m_GameviewPos.y = topLeft.y + aspectHeight;
-			Input::SetGameViewPos(m_GameviewPos);
+			Input::setGameViewPos(m_GameviewPos);
 			m_GameviewSize.x = aspectWidth;
 			m_GameviewSize.y = aspectHeight;
-			Input::SetGameViewSize(m_GameviewSize);
+			Input::setGameViewSize(m_GameviewSize);
 
 			ImVec2 mousePos = ImGui::GetMousePos() - ImGui::GetCursorScreenPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
 			m_GameviewMousePos.x = mousePos.x;
 			m_GameviewMousePos.y = mousePos.y;
-			Input::SetGameViewMousePos(m_GameviewMousePos);
+			Input::setGameViewMousePos(m_GameviewMousePos);
 
 			Camera& camera = LevelEditorSystem::GetCamera();
 			uint32 texId = NFramebuffer::GetColorAttachment(camera.Framebuffer, 0).GraphicsId;

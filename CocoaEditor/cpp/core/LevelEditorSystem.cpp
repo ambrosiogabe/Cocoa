@@ -217,52 +217,52 @@ namespace Cocoa
 
 		void LevelEditorSystem::OnEvent(SceneData& scene, Event& e)
 		{
-			switch (e.GetType())
+			switch (e.getType())
 			{
 			case EventType::KeyPressed:
-				e.m_Handled = HandleKeyPress((KeyPressedEvent&)e, scene);
+				e.handled = HandleKeyPress((KeyPressedEvent&)e, scene);
 				return;
 			case EventType::KeyReleased:
-				e.m_Handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
+				e.handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
 				return;
 			case EventType::MouseButtonPressed:
-				e.m_Handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
+				e.handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
 				return;
 			case EventType::MouseButtonReleased:
-				e.m_Handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
+				e.handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
 				return;
 			case EventType::MouseScrolled:
-				e.m_Handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
+				e.handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
 				return;
 			}
 		}
 
 		bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene)
 		{
-			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+			if (e.getKeyCode() == COCOA_KEY_LEFT_CONTROL)
 			{
 				m_ControlModifierPressed = true;
 			}
 
 			if (m_ControlModifierPressed)
 			{
-				if (e.GetKeyCode() == COCOA_KEY_Z)
+				if (e.getKeyCode() == COCOA_KEY_Z)
 				{
 					CommandHistory::undo();
 				}
 
-				if (e.GetKeyCode() == COCOA_KEY_R)
+				if (e.getKeyCode() == COCOA_KEY_R)
 				{
 					CommandHistory::redo();
 				}
 
-				if (e.GetKeyCode() == COCOA_KEY_S)
+				if (e.getKeyCode() == COCOA_KEY_S)
 				{
 					Scene::Save(scene, Settings::General::s_CurrentScene);
 					EditorLayer::saveProject();
 				}
 
-				if (e.GetKeyCode() == COCOA_KEY_D)
+				if (e.getKeyCode() == COCOA_KEY_D)
 				{
 					Entity activeEntity = InspectorWindow::GetActiveEntity();
 					if (!NEntity::isNull(activeEntity))
@@ -275,7 +275,7 @@ namespace Cocoa
 				}
 			}
 
-			if (e.GetKeyCode() == COCOA_KEY_DELETE)
+			if (e.getKeyCode() == COCOA_KEY_DELETE)
 			{
 				Entity activeEntity = InspectorWindow::GetActiveEntity();
 				if (!NEntity::isNull(activeEntity))
@@ -291,7 +291,7 @@ namespace Cocoa
 
 		bool HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene)
 		{
-			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+			if (e.getKeyCode() == COCOA_KEY_LEFT_CONTROL)
 			{
 				m_ControlModifierPressed = false;
 			}
@@ -310,7 +310,7 @@ namespace Cocoa
 			static float step = -1;
 			static float cameraSensitivity = 0.5f;
 
-			float yOffset = -e.GetYOffset();
+			float yOffset = -e.getYOffset();
 			if (yOffset != 0)
 			{
 				Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
@@ -331,7 +331,7 @@ namespace Cocoa
 		bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene)
 		{
 			static float speed = 500.0f;
-			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+			if (!m_IsDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = true;
 				const Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
@@ -345,7 +345,7 @@ namespace Cocoa
 
 		bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene)
 		{
-			if (m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+			if (m_IsDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = false;
 			}

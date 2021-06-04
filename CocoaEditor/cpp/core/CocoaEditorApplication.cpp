@@ -253,15 +253,15 @@ namespace Cocoa
 				// Order matters here. We want to do the top most layer to the bottom most so that events are blocked
 				// if needed
 				// TODO: Come up with better solution then if checks constantly. (Maybe abstract this into another function?)
-				if (!e.Handled())
+				if (!e.handled)
 				{
 					ImGuiLayer::OnEvent(scene, e);
 				}
-				if (!e.Handled())
+				if (!e.handled)
 				{
 					LevelEditorSystem::OnEvent(scene, e);
 				}
-				if (!e.Handled())
+				if (!e.handled)
 				{
 					GizmoSystem::OnEvent(scene, e);
 				}
@@ -299,7 +299,7 @@ namespace Cocoa
 		// Engine initialization
 		AssetManager::init(0);
 		ProjectWizard::Init();
-		Input::Init();
+		Input::init();
 
 		// Application Initialization
 		EditorLayer::init();

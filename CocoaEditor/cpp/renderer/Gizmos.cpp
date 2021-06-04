@@ -345,33 +345,33 @@ namespace Cocoa
 
 		void OnEvent(SceneData& scene, Event& e)
 		{
-			switch (e.GetType())
+			switch (e.getType())
 			{
 			case EventType::KeyPressed:
-				e.m_Handled = HandleKeyPress((KeyPressedEvent&)e, scene);
+				e.handled = HandleKeyPress((KeyPressedEvent&)e, scene);
 				return;
 			case EventType::KeyReleased:
-				e.m_Handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
+				e.handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
 				return;
 			case EventType::MouseButtonPressed:
-				e.m_Handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
+				e.handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
 				return;
 			case EventType::MouseButtonReleased:
-				e.m_Handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
+				e.handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
 				return;
 			case EventType::MouseScrolled:
-				e.m_Handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
+				e.handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
 				return;
 			}
 		}
 
 		bool GizmoSystem::HandleKeyPress(KeyPressedEvent& e, SceneData& scene)
 		{
-			if (e.GetKeyCode() == COCOA_KEY_S)
+			if (e.getKeyCode() == COCOA_KEY_S)
 			{
 				m_Mode = GizmoMode::Scale;
 			}
-			else if (e.GetKeyCode() == COCOA_KEY_G)
+			else if (e.getKeyCode() == COCOA_KEY_G)
 			{
 				m_Mode = GizmoMode::Translate;
 			}
@@ -392,12 +392,12 @@ namespace Cocoa
 
 		bool GizmoSystem::HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene)
 		{
-			if (!m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
+			if (!m_MouseDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
 				const Camera& camera = LevelEditorSystem::GetCamera();
 				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
 
-				glm::vec2 normalizedMousePos = Input::NormalizedMousePos();
+				glm::vec2 normalizedMousePos = Input::normalizedMousePos();
 				const Framebuffer& mainFramebuffer = camera.Framebuffer;
 				uint32 pixel = NFramebuffer::ReadPixelUint32(mainFramebuffer, 1, (uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
 
@@ -429,7 +429,7 @@ namespace Cocoa
 
 		bool GizmoSystem::HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene)
 		{
-			if (m_MouseDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
+			if (m_MouseDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
 				m_MouseDragging = false;
 				CommandHistory::setNoMergeMostRecent();

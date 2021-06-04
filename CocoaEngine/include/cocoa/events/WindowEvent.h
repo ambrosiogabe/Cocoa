@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_WINDOW_EVENT_H
+#define COCOA_ENGINE_WINDOW_EVENT_H
 
 #include "cocoa/core/Core.h"
 #include "cocoa/events/Event.h"
@@ -11,10 +12,10 @@ namespace Cocoa
 		WindowResizeEvent(uint32 width, uint32 height);
 
 		// TODO: Make these inline somehow
-		uint32 GetWidth() const;
-		uint32 GetHeight() const;
+		uint32 getWidth() const;
+		uint32 getHeight() const;
 
-		virtual std::string ToString() const override;
+		std::string toString() const override;
 
 		EVENT_CLASS_TYPE_HEADER(WindowResize)
 			EVENT_CLASS_CATEGORY_HEADER(EventCategoryApplication)
@@ -33,3 +34,5 @@ namespace Cocoa
 			EVENT_CLASS_CATEGORY_HEADER(EventCategoryApplication)
 	};
 }
+
+#endif

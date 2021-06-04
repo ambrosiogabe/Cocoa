@@ -9,151 +9,151 @@
 
 namespace Cocoa
 {
-	bool Input::s_Initialized = false;
-	bool Input::s_KeyPressed[349]{ };
-	bool Input::s_MouseButtonPressed[3]{ };
-	float Input::s_XPos = 0.0f;
-	float Input::s_YPos = 0.0f;
-	float Input::s_ScrollX = 0.0f;
-	float Input::s_ScrollY = 0.0f;
-	glm::vec2 Input::s_GameViewPos{ 0, 0 };
-	glm::vec2 Input::s_GameViewSize{ 0, 0 };
-	glm::vec2 Input::s_GameViewMousePos{ 0, 0 };
+	bool Input::sInitialized = false;
+	bool Input::sKeyPressed[349]{ };
+	bool Input::sMouseButtonPressed[3]{ };
+	float Input::sXPos = 0.0f;
+	float Input::sYPos = 0.0f;
+	float Input::sScrollX = 0.0f;
+	float Input::sScrollY = 0.0f;
+	glm::vec2 Input::sGameViewPos{ 0, 0 };
+	glm::vec2 Input::sGameViewSize{ 0, 0 };
+	glm::vec2 Input::sGameViewMousePos{ 0, 0 };
 
-	void Input::Init()
+	void Input::init()
 	{
-		Logger::Assert(!s_Initialized, "Input already initialized.");
-		s_Initialized = true;
+		Logger::Assert(!sInitialized, "Input already initialized.");
+		sInitialized = true;
 		const glm::vec2& windowSize = Application::get()->getWindow()->getSize();
 	}
 
-	void Input::KeyCallback(int key, int scancode, int action, int mods)
+	void Input::keyCallback(int key, int scanCode, int action, int mods)
 	{
-		s_KeyPressed[key] = (action == COCOA_PRESS || action == COCOA_REPEAT) ? true : false;
+		sKeyPressed[key] = (action == COCOA_PRESS || action == COCOA_REPEAT) ? true : false;
 	}
 
-	bool Input::KeyPressed(int keyCode)
+	bool Input::keyPressed(int keyCode)
 	{
 		if (keyCode >= 0 && keyCode < 350)
 		{
-			return s_KeyPressed[keyCode];
+			return sKeyPressed[keyCode];
 		}
 		return false;
 	}
 
-	void Input::MouseButtonCallback(int button, int action, int mods)
+	void Input::mouseButtonCallback(int button, int action, int mods)
 	{
-		s_MouseButtonPressed[button] = action == COCOA_PRESS ? true : false;
+		sMouseButtonPressed[button] = action == COCOA_PRESS ? true : false;
 	}
 
-	bool Input::MouseButtonPressed(int mouseButton)
+	bool Input::mouseButtonPressed(int mouseButton)
 	{
 		if (mouseButton >= 0 && mouseButton < 3)
 		{
-			return s_MouseButtonPressed[mouseButton];
+			return sMouseButtonPressed[mouseButton];
 		}
 		return false;
 	}
 
-	void Input::CursorCallback(double xpos, double ypos)
+	void Input::cursorCallback(double xPos, double yPos)
 	{
-		s_XPos = (float)xpos;
-		s_YPos = (float)ypos;
+		sXPos = (float)xPos;
+		sYPos = (float)yPos;
 	}
 
-	float Input::MouseX()
+	float Input::mouseX()
 	{
-		return s_XPos;
+		return sXPos;
 	}
 
-	float Input::MouseY()
+	float Input::mouseY()
 	{
-		return s_YPos;
+		return sYPos;
 	}
 
-	float Input::OrthoMouseX(const Camera& camera)
+	float Input::orthoMouseX(const Camera& camera)
 	{
-		float currentX = MouseX() - s_GameViewPos.x;
-		currentX = (currentX / s_GameViewSize.x) * 2.0f - 1.0f;
+		float currentX = mouseX() - sGameViewPos.x;
+		currentX = (currentX / sGameViewSize.x) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
 		tmp = camera.InverseView * camera.InverseProjection * tmp;
 
 		return tmp.x;
 	}
 
-	float Input::OrthoMouseY(const Camera& camera)
+	float Input::orthoMouseY(const Camera& camera)
 	{
-		float currentY = s_GameViewPos.y - MouseY();
-		currentY = (currentY / s_GameViewSize.y) * 2.0f - 1.0f;
+		float currentY = sGameViewPos.y - mouseY();
+		currentY = (currentY / sGameViewSize.y) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
 		tmp = camera.InverseView * camera.InverseProjection * tmp;
 
 		return tmp.y;
 	}
 
-	glm::vec2 Input::ScreenToOrtho(const Camera& camera)
+	glm::vec2 Input::screenToOrtho(const Camera& camera)
 	{
-		glm::vec4 tmp{ s_GameViewMousePos.x, s_GameViewMousePos.y, 0, 1 };
+		glm::vec4 tmp{ sGameViewMousePos.x, sGameViewMousePos.y, 0, 1 };
 
-		tmp.x = (tmp.x / s_GameViewSize.x) * 2.0f - 1.0f;
-		tmp.y = -((tmp.y / s_GameViewSize.y) * 2.0f - 1.0f);
+		tmp.x = (tmp.x / sGameViewSize.x) * 2.0f - 1.0f;
+		tmp.y = -((tmp.y / sGameViewSize.y) * 2.0f - 1.0f);
 		tmp = camera.InverseView * camera.InverseProjection * tmp;
 
 		return glm::vec2{ tmp.x, tmp.y };
 	}
 
-	glm::vec2 Input::NormalizedMousePos()
+	glm::vec2 Input::normalizedMousePos()
 	{
-		glm::vec4 tmp{ s_GameViewMousePos.x, s_GameViewSize.y - s_GameViewMousePos.y, 0, 1 };
+		glm::vec4 tmp{ sGameViewMousePos.x, sGameViewSize.y - sGameViewMousePos.y, 0, 1 };
 
-		tmp.x = (tmp.x / s_GameViewSize.x);
-		tmp.y = (tmp.y / s_GameViewSize.y);
+		tmp.x = (tmp.x / sGameViewSize.x);
+		tmp.y = (tmp.y / sGameViewSize.y);
 
 		return glm::vec2{ tmp.x, tmp.y };
 	}
 
-	void Input::ScrollCallback(double xpos, double ypos)
+	void Input::scrollCallback(double xOffset, double yOffset)
 	{
-		s_ScrollX = (float)xpos;
-		s_ScrollY = -(float)ypos;
+		sScrollX = (float)xOffset;
+		sScrollY = -(float)yOffset;
 	}
 
-	float Input::ScrollX()
+	float Input::scrollX()
 	{
-		return s_ScrollX;
+		return sScrollX;
 	}
 
-	float Input::ScrollY()
+	float Input::scrollY()
 	{
-		return s_ScrollY;
+		return sScrollY;
 	}
 
-	void Input::EndFrame()
+	void Input::endFrame()
 	{
-		s_ScrollX = 0;
-		s_ScrollY = 0;
+		sScrollX = 0;
+		sScrollY = 0;
 	}
 
-	glm::vec2 Input::MousePos()
+	glm::vec2 Input::mousePos()
 	{
-		return glm::vec2{ s_XPos, s_YPos };
+		return glm::vec2{ sXPos, sYPos };
 	}
 
-	void Input::SetGameViewPos(const glm::vec2& position)
+	void Input::setGameViewPos(const glm::vec2& position)
 	{
-		s_GameViewPos.x = position.x;
-		s_GameViewPos.y = position.y;
+		sGameViewPos.x = position.x;
+		sGameViewPos.y = position.y;
 	}
 
-	void Input::SetGameViewSize(const glm::vec2& size)
+	void Input::setGameViewSize(const glm::vec2& size)
 	{
-		s_GameViewSize.x = size.x;
-		s_GameViewSize.y = size.y;
+		sGameViewSize.x = size.x;
+		sGameViewSize.y = size.y;
 	}
 
-	void Input::SetGameViewMousePos(const glm::vec2& mousePos)
+	void Input::setGameViewMousePos(const glm::vec2& mousePos)
 	{
-		s_GameViewMousePos.x = mousePos.x;
-		s_GameViewMousePos.y = mousePos.y;
+		sGameViewMousePos.x = mousePos.x;
+		sGameViewMousePos.y = mousePos.y;
 	}
 }

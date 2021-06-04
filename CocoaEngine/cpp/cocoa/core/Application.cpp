@@ -64,7 +64,7 @@ namespace Cocoa
 	void Application::onEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::onWindowClose, this, std::placeholders::_1));
+		dispatcher.dispatch<WindowCloseEvent>(std::bind(&Application::onWindowClose, this, std::placeholders::_1));
 
 		mAppData.appOnEvent(mCurrentScene, e);
 	}
