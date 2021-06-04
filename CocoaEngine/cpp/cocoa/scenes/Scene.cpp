@@ -237,10 +237,10 @@ namespace Cocoa
 
 		void Save(SceneData& data, const CPath& filename)
 		{
-			Logger::Log("Saving scene '%s'", filename.Path.c_str());
+			Logger::Log("Saving scene '%s'", filename.Path);
 			data.SaveDataJson = {
 				{"Components", {}},
-				{"Project", Settings::General::s_CurrentProject.Path.c_str()},
+				{"Project", Settings::General::s_CurrentProject.Path},
 				{"Assets", AssetManager::Serialize()}
 			};
 
@@ -263,7 +263,7 @@ namespace Cocoa
 
 		void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene)
 		{
-			Logger::Log("Loading scene %s", filename.Path.c_str());
+			Logger::Log("Loading scene %s", filename.Path);
 			Init(data);
 
 			if (setAsCurrentScene)
@@ -306,7 +306,7 @@ namespace Cocoa
 				return;
 			}
 
-			Logger::Info("Loading scripts only for %s", filename.Path.c_str());
+			Logger::Info("Loading scripts only for %s", filename.Path);
 			json j = json::parse(file->m_Data);
 			int size = !j.contains("Components") ? 0 : j["Components"].size();
 			for (int i = 0; i < size; i++)

@@ -6,21 +6,32 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
+#undef CreateFont;
+
 namespace Cocoa
 {
-	CharInfo Font::nullCharacter = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	Font Font::nullFont = Font();
+	static CharInfo nullCharacter = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	static Font nullFont;
 
-	Font::Font()
+	Font Font::CreateFont()
 	{
-		m_IsNull = true;
-		m_IsDefault = false;
+		Font res;
+		res.m_IsNull = true;
+		res.m_IsDefault = false;
+		return res;
 	}
 
-	Font::Font(CPath& resourcePath, bool isDefault)
+	Font Font::CreateFont(CPath& resourcePath, bool isDefault)
 	{
-		m_IsDefault = isDefault;
-		m_Path = CPath(resourcePath);
+		Font res;
+		res.m_IsDefault = isDefault;
+		res.m_Path = CPath(resourcePath);
+		return res;
+	}
+
+	Font Font::NullFont()
+	{
+		return nullFont;
 	}
 
 	void Font::Free()
@@ -36,7 +47,7 @@ namespace Cocoa
 		}
 		else
 		{
-			return Font::nullCharacter;
+			return nullCharacter;
 		}
 	}
 
@@ -72,7 +83,7 @@ namespace Cocoa
 		res["FontTextureId"] = m_FontTexture.AssetId;
 		res["GlyphRangeStart"] = m_GlyphRangeStart;
 		res["GlyphRangeEnd"] = m_GlyphRangeEnd;
-		res["Filepath"] = m_Path.Path.c_str();
+		res["Filepath"] = m_Path.Path;
 		return res;
 	}
 

@@ -100,7 +100,7 @@ namespace Cocoa
 			ImGui::LabelText("##tmp_projectname", "Project Name:");
 			ImGui::InputText("##tmp_filename", mTmpFilename, 256);
 			ImGui::LabelText("##tmp_projectdir", "Project Directory:");
-			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.Path.c_str());
+			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.Path);
 			ImGui::SameLine();
 
 			if (CImGui::Button("Choose Directory"))

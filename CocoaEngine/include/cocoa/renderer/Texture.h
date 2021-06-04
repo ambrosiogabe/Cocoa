@@ -35,20 +35,20 @@ namespace Cocoa
 
 	struct COCOA Texture
 	{
-		uint32 GraphicsId = (uint32)-1;
-		int32 Width = 0;
-		int32 Height = 0;
+		uint32 GraphicsId;
+		int32 Width;
+		int32 Height;
 
 		// Texture attributes
-		FilterMode MagFilter = FilterMode::None;
-		FilterMode MinFilter = FilterMode::None;
-		WrapMode WrapS = WrapMode::None;
-		WrapMode WrapT = WrapMode::None;
-		ByteFormat InternalFormat = ByteFormat::None;
-		ByteFormat ExternalFormat = ByteFormat::None;
+		FilterMode MagFilter;
+		FilterMode MinFilter;
+		WrapMode WrapS;
+		WrapMode WrapT;
+		ByteFormat InternalFormat;
+		ByteFormat ExternalFormat;
 
-		CPath Path = CPath();
-		bool IsDefault = false;
+		CPath Path;
+		bool IsDefault;
 	};
 
 	namespace TextureUtil
@@ -80,5 +80,7 @@ namespace Cocoa
 
 		COCOA json Serialize(const Texture& texture);
 		COCOA Texture Deserialize(const json& j);
+
+		COCOA Texture Create();
 	};
 }

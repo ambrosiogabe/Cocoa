@@ -18,7 +18,7 @@ namespace Cocoa
 
 		CPath CreatePath(bool forceLinuxStylePath)
 		{
-			return CPath{ "", 0, 0 };
+			return CPath{ String::CreateString(""), 0, 0 };
 		}
 
 		CPath CreatePath(const std::string& rawPath, bool forceLinuxStylePath)
@@ -46,17 +46,17 @@ namespace Cocoa
 
 		int FilenameSize(const CPath& path)
 		{
-			return (int)(path.Path.size() - path.FilenameOffset);
+			return (int)(String::StringLength(path.Path) - path.FilenameOffset);
 		}
 
 		int FileExtSize(const CPath& path)
 		{
-			return (int)(path.Path.size() - path.FileExtOffset);
+			return (int)(String::StringLength(path.Path) - path.FileExtOffset);
 		}
 
 		int Size(const CPath& path)
 		{
-			return (int)path.Path.size();
+			return (int)String::StringLength(path.Path);
 		}
 
 		const char* Filename(const CPath& path)
@@ -66,7 +66,7 @@ namespace Cocoa
 
 		const char* Filepath(const CPath& path)
 		{
-			return path.Path.c_str();
+			return path.Path;
 		}
 
 		const char* FileExt(const CPath& path)
@@ -87,12 +87,12 @@ namespace Cocoa
 		 */
 		std::string GetDirectory(const CPath& path, int level)
 		{
-			const char* startCopy = path.Path.c_str();
-			const char* endCopy = path.Path.c_str();
+			const char* startCopy = path.Path;
+			const char* endCopy = path.Path;
+			int pathSize = String::StringLength(path.Path);
 			if (level < 0)
 			{
-
-				for (int i = (int)(path.Path.size() - 1); i >= 0; i--)
+				for (int i = pathSize - 1; i >= 0; i--)
 				{
 					if (IsSeparator(path.Path[i]))
 					{
@@ -107,7 +107,7 @@ namespace Cocoa
 			}
 			else
 			{
-				for (int i = 0; i < path.Path.size(); i++)
+				for (int i = 0; i < pathSize; i++)
 				{
 					if (IsSeparator(path.Path[i]))
 					{
@@ -119,7 +119,7 @@ namespace Cocoa
 							{
 								// If we reach the beginning of the string then set the end of the copy to the string beginning
 								// so that nothing is copied
-								endCopy = path.Path.c_str();
+								endCopy = path.Path;
 							}
 							break;
 						}
@@ -132,50 +132,56 @@ namespace Cocoa
 
 		std::string GetFilenameWithoutExt(const CPath& path)
 		{
-			return path.Path.substr(path.FilenameOffset, FilenameSize(path) - FileExtSize(path));
+			return String::Substring(path.Path, path.FilenameOffset, FilenameSize(path) - FileExtSize(path));
 		}
 
 		void Join(CPath& pathToJoin, const CPath& other)
 		{
-			int newLength = (int)(other.Path.size() + pathToJoin.Path.size());
+			int otherPathSize = String::StringLength(other.Path);
+			int pathToJoinSize = String::StringLength(pathToJoin.Path);
+			int newLength = (int)(otherPathSize + pathToJoinSize);
 			bool needSeparator = false;
 			bool takeAwaySeparator = false;
-			if (!IsSeparator(other.Path[0]) && pathToJoin.Path.size() > 0 && !IsSeparator(pathToJoin.Path[pathToJoin.Path.size() - 1]))
+			if (!IsSeparator(other.Path[0]) && pathToJoinSize > 0 && !IsSeparator(pathToJoin.Path[pathToJoinSize - 1]))
 			{
 				needSeparator = true;
 				newLength++;
 			}
-			else if (IsSeparator(other.Path[0]) && pathToJoin.Path.size() > 0 && IsSeparator(pathToJoin.Path[pathToJoin.Path.size() - 1]))
+			else if (IsSeparator(other.Path[0]) && pathToJoinSize > 0 && IsSeparator(pathToJoin.Path[pathToJoinSize - 1]))
 			{
 				takeAwaySeparator = true;
 				newLength--;
 			}
 
+			StringBuilder sb;
+			sb.Append(pathToJoin.Path);
 			if (!needSeparator && !takeAwaySeparator)
 			{
 				// If only one of the paths has a separator at the end or beginning, just str combine
 				// and return
-				pathToJoin.Path += other.Path;
+				sb.Append(other.Path);
 				return;
-			}
-
-			if (needSeparator)
+			} else if (needSeparator)
 			{
-				pathToJoin.Path += PATH_SEPARATOR;
-				pathToJoin.Path += other.Path;
+				sb.Append(PATH_SEPARATOR);
+				sb.Append(other.Path);
 			}
 			else if (takeAwaySeparator)
 			{
-				pathToJoin.Path += (other.Path.c_str() + 1);
+				sb.Append((other.Path + 1));
 			}
 
-			pathToJoin.FilenameOffset = pathToJoin.Path.size() - (other.Path.size() - other.FilenameOffset);
-			pathToJoin.FileExtOffset = pathToJoin.Path.size() - (other.Path.size() - other.FileExtOffset);
+			String::FreeString(pathToJoin.Path);
+			pathToJoin.Path = sb.c_str_copy();
+			pathToJoinSize = String::StringLength(pathToJoin.Path);
+			otherPathSize = String::StringLength(other.Path);
+			pathToJoin.FilenameOffset = pathToJoinSize - (otherPathSize - other.FilenameOffset);
+			pathToJoin.FileExtOffset = pathToJoinSize - (otherPathSize - other.FileExtOffset);
 		}
 
 		bool Contains(const CPath& path, const char* pathSegment)
 		{
-			return path.Path.find(pathSegment) != std::string::npos;
+			return std::string(path.Path).find(pathSegment) != std::string::npos;
 		}
 
 		std::string LinuxStyle(const CPath& path)
@@ -257,7 +263,7 @@ namespace Cocoa
 			pathBuffer[pathIndex] = '\0';
 
 			// TODO: Bug here (repro just open an existing project possibly with a blank name for example '.cprj')
-			outPath.Path = std::string(pathBuffer, pathIndex);
+			outPath.Path = String::CreateString(pathBuffer);
 			outPath.FilenameOffset = lastPathSeparator >= -1 && lastPathSeparator != pathIndex
 				? lastPathSeparator + 1 : pathIndex;
 			outPath.FileExtOffset = (lastDot == -1 || lastDot < lastPathSeparator || lastPathSeparator == lastDot - 1)
@@ -267,13 +273,13 @@ namespace Cocoa
 
 	bool operator==(const CPath& a, const CPath& b)
 	{
-		if (a.Path.size() == 0 || b.Path.size() == 0)
+		if (NCPath::Size(a) == 0 || NCPath::Size(b) == 0)
 		{
 			return false;
 		}
 
 		CPath tmp1 = File::GetAbsolutePath(a);
 		CPath tmp2 = File::GetAbsolutePath(b);
-		return strcmp(tmp1.Path.c_str(), tmp2.Path.c_str()) == 0;
+		return String::Compare(tmp1.Path, tmp2.Path) == 0;
 	}
 }

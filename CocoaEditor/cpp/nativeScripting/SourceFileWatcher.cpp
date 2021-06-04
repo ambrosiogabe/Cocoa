@@ -177,11 +177,11 @@ namespace Cocoa
 	{
 		if (!File::IsDirectory(m_RootDirectory))
 		{
-			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Path.c_str());
+			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Path);
 			return;
 		}
 		rootDir = m_RootDirectory;
-		Logger::Log("Monitoring directory '%s'", File::GetAbsolutePath(m_RootDirectory).Path.c_str());
+		Logger::Log("Monitoring directory '%s'", File::GetAbsolutePath(m_RootDirectory).Path);
 
 		projectPremakeLua = NCPath::CreatePath(NCPath::GetDirectory(m_RootDirectory, -1));
 		NCPath::Join(projectPremakeLua, NCPath::CreatePath("premake5.lua"));
@@ -190,7 +190,7 @@ namespace Cocoa
 
 		Logger::Log("Generating initial class information");
 		GenerateInitialClassInformation(m_RootDirectory);
-		Logger::Log("Generating premake file %s", projectPremakeLua.Path.c_str());
+		Logger::Log("Generating premake file %s", projectPremakeLua.Path);
 		CppBuild::Build(rootDir);
 
 		m_FileWatcher.m_Path = m_RootDirectory;

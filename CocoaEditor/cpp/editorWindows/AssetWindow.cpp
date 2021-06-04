@@ -105,7 +105,7 @@ namespace Cocoa
 
 		static void ShowTextureBrowser()
 		{
-			const std::vector<Texture>& textures = AssetManager::GetAllTextures();
+			const List<Texture>& textures = AssetManager::GetAllTextures();
 			int i = -1;
 			for (auto& tex : textures)
 			{
@@ -153,7 +153,7 @@ namespace Cocoa
 
 		static void ShowFontBrowser()
 		{
-			const std::vector<Font>& fonts = AssetManager::GetAllFonts();
+			const List<Font>& fonts = AssetManager::GetAllFonts();
 			int i = -1;
 			for (auto& font : fonts)
 			{

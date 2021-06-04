@@ -20,13 +20,13 @@ namespace Cocoa
 			return;
 		}
 
-		HANDLE dirHandle = CreateFileA(m_Path.Path.c_str(), GENERIC_READ | FILE_LIST_DIRECTORY,
+		HANDLE dirHandle = CreateFileA(m_Path.Path, GENERIC_READ | FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
 			NULL);
 		if (dirHandle == INVALID_HANDLE_VALUE)
 		{
-			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Path.c_str());
+			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Path);
 			return;
 		}
 
@@ -82,7 +82,7 @@ namespace Cocoa
 		pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 		if (pollingOverlap.hEvent == NULL)
 		{
-			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Path.c_str());
+			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Path);
 			return;
 		}
 
@@ -150,7 +150,7 @@ namespace Cocoa
 					}
 					break;
 				default:
-					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Path.c_str());
+					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Path);
 					break;
 				}
 

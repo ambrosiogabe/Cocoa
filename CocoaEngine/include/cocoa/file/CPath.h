@@ -5,10 +5,10 @@ namespace Cocoa
 {
 	struct CPath
 	{
-		// TODO: Come up with immutable string type and switch this to that
-		std::string Path;
-		int FilenameOffset = 0;
-		int FileExtOffset = 0;
+		// TODO: TEST THIS A LOT
+		const char* Path;
+		int FilenameOffset;
+		int FileExtOffset;
 	};
 
 	namespace NCPath

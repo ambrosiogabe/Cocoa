@@ -23,7 +23,7 @@ namespace Cocoa
 		FileHandle* OpenFile(const CPath& filename)
 		{
 			FileHandle* file = (FileHandle*)AllocMem(sizeof(FileHandle));
-			file->m_Filename = filename.Path.c_str();
+			file->m_Filename = filename.Path;
 
 			FILE* filePointer;
 			filePointer = fopen(file->m_Filename, "rb");
@@ -88,7 +88,7 @@ namespace Cocoa
 
 		bool WriteFile(const char* data, const CPath& filename)
 		{
-			std::ofstream outStream(filename.Path.c_str());
+			std::ofstream outStream(filename.Path);
 			outStream << data;
 			outStream.close();
 			return true;
@@ -101,7 +101,7 @@ namespace Cocoa
 			{
 				fileToWrite = NCPath::CreatePath(filename.Path + std::string(extToAppend));
 			}
-			HANDLE fileHandle = CreateFileA(fileToWrite.Path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE fileHandle = CreateFileA(fileToWrite.Path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			bool res = fileHandle != INVALID_HANDLE_VALUE;
 			CloseHandle(fileHandle);
 			return res;
@@ -109,14 +109,14 @@ namespace Cocoa
 
 		bool DeleteFile(const CPath& filename)
 		{
-			return DeleteFileA(filename.Path.c_str());
+			return DeleteFileA(filename.Path);
 		}
 
 		bool CopyFile(const CPath& fileToCopy, const CPath& newFileLocation, const char* newFilename)
 		{
 			CPath newFilepath = newFileLocation;
 			NCPath::Join(newFilepath, NCPath::CreatePath(std::string(newFilename) + NCPath::FileExt(fileToCopy)));
-			if (!CopyFileExA(fileToCopy.Path.c_str(), newFilepath.Path.c_str(), NULL, NULL, false, NULL))
+			if (!CopyFileExA(fileToCopy.Path, newFilepath.Path, NULL, NULL, false, NULL))
 			{
 				Logger::Warning("Could not copy file error code: %d", GetLastError());
 				return false;
@@ -160,9 +160,9 @@ namespace Cocoa
 
 		void CreateDirIfNotExists(const CPath& directory)
 		{
-			if (!(CreateDirectoryA(directory.Path.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
+			if (!(CreateDirectoryA(directory.Path, NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 			{
-				Logger::Assert(false, "Failed to create directory %s", directory.Path.c_str());
+				Logger::Assert(false, "Failed to create directory %s", directory.Path);
 			}
 		}
 
@@ -175,7 +175,7 @@ namespace Cocoa
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
 			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
-			if ((dir = FindFirstFileA(wildcardMatch.Path.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			if ((dir = FindFirstFileA(wildcardMatch.Path, &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -213,7 +213,7 @@ namespace Cocoa
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
 			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
-			if ((dir = FindFirstFileA(wildcardMatch.Path.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			if ((dir = FindFirstFileA(wildcardMatch.Path, &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -242,9 +242,9 @@ namespace Cocoa
 
 		CPath GetAbsolutePath(const CPath& path)
 		{
-			int bufferLength = GetFullPathNameA(path.Path.c_str(), 0, NULL, NULL);
+			int bufferLength = GetFullPathNameA(path.Path, 0, NULL, NULL);
 			char* buffer = (char*)AllocMem(sizeof(char) * bufferLength);
-			GetFullPathNameA(path.Path.c_str(), bufferLength, buffer, NULL);
+			GetFullPathNameA(path.Path, bufferLength, buffer, NULL);
 			CPath result = NCPath::CreatePath(buffer);
 			FreeMem(buffer);
 			return result;
@@ -252,19 +252,19 @@ namespace Cocoa
 
 		bool IsFile(const CPath& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path.c_str());
+			DWORD fileAttributes = GetFileAttributesA(filepath.Path);
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
 		bool IsHidden(const CPath& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path.c_str());
+			DWORD fileAttributes = GetFileAttributesA(filepath.Path);
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_HIDDEN);
 		}
 
 		bool IsDirectory(const CPath& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path.c_str());
+			DWORD fileAttributes = GetFileAttributesA(filepath.Path);
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
@@ -277,7 +277,7 @@ namespace Cocoa
 			startupInfo.cb = sizeof(startupInfo);
 			ZeroMemory(&processInfo, sizeof(processInfo));
 
-			std::string cmdArgs = pathToExe.Path.c_str() + std::string(" ") + cmdArguments;
+			std::string cmdArgs = pathToExe.Path + std::string(" ") + cmdArguments;
 
 			// Start the program
 			bool res = CreateProcessA(
@@ -301,7 +301,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.Path.c_str());
+				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.Path);
 			}
 
 			return res;

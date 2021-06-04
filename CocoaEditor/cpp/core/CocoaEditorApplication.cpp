@@ -41,7 +41,7 @@ namespace Cocoa
 		{
 			Settings::General::s_EngineExeDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -1));
 			Settings::General::s_EngineSourceDirectory = NCPath::CreatePath(NCPath::GetDirectory(File::GetExecutableDirectory(), -4));
-			Logger::Info("%s", Settings::General::s_EngineExeDirectory.Path.c_str());
+			Logger::Info("%s", Settings::General::s_EngineExeDirectory.Path);
 
 			// Set the assets path as CWD (which should be where the exe is currently located)
 			Settings::General::s_EngineAssetsPath = File::GetCwd();
@@ -86,8 +86,8 @@ namespace Cocoa
 			Settings::General::s_WorkingDirectory = NCPath::CreatePath(NCPath::GetDirectory(Settings::General::s_CurrentProject, -1));
 
 			json saveData = {
-				{"ProjectPath", Settings::General::s_CurrentProject.Path.c_str()},
-				{"CurrentScene", Settings::General::s_CurrentScene.Path.c_str()}
+				{"ProjectPath", Settings::General::s_CurrentProject.Path},
+				{"CurrentScene", Settings::General::s_CurrentScene.Path}
 			};
 
 			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
@@ -115,13 +115,13 @@ namespace Cocoa
 		{
 			if (m_ProjectLoaded)
 			{
-				ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.Path.c_str());
+				ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.Path);
 			}
 
 			json saveData = {
-				{"ProjectPath", Settings::General::s_CurrentProject.Path.c_str()},
-				{"EditorStyle", Settings::General::s_EditorStyleData.Path.c_str()},
-				{"ImGuiConfig", Settings::General::s_ImGuiConfigPath.Path.c_str()}
+				{"ProjectPath", Settings::General::s_CurrentProject.Path},
+				{"EditorStyle", Settings::General::s_EditorStyleData.Path},
+				{"ImGuiConfig", Settings::General::s_ImGuiConfigPath.Path}
 			};
 
 			File::WriteFile(saveData.dump(4).c_str(), Settings::General::s_EditorSaveData);
@@ -156,8 +156,8 @@ namespace Cocoa
 		void SaveProject()
 		{
 			json saveData = {
-				{"ProjectPath", Settings::General::s_CurrentProject.Path.c_str()},
-				{"CurrentScene", Settings::General::s_CurrentScene.Path.c_str()},
+				{"ProjectPath", Settings::General::s_CurrentProject.Path},
+				{"CurrentScene", Settings::General::s_CurrentScene.Path},
 				{"WorkingDirectory", NCPath::GetDirectory(Settings::General::s_CurrentProject, -1) }
 			};
 

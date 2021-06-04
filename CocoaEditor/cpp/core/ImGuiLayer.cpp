@@ -49,7 +49,7 @@ namespace Cocoa
 			// Setup dear imGui binding
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.Path.c_str());
+			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.Path);
 
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 

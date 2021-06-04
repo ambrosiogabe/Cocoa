@@ -42,14 +42,14 @@ namespace Cocoa
 			const std::filesystem::path base = NCPath::GetDirectory(filepath, -1);
 			for (auto clazz : classes)
 			{
-				const std::filesystem::path otherPath = clazz.m_FullFilepath.Path.c_str();
+				const std::filesystem::path otherPath = clazz.m_FullFilepath.Path;
 				source << "#include \"" << std::filesystem::relative(otherPath, base).generic_string().c_str() << "\"\n";
 
 				std::string genFilename = NCPath::GetFilenameWithoutExt(clazz.m_FullFilepath) + "-generated" + NCPath::FileExt(clazz.m_FullFilepath);
 				CPath otherGenCPath = NCPath::CreatePath(NCPath::GetDirectory(clazz.m_FullFilepath, -1));
 				NCPath::Join(otherGenCPath, NCPath::CreatePath("generated"));
 				NCPath::Join(otherGenCPath, NCPath::CreatePath(genFilename));
-				const std::filesystem::path otherGenPath = otherGenCPath.Path.c_str();
+				const std::filesystem::path otherGenPath = otherGenCPath.Path;
 				source << "#include \"" << std::filesystem::relative(otherGenPath, base).generic_string().c_str() << "\"\n\n";
 			}
 
@@ -330,7 +330,7 @@ namespace Cocoa
 				"		\"**.cpp\",\n"
 				"		\"**.hpp\",\n";
 
-			CPath engineSource = NCPath::CreatePath(Settings::General::s_EngineSourceDirectory.Path.c_str(), true);
+			CPath engineSource = NCPath::CreatePath(Settings::General::s_EngineSourceDirectory.Path, true);
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineSource).c_str() << "/CocoaEditor/include/gui/**.h\"\n";
 
@@ -362,7 +362,7 @@ namespace Cocoa
 				"\n"
 				"	links {\n";
 
-			CPath engineExeDir = NCPath::CreatePath(Settings::General::s_EngineExeDirectory.Path.c_str(), true);
+			CPath engineExeDir = NCPath::CreatePath(Settings::General::s_EngineExeDirectory.Path, true);
 			CPath engineDllDir = NCPath::CreatePath(NCPath::GetDirectory(Settings::General::s_EngineExeDirectory, -1), true);
 			NCPath::Join(engineDllDir, NCPath::CreatePath("CocoaEngine"));
 			stream << "\t\t\"" << NCPath::LinuxStyle(engineDllDir).c_str() << "/CocoaEngine.lib\",\n";
@@ -418,9 +418,9 @@ namespace Cocoa
 IF "%~1" == "" GOTO PrintHelp
 IF "%~1" == "compile" GOTO Compile)";
 
-			stream << "\n\n" << premakeFilepath.Path.c_str();
+			stream << "\n\n" << premakeFilepath.Path;
 			stream << " %1 --file=\"";
-			stream << projectPremakeLua.Path.c_str() << "\"";
+			stream << projectPremakeLua.Path << "\"";
 
 			stream << R"(
 
@@ -449,9 +449,9 @@ GOTO Done
 
 :Compile)";
 
-			stream << "\n\n" << premakeFilepath.Path.c_str();
+			stream << "\n\n" << premakeFilepath.Path;
 			stream << "vs2019 --file=";
-			stream << projectPremakeLua.Path.c_str() << "\"";
+			stream << projectPremakeLua.Path << "\"";
 
 			stream << R"(
 if not defined DevEnvDir (
@@ -462,7 +462,7 @@ set solutionFile=")";
 			// TODO: Maybe set scripting workspace to project name?
 			CPath solutionFile = NCPath::CreatePath(NCPath::GetDirectory(filepath, -1));
 			NCPath::Join(solutionFile, NCPath::CreatePath("ScriptingWorkspace.sln"));
-			stream << solutionFile.Path.c_str() << "\"";
+			stream << solutionFile.Path << "\"";
 			
 			stream << R"(
 msbuild /t:Build /p:Configuration=Debug /p:Platform=x64 %solutionFile%

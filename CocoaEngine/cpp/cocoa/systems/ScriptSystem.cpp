@@ -99,7 +99,7 @@ namespace Cocoa
 			NCPath::Join(scriptDllPath, NCPath::CreatePath("ScriptModule.dll"));
 			if (File::IsFile(scriptDllPath))
 			{
-				m_Module = LoadLibraryA(scriptDllPath.Path.c_str());
+				m_Module = LoadLibraryA(scriptDllPath.Path);
 
 				if (m_Module)
 				{

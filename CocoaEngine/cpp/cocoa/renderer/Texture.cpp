@@ -10,7 +10,7 @@ namespace Cocoa
 {
 	namespace TextureUtil
 	{
-		const Texture NullTexture = {};
+		const Texture NullTexture = Create();
 
 		uint32 ToGl(WrapMode wrapMode)
 		{
@@ -170,8 +170,8 @@ namespace Cocoa
 		{
 			int channels;
 
-			unsigned char* pixels = stbi_load(path.Path.c_str(), &texture.Width, &texture.Height, &channels, 0);
-			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Path.c_str(), stbi_failure_reason());
+			unsigned char* pixels = stbi_load(path.Path, &texture.Width, &texture.Height, &channels, 0);
+			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Path, stbi_failure_reason());
 
 			int bytesPerPixel = channels;
 			if (bytesPerPixel == 4)
@@ -186,7 +186,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.Path.c_str(), channels);
+				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.Path, channels);
 				return;
 			}
 
@@ -197,7 +197,7 @@ namespace Cocoa
 
 			uint32 internalFormat = ToGl(texture.InternalFormat);
 			uint32 externalFormat = ToGl(texture.ExternalFormat);
-			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Path.c_str());
+			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Path);
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
 
 			stbi_image_free(pixels);
@@ -243,7 +243,7 @@ namespace Cocoa
 		json Serialize(const Texture& texture)
 		{
 			return {
-				{"Filepath", texture.Path.Path.c_str() },
+				{"Filepath", texture.Path.Path },
 				{"MagFilter", (int)texture.MagFilter },
 				{"MinFilter", (int)texture.MinFilter },
 				{"WrapS", (int)texture.WrapS},
@@ -264,6 +264,26 @@ namespace Cocoa
 			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "InternalFormat", texture.InternalFormat);
 			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "ExternalFormat", texture.ExternalFormat);
 			return texture;
+		}
+
+		Texture Create()
+		{
+			Texture res;
+			res.GraphicsId = UINT32_MAX;
+			res.Width = 0;
+			res.Height = 0;
+
+			res.MagFilter = FilterMode::None;
+			res.MinFilter = FilterMode::None;
+			res.WrapS = WrapMode::None;
+			res.WrapT = WrapMode::None;
+			res.InternalFormat = ByteFormat::None;
+			res.ExternalFormat = ByteFormat::None;
+
+			res.Path = NCPath::CreatePath();
+			res.IsDefault = false;
+
+			return res;
 		}
 	}
 }
