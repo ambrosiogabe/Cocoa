@@ -1,24 +1,25 @@
-#pragma once
+#ifndef COCOA_EDITOR_LEVEL_EDITOR_SYSTEM_H
+#define COCOA_EDITOR_LEVEL_EDITOR_SYSTEM_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
 #include "cocoa/scenes/Scene.h"
-#include "cocoa/events/KeyEvent.h"
-#include "cocoa/events/MouseEvent.h"
 #include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
 	namespace LevelEditorSystem
 	{
-		void EditorUpdate(SceneData& scene, float dt);
-		void Init(SceneData& scene);
-		void OnEvent(SceneData& scene, Event& e);
-		void Destroy(SceneData& scene);
+		void editorUpdate(SceneData& scene, float dt);
+		void init(SceneData& scene);
+		void onEvent(SceneData& scene, Event& e);
+		void destroy(SceneData& scene);
 
-		Camera& GetCamera();
+		Camera& getCamera();
 
-		void Serialize(json& j);
-		void Deserialize(const json& j, SceneData& scene);
+		void serialize(json& j);
+		void deserialize(const json& j, SceneData& scene);
 	};
 }
+
+#endif

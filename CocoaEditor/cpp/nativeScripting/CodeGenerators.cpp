@@ -20,7 +20,7 @@ namespace Cocoa
 		{
 			for (int i = 0; i < numVisited; i++)
 			{
-				if (clazz.m_FullFilepath == visitedClassBuffer[i])
+				if (clazz.fullFilepath == visitedClassBuffer[i])
 				{
 					return true;
 				}
@@ -29,7 +29,7 @@ namespace Cocoa
 			return false;
 		}
 
-		void GenerateInitFile(const std::vector<UClass>& classes, const CPath& filepath)
+		void generateInitFile(const std::vector<UClass>& classes, const CPath& filepath)
 		{
 			std::ostringstream source;
 
@@ -42,11 +42,11 @@ namespace Cocoa
 			const std::filesystem::path base = filepath.getDirectory(-1);
 			for (auto clazz : classes)
 			{
-				const std::filesystem::path otherPath = clazz.m_FullFilepath.path;
+				const std::filesystem::path otherPath = clazz.fullFilepath.path;
 				source << "#include \"" << std::filesystem::relative(otherPath, base).generic_string().c_str() << "\"\n";
 
-				std::string genFilename = clazz.m_FullFilepath.getFilenameWithoutExt() + "-generated" + clazz.m_FullFilepath.fileExt();
-				CPath otherGenCPath = CPath::create(clazz.m_FullFilepath.getDirectory(-1));
+				std::string genFilename = clazz.fullFilepath.getFilenameWithoutExt() + "-generated" + clazz.fullFilepath.fileExt();
+				CPath otherGenCPath = CPath::create(clazz.fullFilepath.getDirectory(-1));
 				otherGenCPath.join(CPath::create("generated"));
 				otherGenCPath.join(CPath::create(genFilename));
 				const std::filesystem::path otherGenPath = otherGenCPath.path;
@@ -87,7 +87,7 @@ namespace Cocoa
 
 			for (auto clazz : classes)
 			{
-				source << "\t\t\tNEntity::RegisterComponentType<" << clazz.m_ClassName.c_str() << ">();\n";
+				source << "\t\t\tNEntity::RegisterComponentType<" << clazz.className.c_str() << ">();\n";
 			}
 
 			source << "\t\t}\n";
@@ -102,7 +102,7 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.getFilenameWithoutExt());
+					std::string namespaceName = "Reflect" + ScriptParser::getFilenameAsClassName(clazz.fullFilepath.getFilenameWithoutExt());
 					source << "\t\t\tfor (auto strClass : " << namespaceName.c_str() << "::stringToMap)\n";
 					source << "\t\t\t{\n";
 					source << "\t\t\t\tif (strClass.first == className)\n";
@@ -112,7 +112,7 @@ namespace Cocoa
 					source << "\t\t\t\t}\n";
 					source << "\t\t\t}\n";
 
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					visitedClassBuffer[numVisited] = clazz.fullFilepath;
 					numVisited++;
 				}
 			}
@@ -125,10 +125,10 @@ namespace Cocoa
 			for (auto clazz : classes)
 			{
 				source << "\t\t\t{\n";
-				source << "\t\t\t\tauto view = registryRef.view<" << clazz.m_ClassName.c_str() << ">();\n";
+				source << "\t\t\t\tauto view = registryRef.view<" << clazz.className.c_str() << ">();\n";
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tauto comp = registryRef.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
+				source << "\t\t\t\t\tauto comp = registryRef.get<" << clazz.className.c_str() << ">(entity);\n";
 				source << "\t\t\t\t\tcomp.Update(NEntity::CreateEntity(entity), dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
@@ -142,10 +142,10 @@ namespace Cocoa
 			for (auto clazz : classes)
 			{
 				source << "\t\t\t{\n";
-				source << "\t\t\t\tauto view = registryRef.view<" << clazz.m_ClassName.c_str() << ">();\n";
+				source << "\t\t\t\tauto view = registryRef.view<" << clazz.className.c_str() << ">();\n";
 				source << "\t\t\t\tfor (auto entity : view)\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tauto comp = registryRef.get<" << clazz.m_ClassName.c_str() << ">(entity);\n";
+				source << "\t\t\t\t\tauto comp = registryRef.get<" << clazz.className.c_str() << ">(entity);\n";
 				source << "\t\t\t\t\tcomp.EditorUpdate(NEntity::CreateEntity(entity), dt);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
@@ -159,13 +159,13 @@ namespace Cocoa
 			for (auto clazz : classes)
 			{
 				source << "\t\t\t{\n";
-				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(a))\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.className.c_str() << ">(a))\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(a).BeginContact(b);\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.className.c_str() << ">(a).BeginContact(b);\n";
 				source << "\t\t\t\t}\n";
-				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(b))\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.className.c_str() << ">(b))\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(b).BeginContact(a);\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.className.c_str() << ">(b).BeginContact(a);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
 			}
@@ -178,13 +178,13 @@ namespace Cocoa
 			for (auto clazz : classes)
 			{
 				source << "\t\t\t{\n";
-				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(a))\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.className.c_str() << ">(a))\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(a).EndContact(b);\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.className.c_str() << ">(a).EndContact(b);\n";
 				source << "\t\t\t\t}\n";
-				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.m_ClassName.c_str() << ">(b))\n";
+				source << "\t\t\t\tif (NEntity::HasComponent<" << clazz.className.c_str() << ">(b))\n";
 				source << "\t\t\t\t{\n";
-				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.m_ClassName.c_str() << ">(b).EndContact(a);\n";
+				source << "\t\t\t\t\tNEntity::GetComponent<" << clazz.className.c_str() << ">(b).EndContact(a);\n";
 				source << "\t\t\t\t}\n";
 				source << "\t\t\t}\n";
 			}
@@ -200,10 +200,10 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.getFilenameWithoutExt());
+					std::string namespaceName = "Reflect" + ScriptParser::getFilenameAsClassName(clazz.fullFilepath.getFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::SaveScripts(j, registryRef, sceneData);\n";
 
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					visitedClassBuffer[numVisited] = clazz.fullFilepath;
 					numVisited++;
 				}
 			}
@@ -218,10 +218,10 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.getFilenameWithoutExt());
+					std::string namespaceName = "Reflect" + ScriptParser::getFilenameAsClassName(clazz.fullFilepath.getFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::TryLoad(j, entity, registryRef);\n";
 
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					visitedClassBuffer[numVisited] = clazz.fullFilepath;
 					numVisited++;
 				}
 			}
@@ -239,10 +239,10 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.getFilenameWithoutExt());
+					std::string namespaceName = "Reflect" + ScriptParser::getFilenameAsClassName(clazz.fullFilepath.getFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::Init();\n";
 
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					visitedClassBuffer[numVisited] = clazz.fullFilepath;
 					numVisited++;
 				}
 			}
@@ -266,10 +266,10 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.getFilenameWithoutExt());
+					std::string namespaceName = "Reflect" + ScriptParser::getFilenameAsClassName(clazz.fullFilepath.getFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::ImGui(entity, registryRef);\n";
 
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					visitedClassBuffer[numVisited] = clazz.fullFilepath;
 					numVisited++;
 				}
 			}
@@ -286,10 +286,10 @@ namespace Cocoa
 			{
 				if (!visitedSourceFile(clazz))
 				{
-					std::string namespaceName = "Reflect" + ScriptParser::GetFilenameAsClassName(clazz.m_FullFilepath.getFilenameWithoutExt());
+					std::string namespaceName = "Reflect" + ScriptParser::getFilenameAsClassName(clazz.fullFilepath.getFilenameWithoutExt());
 					source << "\t\t\t" << namespaceName.c_str() << "::DeleteScripts();\n";
 
-					visitedClassBuffer[numVisited] = clazz.m_FullFilepath;
+					visitedClassBuffer[numVisited] = clazz.fullFilepath;
 					numVisited++;
 				}
 			}
@@ -301,7 +301,7 @@ namespace Cocoa
 			File::writeFile(source.str().c_str(), filepath);
 		}
 
-		void GeneratePremakeFile(const CPath& filepath)
+		void generatePremakeFile(const CPath& filepath)
 		{
 			std::ostringstream stream;
 			stream << ""
@@ -405,7 +405,7 @@ namespace Cocoa
 			File::writeFile(stream.str().c_str(), filepath);
 		}
 
-		void GenerateBuildFile(const CPath& filepath, const CPath& premakeFilepath)
+		void generateBuildFile(const CPath& filepath, const CPath& premakeFilepath)
 		{
 			CPath projectPremakeLua = CPath::create(filepath.getDirectory(-1));
 			projectPremakeLua.join(CPath::create("premake5.lua"));

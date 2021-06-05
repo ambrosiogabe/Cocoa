@@ -17,7 +17,7 @@ namespace Cocoa
 		// Internal variables
 		static bool m_BlockEvents = false;
 
-		void ImGui(SceneData& scene)
+		void imgui(SceneData& scene)
 		{
 			static bool open = true;
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));

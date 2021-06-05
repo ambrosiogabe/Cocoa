@@ -1,4 +1,4 @@
-#include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/SceneHierarchyWindow.h"
 #include "editorWindows/InspectorWindow.h"
 #include "gui/ImGuiExtended.h"
 #include "gui/FontAwesome.h"
@@ -13,7 +13,7 @@
 
 namespace Cocoa
 {
-	namespace SceneHeirarchyWindow
+	namespace SceneHierarchyWindow
 	{
 		static const char* SCENE_HEIRARCHY_PAYLOAD = "SCENE_HEIRARCHY_PAYLOAD";
 
@@ -79,18 +79,18 @@ namespace Cocoa
 		static void UpdateLevel(int parentIndex, int newLevel);
 		static int GetNumChildren(int parentIndex);
 
-		void Init()
+		void init()
 		{
 			inBetweenBuffer = List<BetweenMetadata>();
 			orderedEntities = List<SceneTreeMetadata>();
 			orderedEntitiesCopy = List<SceneTreeMetadata>();
 		}
 
-		void Destroy()
+		void destroy()
 		{
 		}
 
-		void AddNewEntity(Entity entity)
+		void addNewEntity(Entity entity)
 		{
 			// TODO: Consider making entity creation a message then subscribing to this message type
 			int newIndex = orderedEntities.size();
@@ -98,7 +98,7 @@ namespace Cocoa
 			orderedEntitiesCopy.push(SceneTreeMetadata{ entity, 0, newIndex, false });
 		}
 
-		void ImGui(SceneData& scene)
+		void imgui(SceneData& scene)
 		{
 			// TODO: Save when a tree node is open
 			ImGui::Begin(ICON_FA_PROJECT_DIAGRAM " Scene");
@@ -180,7 +180,7 @@ namespace Cocoa
 				if (ImGui::MenuItem("Add Empty Entity"))
 				{
 					Entity entity = Scene::createEntity(scene);
-					AddNewEntity(entity);
+					addNewEntity(entity);
 				}
 
 				ImGui::EndPopup();
@@ -244,11 +244,11 @@ namespace Cocoa
 
 			if (clicked)
 			{
-				InspectorWindow::ClearAllEntities();
-				InspectorWindow::AddEntity(element.entity);
+				InspectorWindow::clearAllEntities();
+				InspectorWindow::addEntity(element.entity);
 			}
 
-			element.selected = InspectorWindow::GetActiveEntity() == element.entity;
+			element.selected = InspectorWindow::getActiveEntity() == element.entity;
 			return open;
 		}
 
@@ -379,7 +379,7 @@ namespace Cocoa
 			FreeMem(copyOfTreeToMove);
 		}
 
-		void DeleteEntity(Entity entityToDelete)
+		void deleteEntity(Entity entityToDelete)
 		{
 			int numChildren = -1;
 			int parentIndex = -1;
@@ -420,7 +420,7 @@ namespace Cocoa
 			}
 		}
 
-		void Serialize(json& j)
+		void serialize(json& j)
 		{
 			json orderedEntitiesJson = {};
 			for (int i = 0; i < orderedEntities.size(); i++)
@@ -438,7 +438,7 @@ namespace Cocoa
 			j["SceneHeirarchyOrder"] = orderedEntitiesJson;
 		}
 
-		void Deserialize(json& j, SceneData& scene)
+		void deserialize(json& j, SceneData& scene)
 		{
 			// TODO: See if this is consistent with how you load the rest of the assets
 			orderedEntities.clear(false);

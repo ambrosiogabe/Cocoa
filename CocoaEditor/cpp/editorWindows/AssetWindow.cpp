@@ -30,7 +30,7 @@ namespace Cocoa
 		static bool IconButton(const char* icon, const char* label, const glm::vec2& size);
 		static bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size);
 
-		void ImGui(SceneData& scene)
+		void imgui(SceneData& scene)
 		{
 			ImGui::Begin("Assets");
 			ShowMenuBar();
@@ -68,7 +68,7 @@ namespace Cocoa
 			ImGui::BeginGroup();
 
 			std::array<const char*, (int)AssetView::Length> assetViews = { "Texture Browser", "Scene Browser", "Script Browser", "Font Browser" };
-			CImGui::UndoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
+			CImGui::undoableCombo<AssetView>(m_CurrentView, "Asset View", assetViews.data(), (int)AssetView::Length);
 			ImGui::EndGroup();
 			ImGui::Separator();
 		}
@@ -76,7 +76,7 @@ namespace Cocoa
 		static bool IconButton(const char* icon, const char* label, const glm::vec2& size)
 		{
 			ImGui::BeginGroup();
-			ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
+			ImGui::PushFont(Settings::EditorStyle::largeIconFont);
 			bool res = ImGui::Button(icon, ImVec2(size.x, size.y));
 			ImGui::PopFont();
 
@@ -90,10 +90,10 @@ namespace Cocoa
 		static bool ImageButton(const Texture& texture, const char* label, const glm::vec2& size)
 		{
 			ImGui::BeginGroup();
-			ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
+			ImGui::PushFont(Settings::EditorStyle::largeIconFont);
 			float texRatio = (float)texture.width / (float)texture.height;
 			glm::vec2 adjustedSize = { size.x * texRatio, size.y };
-			bool res = CImGui::ImageButton(texture, adjustedSize);
+			bool res = CImGui::imageButton(texture, adjustedSize);
 			ImGui::PopFont();
 
 			ImVec2 textSize = ImGui::CalcTextSize(label);
@@ -193,9 +193,9 @@ namespace Cocoa
 				//const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096
 				static std::string fontPath;
 
-				CImGui::ReadonlyText("Font File: ", fontPath);
+				CImGui::readonlyText("Font File: ", fontPath);
 				ImGui::SameLine();
-				if (CImGui::Button("Select Font File", { 0, 0 }, false))
+				if (CImGui::button("Select Font File", { 0, 0 }, false))
 				{
 					FileDialogResult result;
 					if (FileDialog::getOpenFileName(fontPath, result))
@@ -209,7 +209,7 @@ namespace Cocoa
 				}
 
 				static int fontSize = 32;
-				CImGui::UndoableDragInt("Font Size: ", fontSize);
+				CImGui::undoableDragInt("Font Size: ", fontSize);
 
 				CPath assetsDir = Settings::General::workingDirectory;
 				assetsDir.join(CPath::create("assets"));
@@ -220,19 +220,19 @@ namespace Cocoa
 
 				// Advanced stuff...
 				static int glyphRangeStart = 0;
-				CImGui::UndoableDragInt("Glyph Range Start: ", glyphRangeStart);
+				CImGui::undoableDragInt("Glyph Range Start: ", glyphRangeStart);
 
 				static int glyphRangeEnd = 'z' + 1;
-				CImGui::UndoableDragInt("Glyph Range End: ", glyphRangeEnd);
+				CImGui::undoableDragInt("Glyph Range End: ", glyphRangeEnd);
 
 				static int padding = 5;
-				CImGui::UndoableDragInt("Padding: ", padding);
+				CImGui::undoableDragInt("Padding: ", padding);
 
 				static int upscaleResolution = 4096;
-				CImGui::UndoableDragInt("Upscale Resolution: ", upscaleResolution);
+				CImGui::undoableDragInt("Upscale Resolution: ", upscaleResolution);
 
 				ImGui::NewLine();
-				if (CImGui::Button("Generate Font", { 0, 0 }, false))
+				if (CImGui::button("Generate Font", { 0, 0 }, false))
 				{
 					AssetManager::loadFontFromTtfFile(CPath::create(fontPath), fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
 					ImGui::CloseCurrentPopup();

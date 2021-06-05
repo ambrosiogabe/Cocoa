@@ -1,10 +1,7 @@
-#pragma once
+#ifndef COCOA_EDITOR_IMGUI_LAYER_H
+#define COCOA_EDITOR_IMGUI_LAYER_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
-
-#include "editorWindows/MenuBar.h"
-#include "editorWindows/AssetWindow.h"
-#include "editorWindows/InspectorWindow.h"
 
 #include "cocoa/file/CPath.h"
 #include "cocoa/scenes/SceneData.h"
@@ -14,14 +11,16 @@ namespace Cocoa
 {
     namespace ImGuiLayer
     {
-        void Init(void* window);
-        void Destroy();
-        void OnEvent(SceneData& scene, Event& e);
-        void BeginFrame(SceneData& scene);
-        void EndFrame();
+        void init(void* window);
+        void destroy();
+        void onEvent(SceneData& scene, Event& e);
+        void beginFrame(SceneData& scene);
+        void endFrame();
 
-        void LoadStyle(const CPath& filepath);
-        void ApplyStyle();
-        void ExportCurrentStyle(const CPath& outputPath);
+        void loadStyle(const CPath& filepath);
+        void applyStyle();
+        void exportCurrentStyle(const CPath& outputPath);
     };
 }
+
+#endif

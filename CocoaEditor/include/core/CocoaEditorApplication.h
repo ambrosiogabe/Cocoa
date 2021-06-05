@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_EDITOR_COCOA_EDITOR_APPLICATION_H
+#define COCOA_EDITOR_COCOA_EDITOR_APPLICATION_H
 #include "core/LevelEditorSystem.h"
 
 #include "cocoa/core/Application.h"
@@ -49,3 +50,5 @@ namespace Cocoa
 		void setAppData(AppOnAttachFn attachFn, AppOnUpdateFn updateFn, AppOnRenderFn renderFn, AppOnEventFn eventFn);
 	};
 }
+
+#endif

@@ -25,7 +25,7 @@ namespace Cocoa
 		static char mTmpFilename[256];
 		static CPath mNewProjectPath = CPath::create();
 
-		void Init()
+		void init()
 		{
 			mTmpFilename[0] = '\0';
 			mIdealSize = Application::get()->getWindow()->getMonitorSize() / 2.0f;
@@ -44,7 +44,7 @@ namespace Cocoa
 			mOpenProjectButtonPos = mCreateProjectButtonPos + glm::vec2(0.0f, mButtonSize.y) + glm::vec2(0.0f, mPadding.y);
 		}
 
-		void ImGui(SceneData& scene)
+		void imgui(SceneData& scene)
 		{
 			static bool open = true;
 			if (mVersionPos.x < 0 && mVersionPos.y < 0)
@@ -66,13 +66,13 @@ namespace Cocoa
 			ImGui::Text("Version 1.0 Alpha");
 
 			ImGui::SetCursorPos(ImVec2(mCreateProjectButtonPos.x, mCreateProjectButtonPos.y));
-			if (CImGui::Button(ICON_FA_PLUS " Create Project", mButtonSize))
+			if (CImGui::button(ICON_FA_PLUS " Create Project", mButtonSize))
 			{
 				mCreatingProject = true;
 			}
 
 			ImGui::SetCursorPos(ImVec2(mOpenProjectButtonPos.x, mOpenProjectButtonPos.y));
-			if (CImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", mButtonSize) && !mCreatingProject)
+			if (CImGui::button(ICON_FA_FOLDER_OPEN " Open Project", mButtonSize) && !mCreatingProject)
 			{
 				FileDialogResult res;
 				if (FileDialog::getOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
@@ -88,12 +88,12 @@ namespace Cocoa
 
 			if (mCreatingProject)
 			{
-				CreateProjectImGui(scene, mCreatingProject);
+				createProjectImGui(scene, mCreatingProject);
 			}
 		}
 
 
-		void CreateProjectImGui(SceneData& scene, bool& windowOpen)
+		void createProjectImGui(SceneData& scene, bool& windowOpen)
 		{
 			ImGui::Begin("Create New Project", &windowOpen);
 
@@ -103,7 +103,7 @@ namespace Cocoa
 			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.path);
 			ImGui::SameLine();
 
-			if (CImGui::Button("Choose Directory"))
+			if (CImGui::button("Choose Directory"))
 			{
 				FileDialogResult res;
 				if (FileDialog::getOpenFolderName(".", res))
@@ -112,12 +112,12 @@ namespace Cocoa
 				}
 			}
 
-			if (CImGui::Button("Cancel"))
+			if (CImGui::button("Cancel"))
 			{
 				windowOpen = false;
 			}
 			ImGui::SameLine();
-			if (CImGui::Button("Create"))
+			if (CImGui::button("Create"))
 			{
 				if (EditorLayer::createProject(scene, mNewProjectPath, mTmpFilename))
 				{

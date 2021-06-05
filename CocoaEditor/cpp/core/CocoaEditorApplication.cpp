@@ -228,12 +228,12 @@ namespace Cocoa
 			{
 				DebugDraw::beginFrame();
 				Scene::editorUpdate(scene, dt);
-				LevelEditorSystem::EditorUpdate(scene, dt);
-				GizmoSystem::EditorUpdate(scene, dt);
+				LevelEditorSystem::editorUpdate(scene, dt);
+				GizmoSystem::editorUpdate(scene, dt);
 
 				// TODO: It doesn't *really* matter where we put the imgui as long as it gets called... consider creating a dedicated imgui function for 
 				// TODO: applications though...
-				GizmoSystem::ImGui();
+				GizmoSystem::imgui();
 			}
 		}
 
@@ -255,15 +255,15 @@ namespace Cocoa
 				// TODO: Come up with better solution then if checks constantly. (Maybe abstract this into another function?)
 				if (!e.handled)
 				{
-					ImGuiLayer::OnEvent(scene, e);
+					ImGuiLayer::onEvent(scene, e);
 				}
 				if (!e.handled)
 				{
-					LevelEditorSystem::OnEvent(scene, e);
+					LevelEditorSystem::onEvent(scene, e);
 				}
 				if (!e.handled)
 				{
-					GizmoSystem::OnEvent(scene, e);
+					GizmoSystem::onEvent(scene, e);
 				}
 			}
 		}
@@ -298,12 +298,12 @@ namespace Cocoa
 
 		// Engine initialization
 		AssetManager::init(0);
-		ProjectWizard::Init();
+		ProjectWizard::init();
 		Input::init();
 
 		// Application Initialization
 		EditorLayer::init();
-		ImGuiLayer::Init(getWindow()->getNativeWindow());
+		ImGuiLayer::init(getWindow()->getNativeWindow());
 
 		mCurrentScene = Scene::create(new LevelEditorSceneInitializer());
 		Scene::init(mCurrentScene);
@@ -320,7 +320,7 @@ namespace Cocoa
 
 #if _COCOA_DEBUG
 		// In debug builds free all the memory to make sure there are no leaks
-		ImGuiLayer::Destroy();
+		ImGuiLayer::destroy();
 		DebugDraw::destroy();
 		Scene::freeResources(mCurrentScene);
 #endif
@@ -331,12 +331,12 @@ namespace Cocoa
 
 	void CocoaEditor::beginFrame()
 	{
-		ImGuiLayer::BeginFrame(mCurrentScene);
+		ImGuiLayer::beginFrame(mCurrentScene);
 	}
 
 	void CocoaEditor::endFrame()
 	{
-		ImGuiLayer::EndFrame();
+		ImGuiLayer::endFrame();
 	}
 
 	void CocoaEditor::setAppData(AppOnAttachFn attachFn, AppOnUpdateFn updateFn, AppOnRenderFn renderFn, AppOnEventFn eventFn)

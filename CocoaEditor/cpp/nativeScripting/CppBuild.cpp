@@ -10,7 +10,7 @@ namespace Cocoa
 		static bool buildingCode = false;
 		static bool compiling = false;
 
-		void Build(const CPath& projectDirectory)
+		void build(const CPath& projectDirectory)
 		{
 			if (!buildingCode && !compiling)
 			{
@@ -24,7 +24,7 @@ namespace Cocoa
 			}
 		}
 
-		void Compile(const CPath& projectDirectory)
+		void compile(const CPath& projectDirectory)
 		{
 			if (!buildingCode && !compiling)
 			{

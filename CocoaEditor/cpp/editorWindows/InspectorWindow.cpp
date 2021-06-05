@@ -51,7 +51,7 @@ namespace Cocoa
 
 		static void ImGuiAddComponentButton();
 
-		void ImGui(SceneData& scene)
+		void imgui(SceneData& scene)
 		{
 			ImGui::Begin(ICON_FA_CUBE "Inspector");
 			if (ActiveEntities.size() == 0)
@@ -108,25 +108,25 @@ namespace Cocoa
 			ImGui::End();
 		}
 
-		void AddEntity(Entity entity)
+		void addEntity(Entity entity)
 		{
 			if (!NEntity::isNull(entity) && std::find(ActiveEntities.begin(), ActiveEntities.end(), entity) == ActiveEntities.end())
 				ActiveEntities.push_back(entity);
 		}
 
-		void RemoveEntity(Entity entity)
+		void removeEntity(Entity entity)
 		{
 			auto iter = std::find(ActiveEntities.begin(), ActiveEntities.end(), entity);
 			if (iter != ActiveEntities.end())
 				ActiveEntities.erase(iter);
 		}
 
-		void ClearAllEntities()
+		void clearAllEntities()
 		{
 			ActiveEntities.clear();
 		}
 
-		Entity GetActiveEntity()
+		Entity getActiveEntity()
 		{
 			if (ActiveEntities.size() == 0)
 				return NEntity::createNull();
@@ -157,7 +157,7 @@ namespace Cocoa
 
 			Entity activeEntity = ActiveEntities[0];
 			int itemPressed = 0;
-			if (CImGui::ButtonDropdown(ICON_FA_PLUS " Add Component", StringPointerBuffer, size, itemPressed))
+			if (CImGui::buttonDropdown(ICON_FA_PLUS " Add Component", StringPointerBuffer, size, itemPressed))
 			{
 				switch (itemPressed)
 				{
@@ -197,10 +197,10 @@ namespace Cocoa
 		{
 			if (ImGui::CollapsingHeader("Tag"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
 				Logger::Assert(tag.size < STRING_BUFFER_MAX, "Entity Name only supports text sizes up to 100 characters.");
 				strcpy(StringBuffer, tag.name);
-				if (CImGui::InputText("Entity Name: ", StringBuffer, sizeof(StringBuffer)))
+				if (CImGui::inputText("Entity Name: ", StringBuffer, sizeof(StringBuffer)))
 				{
 					int newTextSize = strlen(StringBuffer);
 					int newTextSizeWithNullChar = newTextSize + 1;
@@ -219,7 +219,7 @@ namespace Cocoa
 					strcpy(newTagName, StringBuffer);
 					tag.name = newTagName;
 				}
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -228,11 +228,11 @@ namespace Cocoa
 			static bool collapsingHeaderOpen = true;
 			if (ImGui::CollapsingHeader(ICON_FA_STAMP " Transform"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragFloat3("Position: ", transform.position);
-				CImGui::UndoableDragFloat3("Scale: ", transform.scale);
-				CImGui::UndoableDragFloat3("Rotation: ", transform.eulerRotation);
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
+				CImGui::undoableDragFloat3("Position: ", transform.position);
+				CImGui::undoableDragFloat3("Scale: ", transform.scale);
+				CImGui::undoableDragFloat3("Rotation: ", transform.eulerRotation);
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -245,19 +245,19 @@ namespace Cocoa
 			static bool collapsingHeaderOpen = true;
 			if (ImGui::CollapsingHeader("Sprite Renderer"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragInt("Z-Index: ", spr.zIndex);
-				CImGui::UndoableColorEdit4("Sprite Color: ", spr.color);
+				CImGui::beginCollapsingHeaderGroup();
+				CImGui::undoableDragInt("Z-Index: ", spr.zIndex);
+				CImGui::undoableColorEdit4("Sprite Color: ", spr.color);
 
 				if (spr.sprite.texture)
 				{
 					const Texture& tex = AssetManager::getTexture(spr.sprite.texture.assetId);
-					CImGui::InputText("##SpriteRendererTexture", (char*)tex.path.filename(),
+					CImGui::inputText("##SpriteRendererTexture", (char*)tex.path.filename(),
 						tex.path.filenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
-					CImGui::InputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
+					CImGui::inputText("##SpriteRendererTexture", "Default Sprite", 14, ImGuiInputTextFlags_ReadOnly);
 				}
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -270,7 +270,7 @@ namespace Cocoa
 					ImGui::EndDragDropTarget();
 				}
 
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -279,14 +279,14 @@ namespace Cocoa
 			static bool collapsingHeaderOpen = true;
 			if (ImGui::CollapsingHeader("Font Renderer"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragInt("Z-Index: ##fonts", fontRenderer.zIndex);
-				CImGui::UndoableColorEdit4("Font Color: ", fontRenderer.color);
-				CImGui::UndoableDragInt("Font Size: ", fontRenderer.fontSize);
+				CImGui::beginCollapsingHeaderGroup();
+				CImGui::undoableDragInt("Z-Index: ##fonts", fontRenderer.zIndex);
+				CImGui::undoableColorEdit4("Font Color: ", fontRenderer.color);
+				CImGui::undoableDragInt("Font Size: ", fontRenderer.fontSize);
 
 				Logger::Assert(fontRenderer.text.size() < STRING_BUFFER_MAX, "Font Renderer only supports text sizes up to 100 characters.");
 				strcpy(StringBuffer, fontRenderer.text.c_str());
-				if (CImGui::InputText("Text: ", StringBuffer, sizeof(StringBuffer)))
+				if (CImGui::inputText("Text: ", StringBuffer, sizeof(StringBuffer)))
 				{
 					fontRenderer.text = StringBuffer;
 				}
@@ -294,12 +294,12 @@ namespace Cocoa
 				if (fontRenderer.font)
 				{
 					const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
-					CImGui::InputText("##FontRendererTexture", (char*)font.path.filename(),
+					CImGui::inputText("##FontRendererTexture", (char*)font.path.filename(),
 						font.path.filenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
-					CImGui::InputText("##FontRendererTexture", "Default Font", 12, ImGuiInputTextFlags_ReadOnly);
+					CImGui::inputText("##FontRendererTexture", "Default Font", 12, ImGuiInputTextFlags_ReadOnly);
 				}
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -312,7 +312,7 @@ namespace Cocoa
 					ImGui::EndDragDropTarget();
 				}
 
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -321,13 +321,13 @@ namespace Cocoa
 			static bool collapsingHeaderOpen = true;
 			if (ImGui::CollapsingHeader("Camera"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragFloat("Zoom: ", camera.zoom);
-				CImGui::UndoableDragFloat2("Projection Size: ", camera.projectionSize);
-				CImGui::UndoableDragFloat("Near Plane: ", camera.projectionNearPlane);
-				CImGui::UndoableDragFloat("Far Plane: ", camera.projectionFarPlane);
-				CImGui::UndoableColorEdit3("Clear Color: ", camera.clearColor);
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
+				CImGui::undoableDragFloat("Zoom: ", camera.zoom);
+				CImGui::undoableDragFloat2("Projection Size: ", camera.projectionSize);
+				CImGui::undoableDragFloat("Near Plane: ", camera.projectionNearPlane);
+				CImGui::undoableDragFloat("Far Plane: ", camera.projectionFarPlane);
+				CImGui::undoableColorEdit3("Clear Color: ", camera.clearColor);
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -341,20 +341,20 @@ namespace Cocoa
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("Rigidbody 2D"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
 
 				int currentItem = static_cast<int>(rb.bodyType);
 				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
-				CImGui::UndoableCombo<BodyType2D>(rb.bodyType, "Body Type:", &items[0], (int)items.size());
+				CImGui::undoableCombo<BodyType2D>(rb.bodyType, "Body Type:", &items[0], (int)items.size());
 
-				CImGui::Checkbox("Continous: ##0", &rb.continuousCollision);
-				CImGui::Checkbox("Fixed Rotation##1", &rb.fixedRotation);
-				CImGui::UndoableDragFloat("Linear Damping: ##2", rb.linearDamping);
-				CImGui::UndoableDragFloat("Angular Damping: ##3", rb.angularDamping);
-				CImGui::UndoableDragFloat("Mass: ##4", rb.mass);
-				CImGui::UndoableDragFloat2("Velocity: ##5", rb.velocity);
+				CImGui::checkbox("Continous: ##0", &rb.continuousCollision);
+				CImGui::checkbox("Fixed Rotation##1", &rb.fixedRotation);
+				CImGui::undoableDragFloat("Linear Damping: ##2", rb.linearDamping);
+				CImGui::undoableDragFloat("Angular Damping: ##3", rb.angularDamping);
+				CImGui::undoableDragFloat("Mass: ##4", rb.mass);
+				CImGui::undoableDragFloat2("Velocity: ##5", rb.velocity);
 
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -364,12 +364,12 @@ namespace Cocoa
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("AABB"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
 
-				CImGui::UndoableDragFloat2("Offset: ##6", box.offset);
-				CImGui::UndoableDragFloat2("Size: ##7", box.size);
+				CImGui::undoableDragFloat2("Offset: ##6", box.offset);
+				CImGui::undoableDragFloat2("Size: ##7", box.size);
 
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 
@@ -379,12 +379,12 @@ namespace Cocoa
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("Box2D"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
 
-				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				CImGui::UndoableDragFloat2("Size: ##8", box.halfSize);
+				//imgui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				CImGui::undoableDragFloat2("Size: ##8", box.halfSize);
 
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 
 			// Draw box highlight
@@ -398,12 +398,12 @@ namespace Cocoa
 			ImGui::SetNextTreeNodeOpen(treeNodeOpen);
 			if (ImGui::CollapsingHeader("Circle"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
+				CImGui::beginCollapsingHeaderGroup();
 
-				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				CImGui::UndoableDragFloat("Radius: ##9", circle.radius);
+				//imgui::UndoableDragFloat2("Offset: ", box.m_Offset);
+				CImGui::undoableDragFloat("Radius: ##9", circle.radius);
 
-				CImGui::EndCollapsingHeaderGroup();
+				CImGui::endCollapsingHeaderGroup();
 			}
 		}
 	}

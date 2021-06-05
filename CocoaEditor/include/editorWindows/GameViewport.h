@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_EDITOR_GAME_VIEWPORT_H
+#define COCOA_EDITOR_GAME_VIEWPORT_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
@@ -8,6 +9,8 @@ namespace Cocoa
 {
 	namespace GameViewport
 	{
-		void ImGui(SceneData& scene);
+		void imgui(SceneData& scene);
 	}
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_EDITOR_LEVEL_EDITOR_SCENE_INITIALIZER_H
+#define COCOA_EDITOR_LEVEL_EDITOR_SCENE_INITIALIZER_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
@@ -12,10 +13,12 @@ namespace Cocoa
 	public:
 		LevelEditorSceneInitializer() {}
 
-		virtual void init(SceneData& scene) override;
-		virtual void start(SceneData& scene) override;
-		virtual void destroy(SceneData& scene) override;
-		virtual void save(SceneData& scene) override;
-		virtual void load(SceneData& scene) override;
+		void init(SceneData& scene) override;
+		void start(SceneData& scene) override;
+		void destroy(SceneData& scene) override;
+		void save(SceneData& scene) override;
+		void load(SceneData& scene) override;
 	};
 }
+
+#endif

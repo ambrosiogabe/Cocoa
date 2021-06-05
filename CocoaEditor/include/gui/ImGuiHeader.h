@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_EDITOR_IMGUI_HEADER_H
+#define COCOA_EDITOR_IMGUI_HEADER_H
 
 // ===================================================================
 // ImGUI
@@ -13,3 +14,5 @@
 #include <imgui_internal.h>
 #include <imstb_rectpack.h>
 #pragma warning( pop )
+
+#endif

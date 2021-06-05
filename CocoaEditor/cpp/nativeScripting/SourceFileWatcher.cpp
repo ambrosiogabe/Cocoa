@@ -21,9 +21,9 @@ namespace Cocoa
 	static void GenerateBuildFile();
 
 	SourceFileWatcher::SourceFileWatcher(CPath rootDirectory)
-		: m_RootDirectory(rootDirectory)
+		: mRootDirectory(rootDirectory)
 	{
-		StartFileWatcher();
+		startFileWatcher();
 	}
 
 	static bool IsHeaderFile(const CPath& file)
@@ -41,11 +41,11 @@ namespace Cocoa
 		for (int i = 0; i < classes.size(); i++)
 		{
 			UClass& c = classes.at(i);
-			if (c.m_ClassName == clazz.m_ClassName)
+			if (c.className == clazz.className)
 			{
-				classes[i].m_ClassName = clazz.m_ClassName;
-				classes[i].m_FullFilepath = clazz.m_FullFilepath;
-				classes[i].m_Variables = clazz.m_Variables;
+				classes[i].className = clazz.className;
+				classes[i].fullFilepath = clazz.fullFilepath;
+				classes[i].variables = clazz.variables;
 				return;
 			}
 		}
@@ -57,7 +57,7 @@ namespace Cocoa
 	{
 		for (auto classIter = classesToSearch.begin(); classIter != classesToSearch.end(); classIter++)
 		{
-			if (classIter->m_ClassName == c.m_ClassName)
+			if (classIter->className == c.className)
 			{
 				return classIter;
 			}
@@ -73,9 +73,9 @@ namespace Cocoa
 			auto c = FindClass(clazz, classes);
 			if (c != classes.end())
 			{
-				c->m_ClassName = clazz.m_ClassName;
-				c->m_FullFilepath = clazz.m_FullFilepath;
-				c->m_Variables = clazz.m_Variables;
+				c->className = clazz.className;
+				c->fullFilepath = clazz.fullFilepath;
+				c->variables = clazz.variables;
 			}
 			else
 			{
@@ -85,7 +85,7 @@ namespace Cocoa
 
 		for (auto classIter = classes.begin(); classIter != classes.end(); classIter++)
 		{
-			if (classIter->m_FullFilepath == filepath)
+			if (classIter->fullFilepath == filepath)
 			{
 				if (FindClass(*classIter, classesToMerge) == classesToMerge.end())
 				{
@@ -105,7 +105,7 @@ namespace Cocoa
 		initH.join(CPath::create("init.h"));
 		CPath initCpp = generatedDir;
 		initCpp.join(CPath::create("init.pp"));
-		CodeGenerators::GenerateInitFile(classes, initH);
+		CodeGenerators::generateInitFile(classes, initH);
 		File::writeFile("#include \"init.h\"\n", initCpp);
 	}
 
@@ -141,7 +141,7 @@ namespace Cocoa
 		rootDir.join(generatedDirPath);
 		if (ProcessFile(filePath, generatedFilePath))
 		{
-			CppBuild::Build(rootDir);
+			CppBuild::build(rootDir);
 		}
 	}
 
@@ -170,42 +170,42 @@ namespace Cocoa
 		pathToBuildScript.join(CPath::create("build.bat"));
 		CPath pathToPremakeExe = Settings::General::engineExeDirectory;
 		pathToPremakeExe.join(CPath::create("premake5.exe"));
-		CodeGenerators::GenerateBuildFile(pathToBuildScript, pathToPremakeExe);
+		CodeGenerators::generateBuildFile(pathToBuildScript, pathToPremakeExe);
 	}
 
-	void SourceFileWatcher::StartFileWatcher()
+	void SourceFileWatcher::startFileWatcher()
 	{
-		if (!File::isDirectory(m_RootDirectory))
+		if (!File::isDirectory(mRootDirectory))
 		{
-			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.path);
+			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", mRootDirectory.path);
 			return;
 		}
-		rootDir = m_RootDirectory;
-		Logger::Log("Monitoring directory '%s'", File::getAbsolutePath(m_RootDirectory).path);
+		rootDir = mRootDirectory;
+		Logger::Log("Monitoring directory '%s'", File::getAbsolutePath(mRootDirectory).path);
 
-		projectPremakeLua = CPath::create(m_RootDirectory.getDirectory(-1));
+		projectPremakeLua = CPath::create(mRootDirectory.getDirectory(-1));
 		projectPremakeLua.join(CPath::create("premake5.lua"));
-		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
+		CodeGenerators::generatePremakeFile(projectPremakeLua);
 		GenerateBuildFile();
 
 		Logger::Log("Generating initial class information");
-		GenerateInitialClassInformation(m_RootDirectory);
+		GenerateInitialClassInformation(mRootDirectory);
 		Logger::Log("Generating premake file %s", projectPremakeLua.path);
-		CppBuild::Build(rootDir);
+		CppBuild::build(rootDir);
 
-		m_FileWatcher.path = m_RootDirectory;
-		m_FileWatcher.notifyFilters = NotifyFilters::LastAccess
+		mFileWatcher.path = mRootDirectory;
+		mFileWatcher.notifyFilters = NotifyFilters::LastAccess
 			| NotifyFilters::LastWrite
 			| NotifyFilters::FileName
 			| NotifyFilters::DirectoryName;
 
-		m_FileWatcher.filter = "*.h";
-		m_FileWatcher.includeSubdirectories = true;
+		mFileWatcher.filter = "*.h";
+		mFileWatcher.includeSubdirectories = true;
 
-		m_FileWatcher.onChanged = FileChanged;
-		m_FileWatcher.onCreated = FileChanged;
-		m_FileWatcher.onRenamed = FileChanged;
+		mFileWatcher.onChanged = FileChanged;
+		mFileWatcher.onCreated = FileChanged;
+		mFileWatcher.onRenamed = FileChanged;
 
-		m_FileWatcher.start();
+		mFileWatcher.start();
 	}
 }

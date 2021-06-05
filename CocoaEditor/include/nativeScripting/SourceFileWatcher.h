@@ -1,6 +1,8 @@
-#pragma once
+#ifndef COCOA_EDITOR_SOURCE_FILE_WATCHER_H
+#define COCOA_EDITOR_SOURCE_FILE_WATCHER_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
+
 #include "cocoa/file/FileSystemWatcher.h"
 
 namespace Cocoa
@@ -9,15 +11,17 @@ namespace Cocoa
 	{
 	public:
 		SourceFileWatcher() 
-			: m_RootDirectory(CPath::create()) {}
+			: mRootDirectory(CPath::create()) {}
 		SourceFileWatcher(CPath path);
-		~SourceFileWatcher() { m_FileWatcher.stop(); }
+		~SourceFileWatcher() { mFileWatcher.stop(); }
 
 	private:
-		void StartFileWatcher();
+		void startFileWatcher();
 
 	private:
-		CPath m_RootDirectory;
-		FileSystemWatcher m_FileWatcher;
+		CPath mRootDirectory;
+		FileSystemWatcher mFileWatcher;
 	};
 }
+
+#endif

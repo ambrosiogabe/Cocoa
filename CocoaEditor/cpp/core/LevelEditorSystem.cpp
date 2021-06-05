@@ -3,7 +3,7 @@
 #include "gui/FontAwesome.h"
 #include "gui/ImGuiExtended.h"
 #include "editorWindows/InspectorWindow.h"
-#include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/SceneHierarchyWindow.h"
 #include "util/Settings.h"
 
 #include "cocoa/systems/ScriptSystem.h"
@@ -58,7 +58,7 @@ namespace Cocoa
 		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
 		static void InitComponentIds(SceneData& scene);
-		void Init(SceneData& scene)
+		void init(SceneData& scene)
 		{
 			InitComponentIds(scene);
 			tmpScriptDll = Settings::General::engineExeDirectory;
@@ -94,7 +94,7 @@ namespace Cocoa
 			NEntity::addComponent<NoSerialize>(m_CameraEntity);
 		}
 
-		void Destroy(SceneData& scene)
+		void destroy(SceneData& scene)
 		{
 
 		}
@@ -127,7 +127,7 @@ namespace Cocoa
 			};
 		}
 
-		void EditorUpdate(SceneData& scene, float dt)
+		void editorUpdate(SceneData& scene, float dt)
 		{
 			if (!initImGui)
 			{
@@ -166,11 +166,11 @@ namespace Cocoa
 			}
 
 			// Draw grid lines
-			if (Settings::Editor::DrawGrid)
+			if (Settings::Editor::drawGrid)
 			{
 				float cameraZoom = camera.zoom;
-				float gridWidth = Settings::Editor::GridSize.x;
-				float gridHeight = Settings::Editor::GridSize.y;
+				float gridWidth = Settings::Editor::gridSize.x;
+				float gridHeight = Settings::Editor::gridSize.y;
 				float projectionWidth = camera.projectionSize.x;
 				float projectionHeight = camera.projectionSize.y;
 
@@ -189,7 +189,7 @@ namespace Cocoa
 					float y1 = firstY + projectionHeight + gridHeight;
 					glm::vec2 from(x, y0);
 					glm::vec2 to(x, y1);
-					DebugDraw::addLine2D(from, to, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
+					DebugDraw::addLine2D(from, to, Settings::Editor::gridStrokeWidth, Settings::Editor::gridColor, 1, false);
 
 					if (i <= xLinesNeeded)
 					{
@@ -197,14 +197,14 @@ namespace Cocoa
 						float x1 = firstX + projectionWidth + gridWidth;
 						glm::vec2 from2(x0, y);
 						glm::vec2 to2(x1, y);
-						DebugDraw::addLine2D(from2, to2, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
+						DebugDraw::addLine2D(from2, to2, Settings::Editor::gridStrokeWidth, Settings::Editor::gridColor, 1, false);
 					}
 				}
 			}
 
 		}
 
-		Camera& GetCamera()
+		Camera& getCamera()
 		{
 			return NEntity::getComponent<Camera>(m_CameraEntity);;
 		}
@@ -215,7 +215,7 @@ namespace Cocoa
 			return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
 		}
 
-		void LevelEditorSystem::OnEvent(SceneData& scene, Event& e)
+		void LevelEditorSystem::onEvent(SceneData& scene, Event& e)
 		{
 			switch (e.getType())
 			{
@@ -264,25 +264,25 @@ namespace Cocoa
 
 				if (e.getKeyCode() == COCOA_KEY_D)
 				{
-					Entity activeEntity = InspectorWindow::GetActiveEntity();
+					Entity activeEntity = InspectorWindow::getActiveEntity();
 					if (!NEntity::isNull(activeEntity))
 					{
 						Entity duplicated = Scene::duplicateEntity(scene, activeEntity);
-						InspectorWindow::ClearAllEntities();
-						InspectorWindow::AddEntity(duplicated);
-						SceneHeirarchyWindow::AddNewEntity(duplicated);
+						InspectorWindow::clearAllEntities();
+						InspectorWindow::addEntity(duplicated);
+						SceneHierarchyWindow::addNewEntity(duplicated);
 					}
 				}
 			}
 
 			if (e.getKeyCode() == COCOA_KEY_DELETE)
 			{
-				Entity activeEntity = InspectorWindow::GetActiveEntity();
+				Entity activeEntity = InspectorWindow::getActiveEntity();
 				if (!NEntity::isNull(activeEntity))
 				{
-					SceneHeirarchyWindow::DeleteEntity(activeEntity);
+					SceneHierarchyWindow::deleteEntity(activeEntity);
 					Scene::deleteEntity(scene, activeEntity);
-					InspectorWindow::ClearAllEntities();
+					InspectorWindow::clearAllEntities();
 				}
 			}
 
@@ -352,7 +352,7 @@ namespace Cocoa
 			return false;
 		}
 
-		void Serialize(json& j)
+		void serialize(json& j)
 		{
 			Camera& editorCamera = NEntity::getComponent<Camera>(m_CameraEntity);
 			j["EditorCamera"] = { 
@@ -361,7 +361,7 @@ namespace Cocoa
 			Scene::serializeEntity(&j["EditorCamera"], m_CameraEntity);
 		}
 
-		void Deserialize(const json& j, SceneData& scene)
+		void deserialize(const json& j, SceneData& scene)
 		{
 			Logger::Assert(Scene::isValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
 			if (j.contains("EditorCamera") && Scene::isValid(scene, m_CameraEntity))

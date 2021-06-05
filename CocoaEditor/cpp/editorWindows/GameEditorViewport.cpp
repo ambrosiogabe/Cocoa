@@ -20,7 +20,7 @@ namespace Cocoa
 		static glm::vec2 m_GameviewMousePos = glm::vec2();
 		static bool m_BlockEvents = false;
 
-		void ImGui(SceneData& scene, bool* isWindowHovered)
+		void imgui(SceneData& scene, bool* isWindowHovered)
 		{
 			static bool open = true;
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
@@ -63,7 +63,7 @@ namespace Cocoa
 				{
 					CPath scriptsPath = Settings::General::workingDirectory;
 					scriptsPath.join(CPath::create("scripts"));
-					CppBuild::Compile(scriptsPath);
+					CppBuild::compile(scriptsPath);
 				}
 				ImGui::EndMenuBar();
 			}
@@ -102,7 +102,7 @@ namespace Cocoa
 			m_GameviewMousePos.y = mousePos.y;
 			Input::setGameViewMousePos(m_GameviewMousePos);
 
-			Camera& camera = LevelEditorSystem::GetCamera();
+			Camera& camera = LevelEditorSystem::getCamera();
 			uint32 texId = NFramebuffer::getColorAttachment(camera.framebuffer, 0).graphicsId;
 			ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 
