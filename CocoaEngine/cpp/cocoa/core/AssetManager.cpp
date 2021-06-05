@@ -60,11 +60,11 @@ namespace Cocoa
 			Handle<Shader> shader = getShader(path);
 			if (!shader.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.Path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.path);
 				return shader;
 			}
 
-			CPath absPath = File::GetAbsolutePath(path);
+			CPath absPath = File::getAbsolutePath(path);
 			int index = id;
 
 			// If id is -1, we don't care where you place the texture so long as it gets loaded
@@ -124,11 +124,11 @@ namespace Cocoa
 			Handle<Texture> textureHandle = getTexture(texture.Path);
 			if (!textureHandle.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.Path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.path);
 				return textureHandle;
 			}
 
-			CPath absPath = File::GetAbsolutePath(texture.Path);
+			CPath absPath = File::getAbsolutePath(texture.Path);
 			int index = id;
 
 			// Make sure to generate texture *before* pushing back since we are pushing back a copy
@@ -163,11 +163,11 @@ namespace Cocoa
 			Handle<Texture> textureHandle = getTexture(path);
 			if (!textureHandle.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.Path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.path);
 				return textureHandle;
 			}
 
-			CPath absPath = File::GetAbsolutePath(path);
+			CPath absPath = File::getAbsolutePath(path);
 			int index = id;
 			texture.Path = path;
 			TextureUtil::Generate(texture, path);
@@ -226,11 +226,11 @@ namespace Cocoa
 			Handle<Font> font = getFont(path);
 			if (!font.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", path.Path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", path.path);
 				return font;
 			}
 
-			CPath absPath = File::GetAbsolutePath(path);
+			CPath absPath = File::getAbsolutePath(path);
 			int index = id;
 
 			// If id is -1, we don't care where you place the font so long as it gets loaded
@@ -264,11 +264,11 @@ namespace Cocoa
 			Handle<Font> font = getFont(fontFile);
 			if (!font.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.Path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.path);
 				return font;
 			}
 
-			CPath absPath = File::GetAbsolutePath(fontFile);
+			CPath absPath = File::getAbsolutePath(fontFile);
 			int index = mFonts.size();
 
 			mFonts.push(Font{ absPath, false });
@@ -361,10 +361,10 @@ namespace Cocoa
 					uint32 resourceId = -1;
 					JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
 
-					CPath path = CPath::Create();
+					CPath path = CPath::create();
 					if (assetJson.contains("Filepath"))
 					{
-						path = CPath::Create(assetJson["Filepath"], false);
+						path = CPath::create(assetJson["Filepath"], false);
 					}
 
 					if (resourceId >= 0)

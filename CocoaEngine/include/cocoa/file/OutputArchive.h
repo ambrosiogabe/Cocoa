@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_OUTPUT_ARCHIVE_H
+#define COCOA_ENGINE_OUTPUT_ARCHIVE_H
 #include "externalLibs.h"
 
 #include "cocoa/components/Transform.h"
@@ -15,14 +16,14 @@ namespace Cocoa
 	{
 	public:
 		OutputArchive(json& j) 
-			: m_Json(j) {}
+			: mJson(j) {}
 
-		void operator()(entt::entity entity)
+		void operator()(entt::entity entity) const
 		{
 			//Logger::Info("Archiving entity: %d", entt::to_integral(entity));
 		}
 
-		void operator()(std::underlying_type_t<entt::entity> underlyingType)
+		void operator()(std::underlying_type_t<entt::entity> underlyingType) const
 		{
 			//Logger::Info("Archiving underlying type entity: %d", underlyingType);
 		}
@@ -35,37 +36,37 @@ namespace Cocoa
 			if (info.seq() == entt::type_id<TransformData>().seq())
 			{
 				const TransformData* transform = reinterpret_cast<const TransformData*>(&component);
-				Transform::serialize(m_Json, NEntity::createEntity(entity), *transform);
+				Transform::serialize(mJson, NEntity::createEntity(entity), *transform);
 			} 
 			else if (info.seq() == entt::type_id<SpriteRenderer>().seq())
 			{
 				const SpriteRenderer* renderer = reinterpret_cast<const SpriteRenderer*>(&component);
-				RenderSystem::Serialize(m_Json, NEntity::createEntity(entity), *renderer);
+				RenderSystem::Serialize(mJson, NEntity::createEntity(entity), *renderer);
 			}
 			else if (info.seq() == entt::type_id<FontRenderer>().seq())
 			{
 				const FontRenderer* fontRenderer = reinterpret_cast<const FontRenderer*>(&component);
-				RenderSystem::Serialize(m_Json, NEntity::createEntity(entity), *fontRenderer);
+				RenderSystem::Serialize(mJson, NEntity::createEntity(entity), *fontRenderer);
 			}
 			else if (info.seq() == entt::type_id<Box2D>().seq())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
-				Physics2D::Serialize(m_Json, NEntity::createEntity(entity), *box2D);
+				Physics2D::Serialize(mJson, NEntity::createEntity(entity), *box2D);
 			}
 			else if (info.seq() == entt::type_id<Rigidbody2D>().seq())
 			{
 				const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
-				Physics2D::Serialize(m_Json, NEntity::createEntity(entity), *rb);
+				Physics2D::Serialize(mJson, NEntity::createEntity(entity), *rb);
 			}
 			else if (info.seq() == entt::type_id<AABB>().seq())
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
-				Physics2D::Serialize(m_Json, NEntity::createEntity(entity), *box);
+				Physics2D::Serialize(mJson, NEntity::createEntity(entity), *box);
 			}
 			else if (info.seq() == entt::type_id<Tag>().seq())
 			{
 				const Tag* tag = reinterpret_cast<const Tag*>(&component);
-				NTag::serialize(m_Json, NEntity::createEntity(entity), *tag);
+				NTag::serialize(mJson, NEntity::createEntity(entity), *tag);
 			}
 			else
 			{
@@ -74,6 +75,8 @@ namespace Cocoa
 		}
 
 	private:
-		json& m_Json;
+		json& mJson;
 	};
 }
+
+#endif

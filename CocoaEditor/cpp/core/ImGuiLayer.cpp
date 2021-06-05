@@ -50,7 +50,7 @@ namespace Cocoa
 			// Setup dear imGui binding
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.Path);
+			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.path);
 
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -210,10 +210,10 @@ namespace Cocoa
 
 		void LoadStyle(const CPath& filepath)
 		{
-			FileHandle* styleData = File::OpenFile(filepath);
-			if (styleData->m_Size > 0)
+			FileHandle* styleData = File::openFile(filepath);
+			if (styleData->size > 0)
 			{
-				json j = json::parse(styleData->m_Data);
+				json j = json::parse(styleData->data);
 				if (j.contains("Colors"))
 				{
 					json& subJ = j["Colors"];
@@ -252,10 +252,10 @@ namespace Cocoa
 			else
 			{
 				CPath defaultStylePath = Settings::General::s_StylesDirectory;
-				defaultStylePath.Join(CPath::Create("Default.json"));
+				defaultStylePath.join(CPath::create("Default.json"));
 				ExportCurrentStyle(defaultStylePath);
 			}
-			File::CloseFile(styleData);
+			File::closeFile(styleData);
 
 			ApplyStyle();
 			ExportCurrentStyle(Settings::General::s_EditorStyleData);
@@ -370,7 +370,7 @@ namespace Cocoa
 					}
 				}
 			};
-			File::WriteFile(styles.dump(4).c_str(), outputPath);
+			File::writeFile(styles.dump(4).c_str(), outputPath);
 		}
 	}
 }

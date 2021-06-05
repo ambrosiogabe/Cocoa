@@ -67,7 +67,7 @@ namespace Cocoa
 			if (m_Shader.isNull())
 			{
 				CPath shaderPath = Settings::General::s_EngineAssetsPath;
-				shaderPath.Join(CPath::Create("shaders/SpriteRenderer.glsl"));
+				shaderPath.join(CPath::create("shaders/SpriteRenderer.glsl"));
 				m_Shader = AssetManager::getShader(shaderPath);
 			}
 

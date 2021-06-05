@@ -39,7 +39,7 @@ namespace Cocoa
 					if (!isPlaying)
 					{
 						CPath tmpPath = Settings::General::s_EngineAssetsPath;
-						tmpPath.Join(CPath::Create("tmp.jade"));
+						tmpPath.join(CPath::create("tmp.jade"));
 						Scene::Save(scene, tmpPath);
 						Scene::Play(scene);
 						isPlaying = true;
@@ -52,7 +52,7 @@ namespace Cocoa
 					{
 						Scene::Stop(scene);
 						CPath tmpPath = Settings::General::s_EngineAssetsPath;
-						tmpPath.Join(CPath::Create("tmp.jade"));
+						tmpPath.join(CPath::create("tmp.jade"));
 						Scene::FreeResources(scene);
 						Scene::Load(scene, tmpPath, false);
 						isPlaying = false;
@@ -62,7 +62,7 @@ namespace Cocoa
 				else if (ImGui::MenuItem("Compile"))
 				{
 					CPath scriptsPath = Settings::General::s_WorkingDirectory;
-					scriptsPath.Join(CPath::Create("scripts"));
+					scriptsPath.join(CPath::create("scripts"));
 					CppBuild::Compile(scriptsPath);
 				}
 				ImGui::EndMenuBar();

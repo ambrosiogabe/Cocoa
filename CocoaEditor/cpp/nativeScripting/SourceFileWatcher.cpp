@@ -11,8 +11,8 @@
 namespace Cocoa
 {
 	// Internal variables
-	static CPath rootDir = CPath::Create();
-	static CPath projectPremakeLua = CPath::Create();
+	static CPath rootDir = CPath::create();
+	static CPath projectPremakeLua = CPath::create();
 	static auto classes = std::vector<UClass>();
 	static bool fileModified = false;
 	static bool buildingCode = false;
@@ -28,12 +28,12 @@ namespace Cocoa
 
 	static bool IsHeaderFile(const CPath& file)
 	{
-		return strcmp(file.FileExt(), ".h") == 0 || strcmp(file.FileExt(), ".hpp") == 0;
+		return strcmp(file.fileExt(), ".h") == 0 || strcmp(file.fileExt(), ".hpp") == 0;
 	}
 
 	static bool IsReflectionHeaderFile(const CPath& file)
 	{
-		return strcmp(file.Filename(), "Reflection") == 0;
+		return strcmp(file.filename(), "Reflection") == 0;
 	}
 
 	static void AddClassIfNotExist(UClass clazz)
@@ -98,24 +98,24 @@ namespace Cocoa
 	static void GenerateInitFiles()
 	{
 		CPath generatedDir = rootDir;
-		generatedDir.Join(CPath::Create("generated"));
-		File::CreateDirIfNotExists(generatedDir);
+		generatedDir.join(CPath::create("generated"));
+		File::createDirIfNotExists(generatedDir);
 
 		CPath initH = generatedDir;
-		initH.Join(CPath::Create("init.h"));
+		initH.join(CPath::create("init.h"));
 		CPath initCpp = generatedDir;
-		initCpp.Join(CPath::Create("init.pp"));
+		initCpp.join(CPath::create("init.pp"));
 		CodeGenerators::GenerateInitFile(classes, initH);
-		File::WriteFile("#include \"init.h\"\n", initCpp);
+		File::writeFile("#include \"init.h\"\n", initCpp);
 	}
 
 	static bool ProcessFile(CPath& file, CPath generatedDirPath)
 	{
-		if (!File::IsFile(file) || file.Contains("generated") || File::IsHidden(file) || !IsHeaderFile(file))
+		if (!File::isFile(file) || file.contains("generated") || File::isHidden(file) || !IsHeaderFile(file))
 		{
 			return false;
 		}
-		File::CreateDirIfNotExists(generatedDirPath);
+		File::createDirIfNotExists(generatedDirPath);
 
 		//ScriptScanner fileScanner = ScriptScanner(file);
 		//std::vector<Token> fileTokens = fileScanner.ScanTokens();
@@ -123,9 +123,9 @@ namespace Cocoa
 		//fileParser.Parse();
 		//MergeNewClasses(fileParser.GetClasses(), file);
 
-		std::string generatedHFilename = file.GetFilenameWithoutExt() + "-generated.h";
+		std::string generatedHFilename = file.getFilenameWithoutExt() + "-generated.h";
 		CPath path = generatedDirPath;
-		path.Join(CPath::Create(generatedHFilename));
+		path.join(CPath::create(generatedHFilename));
 		//File::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
 
 		GenerateInitFiles();
@@ -134,11 +134,11 @@ namespace Cocoa
 
 	static void FileChanged(const CPath& file)
 	{
-		CPath generatedDirPath = CPath::Create(file.GetDirectory(-1) + "generated");
+		CPath generatedDirPath = CPath::create(file.getDirectory(-1) + "generated");
 		CPath filePath = generatedDirPath;
-		filePath.Join(file);
+		filePath.join(file);
 		CPath generatedFilePath = rootDir;
-		rootDir.Join(generatedDirPath);
+		rootDir.join(generatedDirPath);
 		if (ProcessFile(filePath, generatedFilePath))
 		{
 			CppBuild::Build(rootDir);
@@ -147,15 +147,15 @@ namespace Cocoa
 
 	static void GenerateInitialClassInformation(const CPath& directory)
 	{
-		auto subDirs = File::GetFoldersInDir(directory);
+		auto subDirs = File::getFoldersInDir(directory);
 		for (auto dir : subDirs)
 		{
 			GenerateInitialClassInformation(dir);
 		}
 
-		auto files = File::GetFilesInDir(directory);
+		auto files = File::getFilesInDir(directory);
 		CPath generatedDir = directory;
-		generatedDir.Join(CPath::Create("generated"));
+		generatedDir.join(CPath::create("generated"));
 		for (auto file : files)
 		{
 			ProcessFile(file, generatedDir);
@@ -166,46 +166,46 @@ namespace Cocoa
 
 	static void GenerateBuildFile()
 	{
-		CPath pathToBuildScript = CPath::Create(rootDir.GetDirectory(-1));
-		pathToBuildScript.Join(CPath::Create("build.bat"));
+		CPath pathToBuildScript = CPath::create(rootDir.getDirectory(-1));
+		pathToBuildScript.join(CPath::create("build.bat"));
 		CPath pathToPremakeExe = Settings::General::s_EngineExeDirectory;
-		pathToPremakeExe.Join(CPath::Create("premake5.exe"));
+		pathToPremakeExe.join(CPath::create("premake5.exe"));
 		CodeGenerators::GenerateBuildFile(pathToBuildScript, pathToPremakeExe);
 	}
 
 	void SourceFileWatcher::StartFileWatcher()
 	{
-		if (!File::IsDirectory(m_RootDirectory))
+		if (!File::isDirectory(m_RootDirectory))
 		{
-			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.Path);
+			Logger::Warning("'%s' is not a directory. SourceFileWatcher is not starting.", m_RootDirectory.path);
 			return;
 		}
 		rootDir = m_RootDirectory;
-		Logger::Log("Monitoring directory '%s'", File::GetAbsolutePath(m_RootDirectory).Path);
+		Logger::Log("Monitoring directory '%s'", File::getAbsolutePath(m_RootDirectory).path);
 
-		projectPremakeLua = CPath::Create(m_RootDirectory.GetDirectory(-1));
-		projectPremakeLua.Join(CPath::Create("premake5.lua"));
+		projectPremakeLua = CPath::create(m_RootDirectory.getDirectory(-1));
+		projectPremakeLua.join(CPath::create("premake5.lua"));
 		CodeGenerators::GeneratePremakeFile(projectPremakeLua);
 		GenerateBuildFile();
 
 		Logger::Log("Generating initial class information");
 		GenerateInitialClassInformation(m_RootDirectory);
-		Logger::Log("Generating premake file %s", projectPremakeLua.Path);
+		Logger::Log("Generating premake file %s", projectPremakeLua.path);
 		CppBuild::Build(rootDir);
 
-		m_FileWatcher.m_Path = m_RootDirectory;
-		m_FileWatcher.m_NotifyFilters = NotifyFilters::LastAccess
+		m_FileWatcher.path = m_RootDirectory;
+		m_FileWatcher.notifyFilters = NotifyFilters::LastAccess
 			| NotifyFilters::LastWrite
 			| NotifyFilters::FileName
 			| NotifyFilters::DirectoryName;
 
-		m_FileWatcher.m_Filter = "*.h";
-		m_FileWatcher.m_IncludeSubdirectories = true;
+		m_FileWatcher.filter = "*.h";
+		m_FileWatcher.includeSubdirectories = true;
 
-		m_FileWatcher.m_OnChanged = FileChanged;
-		m_FileWatcher.m_OnCreated = FileChanged;
-		m_FileWatcher.m_OnRenamed = FileChanged;
+		m_FileWatcher.onChanged = FileChanged;
+		m_FileWatcher.onCreated = FileChanged;
+		m_FileWatcher.onRenamed = FileChanged;
 
-		m_FileWatcher.Start();
+		m_FileWatcher.start();
 	}
 }

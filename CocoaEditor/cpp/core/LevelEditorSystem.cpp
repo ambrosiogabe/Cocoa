@@ -62,9 +62,9 @@ namespace Cocoa
 		{
 			InitComponentIds(scene);
 			tmpScriptDll = Settings::General::s_EngineExeDirectory;
-			tmpScriptDll.Join(CPath::Create("ScriptModuleTmp.dll"));
+			tmpScriptDll.join(CPath::create("ScriptModuleTmp.dll"));
 			scriptDll = Settings::General::s_EngineExeDirectory;
-			scriptDll.Join(CPath::Create("ScriptModule.dll"));
+			scriptDll.join(CPath::create("ScriptModule.dll"));
 			initImGui = false;
 
 			Logger::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
@@ -135,7 +135,7 @@ namespace Cocoa
 				initImGui = true;
 			}
 
-			if (File::IsFile(tmpScriptDll))
+			if (File::isFile(tmpScriptDll))
 			{
 				Scene::Save(scene, Settings::General::s_CurrentScene);
 				EditorLayer::saveProject();
@@ -144,12 +144,12 @@ namespace Cocoa
 				Scene::FreeResources(scene);
 
 				// Now copy new dll and reload the scene
-				File::DeleteFile(scriptDll);
-				File::CopyFile(tmpScriptDll, CPath::Create(scriptDll.GetDirectory(-1)), "ScriptModule");
+				File::deleteFile(scriptDll);
+				File::copyFile(tmpScriptDll, CPath::create(scriptDll.getDirectory(-1)), "ScriptModule");
 				Scene::Load(scene, Settings::General::s_CurrentScene);
 
 				// Then delete temporary file of new dll
-				File::DeleteFile(tmpScriptDll);
+				File::deleteFile(tmpScriptDll);
 			}
 
 			Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);

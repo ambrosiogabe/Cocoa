@@ -37,7 +37,7 @@ namespace Cocoa
 		static bool CPathVectorGetter(void* data, int n, const char** out_text)
 		{
 			const std::vector<CPath>* v = (std::vector<CPath>*)data;
-			*out_text = v->at(n).Filename();
+			*out_text = v->at(n).filename();
 			return true;
 		}
 
@@ -45,7 +45,7 @@ namespace Cocoa
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
 			ImGui::Begin("Styles", &Settings::Editor::ShowStyleSelect);
-			std::vector<CPath> styles = File::GetFilesInDir(Settings::General::s_StylesDirectory);
+			std::vector<CPath> styles = File::getFilesInDir(Settings::General::s_StylesDirectory);
 			if (ImGui::ListBox("Styles", &Settings::Editor::SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
 				ImGuiLayer::LoadStyle(styles[Settings::Editor::SelectedStyle]);
@@ -76,9 +76,9 @@ namespace Cocoa
 				if (CImGui::Button("Export..."))
 				{
 					FileDialogResult result;
-					if (FileDialog::GetSaveFileName(Settings::General::s_StylesDirectory.Path, result))
+					if (FileDialog::getSaveFileName(Settings::General::s_StylesDirectory.path, result))
 					{
-						ImGuiLayer::ExportCurrentStyle(CPath::Create(result.filepath));
+						ImGuiLayer::ExportCurrentStyle(CPath::create(result.filepath));
 					}
 				}
 			}
@@ -123,18 +123,18 @@ namespace Cocoa
 					if (CImGui::MenuButton("Open Project"))
 					{
 						FileDialogResult result{};
-						if (FileDialog::GetOpenFileName(".", result, { {"Cocoa Projects *.cocoa", "*.cprj"}, {"All Files", "*.*"} }))
+						if (FileDialog::getOpenFileName(".", result, { {"Cocoa Projects *.cocoa", "*.cprj"}, {"All Files", "*.*"} }))
 						{
-							EditorLayer::loadProject(scene, CPath::Create(result.filepath));
+							EditorLayer::loadProject(scene, CPath::create(result.filepath));
 						}
 					}
 
 					if (CImGui::MenuButton("Save Scene As"))
 					{
 						FileDialogResult result{};
-						if (FileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+						if (FileDialog::getSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
-							Settings::General::s_CurrentScene = CPath::Create(result.filepath);
+							Settings::General::s_CurrentScene = CPath::create(result.filepath);
 							Scene::Save(scene, Settings::General::s_CurrentScene);
 						}
 					}

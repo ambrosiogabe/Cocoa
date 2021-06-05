@@ -48,10 +48,10 @@ namespace Cocoa
 		file << "#include <imgui.h>\n";
 		file << "#include <map>\n\n";
 		file << "#include \"ImGuiExtended.h\"\n";
-		file << "#include \"../" << m_FullFilepath.GetFilenameWithoutExt() << ".h\"\n\n";
+		file << "#include \"../" << m_FullFilepath.getFilenameWithoutExt() << ".h\"\n\n";
 
 		file << "namespace Cocoa\n{\n";
-		file << "\tnamespace Reflect" << GetFilenameAsClassName(m_FullFilepath.GetFilenameWithoutExt()) << " \n\t{\n";
+		file << "\tnamespace Reflect" << GetFilenameAsClassName(m_FullFilepath.getFilenameWithoutExt()) << " \n\t{\n";
 
 		file << "\t\tusing namespace entt::literals;\n";
 		file << "\t\tbool initialized = false;\n\n";

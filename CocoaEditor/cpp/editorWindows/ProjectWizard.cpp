@@ -23,7 +23,7 @@ namespace Cocoa
 		
 		static bool mCreatingProject = false;
 		static char mTmpFilename[256];
-		static CPath mNewProjectPath = CPath::Create();
+		static CPath mNewProjectPath = CPath::create();
 
 		void Init()
 		{
@@ -34,7 +34,7 @@ namespace Cocoa
 			mJadeLogo.MinFilter = FilterMode::Linear;
 			mJadeLogo.WrapS = WrapMode::Repeat;
 			mJadeLogo.WrapT = WrapMode::Repeat;
-			TextureUtil::Generate(mJadeLogo, CPath::Create("assets/jadeLogo.png"));
+			TextureUtil::Generate(mJadeLogo, CPath::create("assets/jadeLogo.png"));
 
 			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.Width / 2.0f);
 			mTexturePos.y = mIdealSize.y / 10.0f;
@@ -75,9 +75,9 @@ namespace Cocoa
 			if (CImGui::Button(ICON_FA_FOLDER_OPEN " Open Project", mButtonSize) && !mCreatingProject)
 			{
 				FileDialogResult res;
-				if (FileDialog::GetOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
+				if (FileDialog::getOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
-					if (!EditorLayer::loadProject(scene, CPath::Create(res.filepath)))
+					if (!EditorLayer::loadProject(scene, CPath::create(res.filepath)))
 					{
 						Logger::Warning("Unable to load project: %s", res.filepath.c_str());
 					}
@@ -100,15 +100,15 @@ namespace Cocoa
 			ImGui::LabelText("##tmp_projectname", "Project Name:");
 			ImGui::InputText("##tmp_filename", mTmpFilename, 256);
 			ImGui::LabelText("##tmp_projectdir", "Project Directory:");
-			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.Path);
+			ImGui::LabelText("##tmp_showfile", "%s", mNewProjectPath.path);
 			ImGui::SameLine();
 
 			if (CImGui::Button("Choose Directory"))
 			{
 				FileDialogResult res;
-				if (FileDialog::GetOpenFolderName(".", res))
+				if (FileDialog::getOpenFolderName(".", res))
 				{
-					mNewProjectPath = CPath::Create(res.filepath);
+					mNewProjectPath = CPath::create(res.filepath);
 				}
 			}
 

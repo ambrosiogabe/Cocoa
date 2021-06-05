@@ -237,10 +237,10 @@ namespace Cocoa
 
 		void Save(SceneData& data, const CPath& filename)
 		{
-			Logger::Log("Saving scene '%s'", filename.Path);
+			Logger::Log("Saving scene '%s'", filename.path);
 			data.SaveDataJson = {
 				{"Components", {}},
-				{"Project", Settings::General::s_CurrentProject.Path},
+				{"Project", Settings::General::s_CurrentProject.path},
 				{"Assets", AssetManager::serialize()}
 			};
 
@@ -258,12 +258,12 @@ namespace Cocoa
 			ScriptSystem::SaveScripts(data, data.SaveDataJson);
 			data.CurrentSceneInitializer->Save(data);
 
-			File::WriteFile(data.SaveDataJson.dump(4).c_str(), filename);
+			File::writeFile(data.SaveDataJson.dump(4).c_str(), filename);
 		}
 
 		void Load(SceneData& data, const CPath& filename, bool setAsCurrentScene)
 		{
-			Logger::Log("Loading scene %s", filename.Path);
+			Logger::Log("Loading scene %s", filename.path);
 			Init(data);
 
 			if (setAsCurrentScene)
@@ -271,15 +271,15 @@ namespace Cocoa
 				Settings::General::s_CurrentScene = filename;
 			}
 
-			FileHandle* file = File::OpenFile(filename);
-			if (file->m_Size <= 0)
+			FileHandle* file = File::openFile(filename);
+			if (file->size <= 0)
 			{
-				File::CloseFile(file);
+				File::closeFile(file);
 				return;
 			}
 
 
-			json j = json::parse(file->m_Data);
+			json j = json::parse(file->data);
 			// TODO: Change this so that the scene doesn't hold the json at all
 			data.SaveDataJson = j;
 
@@ -295,19 +295,19 @@ namespace Cocoa
 			data.CurrentSceneInitializer->Load(data);
 
 			j = {};
-			File::CloseFile(file);
+			File::closeFile(file);
 		}
 
 		void LoadScriptsOnly(SceneData& data, const CPath& filename)
 		{
-			FileHandle* file = File::OpenFile(filename);
-			if (file->m_Size <= 0)
+			FileHandle* file = File::openFile(filename);
+			if (file->size <= 0)
 			{
 				return;
 			}
 
-			Logger::Info("Loading scripts only for %s", filename.Path);
-			json j = json::parse(file->m_Data);
+			Logger::Info("Loading scripts only for %s", filename.path);
+			json j = json::parse(file->data);
 			int size = !j.contains("Components") ? 0 : j["Components"].size();
 			for (int i = 0; i < size; i++)
 			{
@@ -322,7 +322,7 @@ namespace Cocoa
 			}
 
 			j = {};
-			File::CloseFile(file);
+			File::closeFile(file);
 		}
 
 		Entity CreateEntity(SceneData& data)
@@ -420,7 +420,7 @@ namespace Cocoa
 			gizmoSpec.WrapT = WrapMode::Repeat;
 			gizmoSpec.IsDefault = true;
 			CPath gizmoPath = Settings::General::s_EngineAssetsPath;
-			gizmoPath.Join(CPath::Create("images/gizmos.png"));
+			gizmoPath.join(CPath::create("images/gizmos.png"));
 			auto asset = AssetManager::loadTextureFromFile(gizmoSpec, gizmoPath);
 		}
 

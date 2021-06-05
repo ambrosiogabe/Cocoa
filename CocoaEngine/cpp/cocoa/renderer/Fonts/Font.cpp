@@ -83,7 +83,7 @@ namespace Cocoa
 		res["FontTextureId"] = m_FontTexture.assetId;
 		res["GlyphRangeStart"] = m_GlyphRangeStart;
 		res["GlyphRangeEnd"] = m_GlyphRangeEnd;
-		res["Filepath"] = m_Path.Path;
+		res["Filepath"] = m_Path.path;
 		return res;
 	}
 

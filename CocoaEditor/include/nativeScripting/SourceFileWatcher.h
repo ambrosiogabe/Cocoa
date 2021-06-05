@@ -9,9 +9,9 @@ namespace Cocoa
 	{
 	public:
 		SourceFileWatcher() 
-			: m_RootDirectory(CPath::Create()) {}
+			: m_RootDirectory(CPath::create()) {}
 		SourceFileWatcher(CPath path);
-		~SourceFileWatcher() { m_FileWatcher.Stop(); }
+		~SourceFileWatcher() { m_FileWatcher.stop(); }
 
 	private:
 		void StartFileWatcher();

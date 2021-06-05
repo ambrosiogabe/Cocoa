@@ -20,58 +20,58 @@ namespace Cocoa
 {
 	namespace File
 	{
-		FileHandle* OpenFile(const CPath& filename)
+		FileHandle* openFile(const CPath& filename)
 		{
 			FileHandle* file = (FileHandle*)AllocMem(sizeof(FileHandle));
-			file->m_Filename = filename.Path;
+			file->filename = filename.path;
 
 			FILE* filePointer;
-			filePointer = fopen(file->m_Filename, "rb");
+			filePointer = fopen(file->filename, "rb");
 			if (filePointer)
 			{
 				fseek(filePointer, 0, SEEK_END);
-				file->m_Size = ftell(filePointer);
+				file->size = ftell(filePointer);
 				rewind(filePointer);
 				
-				file->m_Data = (char*)AllocMem(sizeof(char) * (file->m_Size + 1));
-				if (!file->m_Data)
+				file->data = (char*)AllocMem(sizeof(char) * (file->size + 1));
+				if (!file->data)
 				{
 					fclose(filePointer);
 					Logger::Warning("Memory allocation failed.");
 					return file;
 				}
 
-				int elementsRead = fread(file->m_Data, file->m_Size, 1, filePointer);
+				int elementsRead = fread(file->data, file->size, 1, filePointer);
 				if (elementsRead != 1)
 				{
 					fclose(filePointer);
-					FreeMem(file->m_Data);
-					file->m_Data = nullptr;
+					FreeMem(file->data);
+					file->data = nullptr;
 					Logger::Warning("Failed to read file properly.");
 					return file;
 				}
 
-				file->m_Data[file->m_Size] = '\0';
+				file->data[file->size] = '\0';
 				fclose(filePointer);
 			}
 			else
 			{
-				file->m_Data = nullptr;
-				file->m_Open = false;
-				file->m_Size = 0;
+				file->data = nullptr;
+				file->open = false;
+				file->size = 0;
 			}
 
 			return file;
 		}
 
-		void CloseFile(FileHandle* file)
+		void closeFile(FileHandle* file)
 		{
 			if (file)
 			{
-				if (file->m_Data)
+				if (file->data)
 				{
-					FreeMem(file->m_Data);
-					file->m_Data = nullptr;
+					FreeMem(file->data);
+					file->data = nullptr;
 				}
 				else
 				{
@@ -86,37 +86,37 @@ namespace Cocoa
 			}
 		}
 
-		bool WriteFile(const char* data, const CPath& filename)
+		bool writeFile(const char* data, const CPath& filename)
 		{
-			std::ofstream outStream(filename.Path);
+			std::ofstream outStream(filename.path);
 			outStream << data;
 			outStream.close();
 			return true;
 		}
 
-		bool CreateFile(const CPath& filename, const char* extToAppend)
+		bool createFile(const CPath& filename, const char* extToAppend)
 		{
 			CPath fileToWrite = filename;
-			if (filename.FileExt() == nullptr || filename.FileExt()[0] == '\0')
+			if (filename.fileExt() == nullptr || filename.fileExt()[0] == '\0')
 			{
-				fileToWrite = CPath::Create(filename.Path + std::string(extToAppend));
+				fileToWrite = CPath::create(filename.path + std::string(extToAppend));
 			}
-			HANDLE fileHandle = CreateFileA(fileToWrite.Path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE fileHandle = CreateFileA(fileToWrite.path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			bool res = fileHandle != INVALID_HANDLE_VALUE;
 			CloseHandle(fileHandle);
 			return res;
 		}
 
-		bool DeleteFile(const CPath& filename)
+		bool deleteFile(const CPath& filename)
 		{
-			return DeleteFileA(filename.Path);
+			return DeleteFileA(filename.path);
 		}
 
-		bool CopyFile(const CPath& fileToCopy, const CPath& newFileLocation, const char* newFilename)
+		bool copyFile(const CPath& fileToCopy, const CPath& newFileLocation, const char* newFilename)
 		{
 			CPath newFilepath = newFileLocation;
-			newFilepath.Join(CPath::Create(std::string(newFilename) + fileToCopy.FileExt()));
-			if (!CopyFileExA(fileToCopy.Path, newFilepath.Path, NULL, NULL, false, NULL))
+			newFilepath.join(CPath::create(std::string(newFilename) + fileToCopy.fileExt()));
+			if (!CopyFileExA(fileToCopy.path, newFilepath.path, NULL, NULL, false, NULL))
 			{
 				Logger::Warning("Could not copy file error code: %d", GetLastError());
 				return false;
@@ -125,7 +125,7 @@ namespace Cocoa
 			return true;
 		}
 
-		CPath GetCwd()
+		CPath getCwd()
 		{
 			char buff[FILENAME_MAX];
 			char* success = _getcwd(buff, FILENAME_MAX);
@@ -133,40 +133,40 @@ namespace Cocoa
 			return { buff };
 		}
 
-		CPath GetSpecialAppFolder()
+		CPath getSpecialAppFolder()
 		{
 			PWSTR pszPath;
 			if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pszPath)))
 			{
 				char* tmp = (char*)AllocMem(sizeof(char) * 256);
 				wcstombs(tmp, pszPath, 256);
-				CPath result = CPath::Create(tmp);
+				CPath result = CPath::create(tmp);
 				FreeMem(tmp);
 				return result;
 			}
 
 			Logger::Assert(false, "Could not retrieve AppRoamingData folder.");
-			return CPath::Create();
+			return CPath::create();
 		}
 
-		CPath GetExecutableDirectory()
+		CPath getExecutableDirectory()
 		{
 			char filepath[MAX_PATH];
 			DWORD res = GetModuleFileNameA(NULL, filepath, MAX_PATH);
 			Logger::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
 
-			return CPath::Create(filepath);
+			return CPath::create(filepath);
 		}
 
-		void CreateDirIfNotExists(const CPath& directory)
+		void createDirIfNotExists(const CPath& directory)
 		{
-			if (!(CreateDirectoryA(directory.Path, NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
+			if (!(CreateDirectoryA(directory.path, NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 			{
-				Logger::Assert(false, "Failed to create directory %s", directory.Path);
+				Logger::Assert(false, "Failed to create directory %s", directory.path);
 			}
 		}
 
-		std::vector<CPath> GetFilesInDir(const CPath& directory)
+		std::vector<CPath> getFilesInDir(const CPath& directory)
 		{
 			std::vector<CPath> result;
 			HANDLE dir;
@@ -174,8 +174,8 @@ namespace Cocoa
 
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
-			wildcardMatch.Join(CPath::Create("*"));
-			if ((dir = FindFirstFileA(wildcardMatch.Path, &fileData)) == INVALID_HANDLE_VALUE)
+			wildcardMatch.join(CPath::create("*"));
+			if ((dir = FindFirstFileA(wildcardMatch.path, &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -183,12 +183,12 @@ namespace Cocoa
 
 			do
 			{
-				CPath filename = CPath::Create(fileData.cFileName);
+				CPath filename = CPath::create(fileData.cFileName);
 				CPath fullFilename = dirPath;
-				fullFilename.Join(filename);
+				fullFilename.join(filename);
 				const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-				if (filename.Path[0] == '.')
+				if (filename.path[0] == '.')
 				{
 					continue;
 				}
@@ -204,7 +204,7 @@ namespace Cocoa
 			return result;
 		}
 
-		std::vector<CPath> GetFoldersInDir(const CPath& directory)
+		std::vector<CPath> getFoldersInDir(const CPath& directory)
 		{
 			std::vector<CPath> result;
 			HANDLE dir;
@@ -212,8 +212,8 @@ namespace Cocoa
 
 			CPath dirPath = directory;
 			CPath wildcardMatch = dirPath;
-			wildcardMatch.Join(CPath::Create("*"));
-			if ((dir = FindFirstFileA(wildcardMatch.Path, &fileData)) == INVALID_HANDLE_VALUE)
+			wildcardMatch.join(CPath::create("*"));
+			if ((dir = FindFirstFileA(wildcardMatch.path, &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -221,10 +221,10 @@ namespace Cocoa
 
 			do
 			{
-				CPath filename = CPath::Create(fileData.cFileName);
+				CPath filename = CPath::create(fileData.cFileName);
 				bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-				if (filename.Path[0] == '.')
+				if (filename.path[0] == '.')
 				{
 					continue;
 				}
@@ -240,35 +240,35 @@ namespace Cocoa
 			return result;
 		}
 
-		CPath GetAbsolutePath(const CPath& path)
+		CPath getAbsolutePath(const CPath& path)
 		{
-			int bufferLength = GetFullPathNameA(path.Path, 0, NULL, NULL);
+			int bufferLength = GetFullPathNameA(path.path, 0, NULL, NULL);
 			char* buffer = (char*)AllocMem(sizeof(char) * bufferLength);
-			GetFullPathNameA(path.Path, bufferLength, buffer, NULL);
-			CPath result = CPath::Create(buffer);
+			GetFullPathNameA(path.path, bufferLength, buffer, NULL);
+			CPath result = CPath::create(buffer);
 			FreeMem(buffer);
 			return result;
 		}
 
-		bool IsFile(const CPath& filepath)
+		bool isFile(const CPath& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path);
+			DWORD fileAttributes = GetFileAttributesA(filepath.path);
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
-		bool IsHidden(const CPath& filepath)
+		bool isHidden(const CPath& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path);
+			DWORD fileAttributes = GetFileAttributesA(filepath.path);
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_HIDDEN);
 		}
 
-		bool IsDirectory(const CPath& filepath)
+		bool isDirectory(const CPath& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path);
+			DWORD fileAttributes = GetFileAttributesA(filepath.path);
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
-		bool RunProgram(const CPath& pathToExe, const char* cmdArguments)
+		bool runProgram(const CPath& pathToExe, const char* cmdArguments)
 		{
 			STARTUPINFOA startupInfo;
 			PROCESS_INFORMATION processInfo;
@@ -277,7 +277,7 @@ namespace Cocoa
 			startupInfo.cb = sizeof(startupInfo);
 			ZeroMemory(&processInfo, sizeof(processInfo));
 
-			std::string cmdArgs = pathToExe.Path + std::string(" ") + cmdArguments;
+			std::string cmdArgs = pathToExe.path + std::string(" ") + cmdArguments;
 
 			// Start the program
 			bool res = CreateProcessA(
@@ -301,15 +301,15 @@ namespace Cocoa
 			}
 			else
 			{
-				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.Path);
+				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.path);
 			}
 
 			return res;
 		}
 
-		bool RunProgram(const CPath& pathToExe, const std::string& cmdArgs)
+		bool runProgram(const CPath& pathToExe, const std::string& cmdArgs)
 		{
-			return RunProgram(pathToExe, cmdArgs.c_str());
+			return runProgram(pathToExe, cmdArgs.c_str());
 		}
 	}
 }

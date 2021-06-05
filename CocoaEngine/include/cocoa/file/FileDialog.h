@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef COCOA_ENGINE_FILE_DIALOG_H
+#define COCOA_ENGINE_FILE_DIALOG_H
 #include "externalLibs.h"
 
 namespace Cocoa
@@ -13,21 +13,23 @@ namespace Cocoa
 
 	namespace FileDialog
 	{
-		COCOA bool GetOpenFileName(
+		COCOA bool getOpenFileName(
 			const std::string& initialPath,
 			FileDialogResult& result,
 			std::vector<std::pair<std::string, std::string>> extensionFilters = { {"All Files", "*.*"} });
 
-		COCOA bool GetOpenFolderName(
-			const std::string initialPath,
+		COCOA bool getOpenFolderName(
+			const std::string& initialPath,
 			FileDialogResult& result);
 
-		COCOA bool GetSaveFileName(
+		COCOA bool getSaveFileName(
 			const std::string& initialPath,
 			FileDialogResult& result,
 			std::vector<std::pair<std::string, std::string>> extensionFilters = { {"All Files", "*.*"} },
 			std::string extToAppend = "");
 
-		COCOA void DisplayMessageBox(const std::string& title, const std::string& message);
+		COCOA void displayMessageBox(const std::string& title, const std::string& message);
 	};
 }
+
+#endif

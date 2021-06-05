@@ -170,8 +170,8 @@ namespace Cocoa
 		{
 			int channels;
 
-			unsigned char* pixels = stbi_load(path.Path, &texture.Width, &texture.Height, &channels, 0);
-			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.Path, stbi_failure_reason());
+			unsigned char* pixels = stbi_load(path.path, &texture.Width, &texture.Height, &channels, 0);
+			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.path, stbi_failure_reason());
 
 			int bytesPerPixel = channels;
 			if (bytesPerPixel == 4)
@@ -186,7 +186,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.Path, channels);
+				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.path, channels);
 				return;
 			}
 
@@ -197,7 +197,7 @@ namespace Cocoa
 
 			uint32 internalFormat = ToGl(texture.InternalFormat);
 			uint32 externalFormat = ToGl(texture.ExternalFormat);
-			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.Path);
+			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.path);
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
 
 			stbi_image_free(pixels);
@@ -243,7 +243,7 @@ namespace Cocoa
 		json Serialize(const Texture& texture)
 		{
 			return {
-				{"Filepath", texture.Path.Path },
+				{"Filepath", texture.Path.path },
 				{"MagFilter", (int)texture.MagFilter },
 				{"MinFilter", (int)texture.MinFilter },
 				{"WrapS", (int)texture.WrapS},
@@ -280,7 +280,7 @@ namespace Cocoa
 			res.InternalFormat = ByteFormat::None;
 			res.ExternalFormat = ByteFormat::None;
 
-			res.Path = CPath::Create();
+			res.Path = CPath::create();
 			res.IsDefault = false;
 
 			return res;

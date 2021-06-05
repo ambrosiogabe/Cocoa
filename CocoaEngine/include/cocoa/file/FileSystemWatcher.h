@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_FILE_SYSTEM_WATCHER_H
+#define COCOA_ENGINE_FILE_SYSTEM_WATCHER_H
 
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
@@ -31,9 +32,9 @@ namespace Cocoa
 	{
 	public:
 		FileSystemWatcher();
-		~FileSystemWatcher() { Stop(); }
-		void Start();
-		void Stop();
+		~FileSystemWatcher() { stop(); }
+		void start();
+		void stop();
 
 	public:
 		typedef void (*OnChanged)(const CPath& file);
@@ -41,25 +42,27 @@ namespace Cocoa
 		typedef void (*OnDeleted)(const CPath& file);
 		typedef void (*OnCreated)(const CPath& file);
 
-		OnChanged m_OnChanged = nullptr;
-		OnRenamed m_OnRenamed = nullptr;
-		OnDeleted m_OnDeleted = nullptr;
-		OnCreated m_OnCreated = nullptr;
+		OnChanged onChanged = nullptr;
+		OnRenamed onRenamed = nullptr;
+		OnDeleted onDeleted = nullptr;
+		OnCreated onCreated = nullptr;
 
-		int m_NotifyFilters = 0;
-		bool m_IncludeSubdirectories = false;
-		std::string m_Filter = "";
-		CPath m_Path = CPath::Create();
+		int notifyFilters = 0;
+		bool includeSubdirectories = false;
+		std::string filter = "";
+		CPath path = CPath::create();
 
 	private:
-		bool m_EnableRaisingEvents = true;
-		std::thread m_Thread;
+		void startThread();
+
+	private:
+		bool mEnableRaisingEvents = true;
+		std::thread mThread;
 
 #ifdef _WIN32
-		HANDLE hStopEvent;
+		HANDLE mHStopEvent;
 #endif
-
-	private:
-		void StartThread();
 	};
 }
+
+#endif

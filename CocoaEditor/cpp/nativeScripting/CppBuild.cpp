@@ -15,11 +15,11 @@ namespace Cocoa
 			if (!buildingCode && !compiling)
 			{
 				buildingCode = true;
-				CPath pathToBuildScript = CPath::Create(projectDirectory.GetDirectory(-1));
-				pathToBuildScript.Join(CPath::Create("build.bat"));
+				CPath pathToBuildScript = CPath::create(projectDirectory.getDirectory(-1));
+				pathToBuildScript.join(CPath::create("build.bat"));
 				std::string cmdArgs = "vs2019";
 				Logger::Info("CMD Args: %s", cmdArgs.c_str());
-				File::RunProgram(pathToBuildScript, cmdArgs);
+				File::runProgram(pathToBuildScript, cmdArgs);
 				buildingCode = false;
 			}
 		}
@@ -29,11 +29,11 @@ namespace Cocoa
 			if (!buildingCode && !compiling)
 			{
 				compiling = true;
-				CPath pathToBuildScript = CPath::Create(projectDirectory.GetDirectory(-1));
-				pathToBuildScript.Join(CPath::Create("build.bat"));
+				CPath pathToBuildScript = CPath::create(projectDirectory.getDirectory(-1));
+				pathToBuildScript.join(CPath::create("build.bat"));
 				std::string cmdArgs = "compile";
 				Logger::Info("CMD Args: %s", cmdArgs.c_str());
-				File::RunProgram(pathToBuildScript, cmdArgs);
+				File::runProgram(pathToBuildScript, cmdArgs);
 				compiling = false;
 			}
 		}

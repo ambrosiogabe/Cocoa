@@ -25,7 +25,7 @@ namespace Cocoa
 	{
 		static char ResultBuffer[MAX_PATH];
 
-		bool GetOpenFileName(
+		bool getOpenFileName(
 			const std::string& initialPath,
 			FileDialogResult& fileResult,
 			std::vector<std::pair<std::string, std::string>> extensionFilters)
@@ -74,7 +74,7 @@ namespace Cocoa
 			return result;
 		}
 
-		bool GetSaveFileName(
+		bool getSaveFileName(
 			const std::string& initialPath,
 			FileDialogResult& fileResult,
 			std::vector<std::pair<std::string, std::string>> extensionFilters,
@@ -129,8 +129,8 @@ namespace Cocoa
 			return result;
 		}
 
-		bool GetOpenFolderName(
-			const std::string initialPath,
+		bool getOpenFolderName(
+			const std::string& initialPath,
 			FileDialogResult& fileResult)
 		{
 			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
@@ -190,7 +190,7 @@ namespace Cocoa
 			return result;
 		}
 
-		void DisplayMessageBox(const std::string& title, const std::string& message)
+		void displayMessageBox(const std::string& title, const std::string& message)
 		{
 			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);

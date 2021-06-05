@@ -94,7 +94,7 @@ namespace Cocoa
 	{
 		if (j.contains(property) && j[property].is_string())
 		{
-			path = CPath::Create(std::string(j[property]));
+			path = CPath::create(std::string(j[property]));
 		}
 	}
 }

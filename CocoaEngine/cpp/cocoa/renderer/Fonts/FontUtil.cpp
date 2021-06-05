@@ -143,9 +143,9 @@ namespace Cocoa
 			}
 
 			FT_Face font;
-			if (FT_New_Face(ft, fontFile.Path, 0, &font))
+			if (FT_New_Face(ft, fontFile.path, 0, &font))
 			{
-				Logger::Warning("Could not load font %s.\n", fontFile.Path);
+				Logger::Warning("Could not load font %s.\n", fontFile.path);
 				return;
 			}
 
@@ -179,7 +179,7 @@ namespace Cocoa
 			for (int i = 0; i <= processorCount; i++)
 			{
 				int end = CMath::Min(segmentSize + count, characterMapSize - glyphOffset);
-				threads.push_back(std::thread(fillSdfBitmaps, count, end, sdfBitmaps, fontFile.Path, lowResFontSize, padding, upscaleResolution, glyphOffset));
+				threads.push_back(std::thread(fillSdfBitmaps, count, end, sdfBitmaps, fontFile.path, lowResFontSize, padding, upscaleResolution, glyphOffset));
 				count += segmentSize;
 			}
 
@@ -281,8 +281,8 @@ namespace Cocoa
 				FreeMem(sdf.bitmap);
 			}
 
-			Logger::Info("Writing png for font at '%s'\n", outputFile.Path);
-			stbi_write_png(outputFile.Path, sdfWidth, sdfHeight, 4, finalSdf, sdfWidth * 4);
+			Logger::Info("Writing png for font at '%s'\n", outputFile.path);
+			stbi_write_png(outputFile.path, sdfWidth, sdfHeight, 4, finalSdf, sdfWidth * 4);
 
 			FreeMem(sdfBitmaps);
 			FreeMem(finalSdf);

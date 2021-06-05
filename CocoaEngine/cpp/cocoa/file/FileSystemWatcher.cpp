@@ -7,67 +7,67 @@ namespace Cocoa
 
 	}
 
-	void FileSystemWatcher::Start()
+	void FileSystemWatcher::start()
 	{
-		m_Thread = std::thread(&FileSystemWatcher::StartThread, this);
+		mThread = std::thread(&FileSystemWatcher::startThread, this);
 	}
 
 #ifdef _WIN32
-	void FileSystemWatcher::StartThread()
+	void FileSystemWatcher::startThread()
 	{
-		if (m_Path.Size() == 0)
+		if (path.size() == 0)
 		{
 			return;
 		}
 
-		HANDLE dirHandle = CreateFileA(m_Path.Path, GENERIC_READ | FILE_LIST_DIRECTORY,
+		HANDLE dirHandle = CreateFileA(path.path, GENERIC_READ | FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
 			NULL);
 		if (dirHandle == INVALID_HANDLE_VALUE)
 		{
-			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", m_Path.Path);
+			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", path.path);
 			return;
 		}
 
 		// Set up notification flags 
 		int flags = 0;
-		if (m_NotifyFilters && NotifyFilters::FileName)
+		if (notifyFilters && NotifyFilters::FileName)
 		{
 			flags |= FILE_NOTIFY_CHANGE_FILE_NAME;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::DirectoryName)
+		if (notifyFilters && NotifyFilters::DirectoryName)
 		{
 			flags |= FILE_NOTIFY_CHANGE_DIR_NAME;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::Attributes)
+		if (notifyFilters && NotifyFilters::Attributes)
 		{
 			flags |= FILE_NOTIFY_CHANGE_ATTRIBUTES;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::Size)
+		if (notifyFilters && NotifyFilters::Size)
 		{
 			flags |= FILE_NOTIFY_CHANGE_SIZE;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::LastWrite)
+		if (notifyFilters && NotifyFilters::LastWrite)
 		{
 			flags |= FILE_NOTIFY_CHANGE_LAST_WRITE;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::LastAccess)
+		if (notifyFilters && NotifyFilters::LastAccess)
 		{
 			flags |= FILE_NOTIFY_CHANGE_LAST_ACCESS;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::CreationTime)
+		if (notifyFilters && NotifyFilters::CreationTime)
 		{
 			flags |= FILE_NOTIFY_CHANGE_CREATION;
 		}
 
-		if (m_NotifyFilters && NotifyFilters::Security)
+		if (notifyFilters && NotifyFilters::Security)
 		{
 			flags |= FILE_NOTIFY_CHANGE_SECURITY;
 		}
@@ -82,7 +82,7 @@ namespace Cocoa
 		pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 		if (pollingOverlap.hEvent == NULL)
 		{
-			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", m_Path.Path);
+			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", path.path);
 			return;
 		}
 
@@ -90,15 +90,15 @@ namespace Cocoa
 		HANDLE hEvents[2];
 		hEvents[0] = pollingOverlap.hEvent;
 		hEvents[1] = CreateEventA(NULL, TRUE, FALSE, NULL);
-		hStopEvent = hEvents[1];
+		mHStopEvent = hEvents[1];
 
-		while (result && m_EnableRaisingEvents)
+		while (result && mEnableRaisingEvents)
 		{
 			result = ReadDirectoryChangesW(
 				dirHandle,                   // handle to the directory to be watched
 				&buffer,                     // pointer to the buffer to receive the read results
 				sizeof(buffer),              // length of lpBuffer
-				m_IncludeSubdirectories,     // flag for monitoring directory or directory tree
+				includeSubdirectories,     // flag for monitoring directory or directory tree
 				flags,
 				&bytesReturned,              // number of bytes returned
 				&pollingOverlap,             // pointer to structure needed for overlapped I/O
@@ -123,34 +123,34 @@ namespace Cocoa
 				switch (pNotify->Action)
 				{
 				case FILE_ACTION_ADDED:
-					if (m_OnCreated != nullptr)
+					if (onCreated != nullptr)
 					{
-						m_OnCreated(CPath::Create(filename));
+						onCreated(CPath::create(filename));
 					}
 					break;
 				case FILE_ACTION_REMOVED:
-					if (m_OnDeleted != nullptr)
+					if (onDeleted != nullptr)
 					{
-						m_OnDeleted(CPath::Create(filename));
+						onDeleted(CPath::create(filename));
 					}
 					break;
 				case FILE_ACTION_MODIFIED:
-					if (m_OnChanged != nullptr)
+					if (onChanged != nullptr)
 					{
-						m_OnChanged(CPath::Create(filename));
+						onChanged(CPath::create(filename));
 					}
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
 					// Logger::Info("The file was renamed and this is the old name: [%s]", filename);
 					break;
 				case FILE_ACTION_RENAMED_NEW_NAME:
-					if (m_OnRenamed != nullptr)
+					if (onRenamed != nullptr)
 					{
-						m_OnRenamed(CPath::Create(filename));
+						onRenamed(CPath::create(filename));
 					}
 					break;
 				default:
-					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, m_Path.Path);
+					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, path.path);
 					break;
 				}
 
@@ -163,13 +163,13 @@ namespace Cocoa
 		CloseHandle(dirHandle);
 	}
 
-	void FileSystemWatcher::Stop()
+	void FileSystemWatcher::stop()
 	{
-		if (m_EnableRaisingEvents)
+		if (mEnableRaisingEvents)
 		{
-			m_EnableRaisingEvents = false;
-			SetEvent(hStopEvent);
-			m_Thread.join();
+			mEnableRaisingEvents = false;
+			SetEvent(mHStopEvent);
+			mThread.join();
 		}
 	}
 #endif
