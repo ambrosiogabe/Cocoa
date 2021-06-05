@@ -256,13 +256,13 @@ namespace Cocoa
 		Texture deserialize(const json& j)
 		{
 			Texture texture;
-			JsonExtended::AssignIfNotNull(j, "Filepath", texture.path);
-			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MagFilter", texture.magFilter);
-			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MinFilter", texture.minFilter);
-			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapS", texture.wrapS);
-			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapT", texture.wrapT);
-			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "InternalFormat", texture.internalFormat);
-			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "ExternalFormat", texture.externalFormat);
+			JsonExtended::assignIfNotNull(j, "Filepath", texture.path);
+			JsonExtended::assignEnumIfNotNull<FilterMode>(j, "MagFilter", texture.magFilter);
+			JsonExtended::assignEnumIfNotNull<FilterMode>(j, "MinFilter", texture.minFilter);
+			JsonExtended::assignEnumIfNotNull<WrapMode>(j, "WrapS", texture.wrapS);
+			JsonExtended::assignEnumIfNotNull<WrapMode>(j, "WrapT", texture.wrapT);
+			JsonExtended::assignEnumIfNotNull<ByteFormat>(j, "InternalFormat", texture.internalFormat);
+			JsonExtended::assignEnumIfNotNull<ByteFormat>(j, "ExternalFormat", texture.externalFormat);
 			return texture;
 		}
 

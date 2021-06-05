@@ -153,7 +153,7 @@ namespace Cocoa
 					GLint varLocation = glGetUniformLocation(program, charBuffer);
 					m_AllShaderVariables.push_back({
 						std::string(charBuffer),
-						CMath::HashString(charBuffer),
+						CMath::hashString(charBuffer),
 						varLocation,
 						program
 					});
@@ -257,7 +257,7 @@ namespace Cocoa
 		static GLint GetVariableLocation(const Shader& shader, const char* varName)
 		{
 			Logger::Assert(shader.startIndex >= 0 && shader.startIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
-			uint32 hash = CMath::HashString(varName);
+			uint32 hash = CMath::hashString(varName);
 
 			for (int i = shader.startIndex; i < m_AllShaderVariables.size(); i++)
 			{

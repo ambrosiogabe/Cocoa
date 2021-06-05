@@ -12,33 +12,33 @@
 
 namespace Cocoa
 {
-	void LevelEditorSceneInitializer::Init(SceneData& scene)
+	void LevelEditorSceneInitializer::init(SceneData& scene)
 	{
 		LevelEditorSystem::Init(scene);
 		InspectorWindow::ClearAllEntities();
 		GizmoSystem::Init(scene);
 	}
 
-	void LevelEditorSceneInitializer::Start(SceneData& scene)
+	void LevelEditorSceneInitializer::start(SceneData& scene)
 	{
 
 	}
 
-	void LevelEditorSceneInitializer::Destroy(SceneData& scene)
+	void LevelEditorSceneInitializer::destroy(SceneData& scene)
 	{
 		GizmoSystem::Destroy(scene);
 		LevelEditorSystem::Destroy(scene);
 	}
 
-	void LevelEditorSceneInitializer::Save(SceneData& scene)
+	void LevelEditorSceneInitializer::save(SceneData& scene)
 	{
-		SceneHeirarchyWindow::Serialize(scene.SaveDataJson);
-		LevelEditorSystem::Serialize(scene.SaveDataJson);
+		SceneHeirarchyWindow::Serialize(scene.saveDataJson);
+		LevelEditorSystem::Serialize(scene.saveDataJson);
 	}
 
-	void LevelEditorSceneInitializer::Load(SceneData& scene)
+	void LevelEditorSceneInitializer::load(SceneData& scene)
 	{
-		SceneHeirarchyWindow::Deserialize(scene.SaveDataJson, scene);
-		LevelEditorSystem::Deserialize(scene.SaveDataJson, scene);
+		SceneHeirarchyWindow::Deserialize(scene.saveDataJson, scene);
+		LevelEditorSystem::Deserialize(scene.saveDataJson, scene);
 	}
 }

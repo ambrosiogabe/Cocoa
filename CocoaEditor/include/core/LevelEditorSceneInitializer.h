@@ -12,10 +12,10 @@ namespace Cocoa
 	public:
 		LevelEditorSceneInitializer() {}
 
-		virtual void Init(SceneData& scene) override;
-		virtual void Start(SceneData& scene) override;
-		virtual void Destroy(SceneData& scene) override;
-		virtual void Save(SceneData& scene) override;
-		virtual void Load(SceneData& scene) override;
+		virtual void init(SceneData& scene) override;
+		virtual void start(SceneData& scene) override;
+		virtual void destroy(SceneData& scene) override;
+		virtual void save(SceneData& scene) override;
+		virtual void load(SceneData& scene) override;
 	};
 }

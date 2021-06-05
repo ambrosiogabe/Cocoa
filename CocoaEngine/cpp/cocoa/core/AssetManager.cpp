@@ -322,7 +322,7 @@ namespace Cocoa
 		void loadTexturesFrom(const json& j)
 		{
 			uint32 scene = -1;
-			JsonExtended::AssignIfNotNull(j, "SceneID", scene);
+			JsonExtended::assignIfNotNull(j, "SceneID", scene);
 
 			if (scene >= 0 && j.contains("Textures"))
 			{
@@ -335,7 +335,7 @@ namespace Cocoa
 					if (assetJson.is_null()) continue;
 
 					uint32 resourceId = -1;
-					JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
+					JsonExtended::assignIfNotNull(assetJson, "ResourceId", resourceId);
 
 					if (resourceId >= 0)
 					{
@@ -348,7 +348,7 @@ namespace Cocoa
 		void loadFontsFrom(const json& j)
 		{
 			uint32 scene = -1;
-			JsonExtended::AssignIfNotNull(j, "SceneID", scene);
+			JsonExtended::assignIfNotNull(j, "SceneID", scene);
 
 			if (scene >= 0 && j.contains("Fonts"))
 			{
@@ -359,7 +359,7 @@ namespace Cocoa
 					if (assetJson.is_null()) continue;
 
 					uint32 resourceId = -1;
-					JsonExtended::AssignIfNotNull(assetJson, "ResourceId", resourceId);
+					JsonExtended::assignIfNotNull(assetJson, "ResourceId", resourceId);
 
 					CPath path = CPath::create();
 					if (assetJson.contains("Filepath"))

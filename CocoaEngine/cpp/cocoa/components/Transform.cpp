@@ -49,12 +49,12 @@ namespace Cocoa
 
 		void serialize(json& j, Entity entity, const TransformData& transform)
 		{
-			json position = CMath::Serialize("Position", transform.position);
-			json scale = CMath::Serialize("Scale", transform.scale);
-			json rotation = CMath::Serialize("Rotation", transform.eulerRotation);
-			json localPos = CMath::Serialize("LocalPosition", transform.localPosition);
-			json localScale = CMath::Serialize("LocalScale", transform.localScale);
-			json localRotation = CMath::Serialize("LocalRotation", transform.localEulerRotation);
+			json position = CMath::serialize("Position", transform.position);
+			json scale = CMath::serialize("Scale", transform.scale);
+			json rotation = CMath::serialize("Rotation", transform.eulerRotation);
+			json localPos = CMath::serialize("LocalPosition", transform.localPosition);
+			json localScale = CMath::serialize("LocalScale", transform.localScale);
+			json localRotation = CMath::serialize("LocalRotation", transform.localEulerRotation);
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Transform", {
@@ -73,30 +73,30 @@ namespace Cocoa
 		void deserialize(const json& j, Entity entity, Entity parent)
 		{
 			TransformData transform = createTransform();
-			transform.position = CMath::DeserializeVec3(j["Transform"]["Position"]);
-			transform.scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
-			transform.eulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
+			transform.position = CMath::deserializeVec3(j["Transform"]["Position"]);
+			transform.scale = CMath::deserializeVec3(j["Transform"]["Scale"]);
+			transform.eulerRotation = CMath::deserializeVec3(j["Transform"]["Rotation"]);
 			transform.parent = parent;
-			transform.localPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
+			transform.localPosition = CMath::deserializeVec3(j["Transform"]["LocalPosition"]);
 
 			if (j["Transform"].contains("LocalScale"))
 			{
-				transform.localScale = CMath::DeserializeVec3(j["Transform"]["LocalScale"]);
+				transform.localScale = CMath::deserializeVec3(j["Transform"]["LocalScale"]);
 			}
 
 			if (j["Transform"].contains("LocalRotation"))
 			{
-				transform.localEulerRotation = CMath::DeserializeVec3(j["Transform"]["LocalRotation"]);
+				transform.localEulerRotation = CMath::deserializeVec3(j["Transform"]["LocalRotation"]);
 			}
 			NEntity::addComponent<TransformData>(entity, transform);
 		}
 
 		void serialize(json& j, const TransformData& transform)
 		{
-			json position = CMath::Serialize("Position", transform.position);
-			json scale = CMath::Serialize("Scale", transform.scale);
-			json rotation = CMath::Serialize("Rotation", transform.eulerRotation);
-			json localPos = CMath::Serialize("LocalPosition", transform.localPosition);
+			json position = CMath::serialize("Position", transform.position);
+			json scale = CMath::serialize("Scale", transform.scale);
+			json rotation = CMath::serialize("Rotation", transform.eulerRotation);
+			json localPos = CMath::serialize("LocalPosition", transform.localPosition);
 			int size = j["Components"].size();
 			j["Transform"] = {
 				position,
@@ -109,10 +109,10 @@ namespace Cocoa
 
 		void deserialize(const json& j, TransformData& transform)
 		{
-			transform.position = CMath::DeserializeVec3(j["Transform"]["Position"]);
-			transform.scale = CMath::DeserializeVec3(j["Transform"]["Scale"]);
-			transform.eulerRotation = CMath::DeserializeVec3(j["Transform"]["Rotation"]);
-			transform.localPosition = CMath::DeserializeVec3(j["Transform"]["LocalPosition"]);
+			transform.position = CMath::deserializeVec3(j["Transform"]["Position"]);
+			transform.scale = CMath::deserializeVec3(j["Transform"]["Scale"]);
+			transform.eulerRotation = CMath::deserializeVec3(j["Transform"]["Rotation"]);
+			transform.localPosition = CMath::deserializeVec3(j["Transform"]["LocalPosition"]);
 		}
 	}
 }

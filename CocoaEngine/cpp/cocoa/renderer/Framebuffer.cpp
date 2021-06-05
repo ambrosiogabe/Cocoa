@@ -182,9 +182,9 @@ namespace Cocoa
 		Framebuffer deserialize(const json& j)
 		{
 			Framebuffer res;
-			JsonExtended::AssignIfNotNull(j, "Width", res.width);
-			JsonExtended::AssignIfNotNull(j, "Height", res.height);
-			JsonExtended::AssignIfNotNull(j, "IncludeDepthStencil", res.includeDepthStencil);
+			JsonExtended::assignIfNotNull(j, "Width", res.width);
+			JsonExtended::assignIfNotNull(j, "Height", res.height);
+			JsonExtended::assignIfNotNull(j, "IncludeDepthStencil", res.includeDepthStencil);
 
 			if (j["ColorAttachments"].size() > 0)
 			{

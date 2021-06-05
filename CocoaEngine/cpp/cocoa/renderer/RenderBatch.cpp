@@ -1,10 +1,9 @@
+#include "cocoa/renderer/RenderBatch.h"
 #include "externalLibs.h"
 
 #include "cocoa/systems/RenderSystem.h"
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/util/CMath.h"
 
 namespace Cocoa
 {

@@ -85,7 +85,7 @@ namespace Cocoa
 
 	void Font::deserialize(const json& j)
 	{
-		JsonExtended::AssignIfNotNull(j, "CharacterMapSize", characterMapSize);
+		JsonExtended::assignIfNotNull(j, "CharacterMapSize", characterMapSize);
 
 		characterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * characterMapSize);
 		for (int i = 0; i < characterMapSize; i++)
@@ -94,15 +94,15 @@ namespace Cocoa
 			if (j.contains("CharacterMap") && j["CharacterMap"].contains(std::to_string(i)))
 			{
 				json subJ = j["CharacterMap"][std::to_string(i)];
-				JsonExtended::AssignIfNotNull(subJ, "ux0", ux0);
-				JsonExtended::AssignIfNotNull(subJ, "uy0", uy0);
-				JsonExtended::AssignIfNotNull(subJ, "ux1", ux1);
-				JsonExtended::AssignIfNotNull(subJ, "uy1", uy1);
-				JsonExtended::AssignIfNotNull(subJ, "advance", advance);
-				JsonExtended::AssignIfNotNull(subJ, "bearingX", bearingX);
-				JsonExtended::AssignIfNotNull(subJ, "bearingY", bearingY);
-				JsonExtended::AssignIfNotNull(subJ, "chScaleX", chScaleX);
-				JsonExtended::AssignIfNotNull(subJ, "chScaleY", chScaleY);
+				JsonExtended::assignIfNotNull(subJ, "ux0", ux0);
+				JsonExtended::assignIfNotNull(subJ, "uy0", uy0);
+				JsonExtended::assignIfNotNull(subJ, "ux1", ux1);
+				JsonExtended::assignIfNotNull(subJ, "uy1", uy1);
+				JsonExtended::assignIfNotNull(subJ, "advance", advance);
+				JsonExtended::assignIfNotNull(subJ, "bearingX", bearingX);
+				JsonExtended::assignIfNotNull(subJ, "bearingY", bearingY);
+				JsonExtended::assignIfNotNull(subJ, "chScaleX", chScaleX);
+				JsonExtended::assignIfNotNull(subJ, "chScaleY", chScaleY);
 				characterMap[i] = {
 					ux0, uy0,
 					ux1, uy1,
@@ -113,9 +113,9 @@ namespace Cocoa
 			}
 		}
 
-		JsonExtended::AssignIfNotNull(j, "FontTextureId", fontTexture.assetId);
-		JsonExtended::AssignIfNotNull(j, "GlyphRangeStart", glyphRangeStart);
-		JsonExtended::AssignIfNotNull(j, "GlyphRangeEnd", glyphRangeEnd);
-		JsonExtended::AssignIfNotNull(j, "Filepath", path);
+		JsonExtended::assignIfNotNull(j, "FontTextureId", fontTexture.assetId);
+		JsonExtended::assignIfNotNull(j, "GlyphRangeStart", glyphRangeStart);
+		JsonExtended::assignIfNotNull(j, "GlyphRangeEnd", glyphRangeEnd);
+		JsonExtended::assignIfNotNull(j, "Filepath", path);
 	}
 }

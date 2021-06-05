@@ -45,7 +45,7 @@ namespace Cocoa
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
 			ImGui::Begin("Styles", &Settings::Editor::ShowStyleSelect);
-			std::vector<CPath> styles = File::getFilesInDir(Settings::General::s_StylesDirectory);
+			std::vector<CPath> styles = File::getFilesInDir(Settings::General::stylesDirectory);
 			if (ImGui::ListBox("Styles", &Settings::Editor::SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
 				ImGuiLayer::LoadStyle(styles[Settings::Editor::SelectedStyle]);
@@ -76,7 +76,7 @@ namespace Cocoa
 				if (CImGui::Button("Export..."))
 				{
 					FileDialogResult result;
-					if (FileDialog::getSaveFileName(Settings::General::s_StylesDirectory.path, result))
+					if (FileDialog::getSaveFileName(Settings::General::stylesDirectory.path, result))
 					{
 						ImGuiLayer::ExportCurrentStyle(CPath::create(result.filepath));
 					}
@@ -134,8 +134,8 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (FileDialog::getSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
-							Settings::General::s_CurrentScene = CPath::create(result.filepath);
-							Scene::Save(scene, Settings::General::s_CurrentScene);
+							Settings::General::currentScene = CPath::create(result.filepath);
+							Scene::save(scene, Settings::General::currentScene);
 						}
 					}
 
@@ -166,7 +166,7 @@ namespace Cocoa
 				{
 					if (CImGui::MenuButton("Add Sprite Object"))
 					{
-						Entity entity = Scene::CreateEntity(scene);
+						Entity entity = Scene::createEntity(scene);
 						NEntity::addComponent<SpriteRenderer>(entity);
 						SceneHeirarchyWindow::AddNewEntity(entity);
 					}

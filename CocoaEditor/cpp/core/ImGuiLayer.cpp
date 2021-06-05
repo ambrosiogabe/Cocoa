@@ -50,7 +50,7 @@ namespace Cocoa
 			// Setup dear imGui binding
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImGui::LoadIniSettingsFromDisk(Settings::General::s_ImGuiConfigPath.path);
+			ImGui::LoadIniSettingsFromDisk(Settings::General::imGuiConfigPath.path);
 
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -83,7 +83,7 @@ namespace Cocoa
 			io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont3.ttf", 64.0f, &config, customIconRanges);
 			io.Fonts->Build();
 
-			LoadStyle(Settings::General::s_EditorStyleData);
+			LoadStyle(Settings::General::editorStyleData);
 
 			SceneHeirarchyWindow::Init();
 		}
@@ -217,48 +217,48 @@ namespace Cocoa
 				if (j.contains("Colors"))
 				{
 					json& subJ = j["Colors"];
-					JsonExtended::AssignIfNotNull(subJ, "MainBgLight0", Settings::EditorStyle::s_MainBgLight0);
-					JsonExtended::AssignIfNotNull(subJ, "MainBg", Settings::EditorStyle::s_MainBg);
-					JsonExtended::AssignIfNotNull(subJ, "MainBgDark0", Settings::EditorStyle::s_MainBgDark0);
-					JsonExtended::AssignIfNotNull(subJ, "MainBgDark1", Settings::EditorStyle::s_MainBgDark1);
-					JsonExtended::AssignIfNotNull(subJ, "MainBgDark2", Settings::EditorStyle::s_MainBgDark2);
-					JsonExtended::AssignIfNotNull(subJ, "Accent", Settings::EditorStyle::s_Accent);
-					JsonExtended::AssignIfNotNull(subJ, "AccentDark0", Settings::EditorStyle::s_AccentDark0);
-					JsonExtended::AssignIfNotNull(subJ, "AccentDark1", Settings::EditorStyle::s_AccentDark1);
-					JsonExtended::AssignIfNotNull(subJ, "Button", Settings::EditorStyle::s_Button);
-					JsonExtended::AssignIfNotNull(subJ, "ButtonHovered", Settings::EditorStyle::s_ButtonHovered);
-					JsonExtended::AssignIfNotNull(subJ, "Header", Settings::EditorStyle::s_Header);
-					JsonExtended::AssignIfNotNull(subJ, "HeaderHovered", Settings::EditorStyle::s_HeaderHovered);
-					JsonExtended::AssignIfNotNull(subJ, "HeaderActive", Settings::EditorStyle::s_HeaderActive);
-					JsonExtended::AssignIfNotNull(subJ, "Font", Settings::EditorStyle::s_Font);
-					JsonExtended::AssignIfNotNull(subJ, "FontDisabled", Settings::EditorStyle::s_FontDisabled);
-					JsonExtended::AssignIfNotNull(subJ, "HighlightColor", Settings::EditorStyle::s_HighlightColor);
+					JsonExtended::assignIfNotNull(subJ, "MainBgLight0", Settings::EditorStyle::s_MainBgLight0);
+					JsonExtended::assignIfNotNull(subJ, "MainBg", Settings::EditorStyle::s_MainBg);
+					JsonExtended::assignIfNotNull(subJ, "MainBgDark0", Settings::EditorStyle::s_MainBgDark0);
+					JsonExtended::assignIfNotNull(subJ, "MainBgDark1", Settings::EditorStyle::s_MainBgDark1);
+					JsonExtended::assignIfNotNull(subJ, "MainBgDark2", Settings::EditorStyle::s_MainBgDark2);
+					JsonExtended::assignIfNotNull(subJ, "Accent", Settings::EditorStyle::s_Accent);
+					JsonExtended::assignIfNotNull(subJ, "AccentDark0", Settings::EditorStyle::s_AccentDark0);
+					JsonExtended::assignIfNotNull(subJ, "AccentDark1", Settings::EditorStyle::s_AccentDark1);
+					JsonExtended::assignIfNotNull(subJ, "Button", Settings::EditorStyle::s_Button);
+					JsonExtended::assignIfNotNull(subJ, "ButtonHovered", Settings::EditorStyle::s_ButtonHovered);
+					JsonExtended::assignIfNotNull(subJ, "Header", Settings::EditorStyle::s_Header);
+					JsonExtended::assignIfNotNull(subJ, "HeaderHovered", Settings::EditorStyle::s_HeaderHovered);
+					JsonExtended::assignIfNotNull(subJ, "HeaderActive", Settings::EditorStyle::s_HeaderActive);
+					JsonExtended::assignIfNotNull(subJ, "Font", Settings::EditorStyle::s_Font);
+					JsonExtended::assignIfNotNull(subJ, "FontDisabled", Settings::EditorStyle::s_FontDisabled);
+					JsonExtended::assignIfNotNull(subJ, "HighlightColor", Settings::EditorStyle::s_HighlightColor);
 				}
 
 				if (j.contains("Sizing"))
 				{
 					json& subJ = j["Sizing"];
-					JsonExtended::AssignIfNotNull(subJ, "WindowPadding", Settings::EditorStyle::s_WindowPadding);
-					JsonExtended::AssignIfNotNull(subJ, "FramePadding", Settings::EditorStyle::s_FramePadding);
-					JsonExtended::AssignIfNotNull(subJ, "ItemSpacing", Settings::EditorStyle::s_ItemSpacing);
-					JsonExtended::AssignIfNotNull(subJ, "ScrollbarSize", Settings::EditorStyle::s_ScrollbarSize);
-					JsonExtended::AssignIfNotNull(subJ, "ScrollbarRounding", Settings::EditorStyle::s_ScrollbarRounding);
-					JsonExtended::AssignIfNotNull(subJ, "FrameRounding", Settings::EditorStyle::s_FrameRounding);
-					JsonExtended::AssignIfNotNull(subJ, "GrabRounding", Settings::EditorStyle::s_TabRounding);
-					JsonExtended::AssignIfNotNull(subJ, "TabRounding", Settings::EditorStyle::s_GrabRounding);
+					JsonExtended::assignIfNotNull(subJ, "WindowPadding", Settings::EditorStyle::s_WindowPadding);
+					JsonExtended::assignIfNotNull(subJ, "FramePadding", Settings::EditorStyle::s_FramePadding);
+					JsonExtended::assignIfNotNull(subJ, "ItemSpacing", Settings::EditorStyle::s_ItemSpacing);
+					JsonExtended::assignIfNotNull(subJ, "ScrollbarSize", Settings::EditorStyle::s_ScrollbarSize);
+					JsonExtended::assignIfNotNull(subJ, "ScrollbarRounding", Settings::EditorStyle::s_ScrollbarRounding);
+					JsonExtended::assignIfNotNull(subJ, "FrameRounding", Settings::EditorStyle::s_FrameRounding);
+					JsonExtended::assignIfNotNull(subJ, "GrabRounding", Settings::EditorStyle::s_TabRounding);
+					JsonExtended::assignIfNotNull(subJ, "TabRounding", Settings::EditorStyle::s_GrabRounding);
 				}
 
 			}
 			else
 			{
-				CPath defaultStylePath = Settings::General::s_StylesDirectory;
+				CPath defaultStylePath = Settings::General::stylesDirectory;
 				defaultStylePath.join(CPath::create("Default.json"));
 				ExportCurrentStyle(defaultStylePath);
 			}
 			File::closeFile(styleData);
 
 			ApplyStyle();
-			ExportCurrentStyle(Settings::General::s_EditorStyleData);
+			ExportCurrentStyle(Settings::General::editorStyleData);
 		}
 
 		void ApplyStyle()
@@ -339,29 +339,29 @@ namespace Cocoa
 			json styles = {
 				{"Colors",
 					{
-						CMath::Serialize("MainBgLight0",    Settings::EditorStyle::s_MainBgLight0),
-						CMath::Serialize("MainBg",          Settings::EditorStyle::s_MainBg),
-						CMath::Serialize("MainBgDark0",     Settings::EditorStyle::s_MainBgDark0),
-						CMath::Serialize("MainBgDark1",     Settings::EditorStyle::s_MainBgDark1),
-						CMath::Serialize("MainBgDark2",     Settings::EditorStyle::s_MainBgDark2),
-						CMath::Serialize("Accent",          Settings::EditorStyle::s_Accent),
-						CMath::Serialize("AccentDark0",     Settings::EditorStyle::s_AccentDark0),
-						CMath::Serialize("AccentDark1",     Settings::EditorStyle::s_AccentDark1),
-						CMath::Serialize("Button",          Settings::EditorStyle::s_Button),
-						CMath::Serialize("ButtonHovered",   Settings::EditorStyle::s_ButtonHovered),
-						CMath::Serialize("Header",          Settings::EditorStyle::s_Header),
-						CMath::Serialize("HeaderHovered",   Settings::EditorStyle::s_HeaderHovered),
-						CMath::Serialize("HeaderActive",    Settings::EditorStyle::s_HeaderActive),
-						CMath::Serialize("Font",            Settings::EditorStyle::s_Font),
-						CMath::Serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
-						CMath::Serialize("Highlight",       Settings::EditorStyle::s_HighlightColor)
+						CMath::serialize("MainBgLight0",    Settings::EditorStyle::s_MainBgLight0),
+						CMath::serialize("MainBg",          Settings::EditorStyle::s_MainBg),
+						CMath::serialize("MainBgDark0",     Settings::EditorStyle::s_MainBgDark0),
+						CMath::serialize("MainBgDark1",     Settings::EditorStyle::s_MainBgDark1),
+						CMath::serialize("MainBgDark2",     Settings::EditorStyle::s_MainBgDark2),
+						CMath::serialize("Accent",          Settings::EditorStyle::s_Accent),
+						CMath::serialize("AccentDark0",     Settings::EditorStyle::s_AccentDark0),
+						CMath::serialize("AccentDark1",     Settings::EditorStyle::s_AccentDark1),
+						CMath::serialize("Button",          Settings::EditorStyle::s_Button),
+						CMath::serialize("ButtonHovered",   Settings::EditorStyle::s_ButtonHovered),
+						CMath::serialize("Header",          Settings::EditorStyle::s_Header),
+						CMath::serialize("HeaderHovered",   Settings::EditorStyle::s_HeaderHovered),
+						CMath::serialize("HeaderActive",    Settings::EditorStyle::s_HeaderActive),
+						CMath::serialize("Font",            Settings::EditorStyle::s_Font),
+						CMath::serialize("FontDisabled",    Settings::EditorStyle::s_FontDisabled),
+						CMath::serialize("Highlight",       Settings::EditorStyle::s_HighlightColor)
 					}
 				},
 				{"Sizing",
 					{
-						CMath::Serialize("WindowPadding",  Settings::EditorStyle::s_WindowPadding),
-						CMath::Serialize("FramePadding",   Settings::EditorStyle::s_FramePadding),
-						CMath::Serialize("ItemSpacing",    Settings::EditorStyle::s_ItemSpacing),
+						CMath::serialize("WindowPadding",  Settings::EditorStyle::s_WindowPadding),
+						CMath::serialize("FramePadding",   Settings::EditorStyle::s_FramePadding),
+						CMath::serialize("ItemSpacing",    Settings::EditorStyle::s_ItemSpacing),
 						{"ScrollbarSize",                  Settings::EditorStyle::s_ScrollbarSize},
 						{"ScrollbarRounding",              Settings::EditorStyle::s_ScrollbarRounding},
 						{"FrameRounding",                  Settings::EditorStyle::s_FrameRounding},

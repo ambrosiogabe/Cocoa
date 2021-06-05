@@ -12,7 +12,7 @@ namespace Cocoa
 
 		Entity CreateEntity(SceneData* scene)
 		{
-			return Scene::CreateEntity(*scene);
+			return Scene::createEntity(*scene);
 		}
 
 		Entity createEntity(entt::entity raw)

@@ -41,12 +41,12 @@ namespace Cocoa
 			else if (info.seq() == entt::type_id<SpriteRenderer>().seq())
 			{
 				const SpriteRenderer* renderer = reinterpret_cast<const SpriteRenderer*>(&component);
-				RenderSystem::Serialize(mJson, NEntity::createEntity(entity), *renderer);
+				RenderSystem::serialize(mJson, NEntity::createEntity(entity), *renderer);
 			}
 			else if (info.seq() == entt::type_id<FontRenderer>().seq())
 			{
 				const FontRenderer* fontRenderer = reinterpret_cast<const FontRenderer*>(&component);
-				RenderSystem::Serialize(mJson, NEntity::createEntity(entity), *fontRenderer);
+				RenderSystem::serialize(mJson, NEntity::createEntity(entity), *fontRenderer);
 			}
 			else if (info.seq() == entt::type_id<Box2D>().seq())
 			{

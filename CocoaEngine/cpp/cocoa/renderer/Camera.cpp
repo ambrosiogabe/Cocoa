@@ -117,7 +117,7 @@ namespace Cocoa
 				{ "X", camera.projectionSize.x },
 				{ "Y", camera.projectionSize.y }
 			};
-			res["ClearColor"] = CMath::Serialize(camera.clearColor);
+			res["ClearColor"] = CMath::serialize(camera.clearColor);
 			res["Framebuffer"] = NFramebuffer::serialize(camera.framebuffer);
 
 			json& jRef = *j;
@@ -136,13 +136,13 @@ namespace Cocoa
 			}
 
 			Camera camera = hasFramebuffer ? createCamera(cameraFramebuffer) : createCamera();
-			JsonExtended::AssignIfNotNull(j["Camera"], "Aspect", camera.aspect);
-			JsonExtended::AssignIfNotNull(j["Camera"], "Zoom", camera.zoom);
-			JsonExtended::AssignIfNotNull(j["Camera"], "Fov", camera.fov);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionFarPlane", camera.projectionFarPlane);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionNearPlane", camera.projectionNearPlane);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionSize", camera.projectionSize);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ClearColor", camera.clearColor);
+			JsonExtended::assignIfNotNull(j["Camera"], "Aspect", camera.aspect);
+			JsonExtended::assignIfNotNull(j["Camera"], "Zoom", camera.zoom);
+			JsonExtended::assignIfNotNull(j["Camera"], "Fov", camera.fov);
+			JsonExtended::assignIfNotNull(j["Camera"], "ProjectionFarPlane", camera.projectionFarPlane);
+			JsonExtended::assignIfNotNull(j["Camera"], "ProjectionNearPlane", camera.projectionNearPlane);
+			JsonExtended::assignIfNotNull(j["Camera"], "ProjectionSize", camera.projectionSize);
+			JsonExtended::assignIfNotNull(j["Camera"], "ClearColor", camera.clearColor);
 			NEntity::addComponent<Camera>(entity, camera);
 		}
 	}
@@ -151,7 +151,7 @@ namespace Cocoa
 	{
 		void update(SceneData& scene, float dt)
 		{
-			auto view = scene.Registry.view<Camera>();
+			auto view = scene.registry.view<Camera>();
 			for (auto& rawEntity : view)
 			{
 				NCamera::Update(NEntity::createEntity(rawEntity), view.get<Camera>(rawEntity));
@@ -160,7 +160,7 @@ namespace Cocoa
 
 		void destroy(SceneData& scene)
 		{
-			auto view = scene.Registry.view<Camera>();
+			auto view = scene.registry.view<Camera>();
 			for (auto& rawEntity : view)
 			{
 				deleteEntity(NEntity::createEntity(rawEntity));

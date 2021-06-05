@@ -3,12 +3,12 @@
 
 namespace Cocoa
 {
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, glm::vec4& vector)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, glm::vec4& vector)
 	{
 		if (j.contains(property))
 		{
 			bool success = true;
-			glm::vec4 tmp = CMath::DeserializeVec4(j[property], success);
+			glm::vec4 tmp = CMath::deserializeVec4(j[property], success);
 			if (success)
 			{
 				vector = tmp;
@@ -16,12 +16,12 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, glm::vec3& vector)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, glm::vec3& vector)
 	{
 		if (j.contains(property))
 		{
 			bool success = true;
-			glm::vec3 tmp = CMath::DeserializeVec3(j[property], success);
+			glm::vec3 tmp = CMath::deserializeVec3(j[property], success);
 			if (success)
 			{
 				vector = tmp;
@@ -29,12 +29,12 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, glm::vec2& vector)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, glm::vec2& vector)
 	{
 		if (j.contains(property))
 		{
 			bool success = true;
-			glm::vec2 tmp = CMath::DeserializeVec2(j[property], success);
+			glm::vec2 tmp = CMath::deserializeVec2(j[property], success);
 			if (success)
 			{
 				vector = tmp;
@@ -42,7 +42,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, uint8& value)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, uint8& value)
 	{
 		if (j.contains(property))
 		{
@@ -50,7 +50,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, uint16& value)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, uint16& value)
 	{
 		if (j.contains(property))
 		{
@@ -58,7 +58,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, uint32& value)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, uint32& value)
 	{
 		if (j.contains(property))
 		{
@@ -66,7 +66,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, int& value)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, int& value)
 	{
 		if (j.contains(property))
 		{
@@ -74,7 +74,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, float& value)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, float& value)
 	{
 		if (j.contains(property))
 		{
@@ -82,7 +82,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, bool& value)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, bool& value)
 	{
 		if (j.contains(property))
 		{
@@ -90,7 +90,7 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::AssignIfNotNull(const json& j, const char* property, CPath& path)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, CPath& path)
 	{
 		if (j.contains(property) && j[property].is_string())
 		{

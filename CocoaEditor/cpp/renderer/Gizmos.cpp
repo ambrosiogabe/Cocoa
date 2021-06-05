@@ -136,7 +136,7 @@ namespace Cocoa
 
 		void GizmoManipulateTranslate(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, const Camera& camera)
 		{
-			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::screenToOrtho(camera));
+			glm::vec3 mousePosWorld = CMath::vector3From2(NCamera::screenToOrtho(camera));
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 			glm::vec3 newPos;
 
@@ -171,7 +171,7 @@ namespace Cocoa
 
 		void GizmoManipulateScale(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, const Camera& camera)
 		{
-			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::screenToOrtho(camera));
+			glm::vec3 mousePosWorld = CMath::vector3From2(NCamera::screenToOrtho(camera));
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 			float dragSpeed = 0.2f;
 			glm::vec3 delta = glm::vec3(dragSpeed) * startToMouse;
@@ -219,7 +219,7 @@ namespace Cocoa
 
 		void Init(SceneData& scene)
 		{
-			CPath gizmoTexPath = Settings::General::s_EngineAssetsPath;
+			CPath gizmoTexPath = Settings::General::engineAssetsPath;
 			gizmoTexPath.join(CPath::create("images/gizmos.png"));
 			m_GizmoTexture = AssetManager::getTexture(gizmoTexPath);
 			m_GizmoSpritesheet = NSpritesheet::createSpritesheet(m_GizmoTexture, 16, 40, 9, 0);
@@ -312,7 +312,7 @@ namespace Cocoa
 					GizmoData& gizmo = Gizmos[i];
 					float cameraZoom = camera.zoom * 2;
 					gizmo.Position = entityTransform.position + gizmo.Offset * cameraZoom;
-					glm::vec3 boxPos = CMath::Vector3From2(gizmo.Position);
+					glm::vec3 boxPos = CMath::vector3From2(gizmo.Position);
 
 					// Uncomment me to visualize the gizmo box bounds
 					//DebugDraw::AddBox2D(
@@ -323,7 +323,7 @@ namespace Cocoa
 					if (!m_MouseDragging && Physics2D::pointInBox(
 						mousePosWorld, 
 						gizmo.BoxBoundsHalfSize * camera.zoom,
-						boxPos + CMath::Vector3From2(gizmo.BoxBoundsOffset), 
+						boxPos + CMath::vector3From2(gizmo.BoxBoundsOffset), 
 						gizmo.Rotation))
 					{
 						gizmo.Active = true;
@@ -401,10 +401,10 @@ namespace Cocoa
 				const Framebuffer& mainFramebuffer = camera.framebuffer;
 				uint32 pixel = NFramebuffer::readPixelUint32(mainFramebuffer, 1, (uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
 
-				Entity entity = Scene::GetEntity(scene, pixel);
+				Entity entity = Scene::getEntity(scene, pixel);
 				Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();
 
-				m_OriginalDragClickPos = CMath::Vector3From2(mousePosWorld);
+				m_OriginalDragClickPos = CMath::vector3From2(mousePosWorld);
 				m_ActiveGizmo = -1;
 
 				if (!NEntity::isNull(selectedEntity))
@@ -414,7 +414,7 @@ namespace Cocoa
 					const TransformData& transform = NEntity::getComponent<TransformData>(selectedEntity);
 					m_ActiveGizmo = m_HotGizmo;
 					m_MouseDragging = true;
-					m_MouseOffset = CMath::Vector3From2(mousePosWorld) - transform.position;
+					m_MouseOffset = CMath::vector3From2(mousePosWorld) - transform.position;
 					m_OriginalScale = transform.scale;
 				}
 				else

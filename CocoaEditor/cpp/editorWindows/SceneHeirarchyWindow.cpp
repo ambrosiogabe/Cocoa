@@ -179,7 +179,7 @@ namespace Cocoa
 			{
 				if (ImGui::MenuItem("Add Empty Entity"))
 				{
-					Entity entity = Scene::CreateEntity(scene);
+					Entity entity = Scene::createEntity(scene);
 					AddNewEntity(entity);
 				}
 
@@ -451,20 +451,20 @@ namespace Cocoa
 					if (entityJson.is_null()) continue;
 
 					uint32 entityId = -1;
-					JsonExtended::AssignIfNotNull(entityJson, "Id", entityId);
+					JsonExtended::assignIfNotNull(entityJson, "Id", entityId);
 					int level = -1;
-					JsonExtended::AssignIfNotNull(entityJson, "Level", level);
+					JsonExtended::assignIfNotNull(entityJson, "Level", level);
 					Logger::Assert(level != -1, "Invalid entity level serialized for scene heirarchy tree.");
 					int index = -1;
-					JsonExtended::AssignIfNotNull(entityJson, "Index", index);
+					JsonExtended::assignIfNotNull(entityJson, "Index", index);
 					Logger::Assert(index == orderedEntities.size(), "Scene tree was not serialized in sorted order, this will cause problems.");
 					bool selected = false;
-					JsonExtended::AssignIfNotNull(entityJson, "Selected", selected);
+					JsonExtended::assignIfNotNull(entityJson, "Selected", selected);
 					bool isOpen = false;
-					JsonExtended::AssignIfNotNull(entityJson, "IsOpen", isOpen);
+					JsonExtended::assignIfNotNull(entityJson, "IsOpen", isOpen);
 
 					Logger::Assert(entt::entity(entityId) != entt::null, "Somehow a null entity got serialized in the scene heirarchy panel.");
-					Logger::Assert(Scene::IsValid(scene, entityId), "Somehow an invalid entity id got serialized in the scene heirarchy panel.");
+					Logger::Assert(Scene::isValid(scene, entityId), "Somehow an invalid entity id got serialized in the scene heirarchy panel.");
 					Entity entity = Entity{ entt::entity(entityId) };
 					orderedEntities.push({ entity, level, index, selected, isOpen });
 					orderedEntitiesCopy.push({ entity, level, index, selected, isOpen });

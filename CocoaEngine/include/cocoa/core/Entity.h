@@ -19,21 +19,21 @@ namespace Cocoa
 		void registerComponentType()
 		{
 			SceneData* scene = getScene();
-			scene->Registry.prepare<Component>();
+			scene->registry.prepare<Component>();
 		}
 
 		template<typename Type>
 		void clear()
 		{
 			SceneData* scene = getScene();
-			scene->Registry.clear<Type>();
+			scene->registry.clear<Type>();
 		}
 
 		template<typename... Component>
 		bool hasComponent(Entity entity)
 		{
 			SceneData* scene = getScene();
-			return scene->Registry.has<Component...>(entity.handle);
+			return scene->registry.has<Component...>(entity.handle);
 		}
 
 		template<typename T, typename ... Args>
@@ -41,7 +41,7 @@ namespace Cocoa
 		{
 			Logger::Assert(!hasComponent<T>(entity), "Entity already has component.");
 			SceneData* scene = getScene();
-			return scene->Registry.emplace<T>(entity.handle, std::forward<Args>(args)...);
+			return scene->registry.emplace<T>(entity.handle, std::forward<Args>(args)...);
 		}
 
 		template<typename T>
@@ -49,7 +49,7 @@ namespace Cocoa
 		{
 			Logger::Assert(hasComponent<T>(entity), "Entity does not have component.");
 			SceneData* scene = getScene();
-			return scene->Registry.get<T>(entity.handle);
+			return scene->registry.get<T>(entity.handle);
 		}
 
 		template<typename T>
@@ -57,7 +57,7 @@ namespace Cocoa
 		{
 			Logger::Assert(hasComponent<T>(entity), "Entity does not have component.");
 			SceneData* scene = getScene();
-			scene->Registry.remove<T>(entity.handle);
+			scene->registry.remove<T>(entity.handle);
 		}
 
 		inline bool isNull(Entity entity)
@@ -74,9 +74,9 @@ namespace Cocoa
 		Entity fromComponent(const T& component)
 		{
 			SceneData* scene = getScene();
-			size_t offset = &component - scene->Registry.raw<T>();
-			Logger::Assert(offset < scene->Registry.size(), "Tried to get nonexistent entity.");
-			return Entity{*(scene->Registry.data<T>() + offset)};
+			size_t offset = &component - scene->registry.raw<T>();
+			Logger::Assert(offset < scene->registry.size(), "Tried to get nonexistent entity.");
+			return Entity{*(scene->registry.data<T>() + offset)};
 		}
 	}
 

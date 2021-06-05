@@ -38,19 +38,19 @@ namespace Cocoa
 
 		void init()
 		{
-			Settings::General::s_EngineExeDirectory = CPath::create(File::getExecutableDirectory().getDirectory(-1));
-			Settings::General::s_EngineSourceDirectory = CPath::create(File::getExecutableDirectory().getDirectory(-4));
-			Logger::Info("%s", Settings::General::s_EngineExeDirectory.path);
+			Settings::General::engineExeDirectory = CPath::create(File::getExecutableDirectory().getDirectory(-1));
+			Settings::General::engineSourceDirectory = CPath::create(File::getExecutableDirectory().getDirectory(-4));
+			Logger::Info("%s", Settings::General::engineExeDirectory.path);
 
 			// Set the assets path as CWD (which should be where the exe is currently located)
-			Settings::General::s_EngineAssetsPath = File::getCwd();
-			Settings::General::s_EngineAssetsPath.join(CPath::create("assets"));
-			Settings::General::s_ImGuiConfigPath = Settings::General::s_EngineAssetsPath;
-			Settings::General::s_ImGuiConfigPath.join(CPath::create("default.ini"));
+			Settings::General::engineAssetsPath = File::getCwd();
+			Settings::General::engineAssetsPath.join(CPath::create("assets"));
+			Settings::General::imGuiConfigPath = Settings::General::engineAssetsPath;
+			Settings::General::imGuiConfigPath.join(CPath::create("default.ini"));
 
 			// Set the styles directory
-			Settings::General::s_StylesDirectory = Settings::General::s_EngineAssetsPath;
-			Settings::General::s_StylesDirectory.join(CPath::create("styles"));
+			Settings::General::stylesDirectory = Settings::General::engineAssetsPath;
+			Settings::General::stylesDirectory.join(CPath::create("styles"));
 
 			// Create application store data if it does not exist
 			CPath cocoaEngine = File::getSpecialAppFolder();
@@ -58,17 +58,17 @@ namespace Cocoa
 			File::createDirIfNotExists(cocoaEngine);
 
 			CPath editorSaveData = cocoaEngine;
-			editorSaveData.join(Settings::General::s_EditorSaveData);
-			Settings::General::s_EditorSaveData = editorSaveData;
+			editorSaveData.join(Settings::General::editorSaveData);
+			Settings::General::editorSaveData = editorSaveData;
 			CPath editorStyleData = cocoaEngine;
-			editorStyleData.join(Settings::General::s_EditorStyleData);
-			Settings::General::s_EditorStyleData = editorStyleData;
+			editorStyleData.join(Settings::General::editorStyleData);
+			Settings::General::editorStyleData = editorStyleData;
 
 			// Copy default script files to the assets path
-			CPath defaultScriptH = Settings::General::s_EngineAssetsPath;
+			CPath defaultScriptH = Settings::General::engineAssetsPath;
 			defaultScriptH.join(CPath::create("defaultCodeFiles"));
 			defaultScriptH.join(CPath::create("DefaultScript.h"));
-			CPath defaultScriptCpp = Settings::General::s_EngineAssetsPath;
+			CPath defaultScriptCpp = Settings::General::engineAssetsPath;
 			defaultScriptCpp.join(CPath::create("defaultCodeFiles"));
 			defaultScriptCpp.join(CPath::create("DefaultScript.cpp"));
 			File::copyFile(defaultScriptH, cocoaEngine, "DefaultScript");
@@ -77,19 +77,19 @@ namespace Cocoa
 
 		bool createProject(SceneData& scene, const CPath& projectPath, const char* filename)
 		{
-			Settings::General::s_CurrentProject = projectPath;
-			Settings::General::s_CurrentProject.join(CPath::create(std::string(filename) + ".cprj"));
-			Settings::General::s_CurrentScene = projectPath;
-			Settings::General::s_CurrentScene.join(CPath::create("scenes"));
-			Settings::General::s_CurrentScene.join(CPath::create("NewScene.cocoa"));
-			Settings::General::s_WorkingDirectory = CPath::create(Settings::General::s_CurrentProject.getDirectory(-1));
+			Settings::General::currentProject = projectPath;
+			Settings::General::currentProject.join(CPath::create(std::string(filename) + ".cprj"));
+			Settings::General::currentScene = projectPath;
+			Settings::General::currentScene.join(CPath::create("scenes"));
+			Settings::General::currentScene.join(CPath::create("NewScene.cocoa"));
+			Settings::General::workingDirectory = CPath::create(Settings::General::currentProject.getDirectory(-1));
 
 			json saveData = {
-				{"ProjectPath", Settings::General::s_CurrentProject.path},
-				{"CurrentScene", Settings::General::s_CurrentScene.path}
+				{"ProjectPath", Settings::General::currentProject.path},
+				{"CurrentScene", Settings::General::currentScene.path}
 			};
 
-			File::writeFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
+			File::writeFile(saveData.dump(4).c_str(), Settings::General::currentProject);
 			CPath assetsPath = projectPath;
 			assetsPath.join(CPath::create("assets"));
 			File::createDirIfNotExists(assetsPath);
@@ -101,9 +101,9 @@ namespace Cocoa
 			File::createDirIfNotExists(scenesPath);
 
 			CocoaEditor* application = (CocoaEditor*)Application::get();
-			Scene::FreeResources(scene);
-			Scene::Init(scene);
-			Scene::Save(scene, Settings::General::s_CurrentScene);
+			Scene::freeResources(scene);
+			Scene::init(scene);
+			Scene::save(scene, Settings::General::currentScene);
 			sourceFileWatcher = std::make_shared<SourceFileWatcher>(scriptsPath);
 			saveEditorData();
 
@@ -114,16 +114,16 @@ namespace Cocoa
 		{
 			if (projectLoaded)
 			{
-				ImGui::SaveIniSettingsToDisk(Settings::General::s_ImGuiConfigPath.path);
+				ImGui::SaveIniSettingsToDisk(Settings::General::imGuiConfigPath.path);
 			}
 
 			json saveData = {
-				{"ProjectPath", Settings::General::s_CurrentProject.path},
-				{"EditorStyle", Settings::General::s_EditorStyleData.path},
-				{"ImGuiConfig", Settings::General::s_ImGuiConfigPath.path}
+				{"ProjectPath", Settings::General::currentProject.path},
+				{"EditorStyle", Settings::General::editorStyleData.path},
+				{"ImGuiConfig", Settings::General::imGuiConfigPath.path}
 			};
 
-			File::writeFile(saveData.dump(4).c_str(), Settings::General::s_EditorSaveData);
+			File::writeFile(saveData.dump(4).c_str(), Settings::General::editorSaveData);
 		}
 
 		bool loadEditorData(SceneData& scene, const CPath& path)
@@ -134,12 +134,12 @@ namespace Cocoa
 				json j = json::parse(editorData->data);
 				if (!j["EditorStyle"].is_null())
 				{
-					Settings::General::s_EditorStyleData = CPath::create(j["EditorStyle"], false);
+					Settings::General::editorStyleData = CPath::create(j["EditorStyle"], false);
 				}
 
 				if (!j["ImGuiConfigPath"].is_null())
 				{
-					Settings::General::s_ImGuiConfigPath = CPath::create(j["ImGuiConfig"], false);
+					Settings::General::imGuiConfigPath = CPath::create(j["ImGuiConfig"], false);
 				}
 
 				if (!j["ProjectPath"].is_null())
@@ -155,42 +155,42 @@ namespace Cocoa
 		void saveProject()
 		{
 			json saveData = {
-				{"ProjectPath", Settings::General::s_CurrentProject.path},
-				{"CurrentScene", Settings::General::s_CurrentScene.path},
-				{"WorkingDirectory", Settings::General::s_CurrentProject.getDirectory(-1) }
+				{"ProjectPath", Settings::General::currentProject.path},
+				{"CurrentScene", Settings::General::currentScene.path},
+				{"WorkingDirectory", Settings::General::currentProject.getDirectory(-1) }
 			};
 
-			File::writeFile(saveData.dump(4).c_str(), Settings::General::s_CurrentProject);
+			File::writeFile(saveData.dump(4).c_str(), Settings::General::currentProject);
 
 			saveEditorData();
 		}
 
 		bool loadProject(SceneData& scene, const CPath& path)
 		{
-			Settings::General::s_CurrentProject = path;
-			FileHandle* projectData = File::openFile(Settings::General::s_CurrentProject);
+			Settings::General::currentProject = path;
+			FileHandle* projectData = File::openFile(Settings::General::currentProject);
 			bool isLoaded = false;
 			if (projectData->size > 0)
 			{
 				json j = json::parse(projectData->data);
 				if (!j["CurrentScene"].is_null())
 				{
-					Settings::General::s_CurrentProject = path;
-					Settings::General::s_CurrentScene = CPath::create(j["CurrentScene"], false);
-					Settings::General::s_WorkingDirectory = CPath::create(path.getDirectory(-1));
+					Settings::General::currentProject = path;
+					Settings::General::currentScene = CPath::create(j["CurrentScene"], false);
+					Settings::General::workingDirectory = CPath::create(path.getDirectory(-1));
 
 					CocoaEditor* application = (CocoaEditor*)Application::get();
-					Scene::FreeResources(scene);
-					Scene::Load(scene, Settings::General::s_CurrentScene);
+					Scene::freeResources(scene);
+					Scene::load(scene, Settings::General::currentScene);
 
 					saveEditorData();
 					StringBuilder winTitle;
-					winTitle.Append(Settings::General::s_CurrentProject.filename());
+					winTitle.Append(Settings::General::currentProject.filename());
 					winTitle.Append(" -- ");
-					winTitle.Append(Settings::General::s_CurrentScene.filename());
+					winTitle.Append(Settings::General::currentScene.filename());
 					Application::get()->getWindow()->setTitle(winTitle.c_str());
 
-					CPath scriptsPath = Settings::General::s_WorkingDirectory;
+					CPath scriptsPath = Settings::General::workingDirectory;
 					scriptsPath.join(CPath::create("scripts"));
 					File::getFoldersInDir(scriptsPath);
 					sourceFileWatcher = std::make_shared<SourceFileWatcher>(scriptsPath);
@@ -205,12 +205,12 @@ namespace Cocoa
 
 		void onAttach(SceneData& scene)
 		{
-			loadEditorData(scene, Settings::General::s_EditorSaveData);
+			loadEditorData(scene, Settings::General::editorSaveData);
 		}
 
 		void onUpdate(SceneData& scene, float dt)
 		{
-			if (scene.IsPlaying)
+			if (scene.isPlaying)
 			{
 				editorUpdate = false;
 			}
@@ -222,12 +222,12 @@ namespace Cocoa
 			if (CocoaEditor::isProjectLoaded() && !editorUpdate)
 			{
 				DebugDraw::beginFrame();
-				Scene::Update(scene, dt);
+				Scene::update(scene, dt);
 			}
 			else if (CocoaEditor::isProjectLoaded())
 			{
 				DebugDraw::beginFrame();
-				Scene::EditorUpdate(scene, dt);
+				Scene::editorUpdate(scene, dt);
 				LevelEditorSystem::EditorUpdate(scene, dt);
 				GizmoSystem::EditorUpdate(scene, dt);
 
@@ -241,7 +241,7 @@ namespace Cocoa
 		{
 			if (CocoaEditor::isProjectLoaded())
 			{
-				Scene::Render(scene);
+				Scene::render(scene);
 			}
 		}
 
@@ -249,7 +249,7 @@ namespace Cocoa
 		{
 			if (CocoaEditor::isProjectLoaded())
 			{
-				Scene::OnEvent(scene, e);
+				Scene::onEvent(scene, e);
 				// Order matters here. We want to do the top most layer to the bottom most so that events are blocked
 				// if needed
 				// TODO: Come up with better solution then if checks constantly. (Maybe abstract this into another function?)
@@ -305,9 +305,9 @@ namespace Cocoa
 		EditorLayer::init();
 		ImGuiLayer::Init(getWindow()->getNativeWindow());
 
-		mCurrentScene = Scene::Create(new LevelEditorSceneInitializer());
-		Scene::Init(mCurrentScene);
-		Scene::Start(mCurrentScene);
+		mCurrentScene = Scene::create(new LevelEditorSceneInitializer());
+		Scene::init(mCurrentScene);
+		Scene::start(mCurrentScene);
 		DebugDraw::init();
 	}
 
@@ -322,7 +322,7 @@ namespace Cocoa
 		// In debug builds free all the memory to make sure there are no leaks
 		ImGuiLayer::Destroy();
 		DebugDraw::destroy();
-		Scene::FreeResources(mCurrentScene);
+		Scene::freeResources(mCurrentScene);
 #endif
 		
 		// This won't really do anything in release builds

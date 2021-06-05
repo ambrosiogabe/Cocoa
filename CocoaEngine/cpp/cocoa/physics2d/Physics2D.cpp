@@ -25,7 +25,7 @@ namespace Cocoa
 
 		void destroy(SceneData& scene)
 		{
-			auto view = scene.Registry.view<Rigidbody2D>();
+			auto view = scene.registry.view<Rigidbody2D>();
 			for (entt::entity rawEntity : view)
 			{
 				Entity entity = { rawEntity };
@@ -43,7 +43,7 @@ namespace Cocoa
 		{
 			b2PolygonShape shape;
 			shape.SetAsBox(halfSize.x, halfSize.y);
-			b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(CMath::ToRadians(rotationDegrees)));
+			b2Transform transform = b2Transform(b2Vec2(position.x, position.y), b2Rot(CMath::toRadians(rotationDegrees)));
 			return shape.TestPoint(transform, b2Vec2(point.x, point.y));
 		}
 
@@ -56,7 +56,7 @@ namespace Cocoa
 
 				b2BodyDef bodyDef;
 				bodyDef.position.Set(transform.position.x, transform.position.y);
-				bodyDef.angle = CMath::ToRadians(transform.eulerRotation.z);
+				bodyDef.angle = CMath::toRadians(transform.eulerRotation.z);
 				bodyDef.angularDamping = rb.angularDamping;
 				bodyDef.linearDamping = rb.linearDamping;
 				bodyDef.fixedRotation = rb.fixedRotation;
@@ -132,11 +132,11 @@ namespace Cocoa
 			m_PhysicsTime += dt;
 			while (m_PhysicsTime > 0.0f)
 			{
-				m_World->Step(Settings::Physics2D::s_Timestep, Settings::Physics2D::s_VelocityIterations, Settings::Physics2D::s_PositionIterations);
-				m_PhysicsTime -= Settings::Physics2D::s_Timestep;
+				m_World->Step(Settings::Physics2D::timestep, Settings::Physics2D::velocityIterations, Settings::Physics2D::positionIterations);
+				m_PhysicsTime -= Settings::Physics2D::timestep;
 			}
 
-			auto view = scene.Registry.view<TransformData, Rigidbody2D>();
+			auto view = scene.registry.view<TransformData, Rigidbody2D>();
 			for (entt::entity rawEntity : view)
 			{
 				Entity entity = { rawEntity };
@@ -146,7 +146,7 @@ namespace Cocoa
 				b2Vec2 position = body->GetPosition();
 				transform.position.x = position.x;
 				transform.position.y = position.y;
-				transform.eulerRotation.z = CMath::ToDegrees(body->GetAngle());
+				transform.eulerRotation.z = CMath::toDegrees(body->GetAngle());
 			}
 		}
 
@@ -180,8 +180,8 @@ namespace Cocoa
 
 		void serialize(json& j, Entity entity, const AABB& box)
 		{
-			json halfSize = CMath::Serialize("HalfSize", box.halfSize);
-			json offset = CMath::Serialize("Offset", box.offset);
+			json halfSize = CMath::serialize("HalfSize", box.halfSize);
+			json offset = CMath::serialize("Offset", box.offset);
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"AABB", {
@@ -195,15 +195,15 @@ namespace Cocoa
 		void deserializeAabb(const json& j, Entity entity)
 		{
 			AABB box;
-			box.halfSize = CMath::DeserializeVec2(j["AABB"]["HalfSize"]);
+			box.halfSize = CMath::deserializeVec2(j["AABB"]["HalfSize"]);
 			box.size = box.halfSize * 2.0f;
-			box.offset = CMath::DeserializeVec2(j["AABB"]["Offset"]);
+			box.offset = CMath::deserializeVec2(j["AABB"]["Offset"]);
 			NEntity::addComponent<AABB>(entity, box);
 		}
 
 		void serialize(json& j, Entity entity, const Box2D& box)
 		{
-			json halfSize = CMath::Serialize("HalfSize", box.halfSize);
+			json halfSize = CMath::serialize("HalfSize", box.halfSize);
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"Box2D", {
@@ -216,7 +216,7 @@ namespace Cocoa
 		void deserializeBox2D(const json& j, Entity entity)
 		{
 			Box2D box;
-			box.halfSize = CMath::DeserializeVec2(j["Box2D"]["HalfSize"]);
+			box.halfSize = CMath::deserializeVec2(j["Box2D"]["HalfSize"]);
 			box.size = box.halfSize * 2.0f;
 			NEntity::addComponent<Box2D>(entity, box);
 		}
@@ -226,7 +226,7 @@ namespace Cocoa
 			json angularDamping = { "AngularDamping", rb.angularDamping };
 			json linearDamping = { "LinearDamping", rb.linearDamping };
 			json mass = { "Mass", rb.mass };
-			json velocity = CMath::Serialize("Velocity", rb.velocity);
+			json velocity = CMath::serialize("Velocity", rb.velocity);
 			json continousCollision = { "ContinousCollision", rb.continuousCollision };
 			json fixedRotation = { "FixedRotation", rb.fixedRotation };
 			int size = j["Components"].size();
@@ -249,7 +249,7 @@ namespace Cocoa
 			rb.angularDamping = j["Rigidbody2D"]["AngularDamping"];
 			rb.linearDamping = j["Rigidbody2D"]["LinearDamping"];
 			rb.mass = j["Rigidbody2D"]["Mass"];
-			rb.velocity = CMath::DeserializeVec2(j["Rigidbody2D"]["Velocity"]);
+			rb.velocity = CMath::deserializeVec2(j["Rigidbody2D"]["Velocity"]);
 			rb.continuousCollision = j["Rigidbody2D"]["ContinousCollision"];
 			rb.fixedRotation = j["Rigidbody2D"]["FixedRotation"];
 			NEntity::addComponent<Rigidbody2D>(entity, rb);

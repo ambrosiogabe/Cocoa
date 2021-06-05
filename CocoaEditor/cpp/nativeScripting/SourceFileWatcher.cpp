@@ -168,7 +168,7 @@ namespace Cocoa
 	{
 		CPath pathToBuildScript = CPath::create(rootDir.getDirectory(-1));
 		pathToBuildScript.join(CPath::create("build.bat"));
-		CPath pathToPremakeExe = Settings::General::s_EngineExeDirectory;
+		CPath pathToPremakeExe = Settings::General::engineExeDirectory;
 		pathToPremakeExe.join(CPath::create("premake5.exe"));
 		CodeGenerators::GenerateBuildFile(pathToBuildScript, pathToPremakeExe);
 	}

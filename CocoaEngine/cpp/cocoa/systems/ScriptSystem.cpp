@@ -51,28 +51,28 @@ namespace Cocoa
 			return func;
 		}
 
-		void Init(SceneData& scene)
+		void init(SceneData& scene)
 		{
-			Reload(scene);
+			reload(scene);
 		}
 
-		void Update(SceneData& scene, float dt)
+		void update(SceneData& scene, float dt)
 		{
 			if (m_UpdateScripts)
 			{
-				m_UpdateScripts(scene.Registry, dt);
+				m_UpdateScripts(scene.registry, dt);
 			}
 		}
 
-		void EditorUpdate(SceneData& scene, float dt)
+		void editorUpdate(SceneData& scene, float dt)
 		{
 			if (m_EditorUpdateScripts)
 			{
-				m_EditorUpdateScripts(scene.Registry, dt);
+				m_EditorUpdateScripts(scene.registry, dt);
 			}
 		}
 
-		void NotifyBeginContact(Entity entityA, Entity entityB)
+		void notifyBeginContact(Entity entityA, Entity entityB)
 		{
 			if (m_NotifyBeginContact)
 			{
@@ -80,7 +80,7 @@ namespace Cocoa
 			}
 		}
 
-		void NotifyEndContact(Entity entityA, Entity entityB)
+		void notifyEndContact(Entity entityA, Entity entityB)
 		{
 			if (m_NotifyEndContact)
 			{
@@ -88,14 +88,14 @@ namespace Cocoa
 			}
 		}
 
-		void Reload(SceneData& scene, bool deleteScriptComponents)
+		void reload(SceneData& scene, bool deleteScriptComponents)
 		{
 			if (m_IsLoaded)
 			{
-				if (!FreeScriptLibrary(scene, deleteScriptComponents)) return;
+				if (!freeScriptLibrary(scene, deleteScriptComponents)) return;
 			}
 
-			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
+			CPath scriptDllPath = Settings::General::engineExeDirectory;
 			scriptDllPath.join(CPath::create("ScriptModule.dll"));
 			if (File::isFile(scriptDllPath))
 			{
@@ -124,7 +124,7 @@ namespace Cocoa
 			}
 		}
 
-		bool FreeScriptLibrary(SceneData& scene, bool deleteScriptComponents)
+		bool freeScriptLibrary(SceneData& scene, bool deleteScriptComponents)
 		{
 			// TODO: Add way to clear a pool so that we can remove hot reload only script components, while leaving the
 			// TODO: rest of the scene intact. This might not be possible, so we shal see 
@@ -162,15 +162,15 @@ namespace Cocoa
 			return true;
 		}
 
-		void ImGui(SceneData& scene, Entity entity)
+		void imGui(SceneData& scene, Entity entity)
 		{
 			if (m_ImGui)
 			{
-				m_ImGui(scene.Registry, entity);
+				m_ImGui(scene.registry, entity);
 			}
 		}
 
-		void InitImGui(void* context)
+		void initImGui(void* context)
 		{
 			if (m_InitImGui)
 			{
@@ -178,16 +178,16 @@ namespace Cocoa
 			}
 		}
 
-		void SaveScripts(SceneData& scene, json& j)
+		void saveScripts(SceneData& scene, json& j)
 		{
 			if (m_SaveScripts)
 			{
 				Logger::Info("Saving scripts!");
-				m_SaveScripts(scene.Registry, j, &scene);
+				m_SaveScripts(scene.registry, j, &scene);
 			}
 		}
 
-		void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry)
+		void addComponentFromString(std::string className, entt::entity entity, entt::registry& registry)
 		{
 			if (m_AddComponentFromString)
 			{
@@ -195,11 +195,11 @@ namespace Cocoa
 			}
 		}
 
-		void Deserialize(SceneData& scene, const json& j, Entity entity)
+		void deserialize(SceneData& scene, const json& j, Entity entity)
 		{
 			if (m_LoadScript)
 			{
-				m_LoadScript(scene.Registry, j, entity);
+				m_LoadScript(scene.registry, j, entity);
 			}
 		}
 	}

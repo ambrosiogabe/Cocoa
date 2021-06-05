@@ -61,13 +61,13 @@ namespace Cocoa
 		void Init(SceneData& scene)
 		{
 			InitComponentIds(scene);
-			tmpScriptDll = Settings::General::s_EngineExeDirectory;
+			tmpScriptDll = Settings::General::engineExeDirectory;
 			tmpScriptDll.join(CPath::create("ScriptModuleTmp.dll"));
-			scriptDll = Settings::General::s_EngineExeDirectory;
+			scriptDll = Settings::General::engineExeDirectory;
 			scriptDll.join(CPath::create("ScriptModule.dll"));
 			initImGui = false;
 
-			Logger::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
+			Logger::Assert(!Scene::isValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
 			// Create editor camera's framebuffer
 			Framebuffer editorCameraFramebuffer;
 			editorCameraFramebuffer.width = 3840;
@@ -89,7 +89,7 @@ namespace Cocoa
 
 			Camera editorCamera = NCamera::createCamera(editorCameraFramebuffer);
 
-			m_CameraEntity = Scene::CreateEntity(scene);
+			m_CameraEntity = Scene::createEntity(scene);
 			NEntity::addComponent<Camera>(m_CameraEntity, editorCamera);
 			NEntity::addComponent<NoSerialize>(m_CameraEntity);
 		}
@@ -131,22 +131,22 @@ namespace Cocoa
 		{
 			if (!initImGui)
 			{
-				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
+				ScriptSystem::initImGui(ImGui::GetCurrentContext());
 				initImGui = true;
 			}
 
 			if (File::isFile(tmpScriptDll))
 			{
-				Scene::Save(scene, Settings::General::s_CurrentScene);
+				Scene::save(scene, Settings::General::currentScene);
 				EditorLayer::saveProject();
 
 				// This should free the scripts too so we can delete the old dll
-				Scene::FreeResources(scene);
+				Scene::freeResources(scene);
 
 				// Now copy new dll and reload the scene
 				File::deleteFile(scriptDll);
 				File::copyFile(tmpScriptDll, CPath::create(scriptDll.getDirectory(-1)), "ScriptModule");
-				Scene::Load(scene, Settings::General::s_CurrentScene);
+				Scene::load(scene, Settings::General::currentScene);
 
 				// Then delete temporary file of new dll
 				File::deleteFile(tmpScriptDll);
@@ -158,7 +158,7 @@ namespace Cocoa
 			TransformData& cameraTransform = NEntity::getComponent<TransformData>(m_CameraEntity);
 			if (m_IsDragging)
 			{
-				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::screenToOrtho(camera));
+				glm::vec3 mousePosWorld = CMath::vector3From2(NCamera::screenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				// TODO: Make this an editor setting
 				static const float sharpness = 15.0f;
@@ -258,7 +258,7 @@ namespace Cocoa
 
 				if (e.getKeyCode() == COCOA_KEY_S)
 				{
-					Scene::Save(scene, Settings::General::s_CurrentScene);
+					Scene::save(scene, Settings::General::currentScene);
 					EditorLayer::saveProject();
 				}
 
@@ -267,7 +267,7 @@ namespace Cocoa
 					Entity activeEntity = InspectorWindow::GetActiveEntity();
 					if (!NEntity::isNull(activeEntity))
 					{
-						Entity duplicated = Scene::DuplicateEntity(scene, activeEntity);
+						Entity duplicated = Scene::duplicateEntity(scene, activeEntity);
 						InspectorWindow::ClearAllEntities();
 						InspectorWindow::AddEntity(duplicated);
 						SceneHeirarchyWindow::AddNewEntity(duplicated);
@@ -281,7 +281,7 @@ namespace Cocoa
 				if (!NEntity::isNull(activeEntity))
 				{
 					SceneHeirarchyWindow::DeleteEntity(activeEntity);
-					Scene::DeleteEntity(scene, activeEntity);
+					Scene::deleteEntity(scene, activeEntity);
 					InspectorWindow::ClearAllEntities();
 				}
 			}
@@ -337,7 +337,7 @@ namespace Cocoa
 				const Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 				const TransformData& transform = NEntity::getComponent<TransformData>(m_CameraEntity);
 				m_OriginalCameraPos = transform.position;
-				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::screenToOrtho(camera));
+				m_OriginalDragClickPos = CMath::vector3From2(NCamera::screenToOrtho(camera));
 			}
 
 			return false;
@@ -358,17 +358,17 @@ namespace Cocoa
 			j["EditorCamera"] = { 
 				{"Components", {}} 
 			};
-			Scene::SerializeEntity(&j["EditorCamera"], m_CameraEntity);
+			Scene::serializeEntity(&j["EditorCamera"], m_CameraEntity);
 		}
 
 		void Deserialize(const json& j, SceneData& scene)
 		{
-			Logger::Assert(Scene::IsValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
-			if (j.contains("EditorCamera") && Scene::IsValid(scene, m_CameraEntity))
+			Logger::Assert(Scene::isValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
+			if (j.contains("EditorCamera") && Scene::isValid(scene, m_CameraEntity))
 			{
-				Scene::DeleteEntity(scene, m_CameraEntity);
+				Scene::deleteEntity(scene, m_CameraEntity);
 				// TODO: This is kind of hacky, there's probably a better way to do it
-				Scene::DeserializeEntities(j["EditorCamera"], scene);
+				Scene::deserializeEntities(j["EditorCamera"], scene);
 				NEntity::addComponent<NoSerialize>(m_CameraEntity);
 			}
 		}

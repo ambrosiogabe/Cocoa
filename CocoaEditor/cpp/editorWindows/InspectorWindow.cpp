@@ -72,7 +72,7 @@ namespace Cocoa
 
 			for (auto& entity: ActiveEntities)
 			{
-				Logger::Assert(Scene::IsValid(scene, entity), "Invalid active entity in inspector window");
+				Logger::Assert(Scene::isValid(scene, entity), "Invalid active entity in inspector window");
 				doTag &= NEntity::hasComponent<Tag>(entity);
 				doTransform &= NEntity::hasComponent<TransformData>(entity);
 				doSpriteRenderer &= NEntity::hasComponent<SpriteRenderer>(entity);
@@ -102,7 +102,7 @@ namespace Cocoa
 				ImGuiCircle(NEntity::getComponent<Circle>(ActiveEntities[0]));
 			if (doCamera)
 				ImGuiCamera(NEntity::getComponent<Camera>(ActiveEntities[0]));
-			ScriptSystem::ImGui(scene, ActiveEntities[0]);
+			ScriptSystem::imGui(scene, ActiveEntities[0]);
 
 			ImGuiAddComponentButton();
 			ImGui::End();
@@ -184,7 +184,7 @@ namespace Cocoa
 				}
 				default:
 					Logger::Info("Adding component %s from inspector to %d", StringPointerBuffer[itemPressed], entt::to_integral(activeEntity.handle));
-					ScriptSystem::AddComponentFromString(StringPointerBuffer[itemPressed], activeEntity.handle, NEntity::getScene()->Registry);
+					ScriptSystem::addComponentFromString(StringPointerBuffer[itemPressed], activeEntity.handle, NEntity::getScene()->registry);
 					break;
 				}
 			}
@@ -389,7 +389,7 @@ namespace Cocoa
 
 			// Draw box highlight
 			const TransformData& transform = NEntity::getComponent<TransformData>(ActiveEntities[0]);
-			DebugDraw::addBox2D(CMath::Vector2From3(transform.position), box.halfSize * 2.0f * CMath::Vector2From3(transform.scale), transform.eulerRotation.z);
+			DebugDraw::addBox2D(CMath::vector2From3(transform.position), box.halfSize * 2.0f * CMath::vector2From3(transform.scale), transform.eulerRotation.z);
 		}
 
 		static void ImGuiCircle(Circle& circle)

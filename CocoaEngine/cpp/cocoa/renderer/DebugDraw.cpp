@@ -66,7 +66,7 @@ namespace Cocoa
 		{
 			if (m_Shader.isNull())
 			{
-				CPath shaderPath = Settings::General::s_EngineAssetsPath;
+				CPath shaderPath = Settings::General::engineAssetsPath;
 				shaderPath.join(CPath::create("shaders/SpriteRenderer.glsl"));
 				m_Shader = AssetManager::getShader(shaderPath);
 			}
@@ -147,11 +147,11 @@ namespace Cocoa
 				glm::vec2(max.x, min.y), glm::vec2(max.x, max.y)
 			};
 
-			if (!CMath::Compare(rotation, 0.0f))
+			if (!CMath::compare(rotation, 0.0f))
 			{
 				for (auto& vec : vertices)
 				{
-					CMath::Rotate(vec, rotation, center);
+					CMath::rotate(vec, rotation, center);
 				}
 			}
 
@@ -200,7 +200,7 @@ namespace Cocoa
 			// TODO: Maybe do this differently? I really don't like allocating and freeing so much small bits of memory
 			glm::vec2* vertsCopy = (glm::vec2*)AllocMem(sizeof(glm::vec2) * numVertices);
 			memcpy(vertsCopy, vertices, sizeof(glm::vec2) * numVertices);
-			if (!CMath::Compare(rotation, 0.0f) || !CMath::Compare(scale, {1.0f, 1.0f}))
+			if (!CMath::compare(rotation, 0.0f) || !CMath::compare(scale, {1.0f, 1.0f}))
 			{
 				glm::mat4 matrix = glm::mat4(1.0f);
 				matrix = glm::rotate(matrix, glm::radians(rotation), glm::vec3(0, 0, 1));
@@ -290,8 +290,8 @@ namespace Cocoa
 							RenderBatch::add(
 								*batch, 
 								sprite.spriteTexture, 
-								CMath::Vector3From2(sprite.position), 
-								CMath::Vector3From2(sprite.size), 
+								CMath::vector3From2(sprite.position), 
+								CMath::vector3From2(sprite.size), 
 								sprite.tint, 
 								sprite.texCoordMin, 
 								sprite.texCoordMax, 
@@ -310,8 +310,8 @@ namespace Cocoa
 					RenderBatch::add(
 						newBatch, 
 						sprite.spriteTexture, 
-						CMath::Vector3From2(sprite.position), 
-						CMath::Vector3From2(sprite.size), 
+						CMath::vector3From2(sprite.position), 
+						CMath::vector3From2(sprite.size), 
 						sprite.tint, 
 						sprite.texCoordMin, 
 						sprite.texCoordMax, 

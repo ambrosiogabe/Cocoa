@@ -45,12 +45,12 @@ namespace Cocoa
 
 			ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(vpX, vpY));
 
-			auto view = scene.Registry.view<Camera>(entt::exclude<NoSerialize>);
+			auto view = scene.registry.view<Camera>(entt::exclude<NoSerialize>);
 			int i = 0;
 			for (auto& rawEntity : view)
 			{
 				Logger::Assert(i == 0, "Game viewport does not support multiple cameras yet.");
-				const Camera& camera = scene.Registry.get<Camera>(rawEntity);
+				const Camera& camera = scene.registry.get<Camera>(rawEntity);
 				uint32 texId = NFramebuffer::getColorAttachment(camera.framebuffer, 0).graphicsId;
 				ImGui::Image(reinterpret_cast<void*>(texId), ImVec2(aspectWidth, aspectHeight), ImVec2(0, 1), ImVec2(1, 0));
 				i++;

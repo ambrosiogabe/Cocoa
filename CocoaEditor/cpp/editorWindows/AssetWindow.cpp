@@ -211,7 +211,7 @@ namespace Cocoa
 				static int fontSize = 32;
 				CImGui::UndoableDragInt("Font Size: ", fontSize);
 
-				CPath assetsDir = Settings::General::s_WorkingDirectory;
+				CPath assetsDir = Settings::General::workingDirectory;
 				assetsDir.join(CPath::create("assets"));
 
 				CPath outputTexture = assetsDir;
@@ -243,7 +243,7 @@ namespace Cocoa
 
 		static void ShowSceneBrowser(SceneData& scene)
 		{
-			CPath scenesPath = Settings::General::s_WorkingDirectory;
+			CPath scenesPath = Settings::General::workingDirectory;
 			scenesPath.join(CPath::create("scenes"));
 			auto sceneFiles = File::getFilesInDir(scenesPath);
 			int sceneCount = 0;
@@ -252,9 +252,9 @@ namespace Cocoa
 				ImGui::PushID(sceneCount++);
 				if (IconButton(ICON_FA_FILE, scenePath.filename(), m_ButtonSize))
 				{
-					Scene::Save(scene, Settings::General::s_CurrentScene);
-					Scene::FreeResources(scene);
-					Scene::Load(scene, scenePath);
+					Scene::save(scene, Settings::General::currentScene);
+					Scene::freeResources(scene);
+					Scene::load(scene, scenePath);
 				}
 				ImGui::SameLine();
 				ImGui::PopID();
@@ -262,13 +262,13 @@ namespace Cocoa
 
 			if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
 			{
-				Scene::Save(scene, Settings::General::s_CurrentScene);
-				Scene::FreeResources(scene);
+				Scene::save(scene, Settings::General::currentScene);
+				Scene::freeResources(scene);
 				static char newSceneTitle[32] = "New Scene (";
 				snprintf(&newSceneTitle[11], 32 - 11, "%d).cocoa", sceneCount);
-				Settings::General::s_CurrentScene = Settings::General::s_WorkingDirectory;
-				Settings::General::s_CurrentScene.join(CPath::create("scenes" + std::string(newSceneTitle)));
-				Scene::Save(scene, Settings::General::s_CurrentScene);
+				Settings::General::currentScene = Settings::General::workingDirectory;
+				Settings::General::currentScene.join(CPath::create("scenes" + std::string(newSceneTitle)));
+				Scene::save(scene, Settings::General::currentScene);
 				CocoaEditor* editor = static_cast<CocoaEditor*>(Application::get());
 				EditorLayer::saveProject();
 			}
@@ -276,7 +276,7 @@ namespace Cocoa
 
 		static void ShowScriptBrowser()
 		{
-			CPath scriptsPath = Settings::General::s_WorkingDirectory;
+			CPath scriptsPath = Settings::General::workingDirectory;
 			scriptsPath.join(CPath::create("scripts"));
 			auto scriptFiles = File::getFilesInDir(scriptsPath);
 			int scriptCount = 0;
@@ -304,7 +304,7 @@ namespace Cocoa
 				CPath defaultScriptH = cocoaDir;
 				defaultScriptH.join(CPath::create("DefaultScript.h"));
 
-				CPath scriptsPath = Settings::General::s_WorkingDirectory;
+				CPath scriptsPath = Settings::General::workingDirectory;
 				scriptsPath.join(CPath::create("scripts"));
 
 				File::copyFile(defaultScriptCpp, scriptsPath, newScriptName);

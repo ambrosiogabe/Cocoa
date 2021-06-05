@@ -1,12 +1,12 @@
 #include "externalLibs.h"
 
 #include "cocoa/systems/RenderSystem.h"
-#include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/commands/ICommand.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/renderer/DebugDraw.h"
 #include "cocoa/renderer/CameraStruct.h"
+#include "cocoa/renderer/RenderBatch.h"
+#include "cocoa/util/Settings.h"
 
 #include <nlohmann/json.hpp>
 
@@ -23,22 +23,22 @@ namespace Cocoa
 
 		static List<RenderBatchData> m_Batches;
 
-		void Init()
+		void init()
 		{
 			m_Batches = List<RenderBatchData>(1);
 
-			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
+			CPath spriteShaderPath = Settings::General::engineAssetsPath;
 			spriteShaderPath.join(CPath::create("shaders/SpriteRenderer.glsl"));
 			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath, true);
-			CPath fontShaderPath = Settings::General::s_EngineAssetsPath;
+			CPath fontShaderPath = Settings::General::engineAssetsPath;
 			fontShaderPath.join(CPath::create("shaders/FontRenderer.glsl"));
 			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath, true);
-			CPath pickingShaderPath = Settings::General::s_EngineAssetsPath;
+			CPath pickingShaderPath = Settings::General::engineAssetsPath;
 			pickingShaderPath.join(CPath::create("shaders/Picking.glsl"));
 			AssetManager::loadShaderFromFile(pickingShaderPath, true);
 		}
 
-		void Destroy()
+		void destroy()
 		{
 			for (int i = 0; i < m_Batches.size(); i++)
 			{
@@ -46,7 +46,7 @@ namespace Cocoa
 			}
 		}
 
-		void AddEntity(const TransformData& transform, const SpriteRenderer& spr)
+		void addEntity(const TransformData& transform, const SpriteRenderer& spr)
 		{
 			const Sprite& sprite = spr.sprite;
 			bool wasAdded = false;
@@ -75,7 +75,7 @@ namespace Cocoa
 			}
 		}
 
-		void AddEntity(const TransformData& transform, const FontRenderer& fontRenderer)
+		void addEntity(const TransformData& transform, const FontRenderer& fontRenderer)
 		{
 			const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
 			bool wasAdded = false;
@@ -104,24 +104,24 @@ namespace Cocoa
 			}
 		}
 
-		void Render(const SceneData& scene)
+		void render(const SceneData& scene)
 		{
-			scene.Registry.view<const SpriteRenderer, const TransformData>().each([](auto entity, const auto& spriteRenderer, const auto& transform)
+			scene.registry.view<const SpriteRenderer, const TransformData>().each([](auto entity, const auto& spriteRenderer, const auto& transform)
 				{
-					AddEntity(transform, spriteRenderer);
+					addEntity(transform, spriteRenderer);
 				});
 
-			scene.Registry.view<const FontRenderer, const TransformData>().each([](auto entity, const auto& fontRenderer, const auto& transform)
+			scene.registry.view<const FontRenderer, const TransformData>().each([](auto entity, const auto& fontRenderer, const auto& transform)
 				{
-					AddEntity(transform, fontRenderer);
+					addEntity(transform, fontRenderer);
 				});
 
 			DebugDraw::addDebugObjectsToBatches();
 
-			auto view = scene.Registry.view<const Camera>();
+			auto view = scene.registry.view<const Camera>();
 			for (auto& rawEntity : view)
 			{
-				const Camera& camera = scene.Registry.get<Camera>(rawEntity);
+				const Camera& camera = scene.registry.get<Camera>(rawEntity);
 				NFramebuffer::bind(camera.framebuffer);
 
 				glEnable(GL_BLEND); // TODO: This should be encapsulated within the camera somehow
@@ -154,9 +154,9 @@ namespace Cocoa
 			}
 		}
 
-		void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)
+		void serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)
 		{
-			json color = CMath::Serialize("Color", spriteRenderer.color);
+			json color = CMath::serialize("Color", spriteRenderer.color);
 			json assetId = { "AssetId", (uint32)std::numeric_limits<uint32>::max() };
 			json zIndex = { "ZIndex", spriteRenderer.zIndex };
 			if (spriteRenderer.sprite.texture)
@@ -175,10 +175,10 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeSpriteRenderer(const json& j, Entity entity)
+		void deserializeSpriteRenderer(const json& j, Entity entity)
 		{
 			SpriteRenderer spriteRenderer;
-			spriteRenderer.color = CMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
+			spriteRenderer.color = CMath::deserializeVec4(j["SpriteRenderer"]["Color"]);
 			if (j["SpriteRenderer"].contains("AssetId"))
 			{
 				if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
@@ -194,9 +194,9 @@ namespace Cocoa
 			NEntity::addComponent<SpriteRenderer>(entity, spriteRenderer);
 		}
 
-		void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
+		void serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
 		{
-			json color = CMath::Serialize("Color", fontRenderer.color);
+			json color = CMath::serialize("Color", fontRenderer.color);
 			json assetId = { "AssetId", (uint32)std::numeric_limits<uint32>::max() };
 			json zIndex = { "ZIndex", fontRenderer.zIndex };
 			json text = { "Text", fontRenderer.text };
@@ -219,10 +219,10 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeFontRenderer(const json& j, Entity entity)
+		void deserializeFontRenderer(const json& j, Entity entity)
 		{
 			FontRenderer fontRenderer;
-			fontRenderer.color = CMath::DeserializeVec4(j["FontRenderer"]["Color"]);
+			fontRenderer.color = CMath::deserializeVec4(j["FontRenderer"]["Color"]);
 			if (j["FontRenderer"].contains("AssetId"))
 			{
 				if (j["FontRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())

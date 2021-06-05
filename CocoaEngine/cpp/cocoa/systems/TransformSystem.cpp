@@ -8,7 +8,7 @@ namespace Cocoa
 	{
 		void update(SceneData& scene, float dt)
 		{
-			auto view = scene.Registry.view<TransformData>();
+			auto view = scene.registry.view<TransformData>();
 			for (entt::entity rawEntity : view)
 			{
 				Entity entity = NEntity::createEntity(rawEntity);
@@ -17,9 +17,9 @@ namespace Cocoa
 			}
 		}
 
-		void Destroy(SceneData& scene)
+		void destroy(SceneData& scene)
 		{
-			auto view = scene.Registry.view<Tag>();
+			auto view = scene.registry.view<Tag>();
 			for (entt::entity rawEntity : view)
 			{
 				Entity entity = NEntity::createEntity(rawEntity);
@@ -28,7 +28,7 @@ namespace Cocoa
 			}
 		}
 
-		void DeleteEntity(Entity entity)
+		void deleteEntity(Entity entity)
 		{
 			if (NEntity::hasComponent<Tag>(entity))
 			{

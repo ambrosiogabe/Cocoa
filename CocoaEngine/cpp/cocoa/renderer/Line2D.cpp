@@ -20,7 +20,7 @@ namespace Cocoa
 #if _COCOA_DEBUG
 			glm::vec2 testVec = res.vertices[1] - res.vertices[0];
 			float testLength = glm::length(testVec);
-			if (!CMath::Compare(stroke, testLength, 0.001f))
+			if (!CMath::compare(stroke, testLength, 0.001f))
 			{
 				Logger::Warning("Invalid result when computing line2D position. Stroke width does not match. Stroke %2.3f, Actual Length: %2.3f", stroke, testLength);
 			}

@@ -330,7 +330,7 @@ namespace Cocoa
 				"		\"**.cpp\",\n"
 				"		\"**.hpp\",\n";
 
-			CPath engineSource = CPath::create(Settings::General::s_EngineSourceDirectory.path, true);
+			CPath engineSource = CPath::create(Settings::General::engineSourceDirectory.path, true);
 			stream << "\t\t\"" << engineSource.linuxStyle() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
 			stream << "\t\t\"" << engineSource.linuxStyle() << "/CocoaEditor/include/gui/**.h\"\n";
 
@@ -362,8 +362,8 @@ namespace Cocoa
 				"\n"
 				"	links {\n";
 
-			CPath engineExeDir = CPath::create(Settings::General::s_EngineExeDirectory.path, true);
-			CPath engineDllDir = CPath::create(Settings::General::s_EngineExeDirectory.getDirectory(-1), true);
+			CPath engineExeDir = CPath::create(Settings::General::engineExeDirectory.path, true);
+			CPath engineDllDir = CPath::create(Settings::General::engineExeDirectory.getDirectory(-1), true);
 			engineDllDir.join(CPath::create("CocoaEngine"));
 			stream << "\t\t\"" << engineDllDir.linuxStyle() << "/CocoaEngine.lib\",\n";
 			stream << "\t\t\"" << engineExeDir.linuxStyle() << "/ImGui.lib\"\n";

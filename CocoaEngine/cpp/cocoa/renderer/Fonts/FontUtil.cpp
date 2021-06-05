@@ -36,7 +36,7 @@ namespace Cocoa
 					int distance = xsquared + ysquared;
 					if (pixelstate != state)
 					{
-						minDistance = CMath::Min(distance, minDistance);
+						minDistance = CMath::min(distance, minDistance);
 					}
 				}
 			}
@@ -80,8 +80,8 @@ namespace Cocoa
 			{
 				for (int x = -padding; x < bitmapWidth - padding; x++)
 				{
-					int pixelX = (int)CMath::MapRange((float)x, -(float)padding, (float)(characterWidth + padding), -padding * scaleX, (characterWidth + padding) * scaleX);
-					int pixelY = (int)CMath::MapRange((float)(characterHeight - y), -(float)padding, (float)(characterHeight + padding), -padding * scaleY, (characterHeight + padding) * scaleY);
+					int pixelX = (int)CMath::mapRange((float)x, -(float)padding, (float)(characterWidth + padding), -padding * scaleX, (characterWidth + padding) * scaleX);
+					int pixelY = (int)CMath::mapRange((float)(characterHeight - y), -(float)padding, (float)(characterHeight + padding), -padding * scaleY, (characterHeight + padding) * scaleY);
 					float val = findNearestPixel(pixelX, pixelY, img, width, height, spread);
 					if (!flipVertically)
 					{
@@ -172,13 +172,13 @@ namespace Cocoa
 
 			SdfBitmapContainer* sdfBitmaps = (SdfBitmapContainer*)AllocMem(sizeof(SdfBitmapContainer) * (characterMapSize - glyphOffset));
 			// Just to be safe, use up to cores - 2
-			const auto processorCount = CMath::Max(std::thread::hardware_concurrency() - 2, 1);
+			const auto processorCount = CMath::max(std::thread::hardware_concurrency() - 2, 1);
 			int segmentSize = ('z' + 1) / processorCount;
 			int count = 0;
 			std::vector<std::thread> threads;
 			for (int i = 0; i <= processorCount; i++)
 			{
-				int end = CMath::Min(segmentSize + count, characterMapSize - glyphOffset);
+				int end = CMath::min(segmentSize + count, characterMapSize - glyphOffset);
 				threads.push_back(std::thread(fillSdfBitmaps, count, end, sdfBitmaps, fontFile.path, lowResFontSize, padding, upscaleResolution, glyphOffset));
 				count += segmentSize;
 			}
@@ -201,7 +201,7 @@ namespace Cocoa
 				int width = container.width;
 				int height = container.height;
 
-				rowHeight = CMath::Max(height, rowHeight);
+				rowHeight = CMath::max(height, rowHeight);
 				if (x + width >= fixedWidth)
 				{
 					x = 0;
@@ -221,8 +221,8 @@ namespace Cocoa
 					container.chScaleY
 				};
 
-				sdfWidth = CMath::Max(sdfWidth, x + width);
-				sdfHeight = CMath::Max(sdfHeight, y + rowHeight);
+				sdfWidth = CMath::max(sdfWidth, x + width);
+				sdfHeight = CMath::max(sdfHeight, y + rowHeight);
 				x += width;
 			}
 

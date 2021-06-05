@@ -1,17 +1,18 @@
-#pragma once
+#ifndef COCOA_ENGINE_SCENE_DATA_H
+#define COCOA_ENGINE_SCENE_DATA_H
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/core/Handle.h"
-#include "cocoa/renderer/CameraStruct.h"
 
 namespace Cocoa
 {
 	class SceneInitializer;
 	struct SceneData
 	{
-		bool IsPlaying;
-		entt::registry Registry;
-		json SaveDataJson;
+		bool isPlaying;
+		entt::registry registry;
+		json saveDataJson;
 
-		SceneInitializer* CurrentSceneInitializer = nullptr;
+		SceneInitializer* currentSceneInitializer = nullptr;
 	};
 }
+
+#endif
