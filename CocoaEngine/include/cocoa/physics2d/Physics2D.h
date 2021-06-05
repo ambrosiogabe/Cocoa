@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_PHYSICS_2D_H
+#define COCOA_ENGINE_PHYSICS_2D_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
@@ -10,28 +11,30 @@ namespace Cocoa
 {
 	namespace Physics2D
 	{
-		COCOA void Init(const glm::vec2& gravity);
-		COCOA void Destroy(SceneData& scene);
+		COCOA void init(const glm::vec2& gravity);
+		COCOA void destroy(SceneData& scene);
 
-		COCOA bool PointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees);
+		COCOA bool pointInBox(const glm::vec2& point, const glm::vec2& halfSize, const glm::vec2& position, float rotationDegrees);
 
-		COCOA void AddEntity(Entity entity);
-        COCOA void DeleteEntity(Entity entity);
-		COCOA void Update(SceneData& scene, float dt);
+		COCOA void addEntity(Entity entity);
+        COCOA void deleteEntity(Entity entity);
+		COCOA void update(SceneData& scene, float dt);
 
-        COCOA void ApplyForceToCenter(const Rigidbody2D& rigidbody, const glm::vec2& force);
-        COCOA void ApplyForce(const Rigidbody2D& rigidbody, const glm::vec2& force, const glm::vec2& point);
-        COCOA void ApplyLinearImpulseToCenter(const Rigidbody2D& rigidbody, const glm::vec2& impulse);
-        COCOA void ApplyLinearImpulse(const Rigidbody2D& rigidbody, const glm::vec2& impulse, const glm::vec2& point);
+        COCOA void applyForceToCenter(const Rigidbody2D& rigidbody, const glm::vec2& force);
+        COCOA void applyForce(const Rigidbody2D& rigidbody, const glm::vec2& force, const glm::vec2& point);
+        COCOA void applyLinearImpulseToCenter(const Rigidbody2D& rigidbody, const glm::vec2& impulse);
+        COCOA void applyLinearImpulse(const Rigidbody2D& rigidbody, const glm::vec2& impulse, const glm::vec2& point);
 
         // ----------------------------------------------------------------------------
         // Serialization
         // ----------------------------------------------------------------------------
-        COCOA void Serialize(json& j, Entity entity, const AABB& box);
-        COCOA void DeserializeAABB(const json& j, Entity entity);
-        COCOA void Serialize(json& j, Entity entity, const Box2D& box);
-        COCOA void DeserializeBox2D(const json& j, Entity entity);
-        COCOA void Serialize(json& j, Entity entity, const Rigidbody2D& rigidbody);
-        COCOA void DeserializeRigidbody2D(const json& j, Entity entity);
+        COCOA void serialize(json& j, Entity entity, const AABB& box);
+        COCOA void deserializeAabb(const json& j, Entity entity);
+        COCOA void serialize(json& j, Entity entity, const Box2D& box);
+        COCOA void deserializeBox2D(const json& j, Entity entity);
+        COCOA void serialize(json& j, Entity entity, const Rigidbody2D& rigidbody);
+        COCOA void deserializeRigidbody2D(const json& j, Entity entity);
 	};
 }
+
+#endif

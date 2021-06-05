@@ -1,72 +1,68 @@
-#include "cocoa/renderer/fonts/Font.h"
+#include "cocoa/renderer/fonts/Font.h""
 #include "cocoa/renderer/fonts/FontUtil.h"
-#include "cocoa/core/AssetManager.h"
 #include "cocoa/util/JsonExtended.h"
-
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
 
 #undef CreateFont;
 
 namespace Cocoa
 {
-	static CharInfo nullCharacter = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	static Font nullFont;
+	static CharInfo mNullCharacter = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	static Font mNullFontObj;
 
-	Font Font::CreateFont()
+	Font Font::createFont()
 	{
 		Font res;
-		res.m_IsNull = true;
-		res.m_IsDefault = false;
+		res.isNull = true;
+		res.isDefault = false;
 		return res;
 	}
 
-	Font Font::CreateFont(CPath& resourcePath, bool isDefault)
+	Font Font::createFont(CPath& resourcePath, bool isDefault)
 	{
 		Font res;
-		res.m_IsDefault = isDefault;
-		res.m_Path = CPath(resourcePath);
+		res.isDefault = isDefault;
+		res.path = CPath(resourcePath);
 		return res;
 	}
 
-	Font Font::NullFont()
+	Font Font::nullFont()
 	{
-		return nullFont;
+		return mNullFontObj;
 	}
 
-	void Font::Free()
+	void Font::free() const
 	{
-		FreeMem(m_CharacterMap);
+		FreeMem(characterMap);
 	}
 
-	const CharInfo& Font::GetCharacterInfo(int codepoint) const
+	const CharInfo& Font::getCharacterInfo(int codepoint) const
 	{
-		if (codepoint < m_CharacterMapSize && codepoint >= 0)
+		if (codepoint < characterMapSize && codepoint >= 0)
 		{
-			return m_CharacterMap[codepoint];
+			return characterMap[codepoint];
 		}
 		else
 		{
-			return nullCharacter;
+			return mNullCharacter;
 		}
 	}
 
-	void Font::GenerateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
+	void Font::generateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
 	{
-		m_GlyphRangeStart = glyphRangeStart;
-		m_GlyphRangeEnd = glyphRangeEnd;
-		m_CharacterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * (glyphRangeEnd - glyphRangeStart));
-		m_CharacterMapSize = glyphRangeEnd - glyphRangeStart;
-		FontUtil::CreateSdfFontTexture(fontFile, fontSize, m_CharacterMap, (glyphRangeEnd - glyphRangeStart), outputFile, padding, upscaleResolution, glyphRangeStart);
+		glyphRangeStart = glyphRangeStart;
+		glyphRangeEnd = glyphRangeEnd;
+		characterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * (glyphRangeEnd - glyphRangeStart));
+		characterMapSize = glyphRangeEnd - glyphRangeStart;
+		FontUtil::createSdfFontTexture(fontFile, fontSize, characterMap, (glyphRangeEnd - glyphRangeStart), outputFile, padding, upscaleResolution, glyphRangeStart);
 	}
 
-	json Font::Serialize() const
+	json Font::serialize() const
 	{
 		json res;
-		res["CharacterMapSize"] = m_CharacterMapSize;
-		for (int i = 0; i < m_CharacterMapSize; i++)
+		res["CharacterMapSize"] = characterMapSize;
+		for (int i = 0; i < characterMapSize; i++)
 		{
-			const CharInfo& charInfo = m_CharacterMap[i];
+			const CharInfo& charInfo = characterMap[i];
 			res["CharacterMap"][std::to_string(i)] = {
 				{"ux0", charInfo.ux0},
 				{"uy0", charInfo.uy0},
@@ -80,19 +76,19 @@ namespace Cocoa
 			};
 		}
 
-		res["FontTextureId"] = m_FontTexture.assetId;
-		res["GlyphRangeStart"] = m_GlyphRangeStart;
-		res["GlyphRangeEnd"] = m_GlyphRangeEnd;
-		res["Filepath"] = m_Path.path;
+		res["FontTextureId"] = fontTexture.assetId;
+		res["GlyphRangeStart"] = glyphRangeStart;
+		res["GlyphRangeEnd"] = glyphRangeEnd;
+		res["Filepath"] = path.path;
 		return res;
 	}
 
-	void Font::Deserialize(const json& j)
+	void Font::deserialize(const json& j)
 	{
-		JsonExtended::AssignIfNotNull(j, "CharacterMapSize", m_CharacterMapSize);
+		JsonExtended::AssignIfNotNull(j, "CharacterMapSize", characterMapSize);
 
-		m_CharacterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * m_CharacterMapSize);
-		for (int i = 0; i < m_CharacterMapSize; i++)
+		characterMap = (CharInfo*)AllocMem(sizeof(CharInfo) * characterMapSize);
+		for (int i = 0; i < characterMapSize; i++)
 		{
 			float ux0, uy0, ux1, uy1, advance, bearingX, bearingY, chScaleX, chScaleY;
 			if (j.contains("CharacterMap") && j["CharacterMap"].contains(std::to_string(i)))
@@ -107,7 +103,7 @@ namespace Cocoa
 				JsonExtended::AssignIfNotNull(subJ, "bearingY", bearingY);
 				JsonExtended::AssignIfNotNull(subJ, "chScaleX", chScaleX);
 				JsonExtended::AssignIfNotNull(subJ, "chScaleY", chScaleY);
-				m_CharacterMap[i] = {
+				characterMap[i] = {
 					ux0, uy0,
 					ux1, uy1,
 					advance,
@@ -117,9 +113,9 @@ namespace Cocoa
 			}
 		}
 
-		JsonExtended::AssignIfNotNull(j, "FontTextureId", m_FontTexture.assetId);
-		JsonExtended::AssignIfNotNull(j, "GlyphRangeStart", m_GlyphRangeStart);
-		JsonExtended::AssignIfNotNull(j, "GlyphRangeEnd", m_GlyphRangeEnd);
-		JsonExtended::AssignIfNotNull(j, "Filepath", m_Path);
+		JsonExtended::AssignIfNotNull(j, "FontTextureId", fontTexture.assetId);
+		JsonExtended::AssignIfNotNull(j, "GlyphRangeStart", glyphRangeStart);
+		JsonExtended::AssignIfNotNull(j, "GlyphRangeEnd", glyphRangeEnd);
+		JsonExtended::AssignIfNotNull(j, "Filepath", path);
 	}
 }

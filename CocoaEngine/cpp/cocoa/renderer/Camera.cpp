@@ -10,58 +10,58 @@ namespace Cocoa
 		// Internal functions
 		static void Update(Entity entity, Camera& camera);
 
-		Camera CreateCamera()
+		Camera createCamera()
 		{
 			Framebuffer framebuffer;
-			framebuffer.Width = 3840;
-			framebuffer.Height = 2160;
-			framebuffer.IncludeDepthStencil = false;
+			framebuffer.width = 3840;
+			framebuffer.height = 2160;
+			framebuffer.includeDepthStencil = false;
 			Texture color0;
-			color0.InternalFormat = ByteFormat::RGB;
-			color0.ExternalFormat = ByteFormat::RGB;
-			color0.MagFilter = FilterMode::Linear;
-			color0.MinFilter = FilterMode::Linear;
-			color0.WrapS = WrapMode::Repeat;
-			color0.WrapT = WrapMode::Repeat;
-			NFramebuffer::AddColorAttachment(framebuffer, color0);
-			NFramebuffer::Generate(framebuffer);
-			return CreateCamera(framebuffer);
+			color0.internalFormat = ByteFormat::RGB;
+			color0.externalFormat = ByteFormat::RGB;
+			color0.magFilter = FilterMode::Linear;
+			color0.minFilter = FilterMode::Linear;
+			color0.wrapS = WrapMode::Repeat;
+			color0.wrapT = WrapMode::Repeat;
+			NFramebuffer::addColorAttachment(framebuffer, color0);
+			NFramebuffer::generate(framebuffer);
+			return createCamera(framebuffer);
 		}
 
-		Camera CreateCamera(Framebuffer framebuffer)
+		Camera createCamera(Framebuffer framebuffer)
 		{
 			Camera res;
 			// TODO: Make this customizable
-			res.ProjectionSize = { 6.0f, 3.0f };
-			res.ProjectionNearPlane = 0.5f;
-			res.ProjectionFarPlane = 100.0f;
-			res.Zoom = 1.0f;
-			res.ClearColor = { 0.45f, 0.55f, 0.6f };
-			res.Framebuffer = framebuffer;
-			AdjustPerspective(res);
+			res.projectionSize = { 6.0f, 3.0f };
+			res.projectionNearPlane = 0.5f;
+			res.projectionFarPlane = 100.0f;
+			res.zoom = 1.0f;
+			res.clearColor = { 0.45f, 0.55f, 0.6f };
+			res.framebuffer = framebuffer;
+			adjustPerspective(res);
 			return res;
 		}
 
 		static void Update(Entity entity, Camera& camera)
 		{
-			AdjustPerspective(camera);
-			CalculateOrthoViewMatrix(entity, camera);
+			adjustPerspective(camera);
+			calculateOrthoViewMatrix(entity, camera);
 		}
 
-		void AdjustPerspective(Camera& camera)
+		void adjustPerspective(Camera& camera)
 		{
-			camera.ProjectionMatrix = glm::ortho(
-				-camera.ProjectionSize.x * camera.Zoom / 2.0f,
-				camera.ProjectionSize.x * camera.Zoom / 2.0f,
-				-camera.ProjectionSize.y * camera.Zoom / 2.0f,
-				camera.ProjectionSize.y * camera.Zoom / 2.0f,
-				camera.ProjectionNearPlane,
-				camera.ProjectionFarPlane);
+			camera.projectionMatrix = glm::ortho(
+				-camera.projectionSize.x * camera.zoom / 2.0f,
+				camera.projectionSize.x * camera.zoom / 2.0f,
+				-camera.projectionSize.y * camera.zoom / 2.0f,
+				camera.projectionSize.y * camera.zoom / 2.0f,
+				camera.projectionNearPlane,
+				camera.projectionFarPlane);
 
-			camera.InverseProjection = glm::inverse(camera.ProjectionMatrix);
+			camera.inverseProjection = glm::inverse(camera.projectionMatrix);
 		}
 
-		void CalculateViewMatrix(Entity entity, Camera& camera)
+		void calculateViewMatrix(Entity entity, Camera& camera)
 		{
 			const TransformData& transform = NEntity::getComponent<TransformData>(entity);
 			glm::vec3 cameraForward;
@@ -75,81 +75,81 @@ namespace Cocoa
 
 			glm::vec3 front = glm::vec3(transform.position.x, transform.position.y, transform.position.z) + cameraForward;
 
-			camera.ViewMatrix = glm::lookAt(transform.position, front, cameraUp);
-			camera.InverseView = glm::inverse(camera.ViewMatrix);
+			camera.viewMatrix = glm::lookAt(transform.position, front, cameraUp);
+			camera.inverseView = glm::inverse(camera.viewMatrix);
 		}
 
-		void CalculateOrthoViewMatrix(Entity entity, Camera& camera)
+		void calculateOrthoViewMatrix(Entity entity, Camera& camera)
 		{
 			const TransformData& transform = NEntity::getComponent<TransformData>(entity);
 			glm::vec3 cameraFront = glm::vec3(0, 0, -1) + glm::vec3(transform.position.x, transform.position.y, 0.0f);
 			glm::vec3 cameraUp = glm::vec3(0, 1.0f, 0);
 
-			camera.ViewMatrix = glm::lookAt(glm::vec3(transform.position.x, transform.position.y, 20), cameraFront, cameraUp);
-			camera.InverseView = glm::inverse(camera.ViewMatrix);
+			camera.viewMatrix = glm::lookAt(glm::vec3(transform.position.x, transform.position.y, 20), cameraFront, cameraUp);
+			camera.inverseView = glm::inverse(camera.viewMatrix);
 		}
 
-		void ClearColorRgb(const Camera& camera, int attachment, glm::vec3 color)
+		void clearColorRgb(const Camera& camera, int attachment, glm::vec3 color)
 		{
-			NFramebuffer::ClearColorAttachmentRgb(camera.Framebuffer, attachment, color);
+			NFramebuffer::clearColorAttachmentRgb(camera.framebuffer, attachment, color);
 		}
 
-		void ClearColorUint32(Camera& camera, int attachment, uint32 color)
+		void clearColorUint32(Camera& camera, int attachment, uint32 color)
 		{
-			NFramebuffer::ClearColorAttachmentUint32(camera.Framebuffer, attachment, color);
+			NFramebuffer::clearColorAttachmentUint32(camera.framebuffer, attachment, color);
 		}
 
-		glm::vec2 ScreenToOrtho(const Camera& camera)
+		glm::vec2 screenToOrtho(const Camera& camera)
 		{
 			return Input::screenToOrtho(camera);
 		}
 
-		void Serialize(json* j, Entity entity, const Camera& camera)
+		void serialize(json* j, Entity entity, const Camera& camera)
 		{
 			json res;
 			res["Entity"] = NEntity::getId(entity);
-			res["Aspect"] = camera.Aspect;
-			res["Zoom"] = camera.Zoom;
-			res["Fov"] = camera.Fov;
-			res["ProjectionFarPlane"] = camera.ProjectionFarPlane;
-			res["ProjectionNearPlane"] = camera.ProjectionNearPlane;
+			res["Aspect"] = camera.aspect;
+			res["Zoom"] = camera.zoom;
+			res["Fov"] = camera.fov;
+			res["ProjectionFarPlane"] = camera.projectionFarPlane;
+			res["ProjectionNearPlane"] = camera.projectionNearPlane;
 			res["ProjectionSize"] = {
-				{ "X", camera.ProjectionSize.x },
-				{ "Y", camera.ProjectionSize.y }
+				{ "X", camera.projectionSize.x },
+				{ "Y", camera.projectionSize.y }
 			};
-			res["ClearColor"] = CMath::Serialize(camera.ClearColor);
-			res["Framebuffer"] = NFramebuffer::Serialize(camera.Framebuffer);
+			res["ClearColor"] = CMath::Serialize(camera.clearColor);
+			res["Framebuffer"] = NFramebuffer::serialize(camera.framebuffer);
 
 			json& jRef = *j;
 			int size = jRef["Components"].size();
 			jRef["Components"][size]["Camera"] = res;
 		}
 
-		void Deserialize(const json& j, Entity entity)
+		void deserialize(const json& j, Entity entity)
 		{
 			Framebuffer cameraFramebuffer;
 			bool hasFramebuffer = j["Camera"].contains("Framebuffer");
 			if (hasFramebuffer)
 			{
-				cameraFramebuffer = NFramebuffer::Deserialize(j["Camera"]["Framebuffer"]);
-				NFramebuffer::Generate(cameraFramebuffer);
+				cameraFramebuffer = NFramebuffer::deserialize(j["Camera"]["Framebuffer"]);
+				NFramebuffer::generate(cameraFramebuffer);
 			}
 
-			Camera camera = hasFramebuffer ? CreateCamera(cameraFramebuffer) : CreateCamera();
-			JsonExtended::AssignIfNotNull(j["Camera"], "Aspect", camera.Aspect);
-			JsonExtended::AssignIfNotNull(j["Camera"], "Zoom", camera.Zoom);
-			JsonExtended::AssignIfNotNull(j["Camera"], "Fov", camera.Fov);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionFarPlane", camera.ProjectionFarPlane);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionNearPlane", camera.ProjectionNearPlane);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionSize", camera.ProjectionSize);
-			JsonExtended::AssignIfNotNull(j["Camera"], "ClearColor", camera.ClearColor);
+			Camera camera = hasFramebuffer ? createCamera(cameraFramebuffer) : createCamera();
+			JsonExtended::AssignIfNotNull(j["Camera"], "Aspect", camera.aspect);
+			JsonExtended::AssignIfNotNull(j["Camera"], "Zoom", camera.zoom);
+			JsonExtended::AssignIfNotNull(j["Camera"], "Fov", camera.fov);
+			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionFarPlane", camera.projectionFarPlane);
+			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionNearPlane", camera.projectionNearPlane);
+			JsonExtended::AssignIfNotNull(j["Camera"], "ProjectionSize", camera.projectionSize);
+			JsonExtended::AssignIfNotNull(j["Camera"], "ClearColor", camera.clearColor);
 			NEntity::addComponent<Camera>(entity, camera);
 		}
 	}
 
 	namespace CameraSystem
 	{
-		void Update(SceneData& scene, float dt)
+		void update(SceneData& scene, float dt)
 		{
 			auto view = scene.Registry.view<Camera>();
 			for (auto& rawEntity : view)
@@ -158,21 +158,21 @@ namespace Cocoa
 			}
 		}
 
-		void Destroy(SceneData& scene)
+		void destroy(SceneData& scene)
 		{
 			auto view = scene.Registry.view<Camera>();
 			for (auto& rawEntity : view)
 			{
-				DeleteEntity(NEntity::createEntity(rawEntity));
+				deleteEntity(NEntity::createEntity(rawEntity));
 			}
 		}
 
-		void DeleteEntity(Entity entity)
+		void deleteEntity(Entity entity)
 		{
 			if (NEntity::hasComponent<Camera>(entity))
 			{
 				Camera& camera = NEntity::getComponent<Camera>(entity);
-				NFramebuffer::Delete(camera.Framebuffer);
+				NFramebuffer::destroy(camera.framebuffer);
 			}
 		}
 	}

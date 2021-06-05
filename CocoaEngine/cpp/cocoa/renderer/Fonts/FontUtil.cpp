@@ -10,16 +10,16 @@ namespace Cocoa
 {
 	namespace FontUtil
 	{
-		int GetPixel(int x, int y, uint8* bitmap, int width, int height)
+		int getPixel(int x, int y, uint8* bitmap, int width, int height)
 		{
 			return  (x < width) && (y < height) && (x >= 0) && (y >= 0) ?
 				bitmap[x + (y * width)] :
 				0;
 		}
 
-		float FindNearestPixel(int pixX, int pixY, uint8* bitmap, int width, int height, int spread)
+		float findNearestPixel(int pixX, int pixY, uint8* bitmap, int width, int height, int spread)
 		{
-			int state = GetPixel(pixX, pixY, bitmap, width, height);
+			int state = getPixel(pixX, pixY, bitmap, width, height);
 			int minX = pixX - spread;
 			int maxX = pixX + spread;
 			int minY = pixY - spread;
@@ -30,7 +30,7 @@ namespace Cocoa
 			{
 				for (int x = minX; x <= maxX; x++)
 				{
-					int pixelstate = GetPixel(x, y, bitmap, width, height);
+					int pixelstate = getPixel(x, y, bitmap, width, height);
 					int xsquared = (x - pixX) * (x - pixX);
 					int ysquared = (y - pixY) * (y - pixY);
 					int distance = xsquared + ysquared;
@@ -47,7 +47,7 @@ namespace Cocoa
 			return (output + 1) * 0.5f;
 		}
 
-		SdfBitmapContainer GenerateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding, int upscaleResolution, bool flipVertically)
+		SdfBitmapContainer generateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding, int upscaleResolution, bool flipVertically)
 		{
 			int spread = upscaleResolution / 2;
 
@@ -82,7 +82,7 @@ namespace Cocoa
 				{
 					int pixelX = (int)CMath::MapRange((float)x, -(float)padding, (float)(characterWidth + padding), -padding * scaleX, (characterWidth + padding) * scaleX);
 					int pixelY = (int)CMath::MapRange((float)(characterHeight - y), -(float)padding, (float)(characterHeight + padding), -padding * scaleY, (characterHeight + padding) * scaleY);
-					float val = FindNearestPixel(pixelX, pixelY, img, width, height, spread);
+					float val = findNearestPixel(pixelX, pixelY, img, width, height, spread);
 					if (!flipVertically)
 					{
 						sdfBitmap[(x + padding) + ((y + padding) * bitmapWidth)] = (int)(val * 255.0f);
@@ -126,14 +126,14 @@ namespace Cocoa
 
 			for (int i = begin; i < end; i++)
 			{
-				arr[i] = GenerateSdfCodepointBitmap(i + glyphOffset, font, fontSize, padding, upscaleResolution);
+				arr[i] = generateSdfCodepointBitmap(i + glyphOffset, font, fontSize, padding, upscaleResolution);
 			}
 
 			FT_Done_Face(font);
 			FT_Done_FreeType(ft);
 		}
 
-		void CreateSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, int padding, int upscaleResolution, int glyphOffset)
+		void createSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, int padding, int upscaleResolution, int glyphOffset)
 		{
 			FT_Library ft;
 			if (FT_Init_FreeType(&ft))
@@ -210,10 +210,10 @@ namespace Cocoa
 				}
 
 				characterMap[codepoint - glyphOffset] = {
-					(float)x + container.xoff,
-					(float)y + container.yoff,
-					(float)(x + width - container.xoff),
-					(float)(y + height - container.yoff),
+					(float)x + container.xOff,
+					(float)y + container.yOff,
+					(float)(x + width - container.xOff),
+					(float)(y + height - container.yOff),
 					container.advance,
 					container.bearingX,
 					container.bearingY,
@@ -260,8 +260,8 @@ namespace Cocoa
 
 				int width = sdf.width;
 				int height = sdf.height;
-				int xoff = sdf.xoff;
-				int yoff = sdf.yoff;
+				int xoff = sdf.xOff;
+				int yoff = sdf.yOff;
 				x = (int)x0 - xoff;
 				y = (int)y0 - yoff;
 				for (int imgY = 0; imgY < height; imgY++)

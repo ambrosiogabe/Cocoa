@@ -76,7 +76,7 @@ namespace Cocoa
 		float currentX = mouseX() - sGameViewPos.x;
 		currentX = (currentX / sGameViewSize.x) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(currentX, 0.0f, 0.0f, 1.0f);
-		tmp = camera.InverseView * camera.InverseProjection * tmp;
+		tmp = camera.inverseView * camera.inverseProjection * tmp;
 
 		return tmp.x;
 	}
@@ -86,7 +86,7 @@ namespace Cocoa
 		float currentY = sGameViewPos.y - mouseY();
 		currentY = (currentY / sGameViewSize.y) * 2.0f - 1.0f;
 		glm::vec4 tmp = glm::vec4(0.0f, currentY, 0.0f, 1.0f);
-		tmp = camera.InverseView * camera.InverseProjection * tmp;
+		tmp = camera.inverseView * camera.inverseProjection * tmp;
 
 		return tmp.y;
 	}
@@ -97,7 +97,7 @@ namespace Cocoa
 
 		tmp.x = (tmp.x / sGameViewSize.x) * 2.0f - 1.0f;
 		tmp.y = -((tmp.y / sGameViewSize.y) * 2.0f - 1.0f);
-		tmp = camera.InverseView * camera.InverseProjection * tmp;
+		tmp = camera.inverseView * camera.inverseProjection * tmp;
 
 		return glm::vec2{ tmp.x, tmp.y };
 	}

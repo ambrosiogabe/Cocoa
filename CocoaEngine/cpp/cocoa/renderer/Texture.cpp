@@ -10,9 +10,9 @@ namespace Cocoa
 {
 	namespace TextureUtil
 	{
-		const Texture NullTexture = Create();
+		const Texture NULL_TEXTURE = create();
 
-		uint32 ToGl(WrapMode wrapMode)
+		uint32 toGl(WrapMode wrapMode)
 		{
 			switch (wrapMode)
 			{
@@ -27,7 +27,7 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
-		uint32 ToGl(FilterMode filterMode)
+		uint32 toGl(FilterMode filterMode)
 		{
 			switch (filterMode)
 			{
@@ -44,7 +44,7 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
-		uint32 ToGl(ByteFormat format)
+		uint32 toGl(ByteFormat format)
 		{
 			switch (format)
 			{
@@ -71,7 +71,7 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
-		uint32 ToGlDataType(ByteFormat format)
+		uint32 toGlDataType(ByteFormat format)
 		{
 			switch (format)
 			{
@@ -96,7 +96,7 @@ namespace Cocoa
 			return GL_NONE;
 		}
 
-		bool ByteFormatIsInt(ByteFormat format)
+		bool byteFormatIsInt(ByteFormat format)
 		{
 			switch (format)
 			{
@@ -121,7 +121,7 @@ namespace Cocoa
 			return false;
 		}
 
-		bool ByteFormatIsRgb(ByteFormat format)
+		bool byteFormatIsRgb(ByteFormat format)
 		{
 			switch (format)
 			{
@@ -148,41 +148,41 @@ namespace Cocoa
 
 		static void BindTextureParameters(const Texture& texture)
 		{
-			if (texture.WrapS != WrapMode::None)
+			if (texture.wrapS != WrapMode::None)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGl(texture.WrapS));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, toGl(texture.wrapS));
 			}
-			if (texture.WrapT != WrapMode::None)
+			if (texture.wrapT != WrapMode::None)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGl(texture.WrapT));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, toGl(texture.wrapT));
 			}
-			if (texture.MinFilter != FilterMode::None)
+			if (texture.minFilter != FilterMode::None)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGl(texture.MinFilter));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, toGl(texture.minFilter));
 			}
-			if (texture.MagFilter != FilterMode::None)
+			if (texture.magFilter != FilterMode::None)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGl(texture.MagFilter));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, toGl(texture.magFilter));
 			}
 		}
 
-		void Generate(Texture& texture, const CPath& path)
+		void generate(Texture& texture, const CPath& path)
 		{
 			int channels;
 
-			unsigned char* pixels = stbi_load(path.path, &texture.Width, &texture.Height, &channels, 0);
+			unsigned char* pixels = stbi_load(path.path, &texture.width, &texture.height, &channels, 0);
 			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.path, stbi_failure_reason());
 
 			int bytesPerPixel = channels;
 			if (bytesPerPixel == 4)
 			{
-				texture.InternalFormat = ByteFormat::RGBA8;
-				texture.ExternalFormat = ByteFormat::RGBA;
+				texture.internalFormat = ByteFormat::RGBA8;
+				texture.externalFormat = ByteFormat::RGBA;
 			}
 			else if (bytesPerPixel == 3)
 			{
-				texture.InternalFormat = ByteFormat::RGB8;
-				texture.ExternalFormat = ByteFormat::RGB;
+				texture.internalFormat = ByteFormat::RGB8;
+				texture.externalFormat = ByteFormat::RGB;
 			}
 			else
 			{
@@ -190,98 +190,98 @@ namespace Cocoa
 				return;
 			}
 
-			glGenTextures(1, &texture.GraphicsId);
-			glBindTexture(GL_TEXTURE_2D, texture.GraphicsId);
+			glGenTextures(1, &texture.graphicsId);
+			glBindTexture(GL_TEXTURE_2D, texture.graphicsId);
 
 			BindTextureParameters(texture);
 
-			uint32 internalFormat = ToGl(texture.InternalFormat);
-			uint32 externalFormat = ToGl(texture.ExternalFormat);
-			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.Path.path);
-			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
+			uint32 internalFormat = toGl(texture.internalFormat);
+			uint32 externalFormat = toGl(texture.externalFormat);
+			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.path.path);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
 
 			stbi_image_free(pixels);
 		}
 
-		void Generate(Texture& texture)
+		void generate(Texture& texture)
 		{
-			Logger::Assert(texture.InternalFormat != ByteFormat::None, "Cannot generate texture without internal format.");
-			Logger::Assert(texture.ExternalFormat != ByteFormat::None, "Cannot generate texture without external format.");
-			glGenTextures(1, &texture.GraphicsId);
-			glBindTexture(GL_TEXTURE_2D, texture.GraphicsId);
+			Logger::Assert(texture.internalFormat != ByteFormat::None, "Cannot generate texture without internal format.");
+			Logger::Assert(texture.externalFormat != ByteFormat::None, "Cannot generate texture without external format.");
+			glGenTextures(1, &texture.graphicsId);
+			glBindTexture(GL_TEXTURE_2D, texture.graphicsId);
 
 			BindTextureParameters(texture);
 
-			uint32 internalFormat = ToGl(texture.InternalFormat);
-			uint32 externalFormat = ToGl(texture.ExternalFormat);
+			uint32 internalFormat = toGl(texture.internalFormat);
+			uint32 externalFormat = toGl(texture.externalFormat);
 
 			// Here the GL_UNSIGNED_BYTE does nothing since we are just allocating space
-			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.Width, texture.Height, 0, externalFormat, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 0, externalFormat, GL_UNSIGNED_BYTE, nullptr);
 		}
 
-		bool IsNull(const Texture& texture)
+		bool isNull(const Texture& texture)
 		{
-			return texture.GraphicsId == NullTexture.GraphicsId;
+			return texture.graphicsId == NULL_TEXTURE.graphicsId;
 		}
 
-		void Bind(const Texture& texture)
+		void bind(const Texture& texture)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture.GraphicsId);
+			glBindTexture(GL_TEXTURE_2D, texture.graphicsId);
 		}
 
-		void Unbind(const Texture& texture)
+		void unbind(const Texture& texture)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture.GraphicsId);
+			glBindTexture(GL_TEXTURE_2D, texture.graphicsId);
 		}
 
-		void Delete(Texture& texture)
+		void destroy(Texture& texture)
 		{
-			glDeleteTextures(1, &texture.GraphicsId);
-			texture.GraphicsId = -1;
+			glDeleteTextures(1, &texture.graphicsId);
+			texture.graphicsId = -1;
 		}
 
-		json Serialize(const Texture& texture)
+		json serialize(const Texture& texture)
 		{
 			return {
-				{"Filepath", texture.Path.path },
-				{"MagFilter", (int)texture.MagFilter },
-				{"MinFilter", (int)texture.MinFilter },
-				{"WrapS", (int)texture.WrapS},
-				{"WrapT", (int)texture.WrapT},
-				{"InternalFormat", (int)texture.InternalFormat},
-				{"ExternalFormat", (int)texture.ExternalFormat}
+				{"Filepath", texture.path.path },
+				{"MagFilter", (int)texture.magFilter },
+				{"MinFilter", (int)texture.minFilter },
+				{"WrapS", (int)texture.wrapS},
+				{"WrapT", (int)texture.wrapT},
+				{"InternalFormat", (int)texture.internalFormat},
+				{"ExternalFormat", (int)texture.externalFormat}
 			};
 		}
 
-		Texture Deserialize(const json& j)
+		Texture deserialize(const json& j)
 		{
 			Texture texture;
-			JsonExtended::AssignIfNotNull(j, "Filepath", texture.Path);
-			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MagFilter", texture.MagFilter);
-			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MinFilter", texture.MinFilter);
-			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapS", texture.WrapS);
-			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapT", texture.WrapT);
-			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "InternalFormat", texture.InternalFormat);
-			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "ExternalFormat", texture.ExternalFormat);
+			JsonExtended::AssignIfNotNull(j, "Filepath", texture.path);
+			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MagFilter", texture.magFilter);
+			JsonExtended::AssignEnumIfNotNull<FilterMode>(j, "MinFilter", texture.minFilter);
+			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapS", texture.wrapS);
+			JsonExtended::AssignEnumIfNotNull<WrapMode>(j, "WrapT", texture.wrapT);
+			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "InternalFormat", texture.internalFormat);
+			JsonExtended::AssignEnumIfNotNull<ByteFormat>(j, "ExternalFormat", texture.externalFormat);
 			return texture;
 		}
 
-		Texture Create()
+		Texture create()
 		{
 			Texture res;
-			res.GraphicsId = UINT32_MAX;
-			res.Width = 0;
-			res.Height = 0;
+			res.graphicsId = UINT32_MAX;
+			res.width = 0;
+			res.height = 0;
 
-			res.MagFilter = FilterMode::None;
-			res.MinFilter = FilterMode::None;
-			res.WrapS = WrapMode::None;
-			res.WrapT = WrapMode::None;
-			res.InternalFormat = ByteFormat::None;
-			res.ExternalFormat = ByteFormat::None;
+			res.magFilter = FilterMode::None;
+			res.minFilter = FilterMode::None;
+			res.wrapS = WrapMode::None;
+			res.wrapT = WrapMode::None;
+			res.internalFormat = ByteFormat::None;
+			res.externalFormat = ByteFormat::None;
 
-			res.Path = CPath::create();
-			res.IsDefault = false;
+			res.path = CPath::create();
+			res.isDefault = false;
 
 			return res;
 		}

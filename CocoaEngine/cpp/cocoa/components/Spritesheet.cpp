@@ -16,13 +16,13 @@ namespace Cocoa
 			res.sprites.reserve(numSprites);
 
 			int currentX = 0;
-			int currentY = texture.Height - spriteHeight;
+			int currentY = texture.height - spriteHeight;
 			for (int i = 0; i < numSprites; i++)
 			{
-				float topY = (currentY + spriteHeight) / (float)texture.Height;
-				float rightX = (currentX + spriteWidth) / (float)texture.Width;
-				float leftX = currentX / (float)texture.Width;
-				float bottomY = currentY / (float)texture.Height;
+				float topY = (currentY + spriteHeight) / (float)texture.height;
+				float rightX = (currentX + spriteWidth) / (float)texture.width;
+				float leftX = currentX / (float)texture.width;
+				float bottomY = currentY / (float)texture.height;
 
 				Sprite sprite{
 					textureHandle,
@@ -36,7 +36,7 @@ namespace Cocoa
 				res.sprites.push_back(sprite);
 
 				currentX += spriteWidth + spacing;
-				if (currentX >= texture.Width)
+				if (currentX >= texture.width)
 				{
 					currentX = 0;
 					currentY -= spriteHeight + spacing;

@@ -42,7 +42,7 @@ namespace Cocoa
 		{
 			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatch::Free(m_Batches[i]);
+				RenderBatch::free(m_Batches[i]);
 			}
 		}
 
@@ -53,12 +53,12 @@ namespace Cocoa
 			for (int i = 0; i < m_Batches.size(); i++)
 			{
 				RenderBatchData& batch = m_Batches[i];
-				if (RenderBatch::HasRoom(batch) && spr.zIndex == batch.ZIndex && batch.BatchShader == m_SpriteShader)
+				if (RenderBatch::hasRoom(batch) && spr.zIndex == batch.zIndex && batch.batchShader == m_SpriteShader)
 				{
 					Handle<Texture> tex = sprite.texture;
-					if (!tex || RenderBatch::HasTexture(batch, tex) || RenderBatch::HasTextureRoom(batch))
+					if (!tex || RenderBatch::hasTexture(batch, tex) || RenderBatch::hasTextureRoom(batch))
 					{
-						RenderBatch::Add(batch, transform, spr);
+						RenderBatch::add(batch, transform, spr);
 						wasAdded = true;
 						break;
 					}
@@ -67,11 +67,11 @@ namespace Cocoa
 
 			if (!wasAdded)
 			{
-				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, spr.zIndex, m_SpriteShader);
-				RenderBatch::Start(newBatch);
-				RenderBatch::Add(newBatch, transform, spr);
+				RenderBatchData newBatch = RenderBatch::createRenderBatch(MAX_BATCH_SIZE, spr.zIndex, m_SpriteShader);
+				RenderBatch::start(newBatch);
+				RenderBatch::add(newBatch, transform, spr);
 				m_Batches.push(newBatch);
-				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::compare);
 			}
 		}
 
@@ -82,12 +82,12 @@ namespace Cocoa
 			for (int i = 0; i < m_Batches.size(); i++)
 			{
 				RenderBatchData& batch = m_Batches[i];
-				if (RenderBatch::HasRoom(batch, fontRenderer) && fontRenderer.zIndex == batch.ZIndex && batch.BatchShader == m_FontShader)
+				if (RenderBatch::hasRoom(batch, fontRenderer) && fontRenderer.zIndex == batch.zIndex && batch.batchShader == m_FontShader)
 				{
-					Handle<Texture> tex = font.m_FontTexture;
-					if (!tex || RenderBatch::HasTexture(batch, tex) || RenderBatch::HasTextureRoom(batch))
+					Handle<Texture> tex = font.fontTexture;
+					if (!tex || RenderBatch::hasTexture(batch, tex) || RenderBatch::hasTextureRoom(batch))
 					{
-						RenderBatch::Add(batch, transform, fontRenderer);
+						RenderBatch::add(batch, transform, fontRenderer);
 						wasAdded = true;
 						break;
 					}
@@ -96,11 +96,11 @@ namespace Cocoa
 
 			if (!wasAdded)
 			{
-				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, fontRenderer.zIndex, m_FontShader);
-				RenderBatch::Start(newBatch);
-				RenderBatch::Add(newBatch, transform, fontRenderer);
+				RenderBatchData newBatch = RenderBatch::createRenderBatch(MAX_BATCH_SIZE, fontRenderer.zIndex, m_FontShader);
+				RenderBatch::start(newBatch);
+				RenderBatch::add(newBatch, transform, fontRenderer);
 				m_Batches.push(newBatch);
-				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::Compare);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::compare);
 			}
 		}
 
@@ -116,41 +116,41 @@ namespace Cocoa
 					AddEntity(transform, fontRenderer);
 				});
 
-			DebugDraw::AddDebugObjectsToBatches();
+			DebugDraw::addDebugObjectsToBatches();
 
 			auto view = scene.Registry.view<const Camera>();
 			for (auto& rawEntity : view)
 			{
 				const Camera& camera = scene.Registry.get<Camera>(rawEntity);
-				NFramebuffer::Bind(camera.Framebuffer);
+				NFramebuffer::bind(camera.framebuffer);
 
 				glEnable(GL_BLEND); // TODO: This should be encapsulated within the camera somehow
 				glViewport(0, 0, 3840, 2160); // TODO: This should be encapsulated within the camera somehow
-				NCamera::ClearColorRgb(camera, 0, camera.ClearColor);
+				NCamera::clearColorRgb(camera, 0, camera.clearColor);
 				//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
 
-				DebugDraw::DrawBottomBatches(camera);
+				DebugDraw::drawBottomBatches(camera);
 
 				for (int i = 0; i < m_Batches.size(); i++)
 				{
 					RenderBatchData& batch = m_Batches[i];
-					Logger::Assert(!batch.BatchShader.isNull(), "Cannot render with a null shader.");
-					const Shader& shader = AssetManager::getShader(batch.BatchShader.assetId);
-					NShader::Bind(shader);
-					NShader::UploadMat4(shader, "uProjection", camera.ProjectionMatrix);
-					NShader::UploadMat4(shader, "uView", camera.ViewMatrix);
-					NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
+					Logger::Assert(!batch.batchShader.isNull(), "Cannot render with a null shader.");
+					const Shader& shader = AssetManager::getShader(batch.batchShader.assetId);
+					NShader::bind(shader);
+					NShader::uploadMat4(shader, "uProjection", camera.projectionMatrix);
+					NShader::uploadMat4(shader, "uView", camera.viewMatrix);
+					NShader::uploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
 
-					RenderBatch::Render(batch);
+					RenderBatch::render(batch);
 				}
 
-				DebugDraw::DrawTopBatches(camera);
+				DebugDraw::drawTopBatches(camera);
 			}
 
 			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatch::Clear(m_Batches[i]);
-				DebugDraw::ClearAllBatches();
+				RenderBatch::clear(m_Batches[i]);
+				DebugDraw::clearAllBatches();
 			}
 		}
 

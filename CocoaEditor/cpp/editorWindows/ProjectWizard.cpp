@@ -30,13 +30,13 @@ namespace Cocoa
 			mTmpFilename[0] = '\0';
 			mIdealSize = Application::get()->getWindow()->getMonitorSize() / 2.0f;
 
-			mJadeLogo.MagFilter = FilterMode::Linear;
-			mJadeLogo.MinFilter = FilterMode::Linear;
-			mJadeLogo.WrapS = WrapMode::Repeat;
-			mJadeLogo.WrapT = WrapMode::Repeat;
-			TextureUtil::Generate(mJadeLogo, CPath::create("assets/jadeLogo.png"));
+			mJadeLogo.magFilter = FilterMode::Linear;
+			mJadeLogo.minFilter = FilterMode::Linear;
+			mJadeLogo.wrapS = WrapMode::Repeat;
+			mJadeLogo.wrapT = WrapMode::Repeat;
+			TextureUtil::generate(mJadeLogo, CPath::create("assets/jadeLogo.png"));
 
-			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.Width / 2.0f);
+			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.width / 2.0f);
 			mTexturePos.y = mIdealSize.y / 10.0f;
 			mVersionPos = glm::vec2(-1.0f, -1.0f);
 			mButtonSize = glm::vec2(mIdealSize.x / 3.0f, mIdealSize.y / 18.0f);
@@ -51,7 +51,7 @@ namespace Cocoa
 			{
 				ImVec2 textSize = ImGui::CalcTextSize("Version 1.0 Alpha");
 				mVersionPos = (mIdealSize / 2.0f) - glm::vec2(textSize.x / 2.0f, textSize.y / 2.0f);
-				mVersionPos.y = mTexturePos.y + mJadeLogo.Height + textSize.y / 2.0f;
+				mVersionPos.y = mTexturePos.y + mJadeLogo.height + textSize.y / 2.0f;
 			}
 
 			Application::get()->getWindow()->setSize(mIdealSize);
@@ -61,7 +61,7 @@ namespace Cocoa
 			ImGui::Begin("Create or Open Project", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
 			ImGui::SetCursorPos(ImVec2(mTexturePos.x, mTexturePos.y));
-			ImGui::Image((void*)(mJadeLogo.GraphicsId), ImVec2((float)mJadeLogo.Width, (float)mJadeLogo.Height));
+			ImGui::Image((void*)(mJadeLogo.graphicsId), ImVec2((float)mJadeLogo.width, (float)mJadeLogo.height));
 			ImGui::SetCursorPos(ImVec2(mVersionPos.x, mVersionPos.y));
 			ImGui::Text("Version 1.0 Alpha");
 

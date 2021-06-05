@@ -273,7 +273,7 @@ namespace CImGui
 	bool ImageButton(const Cocoa::Texture& texture, const glm::vec2& size, int framePadding,
 		const glm::vec4& bgColor, const glm::vec4& tintColor)
 	{
-		return ImGui::ImageButton((ImTextureID)texture.GraphicsId, { size.x, size.y }, ImVec2(0, 0), ImVec2(1, 1), framePadding, bgColor, tintColor);
+		return ImGui::ImageButton((ImTextureID)texture.graphicsId, { size.x, size.y }, ImVec2(0, 0), ImVec2(1, 1), framePadding, bgColor, tintColor);
 	}
 
 	bool InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)

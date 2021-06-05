@@ -73,33 +73,33 @@ namespace Cocoa
 
 		void Render(const GizmoData& data, const Camera& camera, GizmoMode mode)
 		{
-			float cameraZoom = camera.Zoom * 2;
+			float cameraZoom = camera.zoom * 2;
 			if (data.Active)
 			{
 				if (mode == GizmoMode::Translate && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(
+					DebugDraw::addShape(
 						m_GizmoArrowModel, 
 						m_GizmoArrowModelVertCount, 
 						m_GizmoArrowModelElementCount, 
 						data.Color - glm::vec3(0.2f, 0.2f, 0.2f), 
 						data.Position, 
-						data.Scale * camera.Zoom, 
+						data.Scale * camera.zoom, 
 						data.Rotation);
 				}
 				else if (data.Type == GizmoType::Free)
 				{
-					DebugDraw::AddFilledBox(data.Position, data.Scale * camera.Zoom, data.Rotation, data.Color - glm::vec3(0.2f, 0.2f, 0.2f));
+					DebugDraw::addFilledBox(data.Position, data.Scale * camera.zoom, data.Rotation, data.Color - glm::vec3(0.2f, 0.2f, 0.2f));
 				}
 				else if (mode == GizmoMode::Scale && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(
+					DebugDraw::addShape(
 						m_GizmoScaleModel, 
 						m_GizmoScaleModelVertCount, 
 						m_GizmoScaleModelElementCount,
 						data.Color - glm::vec3(0.2f, 0.2f, 0.2f), 
 						data.Position, 
-						data.Scale * camera.Zoom,
+						data.Scale * camera.zoom,
 						data.Rotation);
 				}
 			}
@@ -107,28 +107,28 @@ namespace Cocoa
 			{
 				if (mode == GizmoMode::Translate && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(
+					DebugDraw::addShape(
 						m_GizmoArrowModel, 
 						m_GizmoArrowModelVertCount, 
 						m_GizmoArrowModelElementCount,
 						data.Color, 
 						data.Position, 
-						data.Scale * camera.Zoom,
+						data.Scale * camera.zoom,
 						data.Rotation);
 				}
 				else if (data.Type == GizmoType::Free)
 				{
-					DebugDraw::AddFilledBox(data.Position, data.Scale * camera.Zoom, data.Rotation, data.Color);
+					DebugDraw::addFilledBox(data.Position, data.Scale * camera.zoom, data.Rotation, data.Color);
 				}
 				else if (mode == GizmoMode::Scale && (data.Type == GizmoType::Horizontal || data.Type == GizmoType::Vertical))
 				{
-					DebugDraw::AddShape(
+					DebugDraw::addShape(
 						m_GizmoScaleModel, 
 						m_GizmoScaleModelVertCount, 
 						m_GizmoScaleModelElementCount,
 						data.Color, 
 						data.Position, 
-						data.Scale * camera.Zoom,
+						data.Scale * camera.zoom,
 						data.Rotation);
 				}
 			}
@@ -136,7 +136,7 @@ namespace Cocoa
 
 		void GizmoManipulateTranslate(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& mouseOffset, const Camera& camera)
 		{
-			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
+			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::screenToOrtho(camera));
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 			glm::vec3 newPos;
 
@@ -171,7 +171,7 @@ namespace Cocoa
 
 		void GizmoManipulateScale(const GizmoData& data, TransformData& transform, const glm::vec3& originalDragClickPos, const glm::vec3& originalScale, const Camera& camera)
 		{
-			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
+			glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::screenToOrtho(camera));
 			glm::vec3 startToMouse = mousePosWorld - originalDragClickPos;
 			float dragSpeed = 0.2f;
 			glm::vec3 delta = glm::vec3(dragSpeed) * startToMouse;
@@ -305,12 +305,12 @@ namespace Cocoa
 					end = 6;
 				}
 
-				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
+				glm::vec2 mousePosWorld = NCamera::screenToOrtho(camera);
 				bool anyHot = false;
 				for (int i = start; i < end; i++)
 				{
 					GizmoData& gizmo = Gizmos[i];
-					float cameraZoom = camera.Zoom * 2;
+					float cameraZoom = camera.zoom * 2;
 					gizmo.Position = entityTransform.position + gizmo.Offset * cameraZoom;
 					glm::vec3 boxPos = CMath::Vector3From2(gizmo.Position);
 
@@ -320,9 +320,9 @@ namespace Cocoa
 					//	gizmo.BoxBoundsHalfSize * m_Camera->Zoom * 2.0f, 
 					//	gizmo.Rotation);
 
-					if (!m_MouseDragging && Physics2D::PointInBox(
+					if (!m_MouseDragging && Physics2D::pointInBox(
 						mousePosWorld, 
-						gizmo.BoxBoundsHalfSize * camera.Zoom,
+						gizmo.BoxBoundsHalfSize * camera.zoom,
 						boxPos + CMath::Vector3From2(gizmo.BoxBoundsOffset), 
 						gizmo.Rotation))
 					{
@@ -395,11 +395,11 @@ namespace Cocoa
 			if (!m_MouseDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_LEFT)
 			{
 				const Camera& camera = LevelEditorSystem::GetCamera();
-				glm::vec2 mousePosWorld = NCamera::ScreenToOrtho(camera);
+				glm::vec2 mousePosWorld = NCamera::screenToOrtho(camera);
 
 				glm::vec2 normalizedMousePos = Input::normalizedMousePos();
-				const Framebuffer& mainFramebuffer = camera.Framebuffer;
-				uint32 pixel = NFramebuffer::ReadPixelUint32(mainFramebuffer, 1, (uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
+				const Framebuffer& mainFramebuffer = camera.framebuffer;
+				uint32 pixel = NFramebuffer::readPixelUint32(mainFramebuffer, 1, (uint32)(normalizedMousePos.x * 3840), (uint32)(normalizedMousePos.y * 2160));
 
 				Entity entity = Scene::GetEntity(scene, pixel);
 				Entity selectedEntity = m_HotGizmo == -1 ? entity : InspectorWindow::GetActiveEntity();

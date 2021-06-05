@@ -1,9 +1,10 @@
-#pragma once
+#ifndef COCOA_ENGINE_CONTACT_LISTENER_H
+#define COCOA_ENGINE_CONTACT_LISTENER_H
 #include "externalLibs.h"
 
 namespace Cocoa
 {
-	class ContactListener : public b2ContactListener
+	class ContactListener final : public b2ContactListener
 	{
 	public:
 		void BeginContact(b2Contact* contact) override;
@@ -15,3 +16,5 @@ namespace Cocoa
 		void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
 	};
 }
+
+#endif

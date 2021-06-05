@@ -1,7 +1,7 @@
-#pragma once
+#ifndef COCOA_ENGINE_CAMERA_DEBUG_H
+#define COCOA_ENGINE_CAMERA_DEBUG_H
 #include "externalLibs.h"
 
-#include "cocoa/scenes/SceneData.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/renderer/Camera.h"
@@ -10,16 +10,16 @@ namespace Cocoa
 {
 	namespace DebugDraw
 	{
-		COCOA void Init();
-		COCOA void Destroy();
+		COCOA void init();
+		COCOA void destroy();
 
-		COCOA void BeginFrame();
-		COCOA void DrawBottomBatches(const Camera& camera);
-		COCOA void DrawTopBatches(const Camera& camera);
-		COCOA void AddDebugObjectsToBatches();
-		COCOA void ClearAllBatches();
+		COCOA void beginFrame();
+		COCOA void drawBottomBatches(const Camera& camera);
+		COCOA void drawTopBatches(const Camera& camera);
+		COCOA void addDebugObjectsToBatches();
+		COCOA void clearAllBatches();
 
-		COCOA void AddLine2D(
+		COCOA void addLine2D(
 			glm::vec2& from,
 			glm::vec2& to,
 			float strokeWidth = 1.2f,
@@ -28,7 +28,7 @@ namespace Cocoa
 			bool onTop = true
 		);
 
-		COCOA void AddBox2D(
+		COCOA void addBox2D(
 			glm::vec2& center,
 			glm::vec2& dimensions,
 			float rotation = 0.0f,
@@ -38,7 +38,7 @@ namespace Cocoa
 			bool onTop = true
 		);
 
-		COCOA void AddFilledBox(
+		COCOA void addFilledBox(
 			const glm::vec2& center,
 			const glm::vec2& dimensions,
 			float rotation = 0.0f,
@@ -47,7 +47,7 @@ namespace Cocoa
 			bool onTop = true
 		);
 
-		COCOA void AddSprite(
+		COCOA void addSprite(
 			Handle<Texture> spriteTexture,
 			glm::vec2 size,
 			glm::vec2 position,
@@ -59,7 +59,7 @@ namespace Cocoa
 			bool onTop = true
 		);
 
-		COCOA void AddShape(
+		COCOA void addShape(
 			const glm::vec2* vertices,
 			int numVertices,
 			int numElements,
@@ -72,3 +72,5 @@ namespace Cocoa
 		);
 	};
 }
+
+#endif

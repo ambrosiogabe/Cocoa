@@ -42,7 +42,7 @@ namespace Cocoa
 			LoadDefaultAssets();
 
 			RenderSystem::Init();
-			Physics2D::Init({ 0, -10.0f });
+			Physics2D::init({ 0, -10.0f });
 			ScriptSystem::Init(data);
 
 			data.CurrentSceneInitializer->Init(data);
@@ -70,9 +70,9 @@ namespace Cocoa
 		void Update(SceneData& data, float dt)
 		{
 			TransformSystem::update(data, dt);
-			Physics2D::Update(data, dt);
+			Physics2D::update(data, dt);
 			ScriptSystem::Update(data, dt);
-			CameraSystem::Update(data, dt);
+			CameraSystem::update(data, dt);
 		}
 
 		void EditorUpdate(SceneData& data, float dt)
@@ -81,7 +81,7 @@ namespace Cocoa
 			// sense in creating a unique update loop if the logic is the same (TransformSystem, and NCamera are examples of this)
 			TransformSystem::update(data, dt);
 			ScriptSystem::EditorUpdate(data, dt);
-			CameraSystem::Update(data, dt);
+			CameraSystem::update(data, dt);
 		}
 
 		void OnEvent(SceneData& data, const Event& e)
@@ -101,8 +101,8 @@ namespace Cocoa
 
 			TransformSystem::Destroy(data);
 			RenderSystem::Destroy();
-			Physics2D::Destroy(data);
-			CameraSystem::Destroy(data);
+			Physics2D::destroy(data);
+			CameraSystem::destroy(data);
 
 			data.CurrentSceneInitializer->Destroy(data);
 
@@ -120,7 +120,7 @@ namespace Cocoa
 			auto view = data.Registry.view<TransformData>();
 			for (auto entity : view)
 			{
-				Physics2D::AddEntity(Entity{ entity });
+				Physics2D::addEntity(Entity{ entity });
 			}
 		}
 
@@ -148,15 +148,15 @@ namespace Cocoa
 			}
 			if (NEntity::hasComponent<Box2D>(entity))
 			{
-				Physics2D::Serialize(*j, entity, NEntity::getComponent<Box2D>(entity));
+				Physics2D::serialize(*j, entity, NEntity::getComponent<Box2D>(entity));
 			}
 			if (NEntity::hasComponent<Rigidbody2D>(entity))
 			{
-				Physics2D::Serialize(*j, entity, NEntity::getComponent<Rigidbody2D>(entity));
+				Physics2D::serialize(*j, entity, NEntity::getComponent<Rigidbody2D>(entity));
 			}
 			if (NEntity::hasComponent<AABB>(entity))
 			{
-				Physics2D::Serialize(*j, entity, NEntity::getComponent<AABB>(entity));
+				Physics2D::serialize(*j, entity, NEntity::getComponent<AABB>(entity));
 			}
 			if (NEntity::hasComponent<Tag>(entity))
 			{
@@ -164,7 +164,7 @@ namespace Cocoa
 			}
 			if (NEntity::hasComponent<Camera>(entity))
 			{
-				NCamera::Serialize(j, entity, NEntity::getComponent<Camera>(entity));
+				NCamera::serialize(j, entity, NEntity::getComponent<Camera>(entity));
 			}
 		}
 
@@ -205,17 +205,17 @@ namespace Cocoa
 				else if (it.key() == "Rigidbody2D")
 				{
 					Entity entity = FindOrCreateEntity(component["Rigidbody2D"]["Entity"], scene, scene.Registry);
-					Physics2D::DeserializeRigidbody2D(component, entity);
+					Physics2D::deserializeRigidbody2D(component, entity);
 				}
 				else if (it.key() == "Box2D")
 				{
 					Entity entity = FindOrCreateEntity(component["Box2D"]["Entity"], scene, scene.Registry);
-					Physics2D::DeserializeBox2D(component, entity);
+					Physics2D::deserializeBox2D(component, entity);
 				}
 				else if (it.key() == "AABB")
 				{
 					Entity entity = FindOrCreateEntity(component["AABB"]["Entity"], scene, scene.Registry);
-					Physics2D::DeserializeAABB(component, entity);
+					Physics2D::deserializeAabb(component, entity);
 				}
 				else if (it.key() == "Tag")
 				{
@@ -225,7 +225,7 @@ namespace Cocoa
 				else if (it.key() == "Camera")
 				{
 					Entity entity = FindOrCreateEntity(component["Camera"]["Entity"], scene, scene.Registry);
-					NCamera::Deserialize(component, entity);
+					NCamera::deserialize(component, entity);
 				}
 				else
 				{
@@ -405,20 +405,20 @@ namespace Cocoa
 				}
 			}
 
-			Physics2D::DeleteEntity(entity);
+			Physics2D::deleteEntity(entity);
 			TransformSystem::DeleteEntity(entity);
-			CameraSystem::DeleteEntity(entity);
+			CameraSystem::deleteEntity(entity);
 			scene.Registry.destroy(entity.handle);
 		}
 
 		static void LoadDefaultAssets()
 		{
 			Texture gizmoSpec;
-			gizmoSpec.MagFilter = FilterMode::Linear;
-			gizmoSpec.MinFilter = FilterMode::Linear;
-			gizmoSpec.WrapS = WrapMode::Repeat;
-			gizmoSpec.WrapT = WrapMode::Repeat;
-			gizmoSpec.IsDefault = true;
+			gizmoSpec.magFilter = FilterMode::Linear;
+			gizmoSpec.minFilter = FilterMode::Linear;
+			gizmoSpec.wrapS = WrapMode::Repeat;
+			gizmoSpec.wrapT = WrapMode::Repeat;
+			gizmoSpec.isDefault = true;
 			CPath gizmoPath = Settings::General::s_EngineAssetsPath;
 			gizmoPath.join(CPath::create("images/gizmos.png"));
 			auto asset = AssetManager::loadTextureFromFile(gizmoSpec, gizmoPath);

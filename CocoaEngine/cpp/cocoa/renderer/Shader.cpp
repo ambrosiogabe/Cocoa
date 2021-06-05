@@ -25,7 +25,7 @@ namespace Cocoa
 		static GLenum ShaderTypeFromString(const std::string& type);
 		static std::string ReadFile(const char* filepath);
 
-		Shader CreateShader()
+		Shader createShader()
 		{
 			return {
 				(uint32)-1,
@@ -35,13 +35,13 @@ namespace Cocoa
 			};
 		}
 
-		Shader CreateShader(const CPath& resourceName, bool isDefault)
+		Shader createShader(const CPath& resourceName, bool isDefault)
 		{
 			// TODO: Should compilation happen on creation?
-			return Compile(resourceName, isDefault);
+			return compile(resourceName, isDefault);
 		}
 
-		Shader Compile(const CPath& filepath, bool isDefault)
+		Shader compile(const CPath& filepath, bool isDefault)
 		{
 			std::string fileSource = ReadFile(filepath.path);
 
@@ -100,7 +100,7 @@ namespace Cocoa
 
 					Logger::Error("%s", infoLogger.data());
 					Logger::Assert(false, "Shader compilation failed!");
-					return CreateShader();
+					return createShader();
 				}
 
 				glAttachShader(program, shader);
@@ -130,7 +130,7 @@ namespace Cocoa
 
 				Logger::Error("%s", infoLogger.data());
 				Logger::Assert(false, "Shader linking failed!");
-				return NShader::CreateShader();
+				return NShader::createShader();
 			}
 
 			int startIndex = m_AllShaderVariables.size();
@@ -174,81 +174,81 @@ namespace Cocoa
 			};
 		}
 
-		void Delete(Shader& shader)
+		void destroy(Shader& shader)
 		{
-			glDeleteProgram(shader.ProgramId);
+			glDeleteProgram(shader.programId);
 		}
 
-		void Bind(const Shader& shader)
+		void bind(const Shader& shader)
 		{
-			glUseProgram(shader.ProgramId);
+			glUseProgram(shader.programId);
 		}
 
-		void Unbind(const Shader& shader)
+		void unbind(const Shader& shader)
 		{
 			glUseProgram(0);
 		}
 
-		void UploadVec4(const Shader& shader, const char* varName, const glm::vec4& vec4)
+		void uploadVec4(const Shader& shader, const char* varName, const glm::vec4& vec4)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform4f(varLocation, vec4.x, vec4.y, vec4.z, vec4.w);
 		}
 
-		void UploadVec3(const Shader& shader, const char* varName, const glm::vec3& vec3)
+		void uploadVec3(const Shader& shader, const char* varName, const glm::vec3& vec3)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform3f(varLocation, vec3.x, vec3.y, vec3.z);
 		}
 
-		void UploadVec2(const Shader& shader, const char* varName, const glm::vec2& vec2)
+		void uploadVec2(const Shader& shader, const char* varName, const glm::vec2& vec2)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform2f(varLocation, vec2.x, vec2.y);
 		}
 
-		void UploadFloat(const Shader& shader, const char* varName, float value)
+		void uploadFloat(const Shader& shader, const char* varName, float value)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1f(varLocation, value);
 		}
 
-		void UploadInt(const Shader& shader, const char* varName, int value)
+		void uploadInt(const Shader& shader, const char* varName, int value)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1i(varLocation, value);
 		}
 
-		void UploadUInt(const Shader& shader, const char* varName, uint32 value)
+		void uploadUInt(const Shader& shader, const char* varName, uint32 value)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1ui(varLocation, value);
 		}
 
-		void UploadMat4(const Shader& shader, const char* varName, const glm::mat4& mat4)
+		void uploadMat4(const Shader& shader, const char* varName, const glm::mat4& mat4)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniformMatrix4fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat4));
 		}
 
-		void UploadMat3(const Shader& shader, const char* varName, const glm::mat3& mat3)
+		void uploadMat3(const Shader& shader, const char* varName, const glm::mat3& mat3)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniformMatrix3fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat3));
 		}
 
-		void UploadIntArray(const Shader& shader, const char* varName, int length, const int* array)
+		void uploadIntArray(const Shader& shader, const char* varName, int length, const int* array)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1iv(varLocation, length, array);
 		}
 
-		bool IsNull(const Shader& shader) 
+		bool isNull(const Shader& shader) 
 		{ 
-			return shader.ProgramId == -1; 
+			return shader.programId == -1; 
 		}
 
-		void ClearAllShaderVariables()
+		void clearAllShaderVariables()
 		{
 			m_AllShaderVariables.clear();
 		}
@@ -256,15 +256,15 @@ namespace Cocoa
 		// Private functions
 		static GLint GetVariableLocation(const Shader& shader, const char* varName)
 		{
-			Logger::Assert(shader.StartIndex >= 0 && shader.StartIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
+			Logger::Assert(shader.startIndex >= 0 && shader.startIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
 			uint32 hash = CMath::HashString(varName);
 
-			for (int i = shader.StartIndex; i < m_AllShaderVariables.size(); i++)
+			for (int i = shader.startIndex; i < m_AllShaderVariables.size(); i++)
 			{
 				const ShaderVariable& shaderVar = m_AllShaderVariables[i];
-				if (shaderVar.ShaderProgramId != shader.ProgramId)
+				if (shaderVar.ShaderProgramId != shader.programId)
 				{
-					Logger::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.Filepath.path);
+					Logger::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.filepath.path);
 					break;
 				}
 

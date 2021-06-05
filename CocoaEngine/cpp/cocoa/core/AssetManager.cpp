@@ -37,7 +37,7 @@ namespace Cocoa
 				return mShaders[resourceId];
 			}
 
-			return NShader::CreateShader();
+			return NShader::createShader();
 		}
 
 		Handle<Shader> getShader(const CPath& path)
@@ -45,7 +45,7 @@ namespace Cocoa
 			int i = 0;
 			for (auto& shader : mShaders)
 			{
-				if (shader.Filepath == path)
+				if (shader.filepath == path)
 				{
 					return NHandle::createHandle<Shader>(i);
 				}
@@ -71,16 +71,16 @@ namespace Cocoa
 			if (index == -1)
 			{
 				index = mShaders.size();
-				mShaders.push(NShader::CreateShader(absPath, isDefault));
+				mShaders.push(NShader::createShader(absPath, isDefault));
 			}
 			// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 			else
 			{
 				Logger::Assert(index < mShaders.size(), "Id must be smaller then shader size.");
-				Logger::Assert(NShader::IsNull(mShaders[index]), "Texture slot must be free to place a texture at the specified id.");
-				if (NShader::IsNull(mShaders[index]))
+				Logger::Assert(NShader::isNull(mShaders[index]), "Texture slot must be free to place a texture at the specified id.");
+				if (NShader::isNull(mShaders[index]))
 				{
-					mShaders[index] = NShader::CreateShader(absPath, isDefault);
+					mShaders[index] = NShader::createShader(absPath, isDefault);
 				}
 				else
 				{
@@ -98,7 +98,7 @@ namespace Cocoa
 				return mTextures[resourceId];
 			}
 
-			return TextureUtil::NullTexture;
+			return TextureUtil::NULL_TEXTURE;
 		}
 
 		Handle<Texture> getTexture(const CPath& path)
@@ -106,7 +106,7 @@ namespace Cocoa
 			int i = 0;
 			for (auto& tex : mTextures)
 			{
-				if (tex.Path == path)
+				if (tex.path == path)
 				{
 					return NHandle::createHandle<Texture>(i);
 				}
@@ -118,21 +118,21 @@ namespace Cocoa
 
 		Handle<Texture> loadTextureFromJson(const json& j, bool isDefault, int id)
 		{
-			Texture texture = TextureUtil::Deserialize(j);
-			texture.IsDefault = isDefault;
+			Texture texture = TextureUtil::deserialize(j);
+			texture.isDefault = isDefault;
 
-			Handle<Texture> textureHandle = getTexture(texture.Path);
+			Handle<Texture> textureHandle = getTexture(texture.path);
 			if (!textureHandle.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.Path.path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.path.path);
 				return textureHandle;
 			}
 
-			CPath absPath = File::getAbsolutePath(texture.Path);
+			CPath absPath = File::getAbsolutePath(texture.path);
 			int index = id;
 
 			// Make sure to generate texture *before* pushing back since we are pushing back a copy
-			TextureUtil::Generate(texture, texture.Path);
+			TextureUtil::generate(texture, texture.path);
 
 			// If id is -1, we don't care where you place the font so long as it gets loaded
 			if (index == -1)
@@ -144,8 +144,8 @@ namespace Cocoa
 			else
 			{
 				Logger::Assert(index < mTextures.size(), "Id must be smaller then texture size.");
-				Logger::Assert(TextureUtil::IsNull(mTextures[index]), "Texture slot must be free to place a texture at the specified id.");
-				if (TextureUtil::IsNull(mTextures[index]))
+				Logger::Assert(TextureUtil::isNull(mTextures[index]), "Texture slot must be free to place a texture at the specified id.");
+				if (TextureUtil::isNull(mTextures[index]))
 				{
 					mTextures[index] = texture;
 				}
@@ -169,8 +169,8 @@ namespace Cocoa
 
 			CPath absPath = File::getAbsolutePath(path);
 			int index = id;
-			texture.Path = path;
-			TextureUtil::Generate(texture, path);
+			texture.path = path;
+			TextureUtil::generate(texture, path);
 
 			// If id is -1, we don't care where you place the texture so long as it gets loaded
 			if (index == -1)
@@ -182,8 +182,8 @@ namespace Cocoa
 			else
 			{
 				Logger::Assert(index < mTextures.size(), "Id must be smaller then texture size.");
-				Logger::Assert(TextureUtil::IsNull(mTextures[index]), "Texture slot must be free to place a texture at the specified id.");
-				if (TextureUtil::IsNull(mTextures[index]))
+				Logger::Assert(TextureUtil::isNull(mTextures[index]), "Texture slot must be free to place a texture at the specified id.");
+				if (TextureUtil::isNull(mTextures[index]))
 				{
 					mTextures[index] = texture;
 				}
@@ -203,7 +203,7 @@ namespace Cocoa
 				return mFonts[resourceId];
 			}
 
-			return Font::NullFont();
+			return Font::nullFont();
 		}
 
 		Handle<Font> getFont(const CPath& path)
@@ -211,7 +211,7 @@ namespace Cocoa
 			int i = 0;
 			for (auto& font : mFonts)
 			{
-				if (font.m_Path == path)
+				if (font.path == path)
 				{
 					return NHandle::createHandle<Font>(i);
 				}
@@ -243,8 +243,8 @@ namespace Cocoa
 			else
 			{
 				Logger::Assert(index < mFonts.size(), "Id must be smaller then texture size.");
-				Logger::Assert(mFonts[index].IsNull(), "Texture slot must be free to place a texture at the specified id.");
-				if (mFonts[index].IsNull())
+				Logger::Assert(mFonts[index].isNull, "Texture slot must be free to place a texture at the specified id.");
+				if (mFonts[index].isNull)
 				{
 					mFonts[index] = Font{ absPath, isDefault };
 				}
@@ -255,7 +255,7 @@ namespace Cocoa
 			}
 
 			Font& newFont = mFonts[index];
-			newFont.Deserialize(j);
+			newFont.deserialize(j);
 			return NHandle::createHandle<Font>(index);
 		}
 
@@ -273,15 +273,15 @@ namespace Cocoa
 
 			mFonts.push(Font{ absPath, false });
 			Font& newFont = mFonts[index];
-			newFont.GenerateSdf(fontFile, fontSize, outputFile, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+			newFont.generateSdf(fontFile, fontSize, outputFile, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
 
 			Texture fontTexSpec;
-			fontTexSpec.IsDefault = false;
-			fontTexSpec.MagFilter = FilterMode::Linear;
-			fontTexSpec.MinFilter = FilterMode::Linear;
-			fontTexSpec.WrapS = WrapMode::Repeat;
-			fontTexSpec.WrapT = WrapMode::Repeat;
-			newFont.m_FontTexture = AssetManager::loadTextureFromFile(fontTexSpec, outputFile);
+			fontTexSpec.isDefault = false;
+			fontTexSpec.magFilter = FilterMode::Linear;
+			fontTexSpec.minFilter = FilterMode::Linear;
+			fontTexSpec.wrapS = WrapMode::Repeat;
+			fontTexSpec.wrapT = WrapMode::Repeat;
+			newFont.fontTexture = AssetManager::loadTextureFromFile(fontTexSpec, outputFile);
 
 			return NHandle::createHandle<Font>(index);
 		}
@@ -295,9 +295,9 @@ namespace Cocoa
 			int i = 0;
 			for (auto& assetIt : mTextures)
 			{
-				if (!assetIt.IsDefault)
+				if (!assetIt.isDefault)
 				{
-					json assetSerialized = TextureUtil::Serialize(assetIt);
+					json assetSerialized = TextureUtil::serialize(assetIt);
 					assetSerialized["ResourceId"] = i;
 					res["Textures"][i] = assetSerialized;
 				}
@@ -307,9 +307,9 @@ namespace Cocoa
 			i = 0;
 			for (auto& assetIt : mFonts)
 			{
-				if (!assetIt.IsDefault())
+				if (!assetIt.isDefault)
 				{
-					json assetSerialized = assetIt.Serialize();
+					json assetSerialized = assetIt.serialize();
 					assetSerialized["ResourceId"] = i;
 					res["Fonts"][i] = assetSerialized;
 				}
@@ -377,26 +377,26 @@ namespace Cocoa
 
 		void clear()
 		{
-			// Delete all textures on GPU before clear
+			// destroy all textures on GPU before clear
 			for (auto& tex : mTextures)
 			{
-				TextureUtil::Delete(tex);
+				TextureUtil::destroy(tex);
 			}
 			mTextures.clear();
 
 			// Free all fonts before destroying them
 			for (auto& font : mFonts)
 			{
-				font.Free();
+				font.free();
 			}
 			mFonts.clear();
 
-			// Delete all shaders on clear
+			// destroy all shaders on clear
 			for (auto& shader : mShaders)
 			{
-				NShader::Delete(shader);
+				NShader::destroy(shader);
 			}
-			NShader::ClearAllShaderVariables();
+			NShader::clearAllShaderVariables();
 			mShaders.clear();
 		}
 	}

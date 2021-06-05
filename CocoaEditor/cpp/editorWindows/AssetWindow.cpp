@@ -91,7 +91,7 @@ namespace Cocoa
 		{
 			ImGui::BeginGroup();
 			ImGui::PushFont(Settings::EditorStyle::s_LargeIconFont);
-			float texRatio = (float)texture.Width / (float)texture.Height;
+			float texRatio = (float)texture.width / (float)texture.height;
 			glm::vec2 adjustedSize = { size.x * texRatio, size.y };
 			bool res = CImGui::ImageButton(texture, adjustedSize);
 			ImGui::PopFont();
@@ -110,14 +110,14 @@ namespace Cocoa
 			for (auto& tex : textures)
 			{
 				i++;
-				if (tex.IsDefault || TextureUtil::IsNull(tex))
+				if (tex.isDefault || TextureUtil::isNull(tex))
 				{
 					continue;
 				}
 
 				int texResourceId = i;
 				ImGui::PushID(texResourceId);
-				if (ImageButton(tex, tex.Path.filename(), m_ButtonSize))
+				if (ImageButton(tex, tex.path.filename(), m_ButtonSize))
 				{
 					//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 				}
@@ -126,7 +126,7 @@ namespace Cocoa
 				{
 					// Set payload to carry the index of our item (could be anything)
 					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));
-					ImageButton(tex, tex.Path.filename(), m_ButtonSize);
+					ImageButton(tex, tex.path.filename(), m_ButtonSize);
 					ImGui::EndDragDropSource();
 				}
 				ImGui::SameLine();
@@ -141,11 +141,11 @@ namespace Cocoa
 				if (FileDialog::getOpenFileName(initialPath, result))
 				{
 					Texture texSpec;
-					texSpec.IsDefault = false;
-					texSpec.MagFilter = FilterMode::Nearest;
-					texSpec.MinFilter = FilterMode::Nearest;
-					texSpec.WrapS = WrapMode::Repeat;
-					texSpec.WrapT = WrapMode::Repeat;
+					texSpec.isDefault = false;
+					texSpec.magFilter = FilterMode::Nearest;
+					texSpec.minFilter = FilterMode::Nearest;
+					texSpec.wrapS = WrapMode::Repeat;
+					texSpec.wrapT = WrapMode::Repeat;
 					AssetManager::loadTextureFromFile(texSpec, CPath::create(result.filepath));
 				}
 			}
@@ -158,16 +158,16 @@ namespace Cocoa
 			for (auto& font : fonts)
 			{
 				i++;
-				if (font.IsDefault())
+				if (font.isDefault)
 				{
 					continue;
 				}
 
 				int fontResourceId = i;
 				ImGui::PushID(fontResourceId);
-				const Texture& fontTexture = AssetManager::getTexture(font.m_FontTexture.assetId);
+				const Texture& fontTexture = AssetManager::getTexture(font.fontTexture.assetId);
 
-				if (ImageButton(fontTexture, font.m_Path.filename(), m_ButtonSize))
+				if (ImageButton(fontTexture, font.path.filename(), m_ButtonSize))
 				{
 					//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 				}
@@ -175,7 +175,7 @@ namespace Cocoa
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					ImGui::SetDragDropPayload("FONT_HANDLE_ID", &fontResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
-					ImageButton(fontTexture, font.m_Path.filename(), m_ButtonSize);
+					ImageButton(fontTexture, font.path.filename(), m_ButtonSize);
 					ImGui::EndDragDropSource();
 				}
 				ImGui::SameLine();

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_FONT_UTIL_H
+#define COCOA_ENGINE_FONT_UTIL_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
@@ -12,13 +13,15 @@ namespace Cocoa
 {
 	namespace FontUtil
 	{
-		COCOA int GetPixel(int x, int y, uint8* bitmap, int width, int height);
+		COCOA int getPixel(int x, int y, uint8* bitmap, int width, int height);
 
-		COCOA float FindNearestPixel(int pixX, int pixY, uint8* bitmap, int width, int height, int spread);
+		COCOA float findNearestPixel(int pixX, int pixY, uint8* bitmap, int width, int height, int spread);
 
-		COCOA SdfBitmapContainer GenerateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding = 5, int upscaleResolution = 4096, bool flipVertically = false);
+		COCOA SdfBitmapContainer generateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding = 5, int upscaleResolution = 4096, bool flipVertically = false);
 
-		COCOA void CreateSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, 
+		COCOA void createSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, 
 			int padding = 5, int upscaleResolution = 4096, int glyphOffset = 0);
 	}
 }
+
+#endif

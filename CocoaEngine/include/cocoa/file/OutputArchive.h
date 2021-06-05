@@ -51,17 +51,17 @@ namespace Cocoa
 			else if (info.seq() == entt::type_id<Box2D>().seq())
 			{
 				const Box2D* box2D = reinterpret_cast<const Box2D*>(&component);
-				Physics2D::Serialize(mJson, NEntity::createEntity(entity), *box2D);
+				Physics2D::serialize(mJson, NEntity::createEntity(entity), *box2D);
 			}
 			else if (info.seq() == entt::type_id<Rigidbody2D>().seq())
 			{
 				const Rigidbody2D* rb = reinterpret_cast<const Rigidbody2D*>(&component);
-				Physics2D::Serialize(mJson, NEntity::createEntity(entity), *rb);
+				Physics2D::serialize(mJson, NEntity::createEntity(entity), *rb);
 			}
 			else if (info.seq() == entt::type_id<AABB>().seq())
 			{
 				const AABB* box = reinterpret_cast<const AABB*>(&component);
-				Physics2D::Serialize(mJson, NEntity::createEntity(entity), *box);
+				Physics2D::serialize(mJson, NEntity::createEntity(entity), *box);
 			}
 			else if (info.seq() == entt::type_id<Tag>().seq())
 			{

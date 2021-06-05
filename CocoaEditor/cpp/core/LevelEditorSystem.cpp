@@ -70,24 +70,24 @@ namespace Cocoa
 			Logger::Assert(!Scene::IsValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
 			// Create editor camera's framebuffer
 			Framebuffer editorCameraFramebuffer;
-			editorCameraFramebuffer.Width = 3840;
-			editorCameraFramebuffer.Height = 2160;
-			editorCameraFramebuffer.IncludeDepthStencil = false;
+			editorCameraFramebuffer.width = 3840;
+			editorCameraFramebuffer.height = 2160;
+			editorCameraFramebuffer.includeDepthStencil = false;
 			Texture color0;
-			color0.InternalFormat = ByteFormat::RGB;
-			color0.ExternalFormat = ByteFormat::RGB;
-			color0.MagFilter = FilterMode::Linear;
-			color0.MinFilter = FilterMode::Linear;
-			color0.WrapS = WrapMode::Repeat;
-			color0.WrapT = WrapMode::Repeat;
-			NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color0);
+			color0.internalFormat = ByteFormat::RGB;
+			color0.externalFormat = ByteFormat::RGB;
+			color0.magFilter = FilterMode::Linear;
+			color0.minFilter = FilterMode::Linear;
+			color0.wrapS = WrapMode::Repeat;
+			color0.wrapT = WrapMode::Repeat;
+			NFramebuffer::addColorAttachment(editorCameraFramebuffer, color0);
 			Texture color1;
-			color1.InternalFormat = ByteFormat::R32UI;
-			color1.ExternalFormat = ByteFormat::RED_INTEGER;
-			NFramebuffer::AddColorAttachment(editorCameraFramebuffer, color1);
-			NFramebuffer::Generate(editorCameraFramebuffer);
+			color1.internalFormat = ByteFormat::R32UI;
+			color1.externalFormat = ByteFormat::RED_INTEGER;
+			NFramebuffer::addColorAttachment(editorCameraFramebuffer, color1);
+			NFramebuffer::generate(editorCameraFramebuffer);
 
-			Camera editorCamera = NCamera::CreateCamera(editorCameraFramebuffer);
+			Camera editorCamera = NCamera::createCamera(editorCameraFramebuffer);
 
 			m_CameraEntity = Scene::CreateEntity(scene);
 			NEntity::addComponent<Camera>(m_CameraEntity, editorCamera);
@@ -154,11 +154,11 @@ namespace Cocoa
 
 			Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 			// TODO: Make an OnRender function and call this in there
-			NCamera::ClearColorUint32(camera, 1, (uint32)-1);
+			NCamera::clearColorUint32(camera, 1, (uint32)-1);
 			TransformData& cameraTransform = NEntity::getComponent<TransformData>(m_CameraEntity);
 			if (m_IsDragging)
 			{
-				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
+				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::screenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				// TODO: Make this an editor setting
 				static const float sharpness = 15.0f;
@@ -168,11 +168,11 @@ namespace Cocoa
 			// Draw grid lines
 			if (Settings::Editor::DrawGrid)
 			{
-				float cameraZoom = camera.Zoom;
+				float cameraZoom = camera.zoom;
 				float gridWidth = Settings::Editor::GridSize.x;
 				float gridHeight = Settings::Editor::GridSize.y;
-				float projectionWidth = camera.ProjectionSize.x;
-				float projectionHeight = camera.ProjectionSize.y;
+				float projectionWidth = camera.projectionSize.x;
+				float projectionHeight = camera.projectionSize.y;
 
 				float firstX = (float)(((int)(cameraTransform.position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
 				float firstY = (float)(((int)(cameraTransform.position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
@@ -189,7 +189,7 @@ namespace Cocoa
 					float y1 = firstY + projectionHeight + gridHeight;
 					glm::vec2 from(x, y0);
 					glm::vec2 to(x, y1);
-					DebugDraw::AddLine2D(from, to, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
+					DebugDraw::addLine2D(from, to, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
 
 					if (i <= xLinesNeeded)
 					{
@@ -197,7 +197,7 @@ namespace Cocoa
 						float x1 = firstX + projectionWidth + gridWidth;
 						glm::vec2 from2(x0, y);
 						glm::vec2 to2(x1, y);
-						DebugDraw::AddLine2D(from2, to2, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
+						DebugDraw::addLine2D(from2, to2, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
 					}
 				}
 			}
@@ -316,13 +316,13 @@ namespace Cocoa
 				Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 				if (step < 0)
 				{
-					step = (glm::log(camera.Zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
+					step = (glm::log(camera.zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
 				}
 
 				step = glm::clamp(yOffset < 0 ? step - 1.0f : step + 1.0f, 0.0f, maxSteps);
 				float logZoom = logMinZoom + (logMaxZoom - logMinZoom) * step / (maxSteps - 1);
-				camera.Zoom = glm::exp(logZoom);
-				NCamera::AdjustPerspective(camera);
+				camera.zoom = glm::exp(logZoom);
+				NCamera::adjustPerspective(camera);
 			}
 
 			return false;
@@ -337,7 +337,7 @@ namespace Cocoa
 				const Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 				const TransformData& transform = NEntity::getComponent<TransformData>(m_CameraEntity);
 				m_OriginalCameraPos = transform.position;
-				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
+				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::screenToOrtho(camera));
 			}
 
 			return false;

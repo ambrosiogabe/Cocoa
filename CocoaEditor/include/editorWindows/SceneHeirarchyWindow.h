@@ -3,6 +3,7 @@
 #include "externalLibs.h"
 
 #include "cocoa/scenes/SceneData.h"
+#include "cocoa/core/EntityStruct.h"
 
 namespace Cocoa
 {

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_CAMERA_H
+#define COCOA_ENGINE_CAMERA_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
@@ -10,26 +11,28 @@ namespace Cocoa
 {
 	namespace NCamera
 	{
-		COCOA Camera CreateCamera();
-		COCOA Camera CreateCamera(Framebuffer framebuffer);
+		COCOA Camera createCamera();
+		COCOA Camera createCamera(Framebuffer framebuffer);
 
-		COCOA void AdjustPerspective(Camera& camera);
-		COCOA void CalculateViewMatrix(Entity entity, Camera& camera);
-		COCOA void CalculateOrthoViewMatrix(Entity entity, Camera& camera);
+		COCOA void adjustPerspective(Camera& camera);
+		COCOA void calculateViewMatrix(Entity entity, Camera& camera);
+		COCOA void calculateOrthoViewMatrix(Entity entity, Camera& camera);
 
-		COCOA void ClearColorRgb(const Camera& camera, int attachment, glm::vec3 color);
-		COCOA void ClearColorUint32(Camera& camera, int attachment, uint32 color);
+		COCOA void clearColorRgb(const Camera& camera, int attachment, glm::vec3 color);
+		COCOA void clearColorUint32(Camera& camera, int attachment, uint32 color);
 
-		COCOA glm::vec2 ScreenToOrtho(const Camera& camera);
+		COCOA glm::vec2 screenToOrtho(const Camera& camera);
 
-		COCOA void Serialize(json* j, Entity entity, const Camera& camera);
-		COCOA void Deserialize(const json& j, Entity entity);
+		COCOA void serialize(json* j, Entity entity, const Camera& camera);
+		COCOA void deserialize(const json& j, Entity entity);
 	};
 
 	namespace CameraSystem
 	{
-		COCOA void Update(SceneData& scene, float dt);
-		COCOA void Destroy(SceneData& scene);
-		COCOA void DeleteEntity(Entity entity);
+		COCOA void update(SceneData& scene, float dt);
+		COCOA void destroy(SceneData& scene);
+		COCOA void deleteEntity(Entity entity);
 	}
 }
+
+#endif

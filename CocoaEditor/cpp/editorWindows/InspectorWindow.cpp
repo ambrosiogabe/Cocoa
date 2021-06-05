@@ -178,7 +178,7 @@ namespace Cocoa
 					break;
 				case 5:
 				{
-					Camera camera = NCamera::CreateCamera();
+					Camera camera = NCamera::createCamera();
 					NEntity::addComponent<Camera>(activeEntity, camera);
 					break;
 				}
@@ -252,8 +252,8 @@ namespace Cocoa
 				if (spr.sprite.texture)
 				{
 					const Texture& tex = AssetManager::getTexture(spr.sprite.texture.assetId);
-					CImGui::InputText("##SpriteRendererTexture", (char*)tex.Path.filename(),
-						tex.Path.filenameSize(), ImGuiInputTextFlags_ReadOnly);
+					CImGui::InputText("##SpriteRendererTexture", (char*)tex.path.filename(),
+						tex.path.filenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
@@ -294,8 +294,8 @@ namespace Cocoa
 				if (fontRenderer.font)
 				{
 					const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
-					CImGui::InputText("##FontRendererTexture", (char*)font.m_Path.filename(),
-						font.m_Path.filenameSize(), ImGuiInputTextFlags_ReadOnly);
+					CImGui::InputText("##FontRendererTexture", (char*)font.path.filename(),
+						font.path.filenameSize(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
@@ -322,11 +322,11 @@ namespace Cocoa
 			if (ImGui::CollapsingHeader("Camera"))
 			{
 				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableDragFloat("Zoom: ", camera.Zoom);
-				CImGui::UndoableDragFloat2("Projection Size: ", camera.ProjectionSize);
-				CImGui::UndoableDragFloat("Near Plane: ", camera.ProjectionNearPlane);
-				CImGui::UndoableDragFloat("Far Plane: ", camera.ProjectionFarPlane);
-				CImGui::UndoableColorEdit3("Clear Color: ", camera.ClearColor);
+				CImGui::UndoableDragFloat("Zoom: ", camera.zoom);
+				CImGui::UndoableDragFloat2("Projection Size: ", camera.projectionSize);
+				CImGui::UndoableDragFloat("Near Plane: ", camera.projectionNearPlane);
+				CImGui::UndoableDragFloat("Far Plane: ", camera.projectionFarPlane);
+				CImGui::UndoableColorEdit3("Clear Color: ", camera.clearColor);
 				CImGui::EndCollapsingHeaderGroup();
 			}
 		}
@@ -343,16 +343,16 @@ namespace Cocoa
 			{
 				CImGui::BeginCollapsingHeaderGroup();
 
-				int currentItem = static_cast<int>(rb.m_BodyType);
+				int currentItem = static_cast<int>(rb.bodyType);
 				std::array<const char*, 3> items = { "Dynamic", "Kinematic", "Static" };
-				CImGui::UndoableCombo<BodyType2D>(rb.m_BodyType, "Body Type:", &items[0], (int)items.size());
+				CImGui::UndoableCombo<BodyType2D>(rb.bodyType, "Body Type:", &items[0], (int)items.size());
 
-				CImGui::Checkbox("Continous: ##0", &rb.m_ContinuousCollision);
-				CImGui::Checkbox("Fixed Rotation##1", &rb.m_FixedRotation);
-				CImGui::UndoableDragFloat("Linear Damping: ##2", rb.m_LinearDamping);
-				CImGui::UndoableDragFloat("Angular Damping: ##3", rb.m_AngularDamping);
-				CImGui::UndoableDragFloat("Mass: ##4", rb.m_Mass);
-				CImGui::UndoableDragFloat2("Velocity: ##5", rb.m_Velocity);
+				CImGui::Checkbox("Continous: ##0", &rb.continuousCollision);
+				CImGui::Checkbox("Fixed Rotation##1", &rb.fixedRotation);
+				CImGui::UndoableDragFloat("Linear Damping: ##2", rb.linearDamping);
+				CImGui::UndoableDragFloat("Angular Damping: ##3", rb.angularDamping);
+				CImGui::UndoableDragFloat("Mass: ##4", rb.mass);
+				CImGui::UndoableDragFloat2("Velocity: ##5", rb.velocity);
 
 				CImGui::EndCollapsingHeaderGroup();
 			}
@@ -366,8 +366,8 @@ namespace Cocoa
 			{
 				CImGui::BeginCollapsingHeaderGroup();
 
-				CImGui::UndoableDragFloat2("Offset: ##6", box.m_Offset);
-				CImGui::UndoableDragFloat2("Size: ##7", box.m_Size);
+				CImGui::UndoableDragFloat2("Offset: ##6", box.offset);
+				CImGui::UndoableDragFloat2("Size: ##7", box.size);
 
 				CImGui::EndCollapsingHeaderGroup();
 			}
@@ -382,14 +382,14 @@ namespace Cocoa
 				CImGui::BeginCollapsingHeaderGroup();
 
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				CImGui::UndoableDragFloat2("Size: ##8", box.m_HalfSize);
+				CImGui::UndoableDragFloat2("Size: ##8", box.halfSize);
 
 				CImGui::EndCollapsingHeaderGroup();
 			}
 
 			// Draw box highlight
 			const TransformData& transform = NEntity::getComponent<TransformData>(ActiveEntities[0]);
-			DebugDraw::AddBox2D(CMath::Vector2From3(transform.position), box.m_HalfSize * 2.0f * CMath::Vector2From3(transform.scale), transform.eulerRotation.z);
+			DebugDraw::addBox2D(CMath::Vector2From3(transform.position), box.halfSize * 2.0f * CMath::Vector2From3(transform.scale), transform.eulerRotation.z);
 		}
 
 		static void ImGuiCircle(Circle& circle)
@@ -401,7 +401,7 @@ namespace Cocoa
 				CImGui::BeginCollapsingHeaderGroup();
 
 				//ImGui::UndoableDragFloat2("Offset: ", box.m_Offset);
-				CImGui::UndoableDragFloat("Radius: ##9", circle.m_Radius);
+				CImGui::UndoableDragFloat("Radius: ##9", circle.radius);
 
 				CImGui::EndCollapsingHeaderGroup();
 			}

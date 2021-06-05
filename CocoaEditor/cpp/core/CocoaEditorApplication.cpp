@@ -221,12 +221,12 @@ namespace Cocoa
 
 			if (CocoaEditor::isProjectLoaded() && !editorUpdate)
 			{
-				DebugDraw::BeginFrame();
+				DebugDraw::beginFrame();
 				Scene::Update(scene, dt);
 			}
 			else if (CocoaEditor::isProjectLoaded())
 			{
-				DebugDraw::BeginFrame();
+				DebugDraw::beginFrame();
 				Scene::EditorUpdate(scene, dt);
 				LevelEditorSystem::EditorUpdate(scene, dt);
 				GizmoSystem::EditorUpdate(scene, dt);
@@ -308,7 +308,7 @@ namespace Cocoa
 		mCurrentScene = Scene::Create(new LevelEditorSceneInitializer());
 		Scene::Init(mCurrentScene);
 		Scene::Start(mCurrentScene);
-		DebugDraw::Init();
+		DebugDraw::init();
 	}
 
 	void CocoaEditor::shutdown()
@@ -321,7 +321,7 @@ namespace Cocoa
 #if _COCOA_DEBUG
 		// In debug builds free all the memory to make sure there are no leaks
 		ImGuiLayer::Destroy();
-		DebugDraw::Destroy();
+		DebugDraw::destroy();
 		Scene::FreeResources(mCurrentScene);
 #endif
 		
