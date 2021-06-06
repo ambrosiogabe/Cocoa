@@ -45,8 +45,8 @@ namespace Cocoa
 		static glm::vec3 m_OriginalDragClickPos = glm::vec3();
 		static glm::vec3 m_OriginalCameraPos = glm::vec3();
 
-		static CPath tmpScriptDll;
-		static CPath scriptDll;
+		static Path tmpScriptDll;
+		static Path scriptDll;
 
 		static Entity m_CameraEntity;
 
@@ -61,10 +61,12 @@ namespace Cocoa
 		void init(SceneData& scene)
 		{
 			InitComponentIds(scene);
-			tmpScriptDll = Settings::General::engineExeDirectory;
-			tmpScriptDll.join(CPath::create("ScriptModuleTmp.dll"));
-			scriptDll = Settings::General::engineExeDirectory;
-			scriptDll.join(CPath::create("ScriptModule.dll"));
+			tmpScriptDll = PathBuilder(Settings::General::engineExeDirectory)
+				.join("ScriptModuleTmp.dll")
+				.createPath();
+			scriptDll = PathBuilder(Settings::General::engineExeDirectory)
+				.join("ScriptModule.dll")
+				.createPath();
 			initImGui = false;
 
 			Logger::Assert(!Scene::isValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
@@ -137,7 +139,7 @@ namespace Cocoa
 
 			if (File::isFile(tmpScriptDll))
 			{
-				Scene::save(scene, Settings::General::currentScene);
+				Scene::save(scene, Settings::General::currentScene.createTmpPath());
 				EditorLayer::saveProject();
 
 				// This should free the scripts too so we can delete the old dll
@@ -145,8 +147,8 @@ namespace Cocoa
 
 				// Now copy new dll and reload the scene
 				File::deleteFile(scriptDll);
-				File::copyFile(tmpScriptDll, CPath::create(scriptDll.getDirectory(-1)), "ScriptModule");
-				Scene::load(scene, Settings::General::currentScene);
+				File::copyFile(tmpScriptDll, PathBuilder(scriptDll.getDirectory(-1).c_str()).createTmpPath(), "ScriptModule");
+				Scene::load(scene, Settings::General::currentScene.createTmpPath());
 
 				// Then delete temporary file of new dll
 				File::deleteFile(tmpScriptDll);
@@ -258,7 +260,7 @@ namespace Cocoa
 
 				if (e.getKeyCode() == COCOA_KEY_S)
 				{
-					Scene::save(scene, Settings::General::currentScene);
+					Scene::save(scene, Settings::General::currentScene.createTmpPath());
 					EditorLayer::saveProject();
 				}
 

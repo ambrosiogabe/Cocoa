@@ -11,8 +11,8 @@
 namespace Cocoa
 {
 	// Internal variables
-	static CPath rootDir = CPath::create();
-	static CPath projectPremakeLua = CPath::create();
+	static Path rootDir = Path::createDefault();
+	static Path projectPremakeLua = Path::createDefault();
 	static auto classes = std::vector<UClass>();
 	static bool fileModified = false;
 	static bool buildingCode = false;
@@ -20,20 +20,20 @@ namespace Cocoa
 	// Internal functions
 	static void GenerateBuildFile();
 
-	SourceFileWatcher::SourceFileWatcher(CPath rootDirectory)
+	SourceFileWatcher::SourceFileWatcher(Path rootDirectory)
 		: mRootDirectory(rootDirectory)
 	{
 		startFileWatcher();
 	}
 
-	static bool IsHeaderFile(const CPath& file)
+	static bool IsHeaderFile(const Path& file)
 	{
-		return strcmp(file.fileExt(), ".h") == 0 || strcmp(file.fileExt(), ".hpp") == 0;
+		return strcmp(file.fileExt, ".h") == 0 || strcmp(file.fileExt, ".hpp") == 0;
 	}
 
-	static bool IsReflectionHeaderFile(const CPath& file)
+	static bool IsReflectionHeaderFile(const Path& file)
 	{
-		return strcmp(file.filename(), "Reflection") == 0;
+		return strcmp(file.filename, "Reflection") == 0;
 	}
 
 	static void AddClassIfNotExist(UClass clazz)
@@ -66,7 +66,7 @@ namespace Cocoa
 		return classesToSearch.end();
 	}
 
-	static void MergeNewClasses(std::vector<UClass>& classesToMerge, const CPath& filepath)
+	static void MergeNewClasses(std::vector<UClass>& classesToMerge, const Path& filepath)
 	{
 		for (auto clazz : classesToMerge)
 		{
@@ -97,19 +97,22 @@ namespace Cocoa
 
 	static void GenerateInitFiles()
 	{
-		CPath generatedDir = rootDir;
-		generatedDir.join(CPath::create("generated"));
+		Path generatedDir = PathBuilder(rootDir)
+			.join("generated")
+			.createTmpPath();
 		File::createDirIfNotExists(generatedDir);
 
-		CPath initH = generatedDir;
-		initH.join(CPath::create("init.h"));
-		CPath initCpp = generatedDir;
-		initCpp.join(CPath::create("init.pp"));
+		Path initH = PathBuilder(generatedDir)
+			.join("init.h")
+			.createTmpPath();
+		Path initCpp = PathBuilder(generatedDir)
+			.join("init.cpp")
+			.createTmpPath();
 		CodeGenerators::generateInitFile(classes, initH);
 		File::writeFile("#include \"init.h\"\n", initCpp);
 	}
 
-	static bool ProcessFile(CPath& file, CPath generatedDirPath)
+	static bool ProcessFile(Path& file, Path generatedDirPath)
 	{
 		if (!File::isFile(file) || file.contains("generated") || File::isHidden(file) || !IsHeaderFile(file))
 		{
@@ -124,28 +127,31 @@ namespace Cocoa
 		//MergeNewClasses(fileParser.GetClasses(), file);
 
 		std::string generatedHFilename = file.getFilenameWithoutExt() + "-generated.h";
-		CPath path = generatedDirPath;
-		path.join(CPath::create(generatedHFilename));
+		Path path = PathBuilder(generatedDirPath)
+			.join(generatedHFilename.c_str())
+			.createTmpPath();
 		//File::WriteFile(fileParser.GenerateHeaderFile().c_str(), path);
 
 		GenerateInitFiles();
 		return true;
 	}
 
-	static void FileChanged(const CPath& file)
+	static void FileChanged(const Path& file)
 	{
-		CPath generatedDirPath = CPath::create(file.getDirectory(-1) + "generated");
-		CPath filePath = generatedDirPath;
-		filePath.join(file);
-		CPath generatedFilePath = rootDir;
-		rootDir.join(generatedDirPath);
-		if (ProcessFile(filePath, generatedFilePath))
+		const Path generatedDirPath = PathBuilder((file.getDirectory(-1) + "generated").c_str()).createPath();
+		PathBuilder filePath = PathBuilder(generatedDirPath)
+			.join(file);
+		PathBuilder generatedFilePath = PathBuilder(rootDir)
+			.join(generatedDirPath);
+		if (ProcessFile(filePath.createTmpPath(), generatedFilePath.createTmpPath()))
 		{
 			CppBuild::build(rootDir);
 		}
+
+		String::FreeString(generatedDirPath.path);
 	}
 
-	static void GenerateInitialClassInformation(const CPath& directory)
+	static void GenerateInitialClassInformation(const Path& directory)
 	{
 		auto subDirs = File::getFoldersInDir(directory);
 		for (auto dir : subDirs)
@@ -154,23 +160,31 @@ namespace Cocoa
 		}
 
 		auto files = File::getFilesInDir(directory);
-		CPath generatedDir = directory;
-		generatedDir.join(CPath::create("generated"));
+		const Path generatedDir = PathBuilder(directory)
+			.join("generated")
+			.createPath();
 		for (auto file : files)
 		{
 			ProcessFile(file, generatedDir);
 		}
 
 		GenerateInitFiles();
+
+		String::FreeString(generatedDir.path);
 	}
 
 	static void GenerateBuildFile()
 	{
-		CPath pathToBuildScript = CPath::create(rootDir.getDirectory(-1));
-		pathToBuildScript.join(CPath::create("build.bat"));
-		CPath pathToPremakeExe = Settings::General::engineExeDirectory;
-		pathToPremakeExe.join(CPath::create("premake5.exe"));
+		const Path pathToBuildScript = PathBuilder(rootDir.getDirectory(-1).c_str())
+			.join("build.bat")
+			.createPath();
+		const Path pathToPremakeExe = PathBuilder(Settings::General::engineExeDirectory)
+			.join("premake5.exe")
+			.createPath();
 		CodeGenerators::generateBuildFile(pathToBuildScript, pathToPremakeExe);
+
+		String::FreeString(pathToBuildScript.path);
+		String::FreeString(pathToPremakeExe.path);
 	}
 
 	void SourceFileWatcher::startFileWatcher()
@@ -183,8 +197,9 @@ namespace Cocoa
 		rootDir = mRootDirectory;
 		Logger::Log("Monitoring directory '%s'", File::getAbsolutePath(mRootDirectory).path);
 
-		projectPremakeLua = CPath::create(mRootDirectory.getDirectory(-1));
-		projectPremakeLua.join(CPath::create("premake5.lua"));
+		projectPremakeLua = PathBuilder(mRootDirectory.getDirectory(-1).c_str())
+			.join("premake5.lua")
+			.createPath();
 		CodeGenerators::generatePremakeFile(projectPremakeLua);
 		GenerateBuildFile();
 

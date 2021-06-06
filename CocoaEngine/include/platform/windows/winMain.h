@@ -8,16 +8,18 @@
 
 extern Cocoa::Application* Cocoa::createApplication();
 
-int main() 
+int main()
 {
-    Cocoa::Application* application = Cocoa::createApplication();
+	using namespace Cocoa;
 
-    application->init();
+	Application* application = createApplication();
 
-    application->run();
+	application->init();
 
-    application->shutdown();
+	application->run();
 
-    delete application;
-    return 0;
+	application->shutdown();
+
+	delete application;
+	return 0;
 }

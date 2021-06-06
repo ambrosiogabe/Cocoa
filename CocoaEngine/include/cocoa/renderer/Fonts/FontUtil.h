@@ -4,7 +4,7 @@
 #include "cocoa/core/Core.h"
 
 #include "DataStructures.h"
-#include "cocoa/file/CPath.h"
+#include "cocoa/file/Path.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -19,7 +19,7 @@ namespace Cocoa
 
 		COCOA SdfBitmapContainer generateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding = 5, int upscaleResolution = 4096, bool flipVertically = false);
 
-		COCOA void createSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, 
+		COCOA void createSdfFontTexture(const Path& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const Path& outputFile, 
 			int padding = 5, int upscaleResolution = 4096, int glyphOffset = 0);
 	}
 }

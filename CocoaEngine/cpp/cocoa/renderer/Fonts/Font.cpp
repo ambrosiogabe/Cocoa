@@ -17,11 +17,11 @@ namespace Cocoa
 		return res;
 	}
 
-	Font Font::createFont(CPath& resourcePath, bool isDefault)
+	Font Font::createFont(Path& resourcePath, bool isDefault)
 	{
 		Font res;
 		res.isDefault = isDefault;
-		res.path = CPath(resourcePath);
+		res.path = Path(resourcePath);
 		return res;
 	}
 
@@ -47,7 +47,7 @@ namespace Cocoa
 		}
 	}
 
-	void Font::generateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
+	void Font::generateSdf(const Path& fontFile, int fontSize, const Path& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
 	{
 		glyphRangeStart = glyphRangeStart;
 		glyphRangeEnd = glyphRangeEnd;

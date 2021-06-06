@@ -38,9 +38,9 @@ namespace Cocoa
 				{
 					if (!isPlaying)
 					{
-						CPath tmpPath = Settings::General::engineAssetsPath;
-						tmpPath.join(CPath::create("tmp.jade"));
-						Scene::save(scene, tmpPath);
+						PathBuilder tmpPath = PathBuilder(Settings::General::engineAssetsPath)
+							.join("tmp.cocoa");
+						Scene::save(scene, tmpPath.createTmpPath());
 						Scene::play(scene);
 						isPlaying = true;
 					}
@@ -51,19 +51,19 @@ namespace Cocoa
 					if (isPlaying)
 					{
 						Scene::stop(scene);
-						CPath tmpPath = Settings::General::engineAssetsPath;
-						tmpPath.join(CPath::create("tmp.jade"));
+						PathBuilder tmpPath = PathBuilder(Settings::General::engineAssetsPath)
+							.join("tmp.cocoa");
 						Scene::freeResources(scene);
-						Scene::load(scene, tmpPath, false);
+						Scene::load(scene, tmpPath.createTmpPath(), false);
 						isPlaying = false;
 					}
 					ImGui::EndMenu();
 				}
 				else if (ImGui::MenuItem("Compile"))
 				{
-					CPath scriptsPath = Settings::General::workingDirectory;
-					scriptsPath.join(CPath::create("scripts"));
-					CppBuild::compile(scriptsPath);
+					PathBuilder scriptsPath = PathBuilder(Settings::General::workingDirectory)
+						.join("scripts");
+					CppBuild::compile(scriptsPath.createTmpPath());
 				}
 				ImGui::EndMenuBar();
 			}

@@ -3,7 +3,7 @@
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "cocoa/file/CPath.h"
+#include "cocoa/file/Path.h"
 #include "cocoa/events/Event.h"
 #include "cocoa/scenes/SceneData.h"
 
@@ -23,9 +23,9 @@ namespace Cocoa
 
 		COCOA void play(SceneData& data);
 		COCOA void stop(SceneData& data);
-		COCOA void save(SceneData& data, const CPath& filename);
-		COCOA void load(SceneData& data, const CPath& filename, bool setAsCurrentScene = true);
-		COCOA void loadScriptsOnly(SceneData& data, const CPath& filename);
+		COCOA void save(SceneData& data, const Path& filename);
+		COCOA void load(SceneData& data, const Path& filename, bool setAsCurrentScene = true);
+		COCOA void loadScriptsOnly(SceneData& data, const Path& filename);
 
 		COCOA void serializeEntity(json* j, Entity entity);
 		COCOA void deserializeEntities(const json& j, SceneData& scene);

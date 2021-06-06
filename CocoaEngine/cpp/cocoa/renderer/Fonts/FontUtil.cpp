@@ -133,7 +133,7 @@ namespace Cocoa
 			FT_Done_FreeType(ft);
 		}
 
-		void createSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, int padding, int upscaleResolution, int glyphOffset)
+		void createSdfFontTexture(const Path& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const Path& outputFile, int padding, int upscaleResolution, int glyphOffset)
 		{
 			FT_Library ft;
 			if (FT_Init_FreeType(&ft))

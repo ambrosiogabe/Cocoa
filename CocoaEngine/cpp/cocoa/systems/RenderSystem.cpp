@@ -27,15 +27,17 @@ namespace Cocoa
 		{
 			m_Batches = List<RenderBatchData>(1);
 
-			CPath spriteShaderPath = Settings::General::engineAssetsPath;
-			spriteShaderPath.join(CPath::create("shaders/SpriteRenderer.glsl"));
-			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath, true);
-			CPath fontShaderPath = Settings::General::engineAssetsPath;
-			fontShaderPath.join(CPath::create("shaders/FontRenderer.glsl"));
-			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath, true);
-			CPath pickingShaderPath = Settings::General::engineAssetsPath;
-			pickingShaderPath.join(CPath::create("shaders/Picking.glsl"));
-			AssetManager::loadShaderFromFile(pickingShaderPath, true);
+			PathBuilder spriteShaderPath = Settings::General::engineAssetsPath;
+			spriteShaderPath.join("shaders/SpriteRenderer.glsl");
+			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath.createPath(), true);
+			
+			PathBuilder fontShaderPath = Settings::General::engineAssetsPath;
+			fontShaderPath.join("shaders/FontRenderer.glsl");
+			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath.createPath(), true);
+			
+			PathBuilder pickingShaderPath = Settings::General::engineAssetsPath;
+			pickingShaderPath.join("shaders/Picking.glsl");
+			AssetManager::loadShaderFromFile(pickingShaderPath.createPath(), true);
 		}
 
 		void destroy()

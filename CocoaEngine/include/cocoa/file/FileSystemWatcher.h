@@ -3,7 +3,7 @@
 
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
-#include "CPath.h"
+#include "Path.h"
 
 #include <thread>
 #ifdef _WIN32
@@ -37,10 +37,10 @@ namespace Cocoa
 		void stop();
 
 	public:
-		typedef void (*OnChanged)(const CPath& file);
-		typedef void (*OnRenamed)(const CPath& file);
-		typedef void (*OnDeleted)(const CPath& file);
-		typedef void (*OnCreated)(const CPath& file);
+		typedef void (*OnChanged)(const Path& file);
+		typedef void (*OnRenamed)(const Path& file);
+		typedef void (*OnDeleted)(const Path& file);
+		typedef void (*OnCreated)(const Path& file);
 
 		OnChanged onChanged = nullptr;
 		OnRenamed onRenamed = nullptr;
@@ -50,7 +50,7 @@ namespace Cocoa
 		int notifyFilters = 0;
 		bool includeSubdirectories = false;
 		std::string filter = "";
-		CPath path = CPath::create();
+		Path path = Path::createDefault();
 
 	private:
 		void startThread();

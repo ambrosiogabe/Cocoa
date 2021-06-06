@@ -54,7 +54,7 @@ namespace Cocoa
 			// Setup dear imGui binding
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
-			ImGui::LoadIniSettingsFromDisk(Settings::General::imGuiConfigPath.path);
+			ImGui::LoadIniSettingsFromDisk(Settings::General::imGuiConfigPath.c_str());
 
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -87,7 +87,7 @@ namespace Cocoa
 			io.Fonts->AddFontFromFileTTF("assets/fonts/fontawesome-webfont3.ttf", 64.0f, &config, customIconRanges);
 			io.Fonts->Build();
 
-			loadStyle(Settings::General::editorStyleData);
+			loadStyle(Settings::General::editorStyleData.createTmpPath());
 
 			SceneHierarchyWindow::init();
 		}
@@ -212,7 +212,7 @@ namespace Cocoa
 			ImGui::End();
 		}
 
-		void loadStyle(const CPath& filepath)
+		void loadStyle(const Path& filepath)
 		{
 			FileHandle* styleData = File::openFile(filepath);
 			if (styleData->size > 0)
@@ -255,14 +255,16 @@ namespace Cocoa
 			}
 			else
 			{
-				CPath defaultStylePath = Settings::General::stylesDirectory;
-				defaultStylePath.join(CPath::create("Default.json"));
-				exportCurrentStyle(defaultStylePath);
+				exportCurrentStyle(
+					PathBuilder(Settings::General::stylesDirectory)
+						.join("Default.json")
+						.createTmpPath()
+				);
 			}
 			File::closeFile(styleData);
 
 			applyStyle();
-			exportCurrentStyle(Settings::General::editorStyleData);
+			exportCurrentStyle(Settings::General::editorStyleData.createTmpPath());
 		}
 
 		void applyStyle()
@@ -338,7 +340,7 @@ namespace Cocoa
 			style.Colors[ImGuiCol_NavHighlight] = CImGui::from(Settings::EditorStyle::accentDark0);
 		}
 
-		void exportCurrentStyle(const CPath& outputPath)
+		void exportCurrentStyle(const Path& outputPath)
 		{
 			json styles = {
 				{"Colors",

@@ -235,12 +235,12 @@ namespace Cocoa
 			}
 		}
 
-		void save(SceneData& data, const CPath& filename)
+		void save(SceneData& data, const Path& filename)
 		{
 			Logger::Log("Saving scene '%s'", filename.path);
 			data.saveDataJson = {
 				{"Components", {}},
-				{"Project", Settings::General::currentProject.path},
+				{"Project", Settings::General::currentProject.c_str()},
 				{"Assets", AssetManager::serialize()}
 			};
 
@@ -261,7 +261,7 @@ namespace Cocoa
 			File::writeFile(data.saveDataJson.dump(4).c_str(), filename);
 		}
 
-		void load(SceneData& data, const CPath& filename, bool setAsCurrentScene)
+		void load(SceneData& data, const Path& filename, bool setAsCurrentScene)
 		{
 			Logger::Log("Loading scene %s", filename.path);
 			init(data);
@@ -298,7 +298,7 @@ namespace Cocoa
 			File::closeFile(file);
 		}
 
-		void loadScriptsOnly(SceneData& data, const CPath& filename)
+		void loadScriptsOnly(SceneData& data, const Path& filename)
 		{
 			FileHandle* file = File::openFile(filename);
 			if (file->size <= 0)
@@ -419,9 +419,12 @@ namespace Cocoa
 			gizmoSpec.wrapS = WrapMode::Repeat;
 			gizmoSpec.wrapT = WrapMode::Repeat;
 			gizmoSpec.isDefault = true;
-			CPath gizmoPath = Settings::General::engineAssetsPath;
-			gizmoPath.join(CPath::create("images/gizmos.png"));
-			auto asset = AssetManager::loadTextureFromFile(gizmoSpec, gizmoPath);
+			const Path gizmoPath = 
+				PathBuilder(Settings::General::engineAssetsPath)
+				.join("images/gizmos.png")
+				.createPath();
+			Handle<Texture> asset = AssetManager::loadTextureFromFile(gizmoSpec, gizmoPath);
+			String::FreeString(gizmoPath.path);
 		}
 
 		static Entity FindOrCreateEntity(int id, SceneData& scene, entt::registry& registry)

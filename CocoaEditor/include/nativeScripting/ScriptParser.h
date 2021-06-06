@@ -3,7 +3,7 @@
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "cocoa/file/CPath.h"
+#include "cocoa/file/Path.h"
 
 namespace Cocoa
 {
@@ -17,14 +17,14 @@ namespace Cocoa
 	struct UClass
 	{
 		std::string className;
-		CPath fullFilepath;
+		Path fullFilepath;
 		std::list<UVariable> variables;
 	};
 
 	struct UStruct
 	{
 		std::string structName;
-		const CPath& fullFilepath;
+		const Path& fullFilepath;
 		std::list<UVariable> variables;
 	};
 
@@ -42,7 +42,7 @@ namespace Cocoa
 
 	private:
 		int mCurrentToken;
-		CPath mFullFilepath;
+		Path mFullFilepath;
 
 		std::vector<UClass> mClasses;
 		std::vector<UStruct> mStructs;

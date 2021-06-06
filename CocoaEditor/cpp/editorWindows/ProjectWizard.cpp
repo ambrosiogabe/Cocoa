@@ -23,7 +23,7 @@ namespace Cocoa
 		
 		static bool mCreatingProject = false;
 		static char mTmpFilename[256];
-		static CPath mNewProjectPath = CPath::create();
+		static Path mNewProjectPath = Path::createDefault();
 
 		void init()
 		{
@@ -34,7 +34,7 @@ namespace Cocoa
 			mJadeLogo.minFilter = FilterMode::Linear;
 			mJadeLogo.wrapS = WrapMode::Repeat;
 			mJadeLogo.wrapT = WrapMode::Repeat;
-			TextureUtil::generate(mJadeLogo, CPath::create("assets/jadeLogo.png"));
+			TextureUtil::generate(mJadeLogo, PathBuilder("assets/jadeLogo.png").createTmpPath());
 
 			mTexturePos.x = (mIdealSize.x / 2.0f) - (mJadeLogo.width / 2.0f);
 			mTexturePos.y = mIdealSize.y / 10.0f;
@@ -77,7 +77,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (FileDialog::getOpenFileName("", res, { {"Cocoa Project", "*.cprj"} }))
 				{
-					if (!EditorLayer::loadProject(scene, CPath::create(res.filepath)))
+					if (!EditorLayer::loadProject(scene, PathBuilder(res.filepath.c_str()).createTmpPath()))
 					{
 						Logger::Warning("Unable to load project: %s", res.filepath.c_str());
 					}
@@ -108,7 +108,7 @@ namespace Cocoa
 				FileDialogResult res;
 				if (FileDialog::getOpenFolderName(".", res))
 				{
-					mNewProjectPath = CPath::create(res.filepath);
+					mNewProjectPath = PathBuilder(res.filepath.c_str()).createTmpPath();
 				}
 			}
 

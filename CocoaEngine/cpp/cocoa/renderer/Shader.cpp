@@ -31,17 +31,17 @@ namespace Cocoa
 				(uint32)-1,
 				-1,
 				false,
-				CPath::create()
+				Path::createDefault()
 			};
 		}
 
-		Shader createShader(const CPath& resourceName, bool isDefault)
+		Shader createShader(const Path& resourceName, bool isDefault)
 		{
 			// TODO: Should compilation happen on creation?
 			return compile(resourceName, isDefault);
 		}
 
-		Shader compile(const CPath& filepath, bool isDefault)
+		Shader compile(const Path& filepath, bool isDefault)
 		{
 			std::string fileSource = ReadFile(filepath.path);
 

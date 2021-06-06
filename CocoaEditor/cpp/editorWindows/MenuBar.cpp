@@ -36,8 +36,8 @@ namespace Cocoa
 
 		static bool CPathVectorGetter(void* data, int n, const char** out_text)
 		{
-			const std::vector<CPath>* v = (std::vector<CPath>*)data;
-			*out_text = v->at(n).filename();
+			const std::vector<Path>* v = (std::vector<Path>*)data;
+			*out_text = v->at(n).filename;
 			return true;
 		}
 
@@ -45,7 +45,7 @@ namespace Cocoa
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
 			ImGui::Begin("Styles", &Settings::Editor::showStyleSelect);
-			std::vector<CPath> styles = File::getFilesInDir(Settings::General::stylesDirectory);
+			std::vector<Path> styles = File::getFilesInDir(Settings::General::stylesDirectory.createTmpPath());
 			if (ImGui::ListBox("Styles", &Settings::Editor::selectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
 				ImGuiLayer::loadStyle(styles[Settings::Editor::selectedStyle]);
@@ -76,9 +76,9 @@ namespace Cocoa
 				if (CImGui::button("Export..."))
 				{
 					FileDialogResult result;
-					if (FileDialog::getSaveFileName(Settings::General::stylesDirectory.path, result))
+					if (FileDialog::getSaveFileName(Settings::General::stylesDirectory.c_str(), result))
 					{
-						ImGuiLayer::exportCurrentStyle(CPath::create(result.filepath));
+						ImGuiLayer::exportCurrentStyle(PathBuilder(result.filepath.c_str()).createTmpPath());
 					}
 				}
 			}
@@ -125,7 +125,7 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (FileDialog::getOpenFileName(".", result, { {"Cocoa Projects *.cocoa", "*.cprj"}, {"All Files", "*.*"} }))
 						{
-							EditorLayer::loadProject(scene, CPath::create(result.filepath));
+							EditorLayer::loadProject(scene, PathBuilder(result.filepath.c_str()).createTmpPath());
 						}
 					}
 
@@ -134,8 +134,8 @@ namespace Cocoa
 						FileDialogResult result{};
 						if (FileDialog::getSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
-							Settings::General::currentScene = CPath::create(result.filepath);
-							Scene::save(scene, Settings::General::currentScene);
+							Settings::General::currentScene = PathBuilder(result.filepath.c_str());
+							Scene::save(scene, Settings::General::currentScene.createTmpPath());
 						}
 					}
 

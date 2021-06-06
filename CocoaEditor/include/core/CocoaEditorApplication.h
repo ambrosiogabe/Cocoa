@@ -17,9 +17,9 @@ namespace Cocoa
 		void onRender(SceneData& scene);
 		void onEvent(SceneData& scene, Event& e);
 
-		bool createProject(SceneData& scene, const CPath& projectPath, const char* filename);
-		bool loadEditorData(SceneData& scene, const CPath& path);
-		bool loadProject(SceneData& scene, const CPath& path);
+		bool createProject(SceneData& scene, const Path& projectPath, const char* filename);
+		bool loadEditorData(SceneData& scene, const Path& path);
+		bool loadProject(SceneData& scene, const Path& path);
 		void saveEditorData();
 		void saveProject();
 		void setProjectLoaded();

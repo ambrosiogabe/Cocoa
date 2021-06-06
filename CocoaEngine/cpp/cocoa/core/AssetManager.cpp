@@ -40,7 +40,7 @@ namespace Cocoa
 			return NShader::createShader();
 		}
 
-		Handle<Shader> getShader(const CPath& path)
+		Handle<Shader> getShader(const Path& path)
 		{
 			int i = 0;
 			for (auto& shader : mShaders)
@@ -55,7 +55,7 @@ namespace Cocoa
 			return NHandle::createHandle<Shader>();
 		}
 
-		Handle<Shader> loadShaderFromFile(const CPath& path, bool isDefault, int id)
+		Handle<Shader> loadShaderFromFile(const Path& path, bool isDefault, int id)
 		{
 			Handle<Shader> shader = getShader(path);
 			if (!shader.isNull())
@@ -64,7 +64,7 @@ namespace Cocoa
 				return shader;
 			}
 
-			CPath absPath = File::getAbsolutePath(path);
+			Path absPath = File::getAbsolutePath(path);
 			int index = id;
 
 			// If id is -1, we don't care where you place the texture so long as it gets loaded
@@ -101,7 +101,7 @@ namespace Cocoa
 			return TextureUtil::NULL_TEXTURE;
 		}
 
-		Handle<Texture> getTexture(const CPath& path)
+		Handle<Texture> getTexture(const Path& path)
 		{
 			int i = 0;
 			for (auto& tex : mTextures)
@@ -128,7 +128,7 @@ namespace Cocoa
 				return textureHandle;
 			}
 
-			CPath absPath = File::getAbsolutePath(texture.path);
+			Path absPath = File::getAbsolutePath(texture.path);
 			int index = id;
 
 			// Make sure to generate texture *before* pushing back since we are pushing back a copy
@@ -158,7 +158,7 @@ namespace Cocoa
 			return NHandle::createHandle<Texture>(index);
 		}
 
-		Handle<Texture> loadTextureFromFile(Texture& texture, const CPath& path, int id)
+		Handle<Texture> loadTextureFromFile(Texture& texture, const Path& path, int id)
 		{
 			Handle<Texture> textureHandle = getTexture(path);
 			if (!textureHandle.isNull())
@@ -167,7 +167,7 @@ namespace Cocoa
 				return textureHandle;
 			}
 
-			CPath absPath = File::getAbsolutePath(path);
+			Path absPath = File::getAbsolutePath(path);
 			int index = id;
 			texture.path = path;
 			TextureUtil::generate(texture, path);
@@ -206,7 +206,7 @@ namespace Cocoa
 			return Font::nullFont();
 		}
 
-		Handle<Font> getFont(const CPath& path)
+		Handle<Font> getFont(const Path& path)
 		{
 			int i = 0;
 			for (auto& font : mFonts)
@@ -221,7 +221,7 @@ namespace Cocoa
 			return NHandle::createHandle<Font>();
 		}
 
-		Handle<Font> loadFontFromJson(const CPath& path, const json& j, bool isDefault, int id)
+		Handle<Font> loadFontFromJson(const Path& path, const json& j, bool isDefault, int id)
 		{
 			Handle<Font> font = getFont(path);
 			if (!font.isNull())
@@ -230,7 +230,7 @@ namespace Cocoa
 				return font;
 			}
 
-			CPath absPath = File::getAbsolutePath(path);
+			Path absPath = File::getAbsolutePath(path);
 			int index = id;
 
 			// If id is -1, we don't care where you place the font so long as it gets loaded
@@ -259,7 +259,7 @@ namespace Cocoa
 			return NHandle::createHandle<Font>(index);
 		}
 
-		Handle<Font> loadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
+		Handle<Font> loadFontFromTtfFile(const Path& fontFile, int fontSize, const Path& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
 		{
 			Handle<Font> font = getFont(fontFile);
 			if (!font.isNull())
@@ -268,7 +268,7 @@ namespace Cocoa
 				return font;
 			}
 
-			CPath absPath = File::getAbsolutePath(fontFile);
+			Path absPath = File::getAbsolutePath(fontFile);
 			int index = mFonts.size();
 
 			mFonts.push(Font{ absPath, false });
@@ -347,12 +347,12 @@ namespace Cocoa
 
 		void loadFontsFrom(const json& j)
 		{
-			uint32 scene = -1;
+			uint32 scene = UINT32_MAX;
 			JsonExtended::assignIfNotNull(j, "SceneID", scene);
 
-			if (scene >= 0 && j.contains("Fonts"))
+			if (scene != UINT32_MAX && j.contains("Fonts"))
 			{
-				mFonts.resize(mFonts.size() + j["Fonts"].size());
+				mFonts.resize(mFonts.size() + (int32)j["Fonts"].size());
 				for (auto it = j["Fonts"].begin(); it != j["Fonts"].end(); ++it)
 				{
 					const json& assetJson = it.value();
@@ -361,10 +361,10 @@ namespace Cocoa
 					uint32 resourceId = -1;
 					JsonExtended::assignIfNotNull(assetJson, "ResourceId", resourceId);
 
-					CPath path = CPath::create();
+					Path path = Path::createDefault();
 					if (assetJson.contains("Filepath"))
 					{
-						path = CPath::create(assetJson["Filepath"], false);
+						path = PathBuilder(assetJson["Filepath"].get<std::string>().c_str()).createPath();
 					}
 
 					if (resourceId >= 0)

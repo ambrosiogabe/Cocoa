@@ -13,7 +13,7 @@ namespace Cocoa
 {
 	namespace CodeGenerators
 	{
-		static CPath visitedClassBuffer[100];
+		static Path visitedClassBuffer[100];
 		static int numVisited = 0;
 
 		static bool visitedSourceFile(UClass clazz)
@@ -29,7 +29,7 @@ namespace Cocoa
 			return false;
 		}
 
-		void generateInitFile(const std::vector<UClass>& classes, const CPath& filepath)
+		void generateInitFile(const std::vector<UClass>& classes, const Path& filepath)
 		{
 			std::ostringstream source;
 
@@ -45,10 +45,11 @@ namespace Cocoa
 				const std::filesystem::path otherPath = clazz.fullFilepath.path;
 				source << "#include \"" << std::filesystem::relative(otherPath, base).generic_string().c_str() << "\"\n";
 
-				std::string genFilename = clazz.fullFilepath.getFilenameWithoutExt() + "-generated" + clazz.fullFilepath.fileExt();
-				CPath otherGenCPath = CPath::create(clazz.fullFilepath.getDirectory(-1));
-				otherGenCPath.join(CPath::create("generated"));
-				otherGenCPath.join(CPath::create(genFilename));
+				std::string genFilename = clazz.fullFilepath.getFilenameWithoutExt() + "-generated" + clazz.fullFilepath.fileExt;
+				const Path otherGenCPath = PathBuilder(clazz.fullFilepath.getDirectory(-1).c_str())
+					.join("generated")
+					.join(genFilename.c_str())
+					.createTmpPath();
 				const std::filesystem::path otherGenPath = otherGenCPath.path;
 				source << "#include \"" << std::filesystem::relative(otherGenPath, base).generic_string().c_str() << "\"\n\n";
 			}
@@ -301,7 +302,7 @@ namespace Cocoa
 			File::writeFile(source.str().c_str(), filepath);
 		}
 
-		void generatePremakeFile(const CPath& filepath)
+		void generatePremakeFile(const Path& filepath)
 		{
 			std::ostringstream stream;
 			stream << ""
@@ -330,7 +331,7 @@ namespace Cocoa
 				"		\"**.cpp\",\n"
 				"		\"**.hpp\",\n";
 
-			CPath engineSource = CPath::create(Settings::General::engineSourceDirectory.path, true);
+			const Path engineSource = PathBuilder(Settings::General::engineSourceDirectory).createTmpPath();
 			stream << "\t\t\"" << engineSource.linuxStyle() << "/CocoaEditor/cpp/gui/**.cpp\",\n";
 			stream << "\t\t\"" << engineSource.linuxStyle() << "/CocoaEditor/include/gui/**.h\"\n";
 
@@ -362,9 +363,10 @@ namespace Cocoa
 				"\n"
 				"	links {\n";
 
-			CPath engineExeDir = CPath::create(Settings::General::engineExeDirectory.path, true);
-			CPath engineDllDir = CPath::create(Settings::General::engineExeDirectory.getDirectory(-1), true);
-			engineDllDir.join(CPath::create("CocoaEngine"));
+			const Path engineExeDir = PathBuilder(Settings::General::engineExeDirectory).createTmpPath();
+			const Path engineDllDir = PathBuilder(Settings::General::engineExeDirectory.createTmpPath().getDirectory(-1).c_str())
+				.join("CocoaEngine")
+				.createTmpPath();
 			stream << "\t\t\"" << engineDllDir.linuxStyle() << "/CocoaEngine.lib\",\n";
 			stream << "\t\t\"" << engineExeDir.linuxStyle() << "/ImGui.lib\"\n";
 
@@ -405,10 +407,11 @@ namespace Cocoa
 			File::writeFile(stream.str().c_str(), filepath);
 		}
 
-		void generateBuildFile(const CPath& filepath, const CPath& premakeFilepath)
+		void generateBuildFile(const Path& filepath, const Path& premakeFilepath)
 		{
-			CPath projectPremakeLua = CPath::create(filepath.getDirectory(-1));
-			projectPremakeLua.join(CPath::create("premake5.lua"));
+			Path projectPremakeLua = PathBuilder(filepath.getDirectory(-1).c_str())
+				.join("premake5.lua")
+				.createTmpPath();
 
 			std::ostringstream stream;
 
@@ -460,8 +463,9 @@ if not defined DevEnvDir (
 
 set solutionFile=")";
 			// TODO: Maybe set scripting workspace to project name?
-			CPath solutionFile = CPath::create(filepath.getDirectory(-1));
-			solutionFile.join(CPath::create("ScriptingWorkspace.sln"));
+			Path solutionFile = PathBuilder(filepath.getDirectory(-1).c_str())
+				.join("ScriptingWorkspace.sln")
+				.createTmpPath();
 			stream << solutionFile.path << "\"";
 			
 			stream << R"(

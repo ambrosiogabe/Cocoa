@@ -3,7 +3,7 @@
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/file/CPath.h"
+#include "cocoa/file/Path.h"
 #include "cocoa/scenes/SceneData.h"
 #include "cocoa/events/Event.h"
 
@@ -17,9 +17,9 @@ namespace Cocoa
         void beginFrame(SceneData& scene);
         void endFrame();
 
-        void loadStyle(const CPath& filepath);
+        void loadStyle(const Path& filepath);
         void applyStyle();
-        void exportCurrentStyle(const CPath& outputPath);
+        void exportCurrentStyle(const Path& outputPath);
     };
 }
 

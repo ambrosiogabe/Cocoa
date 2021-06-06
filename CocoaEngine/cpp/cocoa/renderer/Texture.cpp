@@ -166,7 +166,7 @@ namespace Cocoa
 			}
 		}
 
-		void generate(Texture& texture, const CPath& path)
+		void generate(Texture& texture, const Path& path)
 		{
 			int channels;
 
@@ -280,7 +280,7 @@ namespace Cocoa
 			res.internalFormat = ByteFormat::None;
 			res.externalFormat = ByteFormat::None;
 
-			res.path = CPath::create();
+			res.path = Path::createDefault();
 			res.isDefault = false;
 
 			return res;

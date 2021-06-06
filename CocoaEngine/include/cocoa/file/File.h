@@ -1,7 +1,7 @@
 #ifndef COCOA_ENGINE_FILE_H
 #define COCOA_ENGINE_FILE_H
 #include "externalLibs.h"
-#include "cocoa/file/CPath.h"
+#include "cocoa/file/Path.h"
 
 namespace Cocoa
 {
@@ -15,25 +15,25 @@ namespace Cocoa
 
 	namespace File
 	{
-		COCOA FileHandle* openFile(const CPath& filename);
+		COCOA FileHandle* openFile(const Path& filename);
 		COCOA void closeFile(FileHandle* file);
-		COCOA bool writeFile(const char* data, const CPath& filename);
-		COCOA bool createFile(const CPath& filename, const char* extToAppend = "");
-		COCOA bool deleteFile(const CPath& filename);
-		COCOA bool copyFile(const CPath& fileToCopy, const CPath& newFileLocation, const char* newFilename = "");
-		COCOA CPath getCwd();
-		COCOA CPath getSpecialAppFolder();
-		COCOA CPath getExecutableDirectory();
-		COCOA std::vector<CPath> getFilesInDir(const CPath& directory);
-		COCOA std::vector<CPath> getFoldersInDir(const CPath& directory);
-		COCOA void createDirIfNotExists(const CPath& directory);
-		COCOA bool isFile(const CPath& filepath);
-		COCOA bool isHidden(const CPath& filepath);
-		COCOA bool isDirectory(const CPath& directory);
-		COCOA CPath getAbsolutePath(const CPath& path);
+		COCOA bool writeFile(const char* data, const Path& filename);
+		COCOA bool createFile(const Path& filename, const char* extToAppend = "");
+		COCOA bool deleteFile(const Path& filename);
+		COCOA bool copyFile(const Path& fileToCopy, const Path& newFileLocation, const char* newFilename = "");
+		COCOA Path getCwd();
+		COCOA Path getSpecialAppFolder();
+		COCOA Path getExecutableDirectory();
+		COCOA std::vector<Path> getFilesInDir(const Path& directory);
+		COCOA std::vector<Path> getFoldersInDir(const Path& directory);
+		COCOA void createDirIfNotExists(const Path& directory);
+		COCOA bool isFile(const Path& filepath);
+		COCOA bool isHidden(const Path& filepath);
+		COCOA bool isDirectory(const Path& directory);
+		COCOA Path getAbsolutePath(const Path& path);
 
-		COCOA bool runProgram(const CPath& pathToExe, const char* cmdArgs = "");
-		COCOA bool runProgram(const CPath& pathToExe, const std::string& cmdArgs = "");
+		COCOA bool runProgram(const Path& pathToExe, const char* cmdArgs = "");
+		COCOA bool runProgram(const Path& pathToExe, const std::string& cmdArgs = "");
 	};
 }
 

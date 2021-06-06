@@ -15,7 +15,7 @@ namespace Cocoa
 #ifdef _WIN32
 	void FileSystemWatcher::startThread()
 	{
-		if (path.size() == 0)
+		if (path.size == 0)
 		{
 			return;
 		}
@@ -125,19 +125,19 @@ namespace Cocoa
 				case FILE_ACTION_ADDED:
 					if (onCreated != nullptr)
 					{
-						onCreated(CPath::create(filename));
+						onCreated(PathBuilder(filename).createPath());
 					}
 					break;
 				case FILE_ACTION_REMOVED:
 					if (onDeleted != nullptr)
 					{
-						onDeleted(CPath::create(filename));
+						onDeleted(PathBuilder(filename).createPath());
 					}
 					break;
 				case FILE_ACTION_MODIFIED:
 					if (onChanged != nullptr)
 					{
-						onChanged(CPath::create(filename));
+						onChanged(PathBuilder(filename).createPath());
 					}
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
@@ -146,7 +146,7 @@ namespace Cocoa
 				case FILE_ACTION_RENAMED_NEW_NAME:
 					if (onRenamed != nullptr)
 					{
-						onRenamed(CPath::create(filename));
+						onRenamed(PathBuilder(filename).createPath());
 					}
 					break;
 				default:
