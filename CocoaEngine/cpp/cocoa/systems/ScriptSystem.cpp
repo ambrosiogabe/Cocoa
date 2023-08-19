@@ -95,12 +95,10 @@ namespace Cocoa
 				if (!freeScriptLibrary(scene, deleteScriptComponents)) return;
 			}
 
-			const Path scriptDllPath = PathBuilder(Settings::General::engineExeDirectory)
-				.join("ScriptModule.dll")
-				.createTmpPath();
+			const std::filesystem::path scriptDllPath = Settings::General::engineExeDirectory / "ScriptModule.dll";
 			if (File::isFile(scriptDllPath))
 			{
-				m_Module = LoadLibraryA(scriptDllPath.path);
+				m_Module = LoadLibraryA(scriptDllPath.string().c_str());
 
 				if (m_Module)
 				{

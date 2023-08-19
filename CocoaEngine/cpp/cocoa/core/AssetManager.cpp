@@ -7,18 +7,19 @@ namespace Cocoa
 {
 	namespace AssetManager
 	{
-		static List<Texture> mTextures = List<Texture>();
-		static List<Font> mFonts = List<Font>();
-		static List<Shader> mShaders = List<Shader>();
+		//static HashMap<uint32, Texture> mTextures = HashMap<uint32, Texture>();
+		static std::vector<Texture> mTextures = std::vector<Texture>();
+		static std::vector<Font> mFonts = std::vector<Font>();
+		static std::vector<Shader> mShaders = std::vector<Shader>();
 		static uint32 mCurrentScene = 0;
 		static uint32 mResourceCount = 0;
 
-		const List<Texture>& getAllTextures()
+		const std::vector<Texture>& getAllTextures()
 		{
 			return mTextures;
 		}
 
-		const List<Font>& getAllFonts()
+		const std::vector<Font>& getAllFonts()
 		{
 			return mFonts;
 		}
@@ -40,7 +41,7 @@ namespace Cocoa
 			return NShader::createShader();
 		}
 
-		Handle<Shader> getShader(const Path& path)
+		Handle<Shader> getShader(const std::filesystem::path& path)
 		{
 			int i = 0;
 			for (auto& shader : mShaders)
@@ -55,23 +56,23 @@ namespace Cocoa
 			return NHandle::createHandle<Shader>();
 		}
 
-		Handle<Shader> loadShaderFromFile(const Path& path, bool isDefault, int id)
+		Handle<Shader> loadShaderFromFile(const std::filesystem::path& path, bool isDefault, int id)
 		{
 			Handle<Shader> shader = getShader(path);
 			if (!shader.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.string().c_str());
 				return shader;
 			}
 
-			Path absPath = File::getAbsolutePath(path);
+			const std::filesystem::path absPath = File::getAbsolutePath(path);
 			int index = id;
 
 			// If id is -1, we don't care where you place the texture so long as it gets loaded
 			if (index == -1)
 			{
 				index = mShaders.size();
-				mShaders.push(NShader::createShader(absPath, isDefault));
+				mShaders.push_back(NShader::createShader(absPath, isDefault));
 			}
 			// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 			else
@@ -101,7 +102,7 @@ namespace Cocoa
 			return TextureUtil::NULL_TEXTURE;
 		}
 
-		Handle<Texture> getTexture(const Path& path)
+		Handle<Texture> getTexture(const std::filesystem::path& path)
 		{
 			int i = 0;
 			for (auto& tex : mTextures)
@@ -124,11 +125,11 @@ namespace Cocoa
 			Handle<Texture> textureHandle = getTexture(texture.path);
 			if (!textureHandle.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.path.path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", texture.path.string().c_str());
 				return textureHandle;
 			}
 
-			Path absPath = File::getAbsolutePath(texture.path);
+			const std::filesystem::path absPath = File::getAbsolutePath(texture.path);
 			int index = id;
 
 			// Make sure to generate texture *before* pushing back since we are pushing back a copy
@@ -138,7 +139,7 @@ namespace Cocoa
 			if (index == -1)
 			{
 				index = mTextures.size();
-				mTextures.push(texture);
+				mTextures.push_back(texture);
 			}
 			// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
 			else
@@ -158,16 +159,16 @@ namespace Cocoa
 			return NHandle::createHandle<Texture>(index);
 		}
 
-		Handle<Texture> loadTextureFromFile(Texture& texture, const Path& path, int id)
+		Handle<Texture> loadTextureFromFile(Texture& texture, const std::filesystem::path& path, int id)
 		{
 			Handle<Texture> textureHandle = getTexture(path);
 			if (!textureHandle.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'", path.string().c_str());
 				return textureHandle;
 			}
 
-			Path absPath = File::getAbsolutePath(path);
+			const std::filesystem::path absPath = File::getAbsolutePath(path);
 			int index = id;
 			texture.path = path;
 			TextureUtil::generate(texture, path);
@@ -176,7 +177,7 @@ namespace Cocoa
 			if (index == -1)
 			{
 				index = mTextures.size();
-				mTextures.push(texture);
+				mTextures.push_back(texture);
 			}
 			// Otherwise, place the texture in the id location specified, and report error if a texture is already located there for some reason
 			else
@@ -206,7 +207,7 @@ namespace Cocoa
 			return Font::nullFont();
 		}
 
-		Handle<Font> getFont(const Path& path)
+		Handle<Font> getFont(const std::filesystem::path& path)
 		{
 			int i = 0;
 			for (auto& font : mFonts)
@@ -221,23 +222,23 @@ namespace Cocoa
 			return NHandle::createHandle<Font>();
 		}
 
-		Handle<Font> loadFontFromJson(const Path& path, const json& j, bool isDefault, int id)
+		Handle<Font> loadFontFromJson(const std::filesystem::path& path, const json& j, bool isDefault, int id)
 		{
 			Handle<Font> font = getFont(path);
 			if (!font.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", path.path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", path.string().c_str());
 				return font;
 			}
 
-			Path absPath = File::getAbsolutePath(path);
+			const std::filesystem::path absPath = File::getAbsolutePath(path);
 			int index = id;
 
 			// If id is -1, we don't care where you place the font so long as it gets loaded
 			if (index == -1)
 			{
 				index = mFonts.size();
-				mFonts.push(Font{ absPath, isDefault });
+				mFonts.push_back(Font{ absPath, isDefault });
 			}
 			// Otherwise, place the font in the id location specified, and report error if a font is already located there for some reason
 			else
@@ -259,19 +260,19 @@ namespace Cocoa
 			return NHandle::createHandle<Font>(index);
 		}
 
-		Handle<Font> loadFontFromTtfFile(const Path& fontFile, int fontSize, const Path& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
+		Handle<Font> loadFontFromTtfFile(const std::filesystem::path& fontFile, int fontSize, const std::filesystem::path& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution)
 		{
 			Handle<Font> font = getFont(fontFile);
 			if (!font.isNull())
 			{
-				Logger::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.path);
+				Logger::Warning("Tried to load asset that has already been loaded '%s'.", fontFile.string().c_str());
 				return font;
 			}
 
-			Path absPath = File::getAbsolutePath(fontFile);
+			const std::filesystem::path absPath = File::getAbsolutePath(fontFile);
 			int index = mFonts.size();
 
-			mFonts.push(Font{ absPath, false });
+			mFonts.push_back(Font{ absPath, false });
 			Font& newFont = mFonts[index];
 			newFont.generateSdf(fontFile, fontSize, outputFile, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
 
@@ -361,10 +362,10 @@ namespace Cocoa
 					uint32 resourceId = -1;
 					JsonExtended::assignIfNotNull(assetJson, "ResourceId", resourceId);
 
-					Path path = Path::createDefault();
+					std::filesystem::path path = {};
 					if (assetJson.contains("Filepath"))
 					{
-						path = PathBuilder(assetJson["Filepath"].get<std::string>().c_str()).createPath();
+						path = assetJson["Filepath"].get<std::string>();
 					}
 
 					if (resourceId >= 0)

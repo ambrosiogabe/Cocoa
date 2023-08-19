@@ -1,7 +1,8 @@
 #ifndef COCOA_ENGINE_SHADER_H
 #define COCOA_ENGINE_SHADER_H
 #include "externalLibs.h"
-#include "cocoa/file/Path.h"
+
+#include <filesystem>
 
 typedef unsigned int GLuint;
 
@@ -12,15 +13,15 @@ namespace Cocoa
 		uint32 programId;
 		int startIndex; // This is the start index in the global shader variables vector
 		bool isDefault;
-		Path filepath;
+		std::filesystem::path filepath;
 	};
 
 	namespace NShader
 	{
 		COCOA Shader createShader();
-		COCOA Shader createShader(const Path& resourceName, bool isDefault=false);
+		COCOA Shader createShader(const std::filesystem::path& resourceName, bool isDefault=false);
 
-		COCOA Shader compile(const Path& filepath, bool isDefault=false);
+		COCOA Shader compile(const std::filesystem::path& filepath, bool isDefault=false);
 		COCOA void bind(const Shader& shader);
 		COCOA void unbind(const Shader& shader);
 		COCOA void destroy(Shader& shader);

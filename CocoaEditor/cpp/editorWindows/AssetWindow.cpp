@@ -7,11 +7,12 @@
 #include "cocoa/core/AssetManager.h"
 #include "cocoa/file/File.h"
 #include "cocoa/file/FileDialog.h"
-#include "cocoa/file/Path.h"
 #include "cocoa/util/Settings.h"
 #include "cocoa/core/Application.h"
 #include "cocoa/scenes/Scene.h"
 #include "cocoa/renderer/fonts/FontUtil.h"
+
+#include <filesystem>
 
 namespace Cocoa
 {
@@ -105,7 +106,7 @@ namespace Cocoa
 
 		static void ShowTextureBrowser()
 		{
-			const List<Texture>& textures = AssetManager::getAllTextures();
+			const std::vector<Texture>& textures = AssetManager::getAllTextures();
 			int i = -1;
 			for (auto& tex : textures)
 			{
@@ -117,7 +118,7 @@ namespace Cocoa
 
 				int texResourceId = i;
 				ImGui::PushID(texResourceId);
-				if (ImageButton(tex, tex.path.filename, m_ButtonSize))
+				if (ImageButton(tex, tex.path.filename().string().c_str(), m_ButtonSize))
 				{
 					//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 				}
@@ -126,7 +127,7 @@ namespace Cocoa
 				{
 					// Set payload to carry the index of our item (could be anything)
 					ImGui::SetDragDropPayload("TEXTURE_HANDLE_ID", &texResourceId, sizeof(int));
-					ImageButton(tex, tex.path.filename, m_ButtonSize);
+					ImageButton(tex, tex.path.filename().string().c_str(), m_ButtonSize);
 					ImGui::EndDragDropSource();
 				}
 				ImGui::SameLine();
@@ -146,14 +147,14 @@ namespace Cocoa
 					texSpec.minFilter = FilterMode::Nearest;
 					texSpec.wrapS = WrapMode::Repeat;
 					texSpec.wrapT = WrapMode::Repeat;
-					AssetManager::loadTextureFromFile(texSpec, PathBuilder(result.filepath.c_str()).createPath());
+					AssetManager::loadTextureFromFile(texSpec, result.filepath);
 				}
 			}
 		}
 
 		static void ShowFontBrowser()
 		{
-			const List<Font>& fonts = AssetManager::getAllFonts();
+			const std::vector<Font>& fonts = AssetManager::getAllFonts();
 			int i = -1;
 			for (auto& font : fonts)
 			{
@@ -167,7 +168,7 @@ namespace Cocoa
 				ImGui::PushID(fontResourceId);
 				const Texture& fontTexture = AssetManager::getTexture(font.fontTexture.assetId);
 
-				if (ImageButton(fontTexture, font.path.filename, m_ButtonSize))
+				if (ImageButton(fontTexture, font.path.filename().string().c_str(), m_ButtonSize))
 				{
 					//m_Scene->SetActiveAsset(std::static_pointer_cast<Asset>(tex));
 				}
@@ -175,7 +176,7 @@ namespace Cocoa
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					ImGui::SetDragDropPayload("FONT_HANDLE_ID", &fontResourceId, sizeof(int));        // Set payload to carry the index of our item (could be anything)
-					ImageButton(fontTexture, font.path.filename, m_ButtonSize);
+					ImageButton(fontTexture, font.path.filename().string().c_str(), m_ButtonSize);
 					ImGui::EndDragDropSource();
 				}
 				ImGui::SameLine();
@@ -211,14 +212,10 @@ namespace Cocoa
 				static int fontSize = 32;
 				CImGui::undoableDragInt("Font Size: ", fontSize);
 
-				const Path assetsDir = PathBuilder(Settings::General::workingDirectory)
-					.join("assets")
-					.createPath();
+				const std::filesystem::path assetsDir = Settings::General::workingDirectory / "assets";
 
-				std::string outputTextureFilename = PathBuilder(fontPath.c_str()).createTmpPath().getFilenameWithoutExt() + ".png";
-				Path outputTexture = PathBuilder(assetsDir)
-					.join(outputTextureFilename.c_str())
-					.createPath();
+				std::string outputTextureFilename = std::filesystem::path(fontPath).filename().string() + ".png";
+				std::filesystem::path outputTexture = assetsDir / outputTextureFilename;
 
 				// Advanced stuff...
 				static int glyphRangeStart = 0;
@@ -236,28 +233,25 @@ namespace Cocoa
 				ImGui::NewLine();
 				if (CImGui::button("Generate Font", { 0, 0 }, false))
 				{
-					AssetManager::loadFontFromTtfFile(PathBuilder(fontPath.c_str()).createTmpPath(), fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
+					AssetManager::loadFontFromTtfFile(fontPath, fontSize, outputTexture, glyphRangeStart, glyphRangeEnd, padding, upscaleResolution);
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();
-
-				String::FreeString(outputTexture.path);
-				String::FreeString(assetsDir.path);
 			}
 		}
 
 		static void showSceneBrowser(SceneData& scene)
 		{
 			// TODO: Cache this!
-			const Path scenesPath = PathBuilder(Settings::General::workingDirectory).join("scenes").createPath();
+			const std::filesystem::path scenesPath = Settings::General::workingDirectory/"scenes";
 			auto sceneFiles = File::getFilesInDir(scenesPath);
 			int sceneCount = 0;
 			for (auto scenePath : sceneFiles)
 			{
 				ImGui::PushID(sceneCount++);
-				if (IconButton(ICON_FA_FILE, scenePath.filename, m_ButtonSize))
+				if (IconButton(ICON_FA_FILE, scenePath.filename().string().c_str(), m_ButtonSize))
 				{
-					Scene::save(scene, Settings::General::currentScene.createTmpPath());
+					Scene::save(scene, Settings::General::currentScene);
 					Scene::freeResources(scene);
 					Scene::load(scene, scenePath);
 				}
@@ -267,37 +261,28 @@ namespace Cocoa
 
 			if (IconButton(ICON_FA_PLUS, "New Scene", m_ButtonSize))
 			{
-				Scene::save(scene, Settings::General::currentScene.createTmpPath());
+				Scene::save(scene, Settings::General::currentScene);
 				Scene::freeResources(scene);
 				static char newSceneTitle[32] = "New Scene (";
 				snprintf(&newSceneTitle[11], 32 - 11, "%d).cocoa", sceneCount);
 
-				StringBuilder sceneName;
-				sceneName.Append("scenes");
-				sceneName.Append(newSceneTitle);
-				Settings::General::currentScene =
-					PathBuilder(Settings::General::workingDirectory)
-					.join(sceneName.c_str());
-				Scene::save(scene, Settings::General::currentScene.createTmpPath());
+				std::string sceneName = "scenes" + std::string(newSceneTitle);
+				Settings::General::currentScene = Settings::General::workingDirectory / sceneName;
+				Scene::save(scene, Settings::General::currentScene);
 				EditorLayer::saveProject();
 			}
-
-			String::FreeString(scenesPath.path);
 		}
 
 		static void showScriptBrowser()
 		{
 			// TODO: Cache this!!
-			const Path scriptsPath = 
-				PathBuilder(Settings::General::workingDirectory)
-				.join("scripts")
-				.createPath();
-			std::vector<Path> scriptFiles = File::getFilesInDir(scriptsPath);
+			const std::filesystem::path scriptsPath = Settings::General::workingDirectory / "scripts";
+			std::vector<std::filesystem::path> scriptFiles = File::getFilesInDir(scriptsPath);
 			int scriptCount = 0;
 			for (auto script : scriptFiles)
 			{
 				ImGui::PushID(scriptCount++);
-				if (IconButton(ICON_FA_FILE, script.filename, m_ButtonSize))
+				if (IconButton(ICON_FA_FILE, script.filename().string().c_str(), m_ButtonSize))
 				{
 					Logger::Warning("TODO: Create a way to load a script in visual studio.");
 				}
@@ -311,28 +296,13 @@ namespace Cocoa
 				snprintf(&newScriptName[13], 32 - 13, "%d", scriptCount);
 				std::string scriptName = newScriptName;
 
-				const Path cocoaDir = 
-					PathBuilder(File::getSpecialAppFolder())
-					.join("CocoaEngine")
-					.createPath();
-				const Path defaultScriptCpp = 
-					PathBuilder(cocoaDir)
-					.join("DefaultScript.cpp")
-					.createPath();
-				const Path defaultScriptH = 
-					PathBuilder(cocoaDir)
-					.join("DefaultScript.h")
-					.createPath();
+				const std::filesystem::path cocoaDir = File::getSpecialAppFolder() / "CocoaEngine";
+				const std::filesystem::path defaultScriptCpp = cocoaDir / "DefaultScript.cpp";
+				const std::filesystem::path defaultScriptH = cocoaDir / "DefaultScript.h";
 
 				File::copyFile(defaultScriptCpp, scriptsPath, newScriptName);
 				File::copyFile(defaultScriptH, scriptsPath, newScriptName);
-
-				String::FreeString(cocoaDir.path);
-				String::FreeString(defaultScriptCpp.path);
-				String::FreeString(defaultScriptH.path);
 			}
-
-			String::FreeString(scriptsPath.path);
 		}
 	}
 }

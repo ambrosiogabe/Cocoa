@@ -252,8 +252,8 @@ namespace Cocoa
 				if (spr.sprite.texture)
 				{
 					const Texture& tex = AssetManager::getTexture(spr.sprite.texture.assetId);
-					CImGui::inputText("##SpriteRendererTexture", (char*)tex.path.filename,
-						tex.path.filenameSize, ImGuiInputTextFlags_ReadOnly);
+					CImGui::inputText("##SpriteRendererTexture", (char*)tex.path.filename().string().c_str(),
+						tex.path.string().length(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{
@@ -294,8 +294,8 @@ namespace Cocoa
 				if (fontRenderer.font)
 				{
 					const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
-					CImGui::inputText("##FontRendererTexture", (char*)font.path.filename,
-						font.path.filenameSize, ImGuiInputTextFlags_ReadOnly);
+					CImGui::inputText("##FontRendererTexture", (char*)font.path.filename().string().c_str(),
+						font.path.filename().string().length(), ImGuiInputTextFlags_ReadOnly);
 				}
 				else
 				{

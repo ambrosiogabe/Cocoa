@@ -3,7 +3,8 @@
 
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
-#include "Path.h"
+
+#include <filesystem>
 
 #include <thread>
 #ifdef _WIN32
@@ -37,10 +38,10 @@ namespace Cocoa
 		void stop();
 
 	public:
-		typedef void (*OnChanged)(const Path& file);
-		typedef void (*OnRenamed)(const Path& file);
-		typedef void (*OnDeleted)(const Path& file);
-		typedef void (*OnCreated)(const Path& file);
+		typedef void (*OnChanged)(const std::filesystem::path& file);
+		typedef void (*OnRenamed)(const std::filesystem::path& file);
+		typedef void (*OnDeleted)(const std::filesystem::path& file);
+		typedef void (*OnCreated)(const std::filesystem::path& file);
 
 		OnChanged onChanged = nullptr;
 		OnRenamed onRenamed = nullptr;
@@ -50,7 +51,7 @@ namespace Cocoa
 		int notifyFilters = 0;
 		bool includeSubdirectories = false;
 		std::string filter = "";
-		Path path = Path::createDefault();
+		std::filesystem::path path = {};
 
 	private:
 		void startThread();

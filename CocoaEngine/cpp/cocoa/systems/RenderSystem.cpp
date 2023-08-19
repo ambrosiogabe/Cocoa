@@ -27,17 +27,14 @@ namespace Cocoa
 		{
 			m_Batches = List<RenderBatchData>(1);
 
-			PathBuilder spriteShaderPath = Settings::General::engineAssetsPath;
-			spriteShaderPath.join("shaders/SpriteRenderer.glsl");
-			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath.createPath(), true);
+			std::filesystem::path spriteShaderPath = Settings::General::engineAssetsPath/"shaders"/"SpriteRenderer.glsl";
+			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath, true);
 			
-			PathBuilder fontShaderPath = Settings::General::engineAssetsPath;
-			fontShaderPath.join("shaders/FontRenderer.glsl");
-			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath.createPath(), true);
+			std::filesystem::path fontShaderPath = Settings::General::engineAssetsPath/"shaders"/"FontRenderer.glsl";
+			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath, true);
 			
-			PathBuilder pickingShaderPath = Settings::General::engineAssetsPath;
-			pickingShaderPath.join("shaders/Picking.glsl");
-			AssetManager::loadShaderFromFile(pickingShaderPath.createPath(), true);
+			std::filesystem::path pickingShaderPath = Settings::General::engineAssetsPath/"shaders"/"Picking.glsl";
+			AssetManager::loadShaderFromFile(pickingShaderPath, true);
 		}
 
 		void destroy()

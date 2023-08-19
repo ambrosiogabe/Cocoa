@@ -21,7 +21,7 @@ namespace Cocoa
 			case WrapMode::None:
 				return GL_NONE;
 			default:
-				Logger::Warning("Unknown glWrapMode '%d'", wrapMode);
+				Logger::Warning("Unknown glWrapMode '%d'. Defaulting to GL_NONE.", wrapMode);
 			}
 
 			return GL_NONE;
@@ -38,7 +38,7 @@ namespace Cocoa
 			case FilterMode::None:
 				return GL_NONE;
 			default:
-				Logger::Warning("Unknown glFilterMode '%d'", filterMode);
+				Logger::Warning("Unknown glFilterMode '%d'. Defaulting to GL_NONE.", filterMode);
 			}
 
 			return GL_NONE;
@@ -65,7 +65,7 @@ namespace Cocoa
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Logger::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'. Defaulting to GL_NONE.", format);
 			}
 
 			return GL_NONE;
@@ -90,7 +90,7 @@ namespace Cocoa
 			case ByteFormat::None:
 				return GL_NONE;
 			default:
-				Logger::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'. Defaulting to GL_NONE.", format);
 			}
 
 			return GL_NONE;
@@ -113,9 +113,9 @@ namespace Cocoa
 			case ByteFormat::RED_INTEGER:
 				return true;
 			case ByteFormat::None:
-				return GL_NONE;
+				return false;
 			default:
-				Logger::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'. Defaulting to non-int format.", format);
 			}
 
 			return false;
@@ -138,9 +138,9 @@ namespace Cocoa
 			case ByteFormat::RED_INTEGER:
 				return false;
 			case ByteFormat::None:
-				return GL_NONE;
+				return false;
 			default:
-				Logger::Warning("Unknown glByteFormat '%d'", format);
+				Logger::Warning("Unknown glByteFormat '%d'. Defaulting to non-rgb format.", format);
 			}
 
 			return false;
@@ -166,12 +166,12 @@ namespace Cocoa
 			}
 		}
 
-		void generate(Texture& texture, const Path& path)
+		void generate(Texture& texture, const std::filesystem::path& path)
 		{
 			int channels;
 
-			unsigned char* pixels = stbi_load(path.path, &texture.width, &texture.height, &channels, 0);
-			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.path, stbi_failure_reason());
+			unsigned char* pixels = stbi_load(path.string().c_str(), &texture.width, &texture.height, &channels, 0);
+			Logger::Assert((pixels != nullptr), "STB failed to load image: %s\n-> STB Failure Reason: %s", path.string().c_str(), stbi_failure_reason());
 
 			int bytesPerPixel = channels;
 			if (bytesPerPixel == 4)
@@ -186,7 +186,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.path, channels);
+				Logger::Warning("Unknown number of channels '%d' in image '%s'.", path.string().c_str(), channels);
 				return;
 			}
 
@@ -197,7 +197,7 @@ namespace Cocoa
 
 			uint32 internalFormat = toGl(texture.internalFormat);
 			uint32 externalFormat = toGl(texture.externalFormat);
-			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.path.path);
+			Logger::Assert(internalFormat != GL_NONE && externalFormat != GL_NONE, "Tried to load image from file, but failed to identify internal format for image '%s'", texture.path.string().c_str());
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 0, externalFormat, GL_UNSIGNED_BYTE, pixels);
 
 			stbi_image_free(pixels);
@@ -243,7 +243,7 @@ namespace Cocoa
 		json serialize(const Texture& texture)
 		{
 			return {
-				{"Filepath", texture.path.path },
+				{"Filepath", texture.path.string()},
 				{"MagFilter", (int)texture.magFilter },
 				{"MinFilter", (int)texture.minFilter },
 				{"WrapS", (int)texture.wrapS},
@@ -280,7 +280,7 @@ namespace Cocoa
 			res.internalFormat = ByteFormat::None;
 			res.externalFormat = ByteFormat::None;
 
-			res.path = Path::createDefault();
+			res.path = "";
 			res.isDefault = false;
 
 			return res;

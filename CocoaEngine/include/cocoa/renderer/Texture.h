@@ -1,7 +1,8 @@
 #ifndef COCOA_ENGINE_TEXTURE_H
 #define COCOA_ENGINE_TEXTURE_H
 #include "cocoa/core/Core.h"
-#include "cocoa/file/Path.h"
+
+#include <filesystem>
 
 namespace Cocoa
 {
@@ -48,7 +49,7 @@ namespace Cocoa
 		ByteFormat internalFormat;
 		ByteFormat externalFormat;
 
-		Path path;
+		std::filesystem::path path;
 		bool isDefault;
 	};
 
@@ -65,7 +66,7 @@ namespace Cocoa
 
 		// Loads a texture using stb library and generates a texutre using the filter/wrap modes and automatically detects
 		// internal/external format, width, height, and alpha channel
-		COCOA void generate(Texture& texture, const Path& filepath);
+		COCOA void generate(Texture& texture, const std::filesystem::path& filepath);
 
 		// Allocates memory space on the GPU according to the texture specifications listed here
 		COCOA void generate(Texture& texture);

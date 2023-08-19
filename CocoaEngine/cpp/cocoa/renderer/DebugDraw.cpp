@@ -66,9 +66,9 @@ namespace Cocoa
 		{
 			if (m_Shader.isNull())
 			{
-				PathBuilder shaderPath = Settings::General::engineAssetsPath;
-				shaderPath.join("shaders/SpriteRenderer.glsl");
-				m_Shader = AssetManager::getShader(shaderPath.createPath());
+				std::filesystem::path shaderPath = Settings::General::engineAssetsPath;
+				shaderPath = shaderPath/"shaders/SpriteRenderer.glsl";
+				m_Shader = AssetManager::getShader(shaderPath);
 			}
 
 			RemoveDeadLines();

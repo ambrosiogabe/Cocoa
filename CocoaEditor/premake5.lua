@@ -55,7 +55,8 @@ project "CocoaEditor"
     }
 
     defines {
-        "_CRT_SECURE_NO_WARNINGS"
+        "_CRT_SECURE_NO_WARNINGS",
+        "_GABE_CPP_UTILS_IMPORT_DLL"
     }
 
     filter { "system:windows", "configurations:Debug" }

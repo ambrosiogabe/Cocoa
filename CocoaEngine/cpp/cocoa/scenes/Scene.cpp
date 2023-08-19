@@ -235,12 +235,12 @@ namespace Cocoa
 			}
 		}
 
-		void save(SceneData& data, const Path& filename)
+		void save(SceneData& data, const std::filesystem::path& filename)
 		{
-			Logger::Log("Saving scene '%s'", filename.path);
+			Logger::Log("Saving scene '%s'", filename.string().c_str());
 			data.saveDataJson = {
 				{"Components", {}},
-				{"Project", Settings::General::currentProject.c_str()},
+				{"Project", Settings::General::currentProject.string()},
 				{"Assets", AssetManager::serialize()}
 			};
 
@@ -261,9 +261,9 @@ namespace Cocoa
 			File::writeFile(data.saveDataJson.dump(4).c_str(), filename);
 		}
 
-		void load(SceneData& data, const Path& filename, bool setAsCurrentScene)
+		void load(SceneData& data, const std::filesystem::path& filename, bool setAsCurrentScene)
 		{
-			Logger::Log("Loading scene %s", filename.path);
+			Logger::Log("Loading scene %s", filename.string().c_str());
 			init(data);
 
 			if (setAsCurrentScene)
@@ -298,7 +298,7 @@ namespace Cocoa
 			File::closeFile(file);
 		}
 
-		void loadScriptsOnly(SceneData& data, const Path& filename)
+		void loadScriptsOnly(SceneData& data, const std::filesystem::path& filename)
 		{
 			FileHandle* file = File::openFile(filename);
 			if (file->size <= 0)
@@ -306,7 +306,7 @@ namespace Cocoa
 				return;
 			}
 
-			Logger::Info("Loading scripts only for %s", filename.path);
+			Logger::Info("Loading scripts only for %s", filename.string().c_str());
 			json j = json::parse(file->data);
 			int size = !j.contains("Components") ? 0 : j["Components"].size();
 			for (int i = 0; i < size; i++)
@@ -419,12 +419,8 @@ namespace Cocoa
 			gizmoSpec.wrapS = WrapMode::Repeat;
 			gizmoSpec.wrapT = WrapMode::Repeat;
 			gizmoSpec.isDefault = true;
-			const Path gizmoPath = 
-				PathBuilder(Settings::General::engineAssetsPath)
-				.join("images/gizmos.png")
-				.createPath();
+			const std::filesystem::path gizmoPath = Settings::General::engineAssetsPath / "images" / "gizmos.png";
 			Handle<Texture> asset = AssetManager::loadTextureFromFile(gizmoSpec, gizmoPath);
-			String::FreeString(gizmoPath.path);
 		}
 
 		static Entity FindOrCreateEntity(int id, SceneData& scene, entt::registry& registry)

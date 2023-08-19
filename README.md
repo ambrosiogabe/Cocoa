@@ -1,3 +1,7 @@
+# Disclaimer
+
+This project is quite broken right now. You can explore it, and it should compile and run ok for the most part, but it's pretty broken and I'm not planning on working on it for awhile.
+
 # Cocoa Engine
 Welcome to Cocoa Engine, this is a 2D game engine independently developed by me, Gabe Ambrosio (AKA GamesWithGabe).  The engine is currently in development, for the most recent stable build please follow the following steps on the *master* branch. 
 
@@ -8,10 +12,21 @@ Next run these commands:
 ```
 git clone --recursive https://github.com/ambrosiogabe/Cocoa
 cd Cocoa
-build.bat
+build.bat vs2019
 ```
 
 These commands will clone the repository into your directory, update the submodules (this step takes awhile because of all the code). 
+
+Next, build freetype by doing:
+
+```
+cd CocoaEngine\vendor\freetypeVendor
+mkdir freetype2.compiled
+cd freetype2.compiled
+cmake ..
+```
+
+You'll also have to build it in the VS solution file.
 
 After that, simply double click the VisualStudio solution file that was (hopefully) generated, and then once it opens press F5 to run. This will compile *almost* all the projects, unfortunately I can't get FreeType to build in order ***yet***. So, for now, the build will fail the first time, then just right-click the ```freetype``` project in the right-hand panel in visual studio and click ```build```. 
 

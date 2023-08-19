@@ -15,18 +15,18 @@ namespace Cocoa
 #ifdef _WIN32
 	void FileSystemWatcher::startThread()
 	{
-		if (path.size == 0)
+		if (path.empty())
 		{
 			return;
 		}
 
-		HANDLE dirHandle = CreateFileA(path.path, GENERIC_READ | FILE_LIST_DIRECTORY,
+		HANDLE dirHandle = CreateFileA(path.string().c_str(), GENERIC_READ | FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 			NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
 			NULL);
 		if (dirHandle == INVALID_HANDLE_VALUE)
 		{
-			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", path.path);
+			Logger::Error("Invalid file access. Could not create FileSystemWatcher for '%s'", path.string().c_str());
 			return;
 		}
 
@@ -82,7 +82,7 @@ namespace Cocoa
 		pollingOverlap.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 		if (pollingOverlap.hEvent == NULL)
 		{
-			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", path.path);
+			Logger::Error("Could not create event watcher for FileSystemWatcher '%s'", path.string().c_str());
 			return;
 		}
 
@@ -125,19 +125,19 @@ namespace Cocoa
 				case FILE_ACTION_ADDED:
 					if (onCreated != nullptr)
 					{
-						onCreated(PathBuilder(filename).createPath());
+						onCreated(std::filesystem::path(std::string(filename)));
 					}
 					break;
 				case FILE_ACTION_REMOVED:
 					if (onDeleted != nullptr)
 					{
-						onDeleted(PathBuilder(filename).createPath());
+						onDeleted(std::filesystem::path(std::string(filename)));
 					}
 					break;
 				case FILE_ACTION_MODIFIED:
 					if (onChanged != nullptr)
 					{
-						onChanged(PathBuilder(filename).createPath());
+						onChanged(std::filesystem::path(std::string(filename)));
 					}
 					break;
 				case FILE_ACTION_RENAMED_OLD_NAME:
@@ -146,11 +146,11 @@ namespace Cocoa
 				case FILE_ACTION_RENAMED_NEW_NAME:
 					if (onRenamed != nullptr)
 					{
-						onRenamed(PathBuilder(filename).createPath());
+						onRenamed(std::filesystem::path(std::string(filename)));
 					}
 					break;
 				default:
-					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, path.path);
+					Logger::Error("Default error. Unknown file action '%d' for FileSystemWatcher '%s'", pNotify->Action, path.string().c_str());
 					break;
 				}
 

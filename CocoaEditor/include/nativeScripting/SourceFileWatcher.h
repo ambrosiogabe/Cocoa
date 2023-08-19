@@ -11,15 +11,15 @@ namespace Cocoa
 	{
 	public:
 		SourceFileWatcher() 
-			: mRootDirectory(Path::createDefault()) {}
-		SourceFileWatcher(Path path);
+			: mRootDirectory("") { }
+		SourceFileWatcher(const std::filesystem::path& path);
 		~SourceFileWatcher() { mFileWatcher.stop(); }
 
 	private:
 		void startFileWatcher();
 
 	private:
-		Path mRootDirectory;
+		std::filesystem::path mRootDirectory;
 		FileSystemWatcher mFileWatcher;
 	};
 }

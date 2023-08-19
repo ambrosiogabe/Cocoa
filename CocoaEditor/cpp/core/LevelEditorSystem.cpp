@@ -45,8 +45,8 @@ namespace Cocoa
 		static glm::vec3 m_OriginalDragClickPos = glm::vec3();
 		static glm::vec3 m_OriginalCameraPos = glm::vec3();
 
-		static Path tmpScriptDll;
-		static Path scriptDll;
+		static std::filesystem::path tmpScriptDll;
+		static std::filesystem::path scriptDll;
 
 		static Entity m_CameraEntity;
 
@@ -61,12 +61,8 @@ namespace Cocoa
 		void init(SceneData& scene)
 		{
 			InitComponentIds(scene);
-			tmpScriptDll = PathBuilder(Settings::General::engineExeDirectory)
-				.join("ScriptModuleTmp.dll")
-				.createPath();
-			scriptDll = PathBuilder(Settings::General::engineExeDirectory)
-				.join("ScriptModule.dll")
-				.createPath();
+			tmpScriptDll = Settings::General::engineExeDirectory / "ScriptModuleTmp.dll";
+			scriptDll = Settings::General::engineExeDirectory / "ScriptModule.dll";
 			initImGui = false;
 
 			Logger::Assert(!Scene::isValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
@@ -86,6 +82,10 @@ namespace Cocoa
 			Texture color1;
 			color1.internalFormat = ByteFormat::R32UI;
 			color1.externalFormat = ByteFormat::RED_INTEGER;
+			color1.wrapS = WrapMode::None;
+			color1.wrapT = WrapMode::None;
+			color1.magFilter = FilterMode::None;
+			color1.minFilter = FilterMode::None;
 			NFramebuffer::addColorAttachment(editorCameraFramebuffer, color1);
 			NFramebuffer::generate(editorCameraFramebuffer);
 
@@ -139,7 +139,7 @@ namespace Cocoa
 
 			if (File::isFile(tmpScriptDll))
 			{
-				Scene::save(scene, Settings::General::currentScene.createTmpPath());
+				Scene::save(scene, Settings::General::currentScene);
 				EditorLayer::saveProject();
 
 				// This should free the scripts too so we can delete the old dll
@@ -147,8 +147,8 @@ namespace Cocoa
 
 				// Now copy new dll and reload the scene
 				File::deleteFile(scriptDll);
-				File::copyFile(tmpScriptDll, PathBuilder(scriptDll.getDirectory(-1).c_str()).createTmpPath(), "ScriptModule");
-				Scene::load(scene, Settings::General::currentScene.createTmpPath());
+				File::copyFile(tmpScriptDll, scriptDll.parent_path(), "ScriptModule");
+				Scene::load(scene, Settings::General::currentScene);
 
 				// Then delete temporary file of new dll
 				File::deleteFile(tmpScriptDll);
@@ -260,7 +260,7 @@ namespace Cocoa
 
 				if (e.getKeyCode() == COCOA_KEY_S)
 				{
-					Scene::save(scene, Settings::General::currentScene.createTmpPath());
+					Scene::save(scene, Settings::General::currentScene);
 					EditorLayer::saveProject();
 				}
 

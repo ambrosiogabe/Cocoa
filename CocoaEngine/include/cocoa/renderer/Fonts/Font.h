@@ -4,6 +4,8 @@
 #include "cocoa/core/Handle.h"
 #include "cocoa/renderer/Texture.h"
 
+#include <filesystem>
+
 #undef CreateFont
 
 // TODO: I haven't tested changing this to a namespace
@@ -12,7 +14,7 @@ namespace Cocoa
 {
 	struct Font
 	{
-		Path path;
+		std::filesystem::path path;
 		Handle<Texture> fontTexture;
 		CharInfo* characterMap;
 		int characterMapSize;
@@ -21,12 +23,12 @@ namespace Cocoa
 		bool isDefault;
 		bool isNull;
 
-		COCOA static Font createFont(Path& resourcePath, bool isDefault = false);
+		COCOA static Font createFont(std::filesystem::path& resourcePath, bool isDefault = false);
 		COCOA static Font createFont();
 		COCOA static Font nullFont();
 
 		COCOA const CharInfo& getCharacterInfo(int codepoint) const;
-		COCOA void generateSdf(const Path& fontFile, int fontSize, const Path& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);
+		COCOA void generateSdf(const std::filesystem::path& fontFile, int fontSize, const std::filesystem::path& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);
 		COCOA void free() const;
 
 		COCOA json serialize() const;

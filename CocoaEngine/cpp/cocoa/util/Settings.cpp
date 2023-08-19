@@ -11,16 +11,16 @@ namespace Cocoa
 			// =======================================================================
 			// TODO: This is a bit misleading because none of these defaults are actually ever used. See 'CocoaEditorApplication.cpp' to see how they
 			// TODO: are overwritten
-			extern PathBuilder imGuiConfigPath = "default.ini";
-			extern PathBuilder engineAssetsPath = "assets";
-			extern PathBuilder engineExeDirectory = PathBuilder();
-			extern PathBuilder engineSourceDirectory = PathBuilder();
-			extern PathBuilder currentScene = "New Scene.cocoa";
-			extern PathBuilder currentProject = "New Project.cprj";
-			extern PathBuilder stylesDirectory = "assets/styles";
-			extern PathBuilder workingDirectory = PathBuilder();
-			extern PathBuilder editorSaveData = "EditorSaveData.json";
-			extern PathBuilder editorStyleData = "EditorStyle.json";
+			extern std::filesystem::path imGuiConfigPath = "default.ini";
+			extern std::filesystem::path engineAssetsPath = "assets";
+			extern std::filesystem::path engineExeDirectory = "";
+			extern std::filesystem::path engineSourceDirectory = "";
+			extern std::filesystem::path currentScene = "New Scene.cocoa";
+			extern std::filesystem::path currentProject = "New Project.cprj";
+			extern std::filesystem::path stylesDirectory = "assets/styles";
+			extern std::filesystem::path workingDirectory = "";
+			extern std::filesystem::path editorSaveData = "EditorSaveData.json";
+			extern std::filesystem::path editorStyleData = "EditorStyle.json";
 		}
 
 		namespace Physics2D

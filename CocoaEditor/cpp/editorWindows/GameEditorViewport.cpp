@@ -38,9 +38,8 @@ namespace Cocoa
 				{
 					if (!isPlaying)
 					{
-						PathBuilder tmpPath = PathBuilder(Settings::General::engineAssetsPath)
-							.join("tmp.cocoa");
-						Scene::save(scene, tmpPath.createTmpPath());
+						std::filesystem::path tmpPath = Settings::General::engineAssetsPath / "tmp.cocoa";
+						Scene::save(scene, tmpPath);
 						Scene::play(scene);
 						isPlaying = true;
 					}
@@ -51,19 +50,17 @@ namespace Cocoa
 					if (isPlaying)
 					{
 						Scene::stop(scene);
-						PathBuilder tmpPath = PathBuilder(Settings::General::engineAssetsPath)
-							.join("tmp.cocoa");
+						std::filesystem::path tmpPath = Settings::General::engineAssetsPath / "tmp.cocoa";
 						Scene::freeResources(scene);
-						Scene::load(scene, tmpPath.createTmpPath(), false);
+						Scene::load(scene, tmpPath, false);
 						isPlaying = false;
 					}
 					ImGui::EndMenu();
 				}
 				else if (ImGui::MenuItem("Compile"))
 				{
-					PathBuilder scriptsPath = PathBuilder(Settings::General::workingDirectory)
-						.join("scripts");
-					CppBuild::compile(scriptsPath.createTmpPath());
+					std::filesystem::path scriptsPath = Settings::General::workingDirectory / "scripts";
+					CppBuild::compile(scriptsPath);
 				}
 				ImGui::EndMenuBar();
 			}

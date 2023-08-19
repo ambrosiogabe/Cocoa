@@ -6,6 +6,8 @@
 #include <shlobj.h>
 #include <knownfolders.h>
 
+#include <filesystem>
+
 #ifdef CopyFile
 #undef CopyFile
 #endif
@@ -20,13 +22,14 @@ namespace Cocoa
 {
 	namespace File
 	{
-		FileHandle* openFile(const Path& filename)
+		FileHandle* openFile(const std::filesystem::path& filename)
 		{
 			FileHandle* file = (FileHandle*)AllocMem(sizeof(FileHandle));
-			file->filename = filename.path;
+			new(file)FileHandle();
+			file->filename = filename.filename().string();
 
 			FILE* filePointer;
-			filePointer = fopen(file->filename, "rb");
+			filePointer = fopen(file->filename.c_str(), "rb");
 			if (filePointer)
 			{
 				fseek(filePointer, 0, SEEK_END);
@@ -86,43 +89,37 @@ namespace Cocoa
 			}
 		}
 
-		bool writeFile(const char* data, const Path& filename)
+		bool writeFile(const char* data, const std::filesystem::path& filename)
 		{
-			std::ofstream outStream(filename.path);
+			std::ofstream outStream(filename.string());
 			outStream << data;
 			outStream.close();
 			return true;
 		}
 
-		bool createFile(const Path& filename, const char* extToAppend)
+		bool createFile(const std::filesystem::path& filename, const char* extToAppend)
 		{
-			Path fileToWrite = filename;
-			if (filename.fileExt == nullptr || filename.fileExt[0] == '\0')
+			std::filesystem::path fileToWrite = filename;
+			if (!filename.has_extension())
 			{
-				StringBuilder newFilename;
-				newFilename.Append(filename.path);
-				newFilename.Append(extToAppend);
-				fileToWrite = PathBuilder(newFilename.c_str()).createPath();
+				fileToWrite = (filename.string() + extToAppend);
 			}
-			HANDLE fileHandle = CreateFileA(fileToWrite.path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE fileHandle = CreateFileA(fileToWrite.string().c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			bool res = fileHandle != INVALID_HANDLE_VALUE;
 			CloseHandle(fileHandle);
 			return res;
 		}
 
-		bool deleteFile(const Path& filename)
+		bool deleteFile(const std::filesystem::path& filename)
 		{
-			return DeleteFileA(filename.path);
+			return DeleteFileA(filename.string().c_str());
 		}
 
-		bool copyFile(const Path& fileToCopy, const Path& newFileLocation, const char* newFilename)
+		bool copyFile(const std::filesystem::path& fileToCopy, const std::filesystem::path& newFileLocation, const char* newFilename)
 		{
-			PathBuilder newFilepath = PathBuilder(newFileLocation);
-			StringBuilder newFilenameWithExt;
-			newFilenameWithExt.Append(newFilename);
-			newFilenameWithExt.Append(fileToCopy.fileExt);
-			newFilepath.join(newFilenameWithExt.c_str());
-			if (!CopyFileExA(fileToCopy.path, newFilepath.c_str(), NULL, NULL, false, NULL))
+			std::string newFilenameWithExt = newFilename + std::string(fileToCopy.extension().string());
+			std::filesystem::path newFilepath = newFileLocation/newFilenameWithExt;
+			if (!CopyFileExA(fileToCopy.string().c_str(), newFilepath.string().c_str(), NULL, NULL, false, NULL))
 			{
 				Logger::Warning("Could not copy file error code: %d", GetLastError());
 				return false;
@@ -131,57 +128,56 @@ namespace Cocoa
 			return true;
 		}
 
-		Path getCwd()
+		std::filesystem::path getCwd()
 		{
 			char buff[FILENAME_MAX];
 			char* success = _getcwd(buff, FILENAME_MAX);
 			Logger::Assert(success != NULL, "Unable to get Current Working Directory.");
-			return { buff };
+			return std::filesystem::path(std::string(buff));
 		}
 
-		Path getSpecialAppFolder()
+		std::filesystem::path getSpecialAppFolder()
 		{
 			PWSTR pszPath;
 			if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pszPath)))
 			{
 				char* tmp = (char*)AllocMem(sizeof(char) * 256);
 				wcstombs(tmp, pszPath, 256);
-				const Path result = PathBuilder(tmp).createPath();
+				std::filesystem::path result = std::filesystem::path(std::string(tmp));
 				FreeMem(tmp);
 				return result;
 			}
 
 			Logger::Assert(false, "Could not retrieve AppRoamingData folder.");
-			return Path::createDefault();
+			return {};
 		}
 
-		Path getExecutableDirectory()
+		std::filesystem::path getExecutableDirectory()
 		{
 			char filepath[MAX_PATH];
 			DWORD res = GetModuleFileNameA(NULL, filepath, MAX_PATH);
 			Logger::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
 
-			return PathBuilder(filepath).createPath();
+			return std::filesystem::path(std::string(filepath));
 		}
 
-		void createDirIfNotExists(const Path& directory)
+		void createDirIfNotExists(const std::filesystem::path& directory)
 		{
-			if (!(CreateDirectoryA(directory.path, NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
+			if (!(CreateDirectoryA(directory.string().c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 			{
-				Logger::Assert(false, "Failed to create directory %s", directory.path);
+				Logger::Assert(false, "Failed to create directory %s", directory.string().c_str());
 			}
 		}
 
-		std::vector<Path> getFilesInDir(const Path& directory)
+		std::vector<std::filesystem::path> getFilesInDir(const std::filesystem::path& directory)
 		{
-			std::vector<Path> result;
+			std::vector<std::filesystem::path> result;
 			HANDLE dir;
 			WIN32_FIND_DATAA fileData;
 
-			Path dirPath = directory;
-			PathBuilder wildcardMatch = dirPath;
-			wildcardMatch.join("*");
-			if ((dir = FindFirstFileA(wildcardMatch.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			std::filesystem::path dirPath = directory;
+			std::filesystem::path wildcardMatch = dirPath/"*";
+			if ((dir = FindFirstFileA(wildcardMatch.string().c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -189,19 +185,18 @@ namespace Cocoa
 
 			do
 			{
-				Path filename = PathBuilder(fileData.cFileName).createPath();
-				PathBuilder fullFilename = dirPath;
-				fullFilename.join(filename);
+				std::filesystem::path filename = std::filesystem::path(fileData.cFileName);
+				std::filesystem::path fullFilename = dirPath/filename;
 				const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-				if (filename.path[0] == '.')
+				if (filename.string()[0] == '.')
 				{
 					continue;
 				}
 
 				if (!isDirectory)
 				{
-					result.push_back(fullFilename.createPath());
+					result.push_back(fullFilename);
 				}
 			} while (FindNextFileA(dir, &fileData));
 
@@ -210,16 +205,15 @@ namespace Cocoa
 			return result;
 		}
 
-		std::vector<Path> getFoldersInDir(const Path& directory)
+		std::vector<std::filesystem::path> getFoldersInDir(const std::filesystem::path& directory)
 		{
-			std::vector<Path> result;
+			std::vector<std::filesystem::path> result;
 			HANDLE dir;
 			WIN32_FIND_DATAA fileData;
 
-			Path dirPath = directory;
-			PathBuilder wildcardMatch = dirPath;
-			wildcardMatch.join("*");
-			if ((dir = FindFirstFileA(wildcardMatch.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			std::filesystem::path dirPath = directory;
+			std::filesystem::path wildcardMatch = dirPath/"*";
+			if ((dir = FindFirstFileA(wildcardMatch.string().c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -227,12 +221,11 @@ namespace Cocoa
 
 			do
 			{
-				Path filename = PathBuilder(fileData.cFileName).createPath();
+				std::filesystem::path filename = std::filesystem::path(fileData.cFileName);
 				bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-				if (filename.path[0] == '.')
+				if (filename.string()[0] == '.')
 				{
-					String::FreeString(filename.path);
 					continue;
 				}
 
@@ -247,35 +240,35 @@ namespace Cocoa
 			return result;
 		}
 
-		Path getAbsolutePath(const Path& path)
+		std::filesystem::path getAbsolutePath(const std::filesystem::path& path)
 		{
-			const int bufferLength = GetFullPathNameA(path.path, 0, nullptr, nullptr);
+			const int bufferLength = GetFullPathNameA(path.string().c_str(), 0, nullptr, nullptr);
 			char* buffer = (char*)AllocMem(sizeof(char) * bufferLength);
-			GetFullPathNameA(path.path, bufferLength, buffer, nullptr);
-			const Path result = PathBuilder(buffer).createPath();
+			GetFullPathNameA(path.string().c_str(), bufferLength, buffer, nullptr);
+			const std::filesystem::path result = std::filesystem::path(std::string(buffer));
 			FreeMem(buffer);
 			return result;
 		}
 
-		bool isFile(const Path& filepath)
+		bool isFile(const std::filesystem::path& filepath)
 		{
-			const DWORD fileAttributes = GetFileAttributesA(filepath.path);
+			const DWORD fileAttributes = GetFileAttributesA(filepath.string().c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
-		bool isHidden(const Path& filepath)
+		bool isHidden(const std::filesystem::path& filepath)
 		{
-			const DWORD fileAttributes = GetFileAttributesA(filepath.path);
+			const DWORD fileAttributes = GetFileAttributesA(filepath.string().c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_HIDDEN);
 		}
 
-		bool isDirectory(const Path& directory)
+		bool isDirectory(const std::filesystem::path& directory)
 		{
-			const DWORD fileAttributes = GetFileAttributesA(directory.path);
+			const DWORD fileAttributes = GetFileAttributesA(directory.string().c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
-		bool runProgram(const Path& pathToExe, const char* cmdArgs)
+		bool runProgram(const std::filesystem::path& pathToExe, const char* cmdArgs)
 		{
 			STARTUPINFOA startupInfo;
 			PROCESS_INFORMATION processInfo;
@@ -284,10 +277,7 @@ namespace Cocoa
 			startupInfo.cb = sizeof(startupInfo);
 			ZeroMemory(&processInfo, sizeof(processInfo));
 
-			StringBuilder cmdArguments;
-			cmdArguments.Append(pathToExe.path);
-			cmdArguments.Append(' ');
-			cmdArguments.Append(cmdArgs);
+			std::string cmdArguments = pathToExe.string() + " " + cmdArgs;
 
 			// Start the program
 			bool res = CreateProcessA(
@@ -311,13 +301,13 @@ namespace Cocoa
 			}
 			else
 			{
-				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.path);
+				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.string().c_str());
 			}
 
 			return res;
 		}
 
-		bool runProgram(const Path& pathToExe, const std::string& cmdArgs)
+		bool runProgram(const std::filesystem::path& pathToExe, const std::string& cmdArgs)
 		{
 			return runProgram(pathToExe, cmdArgs.c_str());
 		}

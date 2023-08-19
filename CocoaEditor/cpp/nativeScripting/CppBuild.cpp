@@ -10,14 +10,12 @@ namespace Cocoa
 		static bool buildingCode = false;
 		static bool compiling = false;
 
-		void build(const Path& projectDirectory)
+		void build(const std::filesystem::path& projectDirectory)
 		{
 			if (!buildingCode && !compiling)
 			{
 				buildingCode = true;
-				const Path pathToBuildScript = PathBuilder(projectDirectory.getDirectory(-1).c_str())
-					.join("build.bat")
-					.createTmpPath();
+				const std::filesystem::path pathToBuildScript = projectDirectory.parent_path() / "build.bat";
 				std::string cmdArgs = "vs2019";
 				Logger::Info("CMD Args: %s", cmdArgs.c_str());
 				File::runProgram(pathToBuildScript, cmdArgs);
@@ -25,14 +23,12 @@ namespace Cocoa
 			}
 		}
 
-		void compile(const Path& projectDirectory)
+		void compile(const std::filesystem::path& projectDirectory)
 		{
 			if (!buildingCode && !compiling)
 			{
 				compiling = true;
-				Path pathToBuildScript = PathBuilder(projectDirectory.getDirectory(-1).c_str())
-					.join("build.bat")
-					.createTmpPath();
+				std::filesystem::path pathToBuildScript = projectDirectory.parent_path() / "build.bat";
 				std::string cmdArgs = "compile";
 				Logger::Info("CMD Args: %s", cmdArgs.c_str());
 				File::runProgram(pathToBuildScript, cmdArgs);

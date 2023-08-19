@@ -13,11 +13,11 @@ namespace Cocoa
 {
 	namespace CodeGenerators
 	{
-		void generateInitFile(const std::vector<UClass>& classes, const Path& filepath);
+		void generateInitFile(const std::vector<UClass>& classes, const std::filesystem::path& filepath);
 
-		void generatePremakeFile(const Path& filepath);
+		void generatePremakeFile(const std::filesystem::path& filepath);
 
-		void generateBuildFile(const Path& filepath, const Path& premakeFilepath);
+		void generateBuildFile(const std::filesystem::path& filepath, const std::filesystem::path& premakeFilepath);
 	}
 }
 

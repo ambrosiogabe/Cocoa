@@ -90,11 +90,11 @@ namespace Cocoa
 		}
 	}
 
-	void JsonExtended::assignIfNotNull(const json& j, const char* property, Path& path)
+	void JsonExtended::assignIfNotNull(const json& j, const char* property, std::filesystem::path& path)
 	{
 		if (j.contains(property) && j[property].is_string())
 		{
-			path = PathBuilder(std::string(j[property]).c_str()).createPath();
+			path = std::string(j[property]);
 		}
 	}
 }

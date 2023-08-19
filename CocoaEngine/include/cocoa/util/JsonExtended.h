@@ -1,7 +1,8 @@
 #ifndef COCOA_ENGINE_JSON_EXTENDED_H
 #define COCOA_ENGINE_JSON_EXTENDED_H
 #include "externalLibs.h"
-#include "cocoa/file/Path.h"
+
+#include <filesystem>
 
 namespace Cocoa
 {
@@ -16,7 +17,7 @@ namespace Cocoa
 		COCOA void assignIfNotNull(const json& j, const char* property, glm::vec2& vec);
 		COCOA void assignIfNotNull(const json& j, const char* property, glm::vec3& vector);
 		COCOA void assignIfNotNull(const json& j, const char* property, glm::vec4& vector);
-		COCOA void assignIfNotNull(const json& j, const char* property, Path& path);
+		COCOA void assignIfNotNull(const json& j, const char* property, std::filesystem::path& path);
 
 		template<typename T>
 		void assignEnumIfNotNull(const json& j, const char* property, T& enumValue)

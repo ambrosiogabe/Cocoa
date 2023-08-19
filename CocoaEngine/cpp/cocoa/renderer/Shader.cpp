@@ -31,19 +31,19 @@ namespace Cocoa
 				(uint32)-1,
 				-1,
 				false,
-				Path::createDefault()
+				std::filesystem::path()
 			};
 		}
 
-		Shader createShader(const Path& resourceName, bool isDefault)
+		Shader createShader(const std::filesystem::path& resourceName, bool isDefault)
 		{
 			// TODO: Should compilation happen on creation?
 			return compile(resourceName, isDefault);
 		}
 
-		Shader compile(const Path& filepath, bool isDefault)
+		Shader compile(const std::filesystem::path& filepath, bool isDefault)
 		{
-			std::string fileSource = ReadFile(filepath.path);
+			std::string fileSource = ReadFile(filepath.string().c_str());
 
 			std::unordered_map<GLenum, std::string> shaderSources;
 
@@ -264,7 +264,7 @@ namespace Cocoa
 				const ShaderVariable& shaderVar = m_AllShaderVariables[i];
 				if (shaderVar.ShaderProgramId != shader.programId)
 				{
-					Logger::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.filepath.path);
+					Logger::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.filepath.string().c_str());
 					break;
 				}
 
