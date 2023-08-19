@@ -2,8 +2,6 @@
 #include "cocoa/core/Core.h"
 
 #include "cocoa/core/Application.h"
-#include "cocoa/renderer/DebugDraw.h"
-#include "cocoa/core/Entity.h"
 
 namespace Cocoa
 {
@@ -15,43 +13,37 @@ namespace Cocoa
 
 	Application::Application()
 	{
-		m_Running = true;
+		mRunning = true;
 
-		std::string title = std::string("Test Window");
-		Log::Info("Initializing GLAD functions in DLL.");
-		m_Window = CWindow::Create(1920, 1080, title);
-		s_Instance = this;
+		Logger::Info("Initializing GLAD functions in DLL.");
+		mWindow = CWindow::create(1920, 1080, "Test Window");
+		sInstance = this;
 
-		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+		mWindow->setEventCallback(std::bind(&Application::onEvent, this, std::placeholders::_1));
 	}
 
-	Application::~Application()
+	void Application::run()
 	{
+		if (!mAppData.appOnAttach) { mAppData.appOnAttach = AppOnAttach; }
+		if (!mAppData.appOnEvent) { mAppData.appOnEvent = AppOnEvent; }
+		if (!mAppData.appOnRender) { mAppData.appOnRender = AppOnRender; }
+		if (!mAppData.appOnUpdate) { mAppData.appOnUpdate = AppOnUpdate; }
 
-	}
+		mAppData.appOnAttach(mCurrentScene);
 
-	void Application::Run()
-	{
-		if (!m_AppData.AppOnAttach) { m_AppData.AppOnAttach = AppOnAttach; }
-		if (!m_AppData.AppOnEvent) { m_AppData.AppOnEvent = AppOnEvent; }
-		if (!m_AppData.AppOnRender) { m_AppData.AppOnRender = AppOnRender; }
-		if (!m_AppData.AppOnUpdate) { m_AppData.AppOnUpdate = AppOnUpdate; }
-
-		m_AppData.AppOnAttach(m_CurrentScene);
-
-		while (m_Running)
+		while (mRunning)
 		{
 			float time = (float)glfwGetTime();
-			float dt = time - m_LastFrameTime;
-			m_LastFrameTime = time;
+			float dt = time - mLastFrameTime;
+			mLastFrameTime = time;
 
-			BeginFrame();
-			m_AppData.AppOnUpdate(m_CurrentScene, dt);
-			m_AppData.AppOnRender(m_CurrentScene);
-			EndFrame();
+			beginFrame();
+			mAppData.appOnUpdate(mCurrentScene, dt);
+			mAppData.appOnRender(mCurrentScene);
+			endFrame();
 
-			m_Window->OnUpdate();
-			m_Window->Render();
+			mWindow->onUpdate();
+			mWindow->render();
 		}
 
 		// TODO: Should this be a thing? (probably, add support at some point...)
@@ -60,40 +52,40 @@ namespace Cocoa
 		//	layer->OnDetach();
 		//}
 
-		m_Window->Destroy();
+		mWindow->destroy();
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	bool Application::onWindowClose(WindowCloseEvent& e)
 	{
-		m_Running = false;
+		mRunning = false;
 		return true;
 	}
 
-	void Application::OnEvent(Event& e)
+	void Application::onEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
+		dispatcher.dispatch<WindowCloseEvent>(std::bind(&Application::onWindowClose, this, std::placeholders::_1));
 
-		m_AppData.AppOnEvent(m_CurrentScene, e);
+		mAppData.appOnEvent(mCurrentScene, e);
 	}
 
-	void Application::Stop()
+	void Application::stop()
 	{
-		m_Running = false;
+		mRunning = false;
 	}
 
-	CWindow* Application::GetWindow() const
+	CWindow* Application::getWindow() const
 	{
-		return m_Window;
+		return mWindow;
 	}
 
-	Application* Application::s_Instance = nullptr;
-	Application* Application::Get()
+	Application* Application::sInstance = nullptr;
+	Application* Application::get()
 	{
-		if (!s_Instance)
+		if (!sInstance)
 		{
-			Log::Error("Cannot get application. It is nullptr.");
+			Logger::Error("Cannot get application. It is nullptr.");
 		}
-		return s_Instance;
+		return sInstance;
 	}
 }

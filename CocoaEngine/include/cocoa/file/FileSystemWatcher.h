@@ -1,8 +1,10 @@
-#pragma once
+#ifndef COCOA_ENGINE_FILE_SYSTEM_WATCHER_H
+#define COCOA_ENGINE_FILE_SYSTEM_WATCHER_H
 
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
-#include "CPath.h"
+
+#include <filesystem>
 
 #include <thread>
 #ifdef _WIN32
@@ -31,35 +33,37 @@ namespace Cocoa
 	{
 	public:
 		FileSystemWatcher();
-		~FileSystemWatcher() { Stop(); }
-		void Start();
-		void Stop();
+		~FileSystemWatcher() { stop(); }
+		void start();
+		void stop();
 
 	public:
-		typedef void (*OnChanged)(const CPath& file);
-		typedef void (*OnRenamed)(const CPath& file);
-		typedef void (*OnDeleted)(const CPath& file);
-		typedef void (*OnCreated)(const CPath& file);
+		typedef void (*OnChanged)(const std::filesystem::path& file);
+		typedef void (*OnRenamed)(const std::filesystem::path& file);
+		typedef void (*OnDeleted)(const std::filesystem::path& file);
+		typedef void (*OnCreated)(const std::filesystem::path& file);
 
-		OnChanged m_OnChanged = nullptr;
-		OnRenamed m_OnRenamed = nullptr;
-		OnDeleted m_OnDeleted = nullptr;
-		OnCreated m_OnCreated = nullptr;
+		OnChanged onChanged = nullptr;
+		OnRenamed onRenamed = nullptr;
+		OnDeleted onDeleted = nullptr;
+		OnCreated onCreated = nullptr;
 
-		int m_NotifyFilters = 0;
-		bool m_IncludeSubdirectories = false;
-		std::string m_Filter = "";
-		CPath m_Path = NCPath::CreatePath();
+		int notifyFilters = 0;
+		bool includeSubdirectories = false;
+		std::string filter = "";
+		std::filesystem::path path = {};
 
 	private:
-		bool m_EnableRaisingEvents = true;
-		std::thread m_Thread;
+		void startThread();
+
+	private:
+		bool mEnableRaisingEvents = true;
+		std::thread mThread;
 
 #ifdef _WIN32
-		HANDLE hStopEvent;
+		HANDLE mHStopEvent;
 #endif
-
-	private:
-		void StartThread();
 	};
 }
+
+#endif

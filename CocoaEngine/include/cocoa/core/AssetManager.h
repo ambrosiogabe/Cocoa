@@ -1,10 +1,12 @@
-#pragma once
+#ifndef COCOA_ENGINE_ASSET_MANAGER_H
+#define COCOA_ENGINE_ASSET_MANAGER_H
 #include "externalLibs.h"
-#include "cocoa/file/CPath.h"
-#include "cocoa/util/Log.h"
-#include "cocoa/renderer/fonts/Font.h"
+#include "cocoa/renderer/Fonts/Font.h"
 #include "cocoa/renderer/Texture.h"
 #include "cocoa/renderer/Shader.h"
+
+#include <filesystem>
+#include <vector>
 
 namespace Cocoa
 {
@@ -16,39 +18,32 @@ namespace Cocoa
 		Shader = 3
 	};
 
-	class COCOA AssetManager
+	namespace AssetManager
 	{
-	public:
-		static Handle<Texture> LoadTextureFromJson(const json& j, bool isDefault = false, int id = -1);
-		static Handle<Texture> LoadTextureFromFile(Texture& texture, const CPath& path, int id = -1);
-		static Handle<Texture> GetTexture(const CPath& path);
-		static const Texture& GetTexture(uint32 resourceId);
+		COCOA Handle<Texture> loadTextureFromJson(const json& j, bool isDefault = false, int id = -1);
+		COCOA Handle<Texture> loadTextureFromFile(Texture& texture, const std::filesystem::path& path, int id = -1);
+		COCOA Handle<Texture> getTexture(const std::filesystem::path& path);
+		COCOA const Texture& getTexture(uint32 resourceId);
 
-		static Handle<Font> LoadFontFromJson(const CPath& path, const json& j, bool isDefault = false, int id = -1);
-		static Handle<Font> LoadFontFromTtfFile(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution);
-		static Handle<Font> GetFont(const CPath& path);
-		static const Font& GetFont(uint32 resourceId);
+		COCOA Handle<Font> loadFontFromJson(const std::filesystem::path& path, const json& j, bool isDefault = false, int id = -1);
+		COCOA Handle<Font> loadFontFromTtfFile(const std::filesystem::path& fontFile, int fontSize, const std::filesystem::path& outputFile, int glyphRangeStart, int glyphRangeEnd, int padding, int upscaleResolution);
+		COCOA Handle<Font> getFont(const std::filesystem::path& path);
+		COCOA const Font& getFont(uint32 resourceId);
 
-		static Handle<Shader> LoadShaderFromFile(const CPath& path, bool isDefault = false, int id = -1);
-		static Handle<Shader> GetShader(const CPath& path);
-		static const Shader& GetShader(uint32 resourceId);
+		COCOA Handle<Shader> loadShaderFromFile(const std::filesystem::path& path, bool isDefault = false, int id = -1);
+		COCOA Handle<Shader> getShader(const std::filesystem::path& path);
+		COCOA const Shader& getShader(uint32 resourceId);
 
-		static void LoadTexturesFrom(const json& j);
-		static void LoadFontsFrom(const json& j);
-		static json Serialize();
+		COCOA void loadTexturesFrom(const json& j);
+		COCOA void loadFontsFrom(const json& j);
+		COCOA json serialize();
 
-		static void Clear();
-		static void Init(uint32 scene);
+		COCOA void clear();
+		COCOA void init(uint32 scene);
 
-		static const std::vector<Texture>& GetAllTextures() { return s_Textures; }
-		static const std::vector<Font>& GetAllFonts() { return s_Fonts; }
-
-	public:
-		static uint32 s_CurrentScene;
-		static uint32 s_ResourceCount;
-
-		static std::vector<Texture> s_Textures;
-		static std::vector<Font> s_Fonts;
-		static std::vector<Shader> s_Shaders;
-	};
+		COCOA const std::vector<Texture>& getAllTextures();
+		COCOA const std::vector<Font>& getAllFonts();
+	}
 }
+
+#endif

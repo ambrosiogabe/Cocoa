@@ -1,12 +1,12 @@
 #include "externalLibs.h"
 
-#include "cocoa/util/Log.h"
 #include "cocoa/systems/RenderSystem.h"
-#include "cocoa/core/Application.h"
 #include "cocoa/core/AssetManager.h"
-#include "cocoa/commands/ICommand.h"
 #include "cocoa/util/CMath.h"
-#include "cocoa/util/DynamicArray.h"
+#include "cocoa/renderer/DebugDraw.h"
+#include "cocoa/renderer/CameraStruct.h"
+#include "cocoa/renderer/RenderBatch.h"
+#include "cocoa/util/Settings.h"
 
 #include <nlohmann/json.hpp>
 
@@ -15,75 +15,49 @@ namespace Cocoa
 	namespace RenderSystem
 	{
 		// Internal Variables
-		static Handle<Shader> m_SpriteShader = Handle<Shader>();
-		static Handle<Shader> m_FontShader = Handle<Shader>();
-		static Framebuffer m_MainFramebuffer = Framebuffer();
+		static Handle<Shader> m_SpriteShader = NHandle::createHandle<Shader>();
+		static Handle<Shader> m_FontShader = NHandle::createHandle<Shader>();
 
 		static int m_TexSlots[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 		static const int MAX_BATCH_SIZE = 1000;
 
-		static DynamicArray<RenderBatchData> m_Batches;
-		static Camera* m_Camera;
+		static List<RenderBatchData> m_Batches;
 
-		void Init(SceneData& scene)
+		void init()
 		{
-			m_Camera = &scene.SceneCamera;
+			m_Batches = List<RenderBatchData>(1);
 
-			Log::Assert(m_MainFramebuffer.Fbo == (uint32)-1, "Tried to initialize render system twice.");
-			m_MainFramebuffer.Width = 3840;
-			m_MainFramebuffer.Height = 2160;
-			m_MainFramebuffer.IncludeDepthStencil = false;
-			Texture color0;
-			color0.InternalFormat = ByteFormat::RGB;
-			color0.ExternalFormat = ByteFormat::RGB;
-			color0.MagFilter = FilterMode::Linear;
-			color0.MinFilter = FilterMode::Linear;
-			color0.WrapS = WrapMode::Repeat;
-			color0.WrapT = WrapMode::Repeat;
-			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color0);
-			Texture color1;
-			color1.InternalFormat = ByteFormat::R32UI;
-			color1.ExternalFormat = ByteFormat::RED_INTEGER;
-			NFramebuffer::AddColorAttachment(m_MainFramebuffer, color1);
-			NFramebuffer::Generate(m_MainFramebuffer);
-
-			m_Batches = NDynamicArray::Create<RenderBatchData>(1);
-
-			CPath spriteShaderPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(spriteShaderPath, NCPath::CreatePath("shaders/SpriteRenderer.glsl"));
-			m_SpriteShader = AssetManager::LoadShaderFromFile(spriteShaderPath, true);
-			CPath fontShaderPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(fontShaderPath, NCPath::CreatePath("shaders/FontRenderer.glsl"));
-			m_FontShader = AssetManager::LoadShaderFromFile(fontShaderPath, true);
-			CPath pickingShaderPath = Settings::General::s_EngineAssetsPath;
-			NCPath::Join(pickingShaderPath, NCPath::CreatePath("shaders/Picking.glsl"));
-			AssetManager::LoadShaderFromFile(pickingShaderPath, true);
+			std::filesystem::path spriteShaderPath = Settings::General::engineAssetsPath/"shaders"/"SpriteRenderer.glsl";
+			m_SpriteShader = AssetManager::loadShaderFromFile(spriteShaderPath, true);
+			
+			std::filesystem::path fontShaderPath = Settings::General::engineAssetsPath/"shaders"/"FontRenderer.glsl";
+			m_FontShader = AssetManager::loadShaderFromFile(fontShaderPath, true);
+			
+			std::filesystem::path pickingShaderPath = Settings::General::engineAssetsPath/"shaders"/"Picking.glsl";
+			AssetManager::loadShaderFromFile(pickingShaderPath, true);
 		}
 
-		void Destroy()
+		void destroy()
 		{
-			NFramebuffer::Delete(m_MainFramebuffer);
-			for (int i = 0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatchData& data = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-				RenderBatch::Free(data);
+				RenderBatch::free(m_Batches[i]);
 			}
-			NDynamicArray::Free<RenderBatchData>(m_Batches);
 		}
 
-		void AddEntity(const TransformData& transform, const SpriteRenderer& spr)
+		void addEntity(const TransformData& transform, const SpriteRenderer& spr)
 		{
-			const Sprite& sprite = spr.m_Sprite;
+			const Sprite& sprite = spr.sprite;
 			bool wasAdded = false;
-			for (int i=0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-				if (RenderBatch::HasRoom(batch) && spr.m_ZIndex == batch.ZIndex && batch.BatchShader == m_SpriteShader)
+				RenderBatchData& batch = m_Batches[i];
+				if (RenderBatch::hasRoom(batch) && spr.zIndex == batch.zIndex && batch.batchShader == m_SpriteShader)
 				{
-					Handle<Texture> tex = sprite.m_Texture;
-					if (!tex || RenderBatch::HasTexture(batch, tex) || RenderBatch::HasTextureRoom(batch))
+					Handle<Texture> tex = sprite.texture;
+					if (!tex || RenderBatch::hasTexture(batch, tex) || RenderBatch::hasTextureRoom(batch))
 					{
-						RenderBatch::Add(batch, transform, spr);
+						RenderBatch::add(batch, transform, spr);
 						wasAdded = true;
 						break;
 					}
@@ -92,27 +66,27 @@ namespace Cocoa
 
 			if (!wasAdded)
 			{
-				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, spr.m_ZIndex, m_SpriteShader);
-				RenderBatch::Start(newBatch);
-				RenderBatch::Add(newBatch, transform, spr);
-				NDynamicArray::Add(m_Batches, newBatch);
-				std::sort(NDynamicArray::Begin<RenderBatchData>(m_Batches), NDynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
+				RenderBatchData newBatch = RenderBatch::createRenderBatch(MAX_BATCH_SIZE, spr.zIndex, m_SpriteShader);
+				RenderBatch::start(newBatch);
+				RenderBatch::add(newBatch, transform, spr);
+				m_Batches.push(newBatch);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::compare);
 			}
 		}
 
-		void AddEntity(const TransformData& transform, const FontRenderer& fontRenderer)
+		void addEntity(const TransformData& transform, const FontRenderer& fontRenderer)
 		{
-			const Font& font = AssetManager::GetFont(fontRenderer.m_Font.m_AssetId);
+			const Font& font = AssetManager::getFont(fontRenderer.font.assetId);
 			bool wasAdded = false;
-			for (int i=0; i < m_Batches.m_NumElements; i++)
+			for (int i = 0; i < m_Batches.size(); i++)
 			{
-				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-				if (RenderBatch::HasRoom(batch, fontRenderer) && fontRenderer.m_ZIndex == batch.ZIndex && batch.BatchShader == m_FontShader)
+				RenderBatchData& batch = m_Batches[i];
+				if (RenderBatch::hasRoom(batch, fontRenderer) && fontRenderer.zIndex == batch.zIndex && batch.batchShader == m_FontShader)
 				{
-					Handle<Texture> tex = font.m_FontTexture;
-					if (!tex || RenderBatch::HasTexture(batch, tex) || RenderBatch::HasTextureRoom(batch))
+					Handle<Texture> tex = font.fontTexture;
+					if (!tex || RenderBatch::hasTexture(batch, tex) || RenderBatch::hasTextureRoom(batch))
 					{
-						RenderBatch::Add(batch, transform, fontRenderer);
+						RenderBatch::add(batch, transform, fontRenderer);
 						wasAdded = true;
 						break;
 					}
@@ -121,60 +95,78 @@ namespace Cocoa
 
 			if (!wasAdded)
 			{
-				RenderBatchData newBatch = RenderBatch::CreateRenderBatch(MAX_BATCH_SIZE, fontRenderer.m_ZIndex, m_FontShader);
-				RenderBatch::Start(newBatch);
-				RenderBatch::Add(newBatch, transform, fontRenderer);
-				NDynamicArray::Add<RenderBatchData>(m_Batches, newBatch);
-				std::sort(NDynamicArray::Begin<RenderBatchData>(m_Batches), NDynamicArray::End<RenderBatchData>(m_Batches), RenderBatch::Compare);
+				RenderBatchData newBatch = RenderBatch::createRenderBatch(MAX_BATCH_SIZE, fontRenderer.zIndex, m_FontShader);
+				RenderBatch::start(newBatch);
+				RenderBatch::add(newBatch, transform, fontRenderer);
+				m_Batches.push(newBatch);
+				std::sort(m_Batches.begin(), m_Batches.end(), RenderBatch::compare);
 			}
 		}
 
-		void Render(const SceneData& scene)
+		void render(const SceneData& scene)
 		{
-			scene.Registry.view<const SpriteRenderer, const TransformData>().each([](auto entity, const auto& spriteRenderer, const auto& transform)
+			scene.registry.view<const SpriteRenderer, const TransformData>().each([](auto entity, const auto& spriteRenderer, const auto& transform)
 				{
-					AddEntity(transform, spriteRenderer);
+					addEntity(transform, spriteRenderer);
 				});
 
-			scene.Registry.view<const FontRenderer, const TransformData>().each([](auto entity, const auto& fontRenderer, const auto& transform)
+			scene.registry.view<const FontRenderer, const TransformData>().each([](auto entity, const auto& fontRenderer, const auto& transform)
 				{
-					AddEntity(transform, fontRenderer);
+					addEntity(transform, fontRenderer);
 				});
 
-			for (int i=0; i < m_Batches.m_NumElements; i++)
+			DebugDraw::addDebugObjectsToBatches();
+
+			auto view = scene.registry.view<const Camera>();
+			for (auto& rawEntity : view)
 			{
-				RenderBatchData& batch = NDynamicArray::Get<RenderBatchData>(m_Batches, i);
-				Log::Assert(!batch.BatchShader.IsNull(), "Cannot render with a null shader.");
-				const Shader& shader = AssetManager::GetShader(batch.BatchShader.m_AssetId);
-				NShader::Bind(shader);
-				NShader::UploadMat4(shader, "uProjection", m_Camera->ProjectionMatrix);
-				NShader::UploadMat4(shader, "uView", m_Camera->ViewMatrix);
-				NShader::UploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
+				const Camera& camera = scene.registry.get<Camera>(rawEntity);
+				NFramebuffer::bind(camera.framebuffer);
 
-				RenderBatch::Render(batch);
-				RenderBatch::Clear(batch);
+				glEnable(GL_BLEND); // TODO: This should be encapsulated within the camera somehow
+				glViewport(0, 0, 3840, 2160); // TODO: This should be encapsulated within the camera somehow
+				NCamera::clearColorRgb(camera, 0, camera.clearColor);
+				//RenderSystem::UploadUniform1ui("uActiveEntityID", InspectorWindow::GetActiveEntity().GetID() + 1);
+
+				DebugDraw::drawBottomBatches(camera);
+
+				for (int i = 0; i < m_Batches.size(); i++)
+				{
+					RenderBatchData& batch = m_Batches[i];
+					Logger::Assert(!batch.batchShader.isNull(), "Cannot render with a null shader.");
+					const Shader& shader = AssetManager::getShader(batch.batchShader.assetId);
+					NShader::bind(shader);
+					NShader::uploadMat4(shader, "uProjection", camera.projectionMatrix);
+					NShader::uploadMat4(shader, "uView", camera.viewMatrix);
+					NShader::uploadIntArray(shader, "uTextures[0]", 16, m_TexSlots);
+
+					RenderBatch::render(batch);
+				}
+
+				DebugDraw::drawTopBatches(camera);
+			}
+
+			for (int i = 0; i < m_Batches.size(); i++)
+			{
+				RenderBatch::clear(m_Batches[i]);
+				DebugDraw::clearAllBatches();
 			}
 		}
 
-		const Framebuffer& GetMainFramebuffer()
+		void serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)
 		{
-			return m_MainFramebuffer;
-		}
-
-		void Serialize(json& j, Entity entity, const SpriteRenderer& spriteRenderer)
-		{
-			json color = CMath::Serialize("Color", spriteRenderer.m_Color);
+			json color = CMath::serialize("Color", spriteRenderer.color);
 			json assetId = { "AssetId", (uint32)std::numeric_limits<uint32>::max() };
-			json zIndex = { "ZIndex", spriteRenderer.m_ZIndex };
-			if (spriteRenderer.m_Sprite.m_Texture)
+			json zIndex = { "ZIndex", spriteRenderer.zIndex };
+			if (spriteRenderer.sprite.texture)
 			{
-				assetId = { "AssetId", spriteRenderer.m_Sprite.m_Texture.m_AssetId };
+				assetId = { "AssetId", spriteRenderer.sprite.texture.assetId };
 			}
 
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"SpriteRenderer", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					assetId,
 					zIndex,
 					color
@@ -182,41 +174,41 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeSpriteRenderer(json& j, Entity entity)
+		void deserializeSpriteRenderer(const json& j, Entity entity)
 		{
 			SpriteRenderer spriteRenderer;
-			spriteRenderer.m_Color = CMath::DeserializeVec4(j["SpriteRenderer"]["Color"]);
+			spriteRenderer.color = CMath::deserializeVec4(j["SpriteRenderer"]["Color"]);
 			if (j["SpriteRenderer"].contains("AssetId"))
 			{
 				if (j["SpriteRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 				{
-					spriteRenderer.m_Sprite.m_Texture = Handle<Texture>(j["SpriteRenderer"]["AssetId"]);
+					spriteRenderer.sprite.texture = NHandle::createHandle<Texture>(j["SpriteRenderer"]["AssetId"]);
 				}
 			}
 
 			if (j["SpriteRenderer"].contains("ZIndex"))
 			{
-				spriteRenderer.m_ZIndex = j["SpriteRenderer"]["ZIndex"];
+				spriteRenderer.zIndex = j["SpriteRenderer"]["ZIndex"];
 			}
-			NEntity::AddComponent<SpriteRenderer>(entity, spriteRenderer);
+			NEntity::addComponent<SpriteRenderer>(entity, spriteRenderer);
 		}
 
-		void Serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
+		void serialize(json& j, Entity entity, const FontRenderer& fontRenderer)
 		{
-			json color = CMath::Serialize("Color", fontRenderer.m_Color);
+			json color = CMath::serialize("Color", fontRenderer.color);
 			json assetId = { "AssetId", (uint32)std::numeric_limits<uint32>::max() };
-			json zIndex = { "ZIndex", fontRenderer.m_ZIndex };
+			json zIndex = { "ZIndex", fontRenderer.zIndex };
 			json text = { "Text", fontRenderer.text };
 			json fontSize = { "FontSize", fontRenderer.fontSize };
-			if (fontRenderer.m_Font)
+			if (fontRenderer.font)
 			{
-				assetId = { "AssetId", fontRenderer.m_Font.m_AssetId };
+				assetId = { "AssetId", fontRenderer.font.assetId };
 			}
 
 			int size = j["Components"].size();
 			j["Components"][size] = {
 				{"FontRenderer", {
-					{"Entity", NEntity::GetID(entity)},
+					{"Entity", NEntity::getId(entity)},
 					assetId,
 					zIndex,
 					color,
@@ -226,21 +218,21 @@ namespace Cocoa
 			};
 		}
 
-		void DeserializeFontRenderer(json& j, Entity entity)
+		void deserializeFontRenderer(const json& j, Entity entity)
 		{
 			FontRenderer fontRenderer;
-			fontRenderer.m_Color = CMath::DeserializeVec4(j["FontRenderer"]["Color"]);
+			fontRenderer.color = CMath::deserializeVec4(j["FontRenderer"]["Color"]);
 			if (j["FontRenderer"].contains("AssetId"))
 			{
 				if (j["FontRenderer"]["AssetId"] != std::numeric_limits<uint32>::max())
 				{
-					fontRenderer.m_Font = Handle<Font>(j["FontRenderer"]["AssetId"]);
+					fontRenderer.font = NHandle::createHandle<Font>(j["FontRenderer"]["AssetId"]);
 				}
 			}
 
 			if (j["FontRenderer"].contains("ZIndex"))
 			{
-				fontRenderer.m_ZIndex = j["FontRenderer"]["ZIndex"];
+				fontRenderer.zIndex = j["FontRenderer"]["ZIndex"];
 			}
 
 			if (j["FontRenderer"].contains("Text"))
@@ -252,7 +244,7 @@ namespace Cocoa
 			{
 				fontRenderer.fontSize = j["FontRenderer"]["FontSize"];
 			}
-			NEntity::AddComponent<FontRenderer>(entity, fontRenderer);
+			NEntity::addComponent<FontRenderer>(entity, fontRenderer);
 		}
 	}
 }

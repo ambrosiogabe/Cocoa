@@ -8,13 +8,13 @@ namespace Cocoa
 	// Base
 	// ============================================================
 	KeyEvent::KeyEvent(int keycode)
-		: m_KeyCode(keycode)
+		: mKeyCode(keycode)
 	{
 	}
 
-	int KeyEvent::GetKeyCode() const
+	int KeyEvent::getKeyCode() const
 	{
-		return m_KeyCode;
+		return mKeyCode;
 	}
 
 	EVENT_CLASS_CATEGORY_IMPL(EventCategoryKeyboard | EventCategoryInput, KeyEvent)
@@ -23,19 +23,19 @@ namespace Cocoa
 		// KeyPressed
 		// ============================================================
 		KeyPressedEvent::KeyPressedEvent(int keycode, int repeatCount)
-		: KeyEvent(keycode), m_RepeatCount(repeatCount)
+		: KeyEvent(keycode), mRepeatCount(repeatCount)
 	{
 	}
 
-	int KeyPressedEvent::GetRepeatCount() const
+	int KeyPressedEvent::getRepeatCount() const
 	{
-		return m_RepeatCount;
+		return mRepeatCount;
 	}
 
-	std::string KeyPressedEvent::ToString() const
+	std::string KeyPressedEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "KeyPressedEvent: " << m_KeyCode << "(" << m_RepeatCount << ")";
+		ss << "KeyPressedEvent: " << mKeyCode << "(" << mRepeatCount << ")";
 		return ss.str();
 	}
 
@@ -49,10 +49,10 @@ namespace Cocoa
 	{
 	}
 
-	std::string KeyReleasedEvent::ToString() const
+	std::string KeyReleasedEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "KeyReleasedEvent: " << m_KeyCode;
+		ss << "KeyReleasedEvent: " << mKeyCode;
 		return ss.str();
 	}
 
@@ -66,10 +66,10 @@ namespace Cocoa
 	{
 	}
 
-	std::string KeyTypedEvent::ToString() const
+	std::string KeyTypedEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "KeyTypedEvent: " << m_KeyCode;
+		ss << "KeyTypedEvent: " << mKeyCode;
 		return ss.str();
 	}
 

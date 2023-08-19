@@ -8,24 +8,24 @@ namespace Cocoa
 	// MouseMovedEvent
 	// ===============================================================
 	MouseMovedEvent::MouseMovedEvent(float x, float y)
-		: m_MouseX(x), m_MouseY(y)
+		: mMouseX(x), mMouseY(y)
 	{
 	}
 
-	float MouseMovedEvent::GetX() const
+	float MouseMovedEvent::getX() const
 	{
-		return m_MouseX;
+		return mMouseX;
 	}
 
-	float MouseMovedEvent::GetY() const
+	float MouseMovedEvent::getY() const
 	{
-		return m_MouseY;
+		return mMouseY;
 	}
 
-	std::string MouseMovedEvent::ToString() const
+	std::string MouseMovedEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
+		ss << "MouseMovedEvent: " << mMouseX << ", " << mMouseY;
 		return ss.str();
 	}
 
@@ -35,25 +35,25 @@ namespace Cocoa
 		// ===============================================================
 		// MouseScrolledEvent
 		// ===============================================================
-		MouseScrolledEvent::MouseScrolledEvent(float xoffset, float yoffset)
-		: m_XOffset(xoffset), m_YOffset(yoffset)
+		MouseScrolledEvent::MouseScrolledEvent(float xOffset, float yOffset)
+		: mXOffset(xOffset), mYOffset(yOffset)
 	{
 	}
 
-	float MouseScrolledEvent::GetXOffset() const
+	float MouseScrolledEvent::getXOffset() const
 	{
-		return m_XOffset;
+		return mXOffset;
 	}
 
-	float MouseScrolledEvent::GetYOffset() const
+	float MouseScrolledEvent::getYOffset() const
 	{
-		return m_YOffset;
+		return mYOffset;
 	}
 
-	std::string MouseScrolledEvent::ToString() const
+	std::string MouseScrolledEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "MouseScrolledEvent: " << m_XOffset << ", " << m_YOffset;
+		ss << "MouseScrolledEvent: " << mXOffset << ", " << mYOffset;
 		return ss.str();
 	}
 
@@ -64,13 +64,13 @@ namespace Cocoa
 		// Base
 		// ===============================================================
 		MouseButtonEvent::MouseButtonEvent(int button)
-		: m_Button(button)
+		: mButton(button)
 	{
 	}
 
-	int MouseButtonEvent::GetMouseButton() const
+	int MouseButtonEvent::getMouseButton() const
 	{
-		return m_Button;
+		return mButton;
 	}
 
 	EVENT_CLASS_CATEGORY_IMPL(EventCategoryMouse | EventCategoryInput, MouseButtonEvent)
@@ -83,10 +83,10 @@ namespace Cocoa
 	{
 	}
 
-	std::string MouseButtonPressedEvent::ToString() const
+	std::string MouseButtonPressedEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "MouseButtonPressedEvent: " << m_Button;
+		ss << "MouseButtonPressedEvent: " << mButton;
 		return ss.str();
 	}
 
@@ -100,10 +100,10 @@ namespace Cocoa
 	{
 	}
 
-	std::string MouseButtonReleasedEvent::ToString() const
+	std::string MouseButtonReleasedEvent::toString() const
 	{
 		std::stringstream ss;
-		ss << "MouseButtonPressedEvent: " << m_Button;
+		ss << "MouseButtonPressedEvent: " << mButton;
 		return ss.str();
 	}
 

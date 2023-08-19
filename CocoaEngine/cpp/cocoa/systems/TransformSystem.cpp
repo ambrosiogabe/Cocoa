@@ -6,34 +6,34 @@ namespace Cocoa
 {
 	namespace TransformSystem
 	{
-		void Update(SceneData& scene, float dt)
+		void update(SceneData& scene, float dt)
 		{
-			auto view = scene.Registry.view<TransformData>();
+			auto view = scene.registry.view<TransformData>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity entity = NEntity::CreateEntity(rawEntity);
-				TransformData& transform = NEntity::GetComponent<TransformData>(entity);
-				Transform::Update(transform, dt);
+				Entity entity = NEntity::createEntity(rawEntity);
+				TransformData& transform = NEntity::getComponent<TransformData>(entity);
+				Transform::update(transform, dt);
 			}
 		}
 
-		void Destroy(SceneData& scene)
+		void destroy(SceneData& scene)
 		{
-			auto view = scene.Registry.view<Tag>();
+			auto view = scene.registry.view<Tag>();
 			for (entt::entity rawEntity : view)
 			{
-				Entity entity = NEntity::CreateEntity(rawEntity);
-				Tag& tag = NEntity::GetComponent<Tag>(entity);
-				NTag::Destroy(tag);
+				Entity entity = NEntity::createEntity(rawEntity);
+				Tag& tag = NEntity::getComponent<Tag>(entity);
+				NTag::destroy(tag);
 			}
 		}
 
-		void DeleteEntity(Entity entity)
+		void deleteEntity(Entity entity)
 		{
-			if (NEntity::HasComponent<Tag>(entity))
+			if (NEntity::hasComponent<Tag>(entity))
 			{
-				Tag& tag = NEntity::GetComponent<Tag>(entity);
-				NTag::Destroy(tag);
+				Tag& tag = NEntity::getComponent<Tag>(entity);
+				NTag::destroy(tag);
 			}
 		}
 	}

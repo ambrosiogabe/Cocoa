@@ -2,7 +2,7 @@
 #include "core/ImGuiLayer.h"
 #include "core/CocoaEditorApplication.h"
 #include "editorWindows/ProjectWizard.h"
-#include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/SceneHierarchyWindow.h"
 #include "gui/ImGuiExtended.h"
 #include "util/Settings.h"
 
@@ -26,75 +26,75 @@ namespace Cocoa
 		static void SettingsWindow()
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
-			ImGui::Begin("Settings", &Settings::Editor::ShowSettingsWindow);
-			CImGui::UndoableDragFloat2("Grid Size: ", Settings::Editor::GridSize);
-			CImGui::UndoableColorEdit3("Grid Color: ", Settings::Editor::GridColor);
-			CImGui::UndoableDragFloat("Grid Stroke Width: ", Settings::Editor::GridStrokeWidth);
-			ImGui::Checkbox("Draw Grid: ", &Settings::Editor::DrawGrid);
+			ImGui::Begin("Settings", &Settings::Editor::showSettingsWindow);
+			CImGui::undoableDragFloat2("Grid Size: ", Settings::Editor::gridSize);
+			CImGui::undoableColorEdit3("Grid Color: ", Settings::Editor::gridColor);
+			CImGui::undoableDragFloat("Grid Stroke Width: ", Settings::Editor::gridStrokeWidth);
+			ImGui::Checkbox("Draw Grid: ", &Settings::Editor::drawGrid);
 			ImGui::End();
 		}
 
 		static bool CPathVectorGetter(void* data, int n, const char** out_text)
 		{
-			const std::vector<CPath>* v = (std::vector<CPath>*)data;
-			*out_text = NCPath::Filename(v->at(n));
+			const std::vector<std::filesystem::path>* v = (std::vector<std::filesystem::path>*)data;
+			*out_text = v->at(n).filename().string().c_str();
 			return true;
 		}
 
 		static void StylesWindow()
 		{
 			ImGui::SetNextWindowSize(m_DefaultPopupSize, ImGuiCond_Once);
-			ImGui::Begin("Styles", &Settings::Editor::ShowStyleSelect);
-			std::vector<CPath> styles = File::GetFilesInDir(Settings::General::s_StylesDirectory);
-			if (ImGui::ListBox("Styles", &Settings::Editor::SelectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
+			ImGui::Begin("Styles", &Settings::Editor::showStyleSelect);
+			std::vector<std::filesystem::path> styles = File::getFilesInDir(Settings::General::stylesDirectory);
+			if (ImGui::ListBox("Styles", &Settings::Editor::selectedStyle, CPathVectorGetter, (void*)&styles, (int)styles.size()))
 			{
-				ImGuiLayer::LoadStyle(styles[Settings::Editor::SelectedStyle]);
+				ImGuiLayer::loadStyle(styles[Settings::Editor::selectedStyle]);
 			}
 
 			if (ImGui::CollapsingHeader("Edit Style Colors"))
 			{
-				CImGui::BeginCollapsingHeaderGroup();
-				CImGui::UndoableColorEdit4("Accent", Settings::EditorStyle::s_Accent);
-				CImGui::UndoableColorEdit4("AccentDark0", Settings::EditorStyle::s_AccentDark0);
-				CImGui::UndoableColorEdit4("AccentDark1", Settings::EditorStyle::s_AccentDark1);
-				CImGui::UndoableColorEdit4("Button", Settings::EditorStyle::s_Button);
-				CImGui::UndoableColorEdit4("ButtonHovered", Settings::EditorStyle::s_ButtonHovered);
-				CImGui::UndoableColorEdit4("Header", Settings::EditorStyle::s_Header);
-				CImGui::UndoableColorEdit4("HeaderHovered", Settings::EditorStyle::s_HeaderHovered);
-				CImGui::UndoableColorEdit4("HeaderActive", Settings::EditorStyle::s_HeaderActive);
-				CImGui::UndoableColorEdit4("DefaultFontColor", Settings::EditorStyle::s_Font);
-				CImGui::UndoableColorEdit4("DefaultFontDisabledColor", Settings::EditorStyle::s_FontDisabled);
-				CImGui::UndoableColorEdit4("HighlightColor", Settings::EditorStyle::s_HighlightColor);
-				CImGui::UndoableColorEdit4("MainBg", Settings::EditorStyle::s_MainBg);
-				CImGui::UndoableColorEdit4("MainBgDark0", Settings::EditorStyle::s_MainBgDark0);
-				CImGui::UndoableColorEdit4("MainBgDark1", Settings::EditorStyle::s_MainBgDark1);
-				CImGui::UndoableColorEdit4("MainBgDark2", Settings::EditorStyle::s_MainBgDark2);
-				CImGui::UndoableColorEdit4("MainBgLight0", Settings::EditorStyle::s_MainBgLight0);
-				CImGui::EndCollapsingHeaderGroup();
-				ImGuiLayer::ApplyStyle();
+				CImGui::beginCollapsingHeaderGroup();
+				CImGui::undoableColorEdit4("Accent", Settings::EditorStyle::accent);
+				CImGui::undoableColorEdit4("AccentDark0", Settings::EditorStyle::accentDark0);
+				CImGui::undoableColorEdit4("AccentDark1", Settings::EditorStyle::accentDark1);
+				CImGui::undoableColorEdit4("Button", Settings::EditorStyle::button);
+				CImGui::undoableColorEdit4("ButtonHovered", Settings::EditorStyle::buttonHovered);
+				CImGui::undoableColorEdit4("Header", Settings::EditorStyle::header);
+				CImGui::undoableColorEdit4("HeaderHovered", Settings::EditorStyle::headerHovered);
+				CImGui::undoableColorEdit4("HeaderActive", Settings::EditorStyle::headerActive);
+				CImGui::undoableColorEdit4("DefaultFontColor", Settings::EditorStyle::font);
+				CImGui::undoableColorEdit4("DefaultFontDisabledColor", Settings::EditorStyle::fontDisabled);
+				CImGui::undoableColorEdit4("HighlightColor", Settings::EditorStyle::highlightColor);
+				CImGui::undoableColorEdit4("MainBg", Settings::EditorStyle::mainBg);
+				CImGui::undoableColorEdit4("MainBgDark0", Settings::EditorStyle::mainBgDark0);
+				CImGui::undoableColorEdit4("MainBgDark1", Settings::EditorStyle::mainBgDark1);
+				CImGui::undoableColorEdit4("MainBgDark2", Settings::EditorStyle::mainBgDark2);
+				CImGui::undoableColorEdit4("MainBgLight0", Settings::EditorStyle::mainBgLight0);
+				CImGui::endCollapsingHeaderGroup();
+				ImGuiLayer::applyStyle();
 
-				if (CImGui::Button("Export..."))
+				if (CImGui::button("Export..."))
 				{
 					FileDialogResult result;
-					if (FileDialog::GetSaveFileName(Settings::General::s_StylesDirectory.Path, result))
+					if (FileDialog::getSaveFileName(Settings::General::stylesDirectory.string(), result))
 					{
-						ImGuiLayer::ExportCurrentStyle(NCPath::CreatePath(result.filepath));
+						ImGuiLayer::exportCurrentStyle(result.filepath);
 					}
 				}
 			}
 			ImGui::End();
 		}
 
-		void ImGui(SceneData& scene)
+		void imgui(SceneData& scene)
 		{
-			if (Settings::Editor::ShowSettingsWindow)
+			if (Settings::Editor::showSettingsWindow)
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
 				SettingsWindow();
 				ImGui::PopStyleVar();
 			}
 
-			if (Settings::Editor::ShowStyleSelect)
+			if (Settings::Editor::showStyleSelect)
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
 				StylesWindow();
@@ -104,7 +104,7 @@ namespace Cocoa
 			if (m_CreatingProject)
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 20));
-				ProjectWizard::CreateProjectImGui(scene, m_CreatingProject);
+				ProjectWizard::createProjectImGui(scene, m_CreatingProject);
 				ImGui::PopStyleVar();
 			}
 
@@ -115,27 +115,27 @@ namespace Cocoa
 			{
 				if (ImGui::BeginMenu("File"))
 				{
-					if (CImGui::MenuButton("New Project"))
+					if (CImGui::menuButton("New Project"))
 					{
 						m_CreatingProject = true;
 					}
 
-					if (CImGui::MenuButton("Open Project"))
+					if (CImGui::menuButton("Open Project"))
 					{
 						FileDialogResult result{};
-						if (FileDialog::GetOpenFileName(".", result, { {"Jade Scenes *.jade", "*.jprj"}, {"All Files", "*.*"} }))
+						if (FileDialog::getOpenFileName(".", result, { {"Cocoa Projects *.cocoa", "*.cprj"}, {"All Files", "*.*"} }))
 						{
-							EditorLayer::LoadProject(scene, NCPath::CreatePath(result.filepath));
+							EditorLayer::loadProject(scene, result.filepath);
 						}
 					}
 
-					if (CImGui::MenuButton("Save Scene As"))
+					if (CImGui::menuButton("Save Scene As"))
 					{
 						FileDialogResult result{};
-						if (FileDialog::GetSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
+						if (FileDialog::getSaveFileName(".", result, { {"Jade Scenes *.jade", "*.jade"}, {"All Files", "*.*"} }, ".jade"))
 						{
-							Settings::General::s_CurrentScene = NCPath::CreatePath(result.filepath);
-							Scene::Save(scene, Settings::General::s_CurrentScene);
+							Settings::General::currentScene = result.filepath;
+							Scene::save(scene, Settings::General::currentScene);
 						}
 					}
 
@@ -144,19 +144,19 @@ namespace Cocoa
 
 				if (ImGui::BeginMenu("Jade"))
 				{
-					if (CImGui::MenuButton("Settings"))
+					if (CImGui::menuButton("Settings"))
 					{
-						Settings::Editor::ShowSettingsWindow = true;
+						Settings::Editor::showSettingsWindow = true;
 					}
 
-					if (CImGui::MenuButton("Styles"))
+					if (CImGui::menuButton("Styles"))
 					{
-						Settings::Editor::ShowStyleSelect = true;
+						Settings::Editor::showStyleSelect = true;
 					}
 
-					if (CImGui::MenuButton("Show Demo Window"))
+					if (CImGui::menuButton("Show Demo Window"))
 					{
-						Settings::Editor::ShowDemoWindow = true;
+						Settings::Editor::showDemoWindow = true;
 					}
 
 					ImGui::EndMenu();
@@ -164,11 +164,11 @@ namespace Cocoa
 
 				if (ImGui::BeginMenu("Game Objects"))
 				{
-					if (CImGui::MenuButton("Add Sprite Object"))
+					if (CImGui::menuButton("Add Sprite Object"))
 					{
-						Entity entity = Scene::CreateEntity(scene);
-						NEntity::AddComponent<SpriteRenderer>(entity);
-						SceneHeirarchyWindow::AddNewEntity(entity);
+						Entity entity = Scene::createEntity(scene);
+						NEntity::addComponent<SpriteRenderer>(entity);
+						SceneHierarchyWindow::addNewEntity(entity);
 					}
 
 					ImGui::EndMenu();

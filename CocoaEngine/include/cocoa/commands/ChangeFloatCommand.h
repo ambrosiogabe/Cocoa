@@ -1,35 +1,36 @@
-#pragma once
+#ifndef COCOA_ENGINE_CHANGE_FLOAT_COMMAND_H
+#define COCOA_ENGINE_CHANGE_FLOAT_COMMAND_H
 #include "cocoa/commands/ICommand.h"
 
 namespace Cocoa
 {
-    class COCOA ChangeFloatCommand : public ICommand
+    class COCOA ChangeFloatCommand final : public ICommand
     {
     public:
         ChangeFloatCommand(float& originalFloat, float newFloat)
-            : m_Float(originalFloat), m_NewFloat(newFloat), m_OldFloat(0)
+            : mFloat(originalFloat), mNewFloat(newFloat), mOldFloat(0)
         {
         }
 
-        virtual void execute() override
+        void execute() override
         {
-            m_OldFloat = m_Float;
-            m_Float = m_NewFloat;
+            mOldFloat = mFloat;
+            mFloat = mNewFloat;
         }
 
-        virtual void undo() override
+        void undo() override
         {
-            m_Float = m_OldFloat;
+            mFloat = mOldFloat;
         }
 
-        virtual bool mergeWith(ICommand* other) override
+        bool mergeWith(ICommand* other) override
         {
             ChangeFloatCommand* changeFloatCommand = dynamic_cast<ChangeFloatCommand*>(other);
             if (changeFloatCommand != nullptr)
             {
-                if (&changeFloatCommand->m_Float == &this->m_Float)
+                if (&changeFloatCommand->mFloat == &this->mFloat)
                 {
-                    changeFloatCommand->m_NewFloat = this->m_NewFloat;
+                    changeFloatCommand->mNewFloat = this->mNewFloat;
                     return true;
                 }
             }
@@ -39,8 +40,10 @@ namespace Cocoa
 
 
     private:
-        float& m_Float;
-        float m_NewFloat;
-        float m_OldFloat;
+        float& mFloat;
+        float mNewFloat;
+        float mOldFloat;
     };
 }
+
+#endif

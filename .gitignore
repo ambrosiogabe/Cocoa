@@ -13,4 +13,6 @@ bin-int/*
 *.vcxproj.filters
 *.vcxproj.user
 
+CocoaEditor/vendor/libclang/**
+
 mockups/*

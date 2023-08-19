@@ -21,65 +21,84 @@ namespace Cocoa
 		static InitImGuiFn m_InitImGui = nullptr;
 		static ImGuiFn m_ImGui = nullptr;
 		static DeleteScriptsFn m_DeleteScripts = nullptr;
+		static NotifyBeginContactFn m_NotifyBeginContact = nullptr;
+		static NotifyEndContactFn m_NotifyEndContact = nullptr;
 		
 		static bool m_IsLoaded = false;
 		static HMODULE m_Module;
 
 		// Forward Declarations
-		static void AddComponentStub(entt::registry&, std::string, entt::entity) { Log::Warning("Adding component from STUB"); }
+		static void AddComponentStub(entt::registry&, std::string, entt::entity) { Logger::Warning("Adding component from STUB"); }
 		static void UpdateScriptStub(entt::registry&, float) {}
 		static void EditorUpdateScriptStub(entt::registry&, float) {}
 		static void SaveScriptsStub(entt::registry&, json&, SceneData*) {}
-		static void LoadScriptStub(entt::registry&, json&, Entity) {}
+		static void LoadScriptStub(entt::registry&, const json&, Entity) {}
 		static void InitScriptsStub(SceneData*) {}
 		static void InitImGuiStub(void*) {}
 		static void ImGuiStub(entt::registry&, Entity) {}
 		static void DeleteScriptsStub() {}
+		static void NotifyBeginContactStub(Entity a, Entity b) {}
+		static void NotifyEndContactStub(Entity a, Entity b) {}
 
 		static FARPROC __stdcall TryLoadFunction(HMODULE module, const char* functionName)
 		{
 			auto func = GetProcAddress(module, functionName);
 			if (func == NULL)
 			{
-				Log::Warning("Could not load dll function '%s'", functionName);
+				Logger::Warning("Could not load dll function '%s'", functionName);
 			}
 
 			return func;
 		}
 
-		void Init(SceneData& scene)
+		void init(SceneData& scene)
 		{
-			Reload(scene);
+			reload(scene);
 		}
 
-		void Update(SceneData& scene, float dt)
+		void update(SceneData& scene, float dt)
 		{
 			if (m_UpdateScripts)
 			{
-				m_UpdateScripts(scene.Registry, dt);
+				m_UpdateScripts(scene.registry, dt);
 			}
 		}
 
-		void EditorUpdate(SceneData& scene, float dt)
+		void editorUpdate(SceneData& scene, float dt)
 		{
 			if (m_EditorUpdateScripts)
 			{
-				m_EditorUpdateScripts(scene.Registry, dt);
+				m_EditorUpdateScripts(scene.registry, dt);
 			}
 		}
 
-		void Reload(SceneData& scene, bool deleteScriptComponents)
+		void notifyBeginContact(Entity entityA, Entity entityB)
+		{
+			if (m_NotifyBeginContact)
+			{
+				m_NotifyBeginContact(entityA, entityB);
+			}
+		}
+
+		void notifyEndContact(Entity entityA, Entity entityB)
+		{
+			if (m_NotifyEndContact)
+			{
+				m_NotifyEndContact(entityA, entityB);
+			}
+		}
+
+		void reload(SceneData& scene, bool deleteScriptComponents)
 		{
 			if (m_IsLoaded)
 			{
-				if (!FreeScriptLibrary(scene, deleteScriptComponents)) return;
+				if (!freeScriptLibrary(scene, deleteScriptComponents)) return;
 			}
 
-			CPath scriptDllPath = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(scriptDllPath, NCPath::CreatePath("ScriptModule.dll"));
-			if (File::IsFile(scriptDllPath))
+			const std::filesystem::path scriptDllPath = Settings::General::engineExeDirectory / "ScriptModule.dll";
+			if (File::isFile(scriptDllPath))
 			{
-				m_Module = LoadLibraryA(scriptDllPath.Path.c_str());
+				m_Module = LoadLibraryA(scriptDllPath.string().c_str());
 
 				if (m_Module)
 				{
@@ -92,6 +111,8 @@ namespace Cocoa
 					m_InitImGui = (InitImGuiFn)TryLoadFunction(m_Module, "InitImGui");
 					m_ImGui = (ImGuiFn)TryLoadFunction(m_Module, "ImGui");
 					m_DeleteScripts = (DeleteScriptsFn)TryLoadFunction(m_Module, "DeleteScripts");
+					m_NotifyBeginContact = (NotifyBeginContactFn)TryLoadFunction(m_Module, "NotifyBeginContact");
+					m_NotifyEndContact = (NotifyEndContactFn)TryLoadFunction(m_Module, "NotifyEndContact");
 					m_IsLoaded = true;
 
 					if (m_InitScripts)
@@ -102,7 +123,7 @@ namespace Cocoa
 			}
 		}
 
-		bool FreeScriptLibrary(SceneData& scene, bool deleteScriptComponents)
+		bool freeScriptLibrary(SceneData& scene, bool deleteScriptComponents)
 		{
 			// TODO: Add way to clear a pool so that we can remove hot reload only script components, while leaving the
 			// TODO: rest of the scene intact. This might not be possible, so we shal see 
@@ -125,11 +146,13 @@ namespace Cocoa
 			m_InitImGui = InitImGuiStub;
 			m_ImGui = ImGuiStub;
 			m_DeleteScripts = DeleteScriptsStub;
+			m_NotifyBeginContact = NotifyBeginContactStub;
+			m_NotifyEndContact = NotifyEndContactStub;
 
 			if (!FreeLibrary(m_Module))
 			{
 				DWORD errorCode = GetLastError();
-				Log::Warning("Could not free script dll. Error Code: %d", errorCode);
+				Logger::Warning("Could not free script dll. Error Code: %d", errorCode);
 				return false;
 			}
 
@@ -138,15 +161,15 @@ namespace Cocoa
 			return true;
 		}
 
-		void ImGui(SceneData& scene, Entity entity)
+		void imGui(SceneData& scene, Entity entity)
 		{
 			if (m_ImGui)
 			{
-				m_ImGui(scene.Registry, entity);
+				m_ImGui(scene.registry, entity);
 			}
 		}
 
-		void InitImGui(void* context)
+		void initImGui(void* context)
 		{
 			if (m_InitImGui)
 			{
@@ -154,16 +177,16 @@ namespace Cocoa
 			}
 		}
 
-		void SaveScripts(SceneData& scene, json& j)
+		void saveScripts(SceneData& scene, json& j)
 		{
 			if (m_SaveScripts)
 			{
-				Log::Info("Saving scripts!");
-				m_SaveScripts(scene.Registry, j, &scene);
+				Logger::Info("Saving scripts!");
+				m_SaveScripts(scene.registry, j, &scene);
 			}
 		}
 
-		void AddComponentFromString(std::string className, entt::entity entity, entt::registry& registry)
+		void addComponentFromString(std::string className, entt::entity entity, entt::registry& registry)
 		{
 			if (m_AddComponentFromString)
 			{
@@ -171,11 +194,11 @@ namespace Cocoa
 			}
 		}
 
-		void Deserialize(SceneData& scene, json& j, Entity entity)
+		void deserialize(SceneData& scene, const json& j, Entity entity)
 		{
 			if (m_LoadScript)
 			{
-				m_LoadScript(scene.Registry, j, entity);
+				m_LoadScript(scene.registry, j, entity);
 			}
 		}
 	}

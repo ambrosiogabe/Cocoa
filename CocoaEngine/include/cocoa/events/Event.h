@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_EVENT_H
+#define COCOA_ENGINE_EVENT_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
@@ -34,16 +35,16 @@ namespace Cocoa
 	// ================================================================
 	// Event helper macros
 	// ================================================================
-	#define EVENT_CLASS_TYPE_HEADER(type) static EventType GetStaticType(); \
-											virtual EventType GetType() const override; \
-											virtual const char* GetName() const override;
+	#define EVENT_CLASS_TYPE_HEADER(type) static EventType getStaticType(); \
+											virtual EventType getType() const override; \
+											virtual const char* getName() const override;
 
-	#define EVENT_CLASS_TYPE_IMPL(type, clazz) EventType clazz::GetStaticType() { return EventType::##type; } \
-										EventType clazz::GetType() const { return GetStaticType(); } \
-										const char* clazz::GetName() const { return #type; }
+	#define EVENT_CLASS_TYPE_IMPL(type, clazz) EventType clazz::getStaticType() { return EventType::##type; } \
+										EventType clazz::getType() const { return getStaticType(); } \
+										const char* clazz::getName() const { return #type; }
 
-	#define EVENT_CLASS_CATEGORY_HEADER(category) int GetCategoryFlags() const;
-	#define EVENT_CLASS_CATEGORY_IMPL(category, clazz) int clazz::GetCategoryFlags() const { return category; }
+	#define EVENT_CLASS_CATEGORY_HEADER(category) int getCategoryFlags() const;
+	#define EVENT_CLASS_CATEGORY_IMPL(category, clazz) int clazz::getCategoryFlags() const { return category; }
 
 	// ================================================================
 	// Event Base Class
@@ -53,15 +54,14 @@ namespace Cocoa
 		friend class EventDispatcher;
 
 	public:
-		virtual EventType GetType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		virtual EventType getType() const = 0;
+		virtual const char* getName() const = 0;
+		virtual int getCategoryFlags() const = 0;
+		virtual std::string toString() const { return getName(); }
 
-		inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & category; }
-		inline bool Handled() { return m_Handled; }
+		bool isInCategory(EventCategory category) const { return getCategoryFlags() & category; }
 
-		bool m_Handled = false;
+		bool handled = false;
 	};
 
 	// ================================================================
@@ -73,17 +73,17 @@ namespace Cocoa
 		using EventFn = std::function<bool(T&)>;
 
 	public:
-		EventDispatcher::EventDispatcher(Event& e)
-			: m_Event(e)
+		EventDispatcher(Event& e)
+			: mEvent(e)
 		{
 		}
 
 		template<typename T>
-		bool Dispatch(EventFn<T> function)
+		bool dispatch(EventFn<T> function)
 		{
-			if (m_Event.GetType() == T::GetStaticType())
+			if (mEvent.getType() == T::getStaticType())
 			{
-				m_Event.m_Handled = function(*(T*)&m_Event);
+				mEvent.handled = function(*(T*)&mEvent);
 				return true;
 			}
 
@@ -91,12 +91,12 @@ namespace Cocoa
 		}
 
 	private:
-		Event& m_Event;
+		Event& mEvent;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
-		return os << e.ToString();
+		return os << e.toString();
 	}
 }
 
@@ -107,3 +107,5 @@ namespace Cocoa
 #include "cocoa/events/Input.h"
 
 #pragma warning(pop)
+
+#endif

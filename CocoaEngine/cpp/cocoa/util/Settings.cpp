@@ -11,16 +11,16 @@ namespace Cocoa
 			// =======================================================================
 			// TODO: This is a bit misleading because none of these defaults are actually ever used. See 'CocoaEditorApplication.cpp' to see how they
 			// TODO: are overwritten
-			extern CPath General::s_ImGuiConfigPath = NCPath::CreatePath("default.ini");
-			extern CPath General::s_EngineAssetsPath = NCPath::CreatePath("assets");
-			extern CPath General::s_EngineExeDirectory = NCPath::CreatePath();
-			extern CPath General::s_EngineSourceDirectory = NCPath::CreatePath();
-			extern CPath General::s_CurrentScene = NCPath::CreatePath("New Scene.cocoa");
-			extern CPath General::s_CurrentProject = NCPath::CreatePath("New Project.cprj");
-			extern CPath General::s_StylesDirectory = NCPath::CreatePath("assets\\styles");
-			extern CPath General::s_WorkingDirectory = NCPath::CreatePath();
-			extern CPath General::s_EditorSaveData = NCPath::CreatePath("EditorSaveData.json");
-			extern CPath General::s_EditorStyleData = NCPath::CreatePath("EditorStyle.json");
+			extern std::filesystem::path imGuiConfigPath = "default.ini";
+			extern std::filesystem::path engineAssetsPath = "assets";
+			extern std::filesystem::path engineExeDirectory = "";
+			extern std::filesystem::path engineSourceDirectory = "";
+			extern std::filesystem::path currentScene = "New Scene.cocoa";
+			extern std::filesystem::path currentProject = "New Project.cprj";
+			extern std::filesystem::path stylesDirectory = "assets/styles";
+			extern std::filesystem::path workingDirectory = "";
+			extern std::filesystem::path editorSaveData = "EditorSaveData.json";
+			extern std::filesystem::path editorStyleData = "EditorStyle.json";
 		}
 
 		namespace Physics2D
@@ -28,9 +28,9 @@ namespace Cocoa
 			// =======================================================================
 			// Physics Settings
 			// =======================================================================
-			extern int Physics2D::s_PositionIterations = 3;
-			extern int Physics2D::s_VelocityIterations = 8;
-			extern float Physics2D::s_Timestep = 1.0f / 60.0f;
+			extern int Physics2D::positionIterations = 3;
+			extern int Physics2D::velocityIterations = 8;
+			extern float Physics2D::timestep = 1.0f / 60.0f;
 		}
 	}
 }

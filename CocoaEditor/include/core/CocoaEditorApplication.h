@@ -1,13 +1,8 @@
-#pragma once
-#include "externalLibs.h"
-#include "cocoa/core/Core.h"
-
+#ifndef COCOA_EDITOR_COCOA_EDITOR_APPLICATION_H
+#define COCOA_EDITOR_COCOA_EDITOR_APPLICATION_H
 #include "core/LevelEditorSystem.h"
-#include "editorWindows/ProjectWizard.h"
 
 #include "cocoa/core/Application.h"
-#include "cocoa/core/Handle.h"
-#include "cocoa/renderer/Shader.h"
 #include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
@@ -16,19 +11,19 @@ namespace Cocoa
 
 	namespace EditorLayer
 	{
-		void Init();
-		void OnAttach(SceneData& scene);
-		void OnUpdate(SceneData& scene, float dt);
-		void OnRender(SceneData& scene);
-		void OnEvent(SceneData& scene, Event& e);
+		void init();
+		void onAttach(SceneData& scene);
+		void onUpdate(SceneData& scene, float dt);
+		void onRender(SceneData& scene);
+		void onEvent(SceneData& scene, Event& e);
 
-		bool CreateProject(SceneData& scene, const CPath& projectPath, const char* filename);
-		bool LoadEditorData(SceneData& scene, const CPath& path);
-		bool LoadProject(SceneData& scene, const CPath& path);
-		void SaveEditorData();
-		void SaveProject();
-		void SetProjectLoaded();
-		bool IsProjectLoaded();
+		bool createProject(SceneData& scene, const std::filesystem::path& projectPath, const char* filename);
+		bool loadEditorData(SceneData& scene, const std::filesystem::path& path);
+		bool loadProject(SceneData& scene, const std::filesystem::path& path);
+		void saveEditorData();
+		void saveProject();
+		void setProjectLoaded();
+		bool isProjectLoaded();
 	};
 
 	class CocoaEditor : public Application
@@ -37,21 +32,23 @@ namespace Cocoa
 		~CocoaEditor() = default;
 		CocoaEditor();
 
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
-		virtual void Init() override;
-		virtual void Shutdown() override;
+		void beginFrame() override;
+		void endFrame() override;
+		void init() override;
+		void shutdown() override;
 
-		static bool IsProjectLoaded()
+		static bool isProjectLoaded()
 		{
-			return EditorLayer::IsProjectLoaded();
+			return EditorLayer::isProjectLoaded();
 		}
 
-		static void SetProjectLoaded()
+		static void setProjectLoaded()
 		{
-			EditorLayer::SetProjectLoaded();
+			EditorLayer::setProjectLoaded();
 		}
 
-		void SetAppData(AppOnAttachFn attachFn, AppOnUpdateFn updateFn, AppOnRenderFn renderFn, AppOnEventFn eventFn);
+		void setAppData(AppOnAttachFn attachFn, AppOnUpdateFn updateFn, AppOnRenderFn renderFn, AppOnEventFn eventFn);
 	};
 }
+
+#endif

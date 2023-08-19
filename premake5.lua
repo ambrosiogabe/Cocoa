@@ -22,6 +22,8 @@ IncludeDir["entt"] = "CocoaEngine/vendor/enttVendor/src"
 IncludeDir["Box2D"] = "CocoaEngine/vendor/box2DVendor/include"
 IncludeDir["Json"] = "CocoaEngine/vendor/nlohmann-json/single_include"
 IncludeDir["Freetype"] = "CocoaEngine/vendor/freetypeVendor/include"
+IncludeDir["Libclang"] = "CocoaEditor/vendor/libclang/include"
+IncludeDir["CppUtils"] = "CocoaEngine/vendor/CppUtils/SingleInclude"
 
 include "CocoaEngine"
 include "CocoaEditor"

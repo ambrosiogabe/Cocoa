@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_SCENE_INITIALIZER_H
+#define COCOA_ENGINE_SCENE_INITIALIZER_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
@@ -11,10 +12,12 @@ namespace Cocoa
 	public:
 		SceneInitializer() {}
 
-		virtual void Init(SceneData& scene) = 0;
-		virtual void Start(SceneData& scene) = 0;
-		virtual void Destroy(SceneData& scene) = 0;
-		virtual void Save(SceneData& scene) = 0;
-		virtual void Load(SceneData& scene) = 0;
+		virtual void init(SceneData& scene) = 0;
+		virtual void start(SceneData& scene) = 0;
+		virtual void destroy(SceneData& scene) = 0;
+		virtual void save(SceneData& scene) = 0;
+		virtual void load(SceneData& scene) = 0;
 	};
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_EDITOR_INSPECTOR_WINDOW_H
+#define COCOA_EDITOR_INSPECTOR_WINDOW_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
@@ -8,14 +9,16 @@ namespace Cocoa
 {
 	namespace InspectorWindow
 	{
-		void ImGui(SceneData& scene);
+		void imgui(SceneData& scene);
 
-		void AddEntity(Entity entity);
+		void addEntity(Entity entity);
 
-		void RemoveEntity(Entity entity);
+		void removeEntity(Entity entity);
 
-		void ClearAllEntities();
+		void clearAllEntities();
 
-		Entity GetActiveEntity();
+		Entity getActiveEntity();
 	};
 }
+
+#endif

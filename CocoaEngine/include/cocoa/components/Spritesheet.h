@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_SPRITESHEET_H
+#define COCOA_ENGINE_SPRITESHEET_H
 #include "externalLibs.h"
 #include "cocoa/components/Sprite.h"
 
@@ -6,16 +7,18 @@ namespace Cocoa
 {
 	struct Spritesheet
 	{
-		Handle<Texture> TextureHandle;
-		std::vector<Sprite> Sprites;
+		Handle<Texture> textureHandle;
+		std::vector<Sprite> sprites;
 	};
 
 	namespace NSpritesheet
 	{
-		COCOA Spritesheet CreateSpritesheet(Handle<Texture> textureHandle, int spriteWidth, int spriteHeight, int numSprites, int spacing);
+		COCOA Spritesheet createSpritesheet(Handle<Texture> textureHandle, int spriteWidth, int spriteHeight, int numSprites, int spacing);
 
-		COCOA Sprite GetSprite(const Spritesheet& spritesheet, int index);
+		COCOA Sprite getSprite(const Spritesheet& spritesheet, int index);
 
-		COCOA int Size(const Spritesheet& spritesheet);
+		COCOA int size(const Spritesheet& spritesheet);
 	};
 }
+
+#endif

@@ -1,10 +1,8 @@
 #include "externalLibs.h"
 
 #include "cocoa/renderer/Shader.h"
-#include "cocoa/util/Log.h"
 #include "cocoa/util/CMath.h"
 #include "cocoa/core/Core.h"
-#include "cocoa/core/Memory.h"
 
 namespace Cocoa
 {
@@ -27,25 +25,25 @@ namespace Cocoa
 		static GLenum ShaderTypeFromString(const std::string& type);
 		static std::string ReadFile(const char* filepath);
 
-		Shader CreateShader()
+		Shader createShader()
 		{
 			return {
 				(uint32)-1,
 				-1,
 				false,
-				NCPath::CreatePath()
+				std::filesystem::path()
 			};
 		}
 
-		Shader CreateShader(const CPath& resourceName, bool isDefault)
+		Shader createShader(const std::filesystem::path& resourceName, bool isDefault)
 		{
 			// TODO: Should compilation happen on creation?
-			return Compile(resourceName, isDefault);
+			return compile(resourceName, isDefault);
 		}
 
-		Shader Compile(const CPath& filepath, bool isDefault)
+		Shader compile(const std::filesystem::path& filepath, bool isDefault)
 		{
-			std::string fileSource = ReadFile(filepath.Path.c_str());
+			std::string fileSource = ReadFile(filepath.string().c_str());
 
 			std::unordered_map<GLenum, std::string> shaderSources;
 
@@ -55,10 +53,10 @@ namespace Cocoa
 			while (pos != std::string::npos)
 			{
 				size_t eol = fileSource.find_first_of("\r\n", pos);
-				Log::Assert(eol != std::string::npos, "Syntax error");
+				Logger::Assert(eol != std::string::npos, "Syntax error");
 				size_t begin = pos + typeTokenLength + 1;
 				std::string type = fileSource.substr(begin, eol - begin);
-				Log::Assert(ShaderTypeFromString(type), "Invalid shader type specified.");
+				Logger::Assert(ShaderTypeFromString(type), "Invalid shader type specified.");
 
 				size_t nextLinePos = fileSource.find_first_not_of("\r\n", eol);
 				pos = fileSource.find(typeToken, nextLinePos);
@@ -66,7 +64,7 @@ namespace Cocoa
 			}
 
 			GLuint program = glCreateProgram();
-			Log::Assert(shaderSources.size() <= 2, "Shader source must be less than 2.");
+			Logger::Assert(shaderSources.size() <= 2, "Shader source must be less than 2.");
 			std::array<GLenum, 2> glShaderIDs;
 			int glShaderIDIndex = 0;
 
@@ -94,15 +92,15 @@ namespace Cocoa
 					glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
 					// The maxLength includes the NULL character
-					std::vector<GLchar> infoLog(maxLength);
-					glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+					std::vector<GLchar> infoLogger(maxLength);
+					glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLogger[0]);
 
 					// We don't need the shader anymore.
 					glDeleteShader(shader);
 
-					Log::Error("%s", infoLog.data());
-					Log::Assert(false, "Shader compilation failed!");
-					return CreateShader();
+					Logger::Error("%s", infoLogger.data());
+					Logger::Assert(false, "Shader compilation failed!");
+					return createShader();
 				}
 
 				glAttachShader(program, shader);
@@ -121,8 +119,8 @@ namespace Cocoa
 				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
 				// The maxLength includes the NULL character
-				std::vector<GLchar> infoLog(maxLength);
-				glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+				std::vector<GLchar> infoLogger(maxLength);
+				glGetProgramInfoLog(program, maxLength, &maxLength, &infoLogger[0]);
 
 				// We don't need the program anymore.
 				glDeleteProgram(program);
@@ -130,9 +128,9 @@ namespace Cocoa
 				for (auto id : glShaderIDs)
 					glDeleteShader(id);
 
-				Log::Error("%s", infoLog.data());
-				Log::Assert(false, "Shader linking failed!");
-				return NShader::CreateShader();
+				Logger::Error("%s", infoLogger.data());
+				Logger::Assert(false, "Shader linking failed!");
+				return NShader::createShader();
 			}
 
 			int startIndex = m_AllShaderVariables.size();
@@ -155,7 +153,7 @@ namespace Cocoa
 					GLint varLocation = glGetUniformLocation(program, charBuffer);
 					m_AllShaderVariables.push_back({
 						std::string(charBuffer),
-						CMath::HashString(charBuffer),
+						CMath::hashString(charBuffer),
 						varLocation,
 						program
 					});
@@ -176,81 +174,81 @@ namespace Cocoa
 			};
 		}
 
-		void Delete(Shader& shader)
+		void destroy(Shader& shader)
 		{
-			glDeleteProgram(shader.ProgramId);
+			glDeleteProgram(shader.programId);
 		}
 
-		void Bind(const Shader& shader)
+		void bind(const Shader& shader)
 		{
-			glUseProgram(shader.ProgramId);
+			glUseProgram(shader.programId);
 		}
 
-		void Unbind(const Shader& shader)
+		void unbind(const Shader& shader)
 		{
 			glUseProgram(0);
 		}
 
-		void UploadVec4(const Shader& shader, const char* varName, const glm::vec4& vec4)
+		void uploadVec4(const Shader& shader, const char* varName, const glm::vec4& vec4)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform4f(varLocation, vec4.x, vec4.y, vec4.z, vec4.w);
 		}
 
-		void UploadVec3(const Shader& shader, const char* varName, const glm::vec3& vec3)
+		void uploadVec3(const Shader& shader, const char* varName, const glm::vec3& vec3)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform3f(varLocation, vec3.x, vec3.y, vec3.z);
 		}
 
-		void UploadVec2(const Shader& shader, const char* varName, const glm::vec2& vec2)
+		void uploadVec2(const Shader& shader, const char* varName, const glm::vec2& vec2)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform2f(varLocation, vec2.x, vec2.y);
 		}
 
-		void UploadFloat(const Shader& shader, const char* varName, float value)
+		void uploadFloat(const Shader& shader, const char* varName, float value)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1f(varLocation, value);
 		}
 
-		void UploadInt(const Shader& shader, const char* varName, int value)
+		void uploadInt(const Shader& shader, const char* varName, int value)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1i(varLocation, value);
 		}
 
-		void UploadUInt(const Shader& shader, const char* varName, uint32 value)
+		void uploadUInt(const Shader& shader, const char* varName, uint32 value)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1ui(varLocation, value);
 		}
 
-		void UploadMat4(const Shader& shader, const char* varName, const glm::mat4& mat4)
+		void uploadMat4(const Shader& shader, const char* varName, const glm::mat4& mat4)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniformMatrix4fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat4));
 		}
 
-		void UploadMat3(const Shader& shader, const char* varName, const glm::mat3& mat3)
+		void uploadMat3(const Shader& shader, const char* varName, const glm::mat3& mat3)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniformMatrix3fv(varLocation, 1, GL_FALSE, glm::value_ptr(mat3));
 		}
 
-		void UploadIntArray(const Shader& shader, const char* varName, int length, const int* array)
+		void uploadIntArray(const Shader& shader, const char* varName, int length, const int* array)
 		{
 			int varLocation = GetVariableLocation(shader, varName);
 			glUniform1iv(varLocation, length, array);
 		}
 
-		bool IsNull(const Shader& shader) 
+		bool isNull(const Shader& shader) 
 		{ 
-			return shader.ProgramId == -1; 
+			return shader.programId == -1; 
 		}
 
-		void ClearAllShaderVariables()
+		void clearAllShaderVariables()
 		{
 			m_AllShaderVariables.clear();
 		}
@@ -258,15 +256,15 @@ namespace Cocoa
 		// Private functions
 		static GLint GetVariableLocation(const Shader& shader, const char* varName)
 		{
-			Log::Assert(shader.StartIndex >= 0 && shader.StartIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
-			uint32 hash = CMath::HashString(varName);
+			Logger::Assert(shader.startIndex >= 0 && shader.startIndex < m_AllShaderVariables.size(), "Invalid shader. Cannot find variable on this shader.");
+			uint32 hash = CMath::hashString(varName);
 
-			for (int i = shader.StartIndex; i < m_AllShaderVariables.size(); i++)
+			for (int i = shader.startIndex; i < m_AllShaderVariables.size(); i++)
 			{
 				const ShaderVariable& shaderVar = m_AllShaderVariables[i];
-				if (shaderVar.ShaderProgramId != shader.ProgramId)
+				if (shaderVar.ShaderProgramId != shader.programId)
 				{
-					Log::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.Filepath.Path.c_str());
+					Logger::Warning("Could not find shader variable '%s' for shader '%s'", varName, shader.filepath.string().c_str());
 					break;
 				}
 
@@ -286,7 +284,7 @@ namespace Cocoa
 			else if (type == "fragment" || type == "pixel")
 				return GL_FRAGMENT_SHADER;
 
-			Log::Assert(false, "Unkown shader type.");
+			Logger::Assert(false, "Unkown shader type.");
 			return 0;
 		}
 
@@ -304,7 +302,7 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Error("Could not open file: '%s'", filepath);
+				Logger::Error("Could not open file: '%s'", filepath);
 			}
 
 			return result;

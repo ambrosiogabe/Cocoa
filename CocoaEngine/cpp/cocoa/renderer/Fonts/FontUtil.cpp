@@ -1,7 +1,5 @@
 #include "cocoa/renderer/Fonts/FontUtil.h"
 #include "cocoa/util/CMath.h"
-#include "cocoa/util/Log.h"
-#include "cocoa/core/Memory.h"
 
 #include "stb/stb_image_write.h"
 
@@ -12,16 +10,16 @@ namespace Cocoa
 {
 	namespace FontUtil
 	{
-		int GetPixel(int x, int y, uint8* bitmap, int width, int height)
+		int getPixel(int x, int y, uint8* bitmap, int width, int height)
 		{
 			return  (x < width) && (y < height) && (x >= 0) && (y >= 0) ?
 				bitmap[x + (y * width)] :
 				0;
 		}
 
-		float FindNearestPixel(int pixX, int pixY, uint8* bitmap, int width, int height, int spread)
+		float findNearestPixel(int pixX, int pixY, uint8* bitmap, int width, int height, int spread)
 		{
-			int state = GetPixel(pixX, pixY, bitmap, width, height);
+			int state = getPixel(pixX, pixY, bitmap, width, height);
 			int minX = pixX - spread;
 			int maxX = pixX + spread;
 			int minY = pixY - spread;
@@ -32,13 +30,13 @@ namespace Cocoa
 			{
 				for (int x = minX; x <= maxX; x++)
 				{
-					int pixelstate = GetPixel(x, y, bitmap, width, height);
+					int pixelstate = getPixel(x, y, bitmap, width, height);
 					int xsquared = (x - pixX) * (x - pixX);
 					int ysquared = (y - pixY) * (y - pixY);
 					int distance = xsquared + ysquared;
 					if (pixelstate != state)
 					{
-						minDistance = CMath::Min(distance, minDistance);
+						minDistance = CMath::min(distance, minDistance);
 					}
 				}
 			}
@@ -49,7 +47,7 @@ namespace Cocoa
 			return (output + 1) * 0.5f;
 		}
 
-		SdfBitmapContainer GenerateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding, int upscaleResolution, bool flipVertically)
+		SdfBitmapContainer generateSdfCodepointBitmap(int codepoint, FT_Face font, int fontSize, int padding, int upscaleResolution, bool flipVertically)
 		{
 			int spread = upscaleResolution / 2;
 
@@ -57,7 +55,7 @@ namespace Cocoa
 			FT_Set_Pixel_Sizes(font, 0, upscaleResolution);
 			if (FT_Load_Char(font, codepoint, FT_LOAD_RENDER))
 			{
-				Log::Warning("Could not generate '%c'.\n", codepoint);
+				Logger::Warning("Could not generate '%c'.\n", codepoint);
 				return {
 					0, 0, 0, 0, 0, 0, 0, 0, 0, nullptr
 				};
@@ -76,15 +74,15 @@ namespace Cocoa
 			float scaleX = (float)width / (float)characterWidth;
 			float scaleY = (float)height / (float)characterHeight;
 			unsigned char* sdfBitmap = (unsigned char*)AllocMem(sizeof(unsigned char) * bitmapHeight * bitmapWidth);
-			Log::Assert(sdfBitmap != nullptr, "Ran out of memory. Could not allocate memory to generate a font.");
+			Logger::Assert(sdfBitmap != nullptr, "Ran out of memory. Could not allocate memory to generate a font.");
 
 			for (int y = -padding; y < bitmapHeight - padding; y++)
 			{
 				for (int x = -padding; x < bitmapWidth - padding; x++)
 				{
-					int pixelX = (int)CMath::MapRange((float)x, -(float)padding, (float)(characterWidth + padding), -padding * scaleX, (characterWidth + padding) * scaleX);
-					int pixelY = (int)CMath::MapRange((float)(characterHeight - y), -(float)padding, (float)(characterHeight + padding), -padding * scaleY, (characterHeight + padding) * scaleY);
-					float val = FindNearestPixel(pixelX, pixelY, img, width, height, spread);
+					int pixelX = (int)CMath::mapRange((float)x, -(float)padding, (float)(characterWidth + padding), -padding * scaleX, (characterWidth + padding) * scaleX);
+					int pixelY = (int)CMath::mapRange((float)(characterHeight - y), -(float)padding, (float)(characterHeight + padding), -padding * scaleY, (characterHeight + padding) * scaleY);
+					float val = findNearestPixel(pixelX, pixelY, img, width, height, spread);
 					if (!flipVertically)
 					{
 						sdfBitmap[(x + padding) + ((y + padding) * bitmapWidth)] = (int)(val * 255.0f);
@@ -115,39 +113,39 @@ namespace Cocoa
 			FT_Library ft;
 			if (FT_Init_FreeType(&ft))
 			{
-				Log::Warning("Could not initialize freetype.\n");
+				Logger::Warning("Could not initialize freetype.\n");
 				return;
 			}
 
 			FT_Face font;
 			if (FT_New_Face(ft, fontFile, 0, &font))
 			{
-				Log::Warning("Could not load font %s.\n", fontFile);
+				Logger::Warning("Could not load font %s.\n", fontFile);
 				return;
 			}
 
 			for (int i = begin; i < end; i++)
 			{
-				arr[i] = GenerateSdfCodepointBitmap(i + glyphOffset, font, fontSize, padding, upscaleResolution);
+				arr[i] = generateSdfCodepointBitmap(i + glyphOffset, font, fontSize, padding, upscaleResolution);
 			}
 
 			FT_Done_Face(font);
 			FT_Done_FreeType(ft);
 		}
 
-		void CreateSdfFontTexture(const CPath& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const CPath& outputFile, int padding, int upscaleResolution, int glyphOffset)
+		void createSdfFontTexture(const std::filesystem::path& fontFile, int fontSize, CharInfo* characterMap, int characterMapSize, const std::filesystem::path& outputFile, int padding, int upscaleResolution, int glyphOffset)
 		{
 			FT_Library ft;
 			if (FT_Init_FreeType(&ft))
 			{
-				Log::Warning("Could not initialize freetype.\n");
+				Logger::Warning("Could not initialize freetype.\n");
 				return;
 			}
 
 			FT_Face font;
-			if (FT_New_Face(ft, fontFile.Path.c_str(), 0, &font))
+			if (FT_New_Face(ft, fontFile.string().c_str(), 0, &font))
 			{
-				Log::Warning("Could not load font %s.\n", fontFile.Path.c_str());
+				Logger::Warning("Could not load font %s.\n", fontFile.string().c_str());
 				return;
 			}
 
@@ -155,7 +153,7 @@ namespace Cocoa
 			FT_Set_Pixel_Sizes(font, 0, lowResFontSize);
 			if (FT_Load_Char(font, 'M', FT_LOAD_RENDER))
 			{
-				Log::Warning("Failed to load glyph.\n");
+				Logger::Warning("Failed to load glyph.\n");
 				return;
 			}
 
@@ -174,14 +172,14 @@ namespace Cocoa
 
 			SdfBitmapContainer* sdfBitmaps = (SdfBitmapContainer*)AllocMem(sizeof(SdfBitmapContainer) * (characterMapSize - glyphOffset));
 			// Just to be safe, use up to cores - 2
-			const auto processorCount = CMath::Max(std::thread::hardware_concurrency() - 2, 1);
+			const auto processorCount = CMath::max(std::thread::hardware_concurrency() - 2, 1);
 			int segmentSize = ('z' + 1) / processorCount;
 			int count = 0;
 			std::vector<std::thread> threads;
 			for (int i = 0; i <= processorCount; i++)
 			{
-				int end = CMath::Min(segmentSize + count, characterMapSize - glyphOffset);
-				threads.push_back(std::thread(fillSdfBitmaps, count, end, sdfBitmaps, fontFile.Path.c_str(), lowResFontSize, padding, upscaleResolution, glyphOffset));
+				int end = CMath::min(segmentSize + count, characterMapSize - glyphOffset);
+				threads.push_back(std::thread(fillSdfBitmaps, count, end, sdfBitmaps, fontFile.string().c_str(), lowResFontSize, padding, upscaleResolution, glyphOffset));
 				count += segmentSize;
 			}
 
@@ -195,7 +193,7 @@ namespace Cocoa
 				if (FT_Load_Char(font, codepoint, FT_LOAD_RENDER))
 				{
 					sdfBitmaps[codepoint - glyphOffset] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, nullptr };
-					Log::Warning("Failed to load glyph.\n");
+					Logger::Warning("Failed to load glyph.\n");
 					continue;
 				}
 
@@ -203,7 +201,7 @@ namespace Cocoa
 				int width = container.width;
 				int height = container.height;
 
-				rowHeight = CMath::Max(height, rowHeight);
+				rowHeight = CMath::max(height, rowHeight);
 				if (x + width >= fixedWidth)
 				{
 					x = 0;
@@ -212,10 +210,10 @@ namespace Cocoa
 				}
 
 				characterMap[codepoint - glyphOffset] = {
-					(float)x + container.xoff,
-					(float)y + container.yoff,
-					(float)(x + width - container.xoff),
-					(float)(y + height - container.yoff),
+					(float)x + container.xOff,
+					(float)y + container.yOff,
+					(float)(x + width - container.xOff),
+					(float)(y + height - container.yOff),
 					container.advance,
 					container.bearingX,
 					container.bearingY,
@@ -223,15 +221,15 @@ namespace Cocoa
 					container.chScaleY
 				};
 
-				sdfWidth = CMath::Max(sdfWidth, x + width);
-				sdfHeight = CMath::Max(sdfHeight, y + rowHeight);
+				sdfWidth = CMath::max(sdfWidth, x + width);
+				sdfHeight = CMath::max(sdfHeight, y + rowHeight);
 				x += width;
 			}
 
 			// Write all the image data to the final sdf
 			int bitmapLength = sdfWidth * sdfHeight * 4;
 			uint8* finalSdf = (uint8*)AllocMem(sizeof(uint8) * bitmapLength);
-			Log::Assert(finalSdf != nullptr, "Out of memory. Could not allocate memory to generate font.");
+			Logger::Assert(finalSdf != nullptr, "Out of memory. Could not allocate memory to generate font.");
 			memset(finalSdf, 0, bitmapLength);
 			int endBitmap = bitmapLength + 1;
 
@@ -262,8 +260,8 @@ namespace Cocoa
 
 				int width = sdf.width;
 				int height = sdf.height;
-				int xoff = sdf.xoff;
-				int yoff = sdf.yoff;
+				int xoff = sdf.xOff;
+				int yoff = sdf.yOff;
 				x = (int)x0 - xoff;
 				y = (int)y0 - yoff;
 				for (int imgY = 0; imgY < height; imgY++)
@@ -272,7 +270,7 @@ namespace Cocoa
 					{
 						unsigned char pixelData = sdf.bitmap[imgX + imgY * width];
 						int index = (x + imgX) * 4 + (y + imgY) * sdfWidth * 4;
-						Log::Assert(index + 3 < endBitmap, "Index overflow when generating SDF");
+						Logger::Assert(index + 3 < endBitmap, "Index overflow when generating SDF");
 						finalSdf[index] = pixelData;
 						finalSdf[index + 1] = pixelData;
 						finalSdf[index + 2] = pixelData;
@@ -283,8 +281,8 @@ namespace Cocoa
 				FreeMem(sdf.bitmap);
 			}
 
-			Log::Info("Writing png for font at '%s'\n", outputFile.Path.c_str());
-			stbi_write_png(outputFile.Path.c_str(), sdfWidth, sdfHeight, 4, finalSdf, sdfWidth * 4);
+			Logger::Info("Writing png for font at '%s'\n", outputFile.string().c_str());
+			stbi_write_png(outputFile.string().c_str(), sdfWidth, sdfHeight, 4, finalSdf, sdfWidth * 4);
 
 			FreeMem(sdfBitmaps);
 			FreeMem(finalSdf);

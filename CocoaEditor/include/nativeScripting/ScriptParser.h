@@ -1,66 +1,52 @@
-#pragma once
+#ifndef COCOA_EDITOR_SCRIPT_PARSER_H
+#define COCOA_EDITOR_SCRIPT_PARSER_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "ScriptScanner.h"
-
-#include "cocoa/file/CPath.h"
+#include <filesystem>
 
 namespace Cocoa
 {
 	struct UVariable
 	{
-		std::string m_Type;
-		std::string m_Identifier;
+		std::string type;
+		std::string identifier;
 		// void* m_Literal;
 	};
 
 	struct UClass
 	{
-		std::string m_ClassName;
-		CPath m_FullFilepath;
-		std::list<UVariable> m_Variables;
+		std::string className;
+		std::filesystem::path fullFilepath;
+		std::list<UVariable> variables;
 	};
 
 	struct UStruct
 	{
-		std::string m_StructName;
-		const CPath& m_FullFilepath;
-		std::list<UVariable> m_Variables;
+		std::string structName;
+		const std::filesystem::path& fullFilepath;
+		std::list<UVariable> variables;
 	};
 
 	class ScriptParser
 	{
 	public:
-		ScriptParser(std::vector<Token>& tokens, CPath& fullFilepath)
-			: m_Tokens(tokens), m_FullFilepath(fullFilepath) {}
+		std::string generateHeaderFile();
+		void debugPrint();
+		void parse();
 
-		std::string GenerateHeaderFile();
-		void DebugPrint();
-		void Parse();
+		bool canGenerateHeaderFile() const { return mStructs.size() != 0 || mClasses.size() != 0; }
+		std::vector<UClass>& getClasses() { return mClasses; }
 
-		bool CanGenerateHeaderFile() const { return m_Structs.size() != 0 || m_Classes.size() != 0; }
-		std::vector<UClass>& GetClasses() { return m_Classes; }
-		
-		static std::string GetFilenameAsClassName(std::string filename);
+		static std::string getFilenameAsClassName(std::string filename);
 
 	private:
-		void ParseClass();
-		void ParseStruct();
-		UVariable ParseVariable();
-		const Token& Expect(TokenType type);
-		bool Match(TokenType type);
+		int mCurrentToken;
+		std::filesystem::path mFullFilepath;
 
-	private:
-		inline Token GenerateErrorToken() { return Token{ -1, -1, TokenType::ERROR_TYPE, "" }; }
-
-	private:
-		int m_CurrentToken;
-		std::vector<Token>::iterator m_CurrentIter;
-		const CPath& m_FullFilepath;
-
-		std::vector<Token>& m_Tokens;
-		std::vector<UClass> m_Classes;
-		std::vector<UStruct> m_Structs;
+		std::vector<UClass> mClasses;
+		std::vector<UStruct> mStructs;
 	};
 }
+
+#endif

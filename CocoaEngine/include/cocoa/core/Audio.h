@@ -1,14 +1,13 @@
-#pragma once
+#ifndef COCOA_ENGINE_AUDIO_H
+#define COCOA_ENGINE_AUDIO_H
 #include "cocoa/core/AssetManager.h"
 
-namespace Jade
+namespace Cocoa
 {
-	class COCOA Audio : public Asset
+	class COCOA Audio
 	{
-	public:
-		Audio()
-		{
-			GenerateTypeId<Audio>();
-		}
+
 	};
 }
+
+#endif

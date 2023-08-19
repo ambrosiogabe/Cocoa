@@ -1,12 +1,12 @@
 #ifdef _WIN32
 #include "cocoa/file/File.h"
-#include "cocoa/util/Log.h"
-#include "cocoa/core/Memory.h"
 
 #include <direct.h>
 #include <shobjidl_core.h>
 #include <shlobj.h>
 #include <knownfolders.h>
+
+#include <filesystem>
 
 #ifdef CopyFile
 #undef CopyFile
@@ -22,162 +22,162 @@ namespace Cocoa
 {
 	namespace File
 	{
-		FileHandle* OpenFile(const CPath& filename)
+		FileHandle* openFile(const std::filesystem::path& filename)
 		{
 			FileHandle* file = (FileHandle*)AllocMem(sizeof(FileHandle));
-			file->m_Filename = filename.Path.c_str();
+			new(file)FileHandle();
+			file->filename = filename.filename().string();
 
 			FILE* filePointer;
-			filePointer = fopen(file->m_Filename, "rb");
+			filePointer = fopen(file->filename.c_str(), "rb");
 			if (filePointer)
 			{
 				fseek(filePointer, 0, SEEK_END);
-				file->m_Size = ftell(filePointer);
+				file->size = ftell(filePointer);
 				rewind(filePointer);
 				
-				file->m_Data = (char*)AllocMem(sizeof(char) * (file->m_Size + 1));
-				if (!file->m_Data)
+				file->data = (char*)AllocMem(sizeof(char) * (file->size + 1));
+				if (!file->data)
 				{
 					fclose(filePointer);
-					Log::Warning("Memory allocation failed.");
+					Logger::Warning("Memory allocation failed.");
 					return file;
 				}
 
-				int elementsRead = fread(file->m_Data, file->m_Size, 1, filePointer);
+				int elementsRead = fread(file->data, file->size, 1, filePointer);
 				if (elementsRead != 1)
 				{
 					fclose(filePointer);
-					FreeMem(file->m_Data);
-					file->m_Data = nullptr;
-					Log::Warning("Failed to read file properly.");
+					FreeMem(file->data);
+					file->data = nullptr;
+					Logger::Warning("Failed to read file properly.");
 					return file;
 				}
 
-				file->m_Data[file->m_Size] = '\0';
+				file->data[file->size] = '\0';
 				fclose(filePointer);
 			}
 			else
 			{
-				file->m_Data = nullptr;
-				file->m_Open = false;
-				file->m_Size = 0;
+				file->data = nullptr;
+				file->open = false;
+				file->size = 0;
 			}
 
 			return file;
 		}
 
-		void CloseFile(FileHandle* file)
+		void closeFile(FileHandle* file)
 		{
 			if (file)
 			{
-				if (file->m_Data)
+				if (file->data)
 				{
-					FreeMem(file->m_Data);
-					file->m_Data = nullptr;
+					FreeMem(file->data);
+					file->data = nullptr;
 				}
 				else
 				{
-					Log::Warning("Tried to free invalid file.");
+					Logger::Warning("Tried to free invalid file.");
 				}
 				FreeMem(file);
 				file = nullptr;
 			}
 			else
 			{
-				Log::Warning("Tried to free invalid file.");
+				Logger::Warning("Tried to free invalid file.");
 			}
 		}
 
-		bool WriteFile(const char* data, const CPath& filename)
+		bool writeFile(const char* data, const std::filesystem::path& filename)
 		{
-			std::ofstream outStream(filename.Path.c_str());
+			std::ofstream outStream(filename.string());
 			outStream << data;
 			outStream.close();
 			return true;
 		}
 
-		bool CreateFile(const CPath& filename, const char* extToAppend)
+		bool createFile(const std::filesystem::path& filename, const char* extToAppend)
 		{
-			CPath fileToWrite = filename;
-			if (NCPath::FileExt(filename) == nullptr || NCPath::FileExt(filename)[0] == '\0')
+			std::filesystem::path fileToWrite = filename;
+			if (!filename.has_extension())
 			{
-				fileToWrite = NCPath::CreatePath(filename.Path + std::string(extToAppend));
+				fileToWrite = (filename.string() + extToAppend);
 			}
-			HANDLE fileHandle = CreateFileA(fileToWrite.Path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			HANDLE fileHandle = CreateFileA(fileToWrite.string().c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			bool res = fileHandle != INVALID_HANDLE_VALUE;
 			CloseHandle(fileHandle);
 			return res;
 		}
 
-		bool DeleteFile(const CPath& filename)
+		bool deleteFile(const std::filesystem::path& filename)
 		{
-			return DeleteFileA(filename.Path.c_str());
+			return DeleteFileA(filename.string().c_str());
 		}
 
-		bool CopyFile(const CPath& fileToCopy, const CPath& newFileLocation, const char* newFilename)
+		bool copyFile(const std::filesystem::path& fileToCopy, const std::filesystem::path& newFileLocation, const char* newFilename)
 		{
-			CPath newFilepath = newFileLocation;
-			NCPath::Join(newFilepath, NCPath::CreatePath(std::string(newFilename) + NCPath::FileExt(fileToCopy)));
-			if (!CopyFileExA(fileToCopy.Path.c_str(), newFilepath.Path.c_str(), NULL, NULL, false, NULL))
+			std::string newFilenameWithExt = newFilename + std::string(fileToCopy.extension().string());
+			std::filesystem::path newFilepath = newFileLocation/newFilenameWithExt;
+			if (!CopyFileExA(fileToCopy.string().c_str(), newFilepath.string().c_str(), NULL, NULL, false, NULL))
 			{
-				Log::Warning("Could not copy file error code: %d", GetLastError());
+				Logger::Warning("Could not copy file error code: %d", GetLastError());
 				return false;
 			}
 
 			return true;
 		}
 
-		CPath GetCwd()
+		std::filesystem::path getCwd()
 		{
 			char buff[FILENAME_MAX];
 			char* success = _getcwd(buff, FILENAME_MAX);
-			Log::Assert(success != NULL, "Unable to get Current Working Directory.");
-			return { buff };
+			Logger::Assert(success != NULL, "Unable to get Current Working Directory.");
+			return std::filesystem::path(std::string(buff));
 		}
 
-		CPath GetSpecialAppFolder()
+		std::filesystem::path getSpecialAppFolder()
 		{
 			PWSTR pszPath;
 			if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pszPath)))
 			{
 				char* tmp = (char*)AllocMem(sizeof(char) * 256);
 				wcstombs(tmp, pszPath, 256);
-				CPath result = NCPath::CreatePath(tmp);
+				std::filesystem::path result = std::filesystem::path(std::string(tmp));
 				FreeMem(tmp);
 				return result;
 			}
 
-			Log::Assert(false, "Could not retrieve AppRoamingData folder.");
-			return NCPath::CreatePath();
+			Logger::Assert(false, "Could not retrieve AppRoamingData folder.");
+			return {};
 		}
 
-		CPath GetExecutableDirectory()
+		std::filesystem::path getExecutableDirectory()
 		{
 			char filepath[MAX_PATH];
 			DWORD res = GetModuleFileNameA(NULL, filepath, MAX_PATH);
-			Log::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
+			Logger::Assert(res != NULL && res != ERROR_INSUFFICIENT_BUFFER, "Get Executable Directory failed with error code: '%d'", res);
 
-			return NCPath::CreatePath(filepath);
+			return std::filesystem::path(std::string(filepath));
 		}
 
-		void CreateDirIfNotExists(const CPath& directory)
+		void createDirIfNotExists(const std::filesystem::path& directory)
 		{
-			if (!(CreateDirectoryA(directory.Path.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
+			if (!(CreateDirectoryA(directory.string().c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()))
 			{
-				Log::Assert(false, "Failed to create directory %s", directory.Path.c_str());
+				Logger::Assert(false, "Failed to create directory %s", directory.string().c_str());
 			}
 		}
 
-		std::vector<CPath> GetFilesInDir(const CPath& directory)
+		std::vector<std::filesystem::path> getFilesInDir(const std::filesystem::path& directory)
 		{
-			std::vector<CPath> result;
+			std::vector<std::filesystem::path> result;
 			HANDLE dir;
 			WIN32_FIND_DATAA fileData;
 
-			CPath dirPath = directory;
-			CPath wildcardMatch = dirPath;
-			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
-			if ((dir = FindFirstFileA(wildcardMatch.Path.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			std::filesystem::path dirPath = directory;
+			std::filesystem::path wildcardMatch = dirPath/"*";
+			if ((dir = FindFirstFileA(wildcardMatch.string().c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -185,12 +185,11 @@ namespace Cocoa
 
 			do
 			{
-				CPath filename = NCPath::CreatePath(fileData.cFileName);
-				CPath fullFilename = dirPath;
-				NCPath::Join(fullFilename, filename);
+				std::filesystem::path filename = std::filesystem::path(fileData.cFileName);
+				std::filesystem::path fullFilename = dirPath/filename;
 				const bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-				if (filename.Path[0] == '.')
+				if (filename.string()[0] == '.')
 				{
 					continue;
 				}
@@ -206,16 +205,15 @@ namespace Cocoa
 			return result;
 		}
 
-		std::vector<CPath> GetFoldersInDir(const CPath& directory)
+		std::vector<std::filesystem::path> getFoldersInDir(const std::filesystem::path& directory)
 		{
-			std::vector<CPath> result;
+			std::vector<std::filesystem::path> result;
 			HANDLE dir;
 			WIN32_FIND_DATAA fileData;
 
-			CPath dirPath = directory;
-			CPath wildcardMatch = dirPath;
-			NCPath::Join(wildcardMatch, NCPath::CreatePath("*"));
-			if ((dir = FindFirstFileA(wildcardMatch.Path.c_str(), &fileData)) == INVALID_HANDLE_VALUE)
+			std::filesystem::path dirPath = directory;
+			std::filesystem::path wildcardMatch = dirPath/"*";
+			if ((dir = FindFirstFileA(wildcardMatch.string().c_str(), &fileData)) == INVALID_HANDLE_VALUE)
 			{
 				// No file found
 				return result;
@@ -223,10 +221,10 @@ namespace Cocoa
 
 			do
 			{
-				CPath filename = NCPath::CreatePath(fileData.cFileName);
+				std::filesystem::path filename = std::filesystem::path(fileData.cFileName);
 				bool isDirectory = (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 
-				if (filename.Path[0] == '.')
+				if (filename.string()[0] == '.')
 				{
 					continue;
 				}
@@ -242,35 +240,35 @@ namespace Cocoa
 			return result;
 		}
 
-		CPath GetAbsolutePath(const CPath& path)
+		std::filesystem::path getAbsolutePath(const std::filesystem::path& path)
 		{
-			int bufferLength = GetFullPathNameA(path.Path.c_str(), 0, NULL, NULL);
+			const int bufferLength = GetFullPathNameA(path.string().c_str(), 0, nullptr, nullptr);
 			char* buffer = (char*)AllocMem(sizeof(char) * bufferLength);
-			GetFullPathNameA(path.Path.c_str(), bufferLength, buffer, NULL);
-			CPath result = NCPath::CreatePath(buffer);
+			GetFullPathNameA(path.string().c_str(), bufferLength, buffer, nullptr);
+			const std::filesystem::path result = std::filesystem::path(std::string(buffer));
 			FreeMem(buffer);
 			return result;
 		}
 
-		bool IsFile(const CPath& filepath)
+		bool isFile(const std::filesystem::path& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path.c_str());
+			const DWORD fileAttributes = GetFileAttributesA(filepath.string().c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
-		bool IsHidden(const CPath& filepath)
+		bool isHidden(const std::filesystem::path& filepath)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path.c_str());
+			const DWORD fileAttributes = GetFileAttributesA(filepath.string().c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_HIDDEN);
 		}
 
-		bool IsDirectory(const CPath& filepath)
+		bool isDirectory(const std::filesystem::path& directory)
 		{
-			DWORD fileAttributes = GetFileAttributesA(filepath.Path.c_str());
+			const DWORD fileAttributes = GetFileAttributesA(directory.string().c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES) && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		}
 
-		bool RunProgram(const CPath& pathToExe, const char* cmdArguments)
+		bool runProgram(const std::filesystem::path& pathToExe, const char* cmdArgs)
 		{
 			STARTUPINFOA startupInfo;
 			PROCESS_INFORMATION processInfo;
@@ -279,12 +277,12 @@ namespace Cocoa
 			startupInfo.cb = sizeof(startupInfo);
 			ZeroMemory(&processInfo, sizeof(processInfo));
 
-			std::string cmdArgs = pathToExe.Path.c_str() + std::string(" ") + cmdArguments;
+			std::string cmdArguments = pathToExe.string() + " " + cmdArgs;
 
 			// Start the program
 			bool res = CreateProcessA(
 				NULL,  // Application Name
-				(LPSTR)cmdArgs.c_str(),   // Command Line Args
+				(LPSTR)cmdArguments.c_str(),   // Command Line Args
 				NULL,                  // Process Attributes
 				NULL,                  // Thread Attributes
 				FALSE,                 // Inherit Handles
@@ -303,15 +301,15 @@ namespace Cocoa
 			}
 			else
 			{
-				Log::Warning("Unsuccessfully started process '%s'", pathToExe.Path.c_str());
+				Logger::Warning("Unsuccessfully started process '%s'", pathToExe.string().c_str());
 			}
 
 			return res;
 		}
 
-		bool RunProgram(const CPath& pathToExe, const std::string& cmdArgs)
+		bool runProgram(const std::filesystem::path& pathToExe, const std::string& cmdArgs)
 		{
-			return RunProgram(pathToExe, cmdArgs.c_str());
+			return runProgram(pathToExe, cmdArgs.c_str());
 		}
 	}
 }

@@ -1,6 +1,8 @@
-#pragma once
+#ifndef COCOA_ENGINE_TEXTURE_H
+#define COCOA_ENGINE_TEXTURE_H
 #include "cocoa/core/Core.h"
-#include "cocoa/file/CPath.h"
+
+#include <filesystem>
 
 namespace Cocoa
 {
@@ -35,49 +37,54 @@ namespace Cocoa
 
 	struct COCOA Texture
 	{
-		uint32 GraphicsId = (uint32)-1;
-		int32 Width = 0;
-		int32 Height = 0;
+		uint32 graphicsId;
+		int32 width;
+		int32 height;
 
 		// Texture attributes
-		FilterMode MagFilter = FilterMode::None;
-		FilterMode MinFilter = FilterMode::None;
-		WrapMode WrapS = WrapMode::None;
-		WrapMode WrapT = WrapMode::None;
-		ByteFormat InternalFormat = ByteFormat::None;
-		ByteFormat ExternalFormat = ByteFormat::None;
+		FilterMode magFilter;
+		FilterMode minFilter;
+		WrapMode wrapS;
+		WrapMode wrapT;
+		ByteFormat internalFormat;
+		ByteFormat externalFormat;
 
-		CPath Path = CPath();
-		bool IsDefault = false;
+		std::filesystem::path path;
+		bool isDefault;
 	};
 
 	namespace TextureUtil
 	{
 		// Namespace variables
 		// NOTE: To make sure this variable is visible to other translation units, declare it as extern
-		COCOA extern const Texture NullTexture;
+		COCOA extern const Texture NULL_TEXTURE;
 
 		// Namespace functions
-		COCOA json Serialize(const Texture& texture);
-		COCOA Texture Deserialize(const json& j);
-
-		COCOA void Bind(const Texture& texture);
-		COCOA void Unbind(const Texture& texture);
-		COCOA void Delete(Texture& texture);
+		COCOA void bind(const Texture& texture);
+		COCOA void unbind(const Texture& texture);
+		COCOA void destroy(Texture& texture);
 
 		// Loads a texture using stb library and generates a texutre using the filter/wrap modes and automatically detects
 		// internal/external format, width, height, and alpha channel
-		COCOA void Generate(Texture& texture, const CPath& filepath);
+		COCOA void generate(Texture& texture, const std::filesystem::path& filepath);
 
 		// Allocates memory space on the GPU according to the texture specifications listed here
-		COCOA void Generate(Texture& texture);
+		COCOA void generate(Texture& texture);
 
-		COCOA bool IsNull(const Texture& texture);
+		COCOA bool isNull(const Texture& texture);
 
-		COCOA uint32 ToGl(ByteFormat format);
-		COCOA uint32 ToGl(WrapMode wrapMode);
-		COCOA uint32 ToGl(FilterMode filterMode);
-		COCOA uint32 ToGlDataType(ByteFormat format);
-		COCOA bool ByteFormatIsInt(ByteFormat format);
+		COCOA uint32 toGl(ByteFormat format);
+		COCOA uint32 toGl(WrapMode wrapMode);
+		COCOA uint32 toGl(FilterMode filterMode);
+		COCOA uint32 toGlDataType(ByteFormat format);
+		COCOA bool byteFormatIsInt(ByteFormat format);
+		COCOA bool byteFormatIsRgb(ByteFormat format);
+
+		COCOA json serialize(const Texture& texture);
+		COCOA Texture deserialize(const json& j);
+
+		COCOA Texture create();
 	};
 }
+
+#endif

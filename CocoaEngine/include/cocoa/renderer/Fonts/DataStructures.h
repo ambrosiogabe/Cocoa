@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_FONTS_DATA_STRUCTURES_H
+#define COCOA_ENGINE_FONTS_DATA_STRUCTURES_H
 
 namespace Cocoa
 {
@@ -14,10 +15,12 @@ namespace Cocoa
 	struct SdfBitmapContainer
 	{
 		int width, height;
-		int xoff, yoff;
+		int xOff, yOff;
 		float advance;
 		float bearingX, bearingY;
 		float chScaleX, chScaleY;
 		unsigned char* bitmap;
 	};
 }
+
+#endif

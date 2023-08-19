@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_EDITOR_ASSET_WINDOW_H
+#define COCOA_EDITOR_ASSET_WINDOW_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
@@ -17,6 +18,8 @@ namespace Cocoa
 
 	namespace AssetWindow
 	{
-		void ImGui(SceneData& scene);
+		void imgui(SceneData& scene);
 	};
 }
+
+#endif

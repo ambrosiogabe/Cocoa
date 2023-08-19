@@ -10,7 +10,9 @@ project "CocoaEditor"
 
     files {
         "include/**.h",
-        "cpp/**.cpp"
+        "cpp/**.cpp",
+        "tests/**.h",
+        "tests/**.cpp",
     }
 
     disablewarnings { 
@@ -19,11 +21,16 @@ project "CocoaEditor"
         "4267"
     }
 
+    libdirs {
+        fullOutputDir
+    }
+
     includedirs {
         "../CocoaEngine",
         "../CocoaEngine/include",
         "../CocoaEngine/vendor",
         "../%{prj.name}/include",
+        "../%{prj.name}/tests",
         "../%{IncludeDir.glm}",
         "../%{IncludeDir.entt}",
         "../%{IncludeDir.Glad}",
@@ -32,6 +39,8 @@ project "CocoaEditor"
         "../%{IncludeDir.Json}",
         "../%{IncludeDir.GLFW}",
         "../%{IncludeDir.Freetype}",
+        "../%{IncludeDir.Libclang}",
+		"../%{IncludeDir.CppUtils}"
     }
 
     links {
@@ -45,11 +54,13 @@ project "CocoaEditor"
     }
 
     defines {
-        "_CRT_SECURE_NO_WARNINGS"
+        "_CRT_SECURE_NO_WARNINGS",
+        "_GABE_CPP_UTILS_IMPORT_DLL"
     }
 
     filter { "system:windows", "configurations:Debug" }
-        buildoptions "/MDd"        
+        buildoptions "/MDd"       
+        defines { "COCOA_TEST" }
 
     filter { "system:windows", "configurations:Release" }
         buildoptions "/MD"
@@ -62,7 +73,8 @@ project "CocoaEditor"
             "copy /y \"$(SolutionDir)\\vendor\\premake\\premake5.exe\" \"$(OutDir)\\premake5.exe\"",
             "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.dll\" \"$(OutDir)\\ImGui.dll\"",
             "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.lib\" \"$(OutDir)\\ImGui.lib\"",
-            "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.pdb\" \"$(OutDir)\\ImGui.pdb\""
+            "copy /y \"$(SolutionDir)\\CocoaEngine\\vendor\\imguiVendor\\bin\\%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}\\ImGui\\ImGui.pdb\" \"$(OutDir)\\ImGui.pdb\"",
+            "rmdir /s /q \"$(SolutionDir)\\x64"
         }
 
         defines {

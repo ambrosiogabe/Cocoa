@@ -1,36 +1,37 @@
-#pragma once
+#ifndef COCOA_ENGINE_CHANGE_ENUM_COMMAND_H
+#define COCOA_ENGINE_CHANGE_ENUM_COMMAND_H
 #include "cocoa/commands/ICommand.h"
 
 namespace Cocoa
 {
     template<typename T>
-    class ChangeEnumCommand : public ICommand
+    class ChangeEnumCommand final : public ICommand
     {
     public:
         ChangeEnumCommand(T& originalEnum, T newEnum)
-            : m_Enum(originalEnum), m_NewEnum(newEnum), m_OldEnum(static_cast<T>(0))
+            : mEnum(originalEnum), mNewEnum(newEnum), mOldEnum(static_cast<T>(0))
         {
         }
 
-        virtual void execute() override
+        void execute() override
         {
-            m_OldEnum = m_Enum;
-            m_Enum = m_NewEnum;
+            mOldEnum = mEnum;
+            mEnum = mNewEnum;
         }
 
-        virtual void undo() override
+        void undo() override
         {
-            m_Enum = m_OldEnum;
+            mEnum = mOldEnum;
         }
 
-        virtual bool mergeWith(ICommand* other) override
+        bool mergeWith(ICommand* other) override
         {
             ChangeEnumCommand<T>* changeEnumCommand = dynamic_cast<ChangeEnumCommand<T>*>(other);
             if (changeEnumCommand != nullptr)
             {
-                if (&changeEnumCommand->m_Enum == &this->m_Enum)
+                if (&changeEnumCommand->mEnum == &this->mEnum)
                 {
-                    changeEnumCommand->m_NewEnum = this->m_NewEnum;
+                    changeEnumCommand->mNewEnum = this->mNewEnum;
                     return true;
                 }
             }
@@ -40,8 +41,10 @@ namespace Cocoa
 
 
     private:
-        T& m_Enum;
-        T m_NewEnum;
-        T m_OldEnum;
+        T& mEnum;
+        T mNewEnum;
+        T mOldEnum;
     };
 }
+
+#endif

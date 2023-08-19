@@ -1,17 +1,19 @@
-#pragma once
+#ifndef COCOA_EDITOR_PROJECT_WIZARD_H
+#define COCOA_EDITOR_PROJECT_WIZARD_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
-#include "cocoa/renderer/Texture.h"
 #include "cocoa/scenes/SceneData.h"
 
 namespace Cocoa
 {
 	namespace ProjectWizard
 	{
-		void Init();
-		void ImGui(SceneData& scene);
+		void init();
+		void imgui(SceneData& scene);
 
-		void CreateProjectImGui(SceneData& scene, bool& windowOpen);
+		void createProjectImGui(SceneData& scene, bool& windowOpen);
 	};
 }
+
+#endif

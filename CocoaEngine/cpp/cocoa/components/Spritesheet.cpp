@@ -5,24 +5,24 @@ namespace Cocoa
 {
 	namespace NSpritesheet
 	{
-		Spritesheet CreateSpritesheet(Handle<Texture> textureHandle, int spriteWidth, int spriteHeight, int numSprites, int spacing)
+		Spritesheet createSpritesheet(Handle<Texture> textureHandle, int spriteWidth, int spriteHeight, int numSprites, int spacing)
 		{
 			Spritesheet res;
-			res.TextureHandle = textureHandle;
-			const Texture& texture = AssetManager::GetTexture(textureHandle.m_AssetId);
+			res.textureHandle = textureHandle;
+			const Texture& texture = AssetManager::getTexture(textureHandle.assetId);
 
 			// NOTE: If you don't reserve the space before hand, when the vector grows it will
 			// change the pointers it holds
-			res.Sprites.reserve(numSprites);
+			res.sprites.reserve(numSprites);
 
 			int currentX = 0;
-			int currentY = texture.Height - spriteHeight;
+			int currentY = texture.height - spriteHeight;
 			for (int i = 0; i < numSprites; i++)
 			{
-				float topY = (currentY + spriteHeight) / (float)texture.Height;
-				float rightX = (currentX + spriteWidth) / (float)texture.Width;
-				float leftX = currentX / (float)texture.Width;
-				float bottomY = currentY / (float)texture.Height;
+				float topY = (currentY + spriteHeight) / (float)texture.height;
+				float rightX = (currentX + spriteWidth) / (float)texture.width;
+				float leftX = currentX / (float)texture.width;
+				float bottomY = currentY / (float)texture.height;
 
 				Sprite sprite{
 					textureHandle,
@@ -33,10 +33,10 @@ namespace Cocoa
 						{leftX, topY}
 					}
 				};
-				res.Sprites.push_back(sprite);
+				res.sprites.push_back(sprite);
 
 				currentX += spriteWidth + spacing;
-				if (currentX >= texture.Width)
+				if (currentX >= texture.width)
 				{
 					currentX = 0;
 					currentY -= spriteHeight + spacing;
@@ -46,15 +46,15 @@ namespace Cocoa
 			return res;
 		}
 
-		Sprite GetSprite(const Spritesheet& spritesheet, int index)
+		Sprite getSprite(const Spritesheet& spritesheet, int index)
 		{
-			Log::Assert(index >= 0 && index < spritesheet.Sprites.size(), "Index out of bounds exception.");
-			return spritesheet.Sprites[index];
+			Logger::Assert(index >= 0 && index < spritesheet.sprites.size(), "Index out of bounds exception.");
+			return spritesheet.sprites[index];
 		}
 
-		int Size(const Spritesheet& spritesheet)
+		int size(const Spritesheet& spritesheet)
 		{
-			return (int)spritesheet.Sprites.size();
+			return (int)spritesheet.sprites.size();
 		}
 	};
 }

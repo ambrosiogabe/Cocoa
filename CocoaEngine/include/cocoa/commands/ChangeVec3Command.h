@@ -1,40 +1,41 @@
-#pragma once
+#ifndef COCOA_ENGINE_CHANGE_VEC3_COMMAND_H
+#define COCOA_ENGINE_CHANGE_VEC3_COMMAND_H
 #include "externalLibs.h"
 #include "cocoa/commands/ICommand.h"
 
 namespace Cocoa
 {
-    class COCOA ChangeVec3Command : public ICommand
+    class COCOA ChangeVec3Command final : public ICommand
     {
     public:
         ChangeVec3Command(glm::vec3& originalVector, glm::vec3& newVector)
-            : m_Vector(originalVector), m_NewVector(newVector), m_OldVector(glm::vec3())
+            : mVector(originalVector), mNewVector(newVector), mOldVector(glm::vec3())
         {
         }
 
-        virtual void execute() override
+        void execute() override
         {
-            m_OldVector = glm::vec3(m_Vector);
-            m_Vector.x = m_NewVector.x;
-            m_Vector.y = m_NewVector.y;
-            m_Vector.z = m_NewVector.z;
+            mOldVector = glm::vec3(mVector);
+            mVector.x = mNewVector.x;
+            mVector.y = mNewVector.y;
+            mVector.z = mNewVector.z;
         }
 
-        virtual void undo() override
+        void undo() override
         {
-            m_Vector.x = m_OldVector.x;
-            m_Vector.y = m_OldVector.y;
-            m_Vector.z = m_OldVector.z;
+            mVector.x = mOldVector.x;
+            mVector.y = mOldVector.y;
+            mVector.z = mOldVector.z;
         }
 
-        virtual bool mergeWith(ICommand* other) override
+        bool mergeWith(ICommand* other) override
         {
             ChangeVec3Command* changeVec3Command = dynamic_cast<ChangeVec3Command*>(other);
             if (changeVec3Command != nullptr)
             {
-                if (&changeVec3Command->m_Vector == &this->m_Vector)
+                if (&changeVec3Command->mVector == &this->mVector)
                 {
-                    changeVec3Command->m_NewVector = this->m_NewVector;
+                    changeVec3Command->mNewVector = this->mNewVector;
                     return true;
                 }
             }
@@ -44,8 +45,10 @@ namespace Cocoa
 
 
     private:
-        glm::vec3& m_Vector;
-        glm::vec3 m_NewVector;
-        glm::vec3 m_OldVector;
+        glm::vec3& mVector;
+        glm::vec3 mNewVector;
+        glm::vec3 mOldVector;
     };
 }
+
+#endif

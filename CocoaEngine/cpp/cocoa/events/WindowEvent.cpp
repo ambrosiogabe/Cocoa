@@ -9,17 +9,17 @@ namespace Cocoa
 	{
 	}
 
-	uint32 WindowResizeEvent::GetWidth() const
+	uint32 WindowResizeEvent::getWidth() const
 	{
 		return m_Width;
 	}
 
-	uint32 WindowResizeEvent::GetHeight() const
+	uint32 WindowResizeEvent::getHeight() const
 	{
 		return m_Height;
 	}
 
-	std::string WindowResizeEvent::ToString() const
+	std::string WindowResizeEvent::toString() const
 	{
 		std::stringstream ss;
 		ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;

@@ -3,7 +3,7 @@
 #include "gui/FontAwesome.h"
 #include "gui/ImGuiExtended.h"
 #include "editorWindows/InspectorWindow.h"
-#include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/SceneHierarchyWindow.h"
 #include "util/Settings.h"
 
 #include "cocoa/systems/ScriptSystem.h"
@@ -18,6 +18,7 @@
 #include "cocoa/components/Tag.h"
 #include "cocoa/components/SpriteRenderer.h"
 #include "cocoa/components/FontRenderer.h"
+#include "cocoa/components/NoSerialize.h"
 #include "cocoa/physics2d/PhysicsComponents.h"
 
 #include <imgui.h>
@@ -44,8 +45,10 @@ namespace Cocoa
 		static glm::vec3 m_OriginalDragClickPos = glm::vec3();
 		static glm::vec3 m_OriginalCameraPos = glm::vec3();
 
-		static CPath tmpScriptDll;
-		static CPath scriptDll;
+		static std::filesystem::path tmpScriptDll;
+		static std::filesystem::path scriptDll;
+
+		static Entity m_CameraEntity;
 
 		// Forward Declarations
 		static bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene);
@@ -55,32 +58,61 @@ namespace Cocoa
 		static bool HandleMouseScroll(MouseScrolledEvent& e, SceneData& scene);
 
 		static void InitComponentIds(SceneData& scene);
-		void Init(SceneData& scene)
+		void init(SceneData& scene)
 		{
 			InitComponentIds(scene);
-			tmpScriptDll = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(tmpScriptDll, NCPath::CreatePath("ScriptModuleTmp.dll"));
-			scriptDll = Settings::General::s_EngineExeDirectory;
-			NCPath::Join(scriptDll, NCPath::CreatePath("ScriptModule.dll"));
-			auto view = scene.Registry.view<TransformData>();
+			tmpScriptDll = Settings::General::engineExeDirectory / "ScriptModuleTmp.dll";
+			scriptDll = Settings::General::engineExeDirectory / "ScriptModule.dll";
 			initImGui = false;
+
+			Logger::Assert(!Scene::isValid(scene, m_CameraEntity), "Tried to initialize level editor system twice.");
+			// Create editor camera's framebuffer
+			Framebuffer editorCameraFramebuffer;
+			editorCameraFramebuffer.width = 3840;
+			editorCameraFramebuffer.height = 2160;
+			editorCameraFramebuffer.includeDepthStencil = false;
+			Texture color0;
+			color0.internalFormat = ByteFormat::RGB;
+			color0.externalFormat = ByteFormat::RGB;
+			color0.magFilter = FilterMode::Linear;
+			color0.minFilter = FilterMode::Linear;
+			color0.wrapS = WrapMode::Repeat;
+			color0.wrapT = WrapMode::Repeat;
+			NFramebuffer::addColorAttachment(editorCameraFramebuffer, color0);
+			Texture color1;
+			color1.internalFormat = ByteFormat::R32UI;
+			color1.externalFormat = ByteFormat::RED_INTEGER;
+			color1.wrapS = WrapMode::None;
+			color1.wrapT = WrapMode::None;
+			color1.magFilter = FilterMode::None;
+			color1.minFilter = FilterMode::None;
+			NFramebuffer::addColorAttachment(editorCameraFramebuffer, color1);
+			NFramebuffer::generate(editorCameraFramebuffer);
+
+			Camera editorCamera = NCamera::createCamera(editorCameraFramebuffer);
+
+			m_CameraEntity = Scene::createEntity(scene);
+			NEntity::addComponent<Camera>(m_CameraEntity, editorCamera);
+			NEntity::addComponent<NoSerialize>(m_CameraEntity);
 		}
 
-		void Destroy(SceneData& scene)
+		void destroy(SceneData& scene)
 		{
 
 		}
 
 		static void InitComponentIds(SceneData& scene)
 		{
-			NEntity::RegisterComponentType<TransformData>();
-			NEntity::RegisterComponentType<Tag>();
-			NEntity::RegisterComponentType<SpriteRenderer>();
-			NEntity::RegisterComponentType<FontRenderer>();
-			NEntity::RegisterComponentType<Rigidbody2D>();
-			NEntity::RegisterComponentType<Box2D>();
-			NEntity::RegisterComponentType<Circle>();
-			NEntity::RegisterComponentType<AABB>();
+			NEntity::registerComponentType<TransformData>();
+			NEntity::registerComponentType<Tag>();
+			NEntity::registerComponentType<SpriteRenderer>();
+			NEntity::registerComponentType<FontRenderer>();
+			NEntity::registerComponentType<Rigidbody2D>();
+			NEntity::registerComponentType<Box2D>();
+			NEntity::registerComponentType<Circle>();
+			NEntity::registerComponentType<AABB>();
+			NEntity::registerComponentType<Camera>();
+			NEntity::registerComponentType<NoSerialize>();
 		}
 
 		static float lerp(float a, float b, float t)
@@ -97,53 +129,55 @@ namespace Cocoa
 			};
 		}
 
-		void EditorUpdate(SceneData& scene, float dt)
+		void editorUpdate(SceneData& scene, float dt)
 		{
 			if (!initImGui)
 			{
-				ScriptSystem::InitImGui(ImGui::GetCurrentContext());
+				ScriptSystem::initImGui(ImGui::GetCurrentContext());
 				initImGui = true;
 			}
 
-			if (File::IsFile(tmpScriptDll))
+			if (File::isFile(tmpScriptDll))
 			{
-				Scene::Save(scene, Settings::General::s_CurrentScene);
-				EditorLayer::SaveProject();
+				Scene::save(scene, Settings::General::currentScene);
+				EditorLayer::saveProject();
 
 				// This should free the scripts too so we can delete the old dll
-				Scene::FreeResources(scene);
+				Scene::freeResources(scene);
 
 				// Now copy new dll and reload the scene
-				File::DeleteFile(scriptDll);
-				File::CopyFile(tmpScriptDll, NCPath::CreatePath(NCPath::GetDirectory(scriptDll, -1)), "ScriptModule");
-				Scene::Load(scene, Settings::General::s_CurrentScene);
+				File::deleteFile(scriptDll);
+				File::copyFile(tmpScriptDll, scriptDll.parent_path(), "ScriptModule");
+				Scene::load(scene, Settings::General::currentScene);
 
 				// Then delete temporary file of new dll
-				File::DeleteFile(tmpScriptDll);
+				File::deleteFile(tmpScriptDll);
 			}
 
+			Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
+			// TODO: Make an OnRender function and call this in there
+			NCamera::clearColorUint32(camera, 1, (uint32)-1);
+			TransformData& cameraTransform = NEntity::getComponent<TransformData>(m_CameraEntity);
 			if (m_IsDragging)
 			{
-				Camera& camera = scene.SceneCamera;
-				glm::vec3 mousePosWorld = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
+				glm::vec3 mousePosWorld = CMath::vector3From2(NCamera::screenToOrtho(camera));
 				glm::vec3 delta = m_OriginalDragClickPos - mousePosWorld;
 				// TODO: Make this an editor setting
 				static const float sharpness = 15.0f;
-				camera.Transform.Position = lerp(camera.Transform.Position, camera.Transform.Position + delta, dt * sharpness);
+				cameraTransform.position = lerp(cameraTransform.position, cameraTransform.position + delta, dt * sharpness);
 			}
 
 			// Draw grid lines
-			if (Settings::Editor::DrawGrid)
+			if (Settings::Editor::drawGrid)
 			{
-				TransformData& cameraTransform = scene.SceneCamera.Transform;
-				float cameraZoom = scene.SceneCamera.Zoom;
-				float gridWidth = Settings::Editor::GridSize.x;
-				float gridHeight = Settings::Editor::GridSize.y;
-				float projectionWidth = scene.SceneCamera.ProjectionSize.x;
-				float projectionHeight = scene.SceneCamera.ProjectionSize.y;
+				float cameraZoom = camera.zoom;
+				float gridWidth = Settings::Editor::gridSize.x;
+				float gridHeight = Settings::Editor::gridSize.y;
+				float projectionWidth = camera.projectionSize.x;
+				float projectionHeight = camera.projectionSize.y;
 
-				float firstX = (float)(((int)(cameraTransform.Position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
-				float firstY = (float)(((int)(cameraTransform.Position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
+				float firstX = (float)(((int)(cameraTransform.position.x - cameraZoom * projectionWidth / 2.0f) / gridWidth) - 1) * (float)gridWidth;
+				float firstY = (float)(((int)(cameraTransform.position.y - cameraZoom * projectionHeight / 2.0f) / gridHeight) - 1) * (float)gridHeight;
 
 				int yLinesNeeded = (int)((cameraZoom * projectionWidth + gridWidth) / gridWidth);
 				int xLinesNeeded = (int)((cameraZoom * projectionHeight + gridHeight) / gridHeight);
@@ -157,7 +191,7 @@ namespace Cocoa
 					float y1 = firstY + projectionHeight + gridHeight;
 					glm::vec2 from(x, y0);
 					glm::vec2 to(x, y1);
-					DebugDraw::AddLine2D(from, to, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
+					DebugDraw::addLine2D(from, to, Settings::Editor::gridStrokeWidth, Settings::Editor::gridColor, 1, false);
 
 					if (i <= xLinesNeeded)
 					{
@@ -165,10 +199,16 @@ namespace Cocoa
 						float x1 = firstX + projectionWidth + gridWidth;
 						glm::vec2 from2(x0, y);
 						glm::vec2 to2(x1, y);
-						DebugDraw::AddLine2D(from2, to2, Settings::Editor::GridStrokeWidth, Settings::Editor::GridColor, 1, false);
+						DebugDraw::addLine2D(from2, to2, Settings::Editor::gridStrokeWidth, Settings::Editor::gridColor, 1, false);
 					}
 				}
 			}
+
+		}
+
+		Camera& getCamera()
+		{
+			return NEntity::getComponent<Camera>(m_CameraEntity);;
 		}
 
 		// TODO: Move this into CImGui?
@@ -177,74 +217,74 @@ namespace Cocoa
 			return ImVec4(vec4.x, vec4.y, vec4.z, vec4.w);
 		}
 
-		void LevelEditorSystem::OnEvent(SceneData& scene, Event& e)
+		void LevelEditorSystem::onEvent(SceneData& scene, Event& e)
 		{
-			switch (e.GetType())
+			switch (e.getType())
 			{
 			case EventType::KeyPressed:
-				e.m_Handled = HandleKeyPress((KeyPressedEvent&)e, scene);
+				e.handled = HandleKeyPress((KeyPressedEvent&)e, scene);
 				return;
 			case EventType::KeyReleased:
-				e.m_Handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
+				e.handled = HandleKeyRelease((KeyReleasedEvent&)e, scene);
 				return;
 			case EventType::MouseButtonPressed:
-				e.m_Handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
+				e.handled = HandleMouseButtonPressed((MouseButtonPressedEvent&)e, scene);
 				return;
 			case EventType::MouseButtonReleased:
-				e.m_Handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
+				e.handled = HandleMouseButtonReleased((MouseButtonReleasedEvent&)e, scene);
 				return;
 			case EventType::MouseScrolled:
-				e.m_Handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
+				e.handled = HandleMouseScroll((MouseScrolledEvent&)e, scene);
 				return;
 			}
 		}
 
 		bool HandleKeyPress(KeyPressedEvent& e, SceneData& scene)
 		{
-			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+			if (e.getKeyCode() == COCOA_KEY_LEFT_CONTROL)
 			{
 				m_ControlModifierPressed = true;
 			}
 
 			if (m_ControlModifierPressed)
 			{
-				if (e.GetKeyCode() == COCOA_KEY_Z)
+				if (e.getKeyCode() == COCOA_KEY_Z)
 				{
-					CommandHistory::Undo();
+					CommandHistory::undo();
 				}
 
-				if (e.GetKeyCode() == COCOA_KEY_R)
+				if (e.getKeyCode() == COCOA_KEY_R)
 				{
-					CommandHistory::Redo();
+					CommandHistory::redo();
 				}
 
-				if (e.GetKeyCode() == COCOA_KEY_S)
+				if (e.getKeyCode() == COCOA_KEY_S)
 				{
-					Scene::Save(scene, Settings::General::s_CurrentScene);
-					EditorLayer::SaveProject();
+					Scene::save(scene, Settings::General::currentScene);
+					EditorLayer::saveProject();
 				}
 
-				if (e.GetKeyCode() == COCOA_KEY_D)
+				if (e.getKeyCode() == COCOA_KEY_D)
 				{
-					Entity activeEntity = InspectorWindow::GetActiveEntity();
-					if (!NEntity::IsNull(activeEntity))
+					Entity activeEntity = InspectorWindow::getActiveEntity();
+					if (!NEntity::isNull(activeEntity))
 					{
-						Entity duplicated = Scene::DuplicateEntity(scene, activeEntity);
-						InspectorWindow::ClearAllEntities();
-						InspectorWindow::AddEntity(duplicated);
-						SceneHeirarchyWindow::AddNewEntity(duplicated);
+						Entity duplicated = Scene::duplicateEntity(scene, activeEntity);
+						InspectorWindow::clearAllEntities();
+						InspectorWindow::addEntity(duplicated);
+						SceneHierarchyWindow::addNewEntity(duplicated);
 					}
 				}
 			}
 
-			if (e.GetKeyCode() == COCOA_KEY_DELETE)
+			if (e.getKeyCode() == COCOA_KEY_DELETE)
 			{
-				Entity activeEntity = InspectorWindow::GetActiveEntity();
-				if (!NEntity::IsNull(activeEntity))
+				Entity activeEntity = InspectorWindow::getActiveEntity();
+				if (!NEntity::isNull(activeEntity))
 				{
-					SceneHeirarchyWindow::DeleteEntity(activeEntity);
-					Scene::DeleteEntity(scene, activeEntity);
-					InspectorWindow::ClearAllEntities();
+					SceneHierarchyWindow::deleteEntity(activeEntity);
+					Scene::deleteEntity(scene, activeEntity);
+					InspectorWindow::clearAllEntities();
 				}
 			}
 
@@ -253,7 +293,7 @@ namespace Cocoa
 
 		bool HandleKeyRelease(KeyReleasedEvent& e, SceneData& scene)
 		{
-			if (e.GetKeyCode() == COCOA_KEY_LEFT_CONTROL)
+			if (e.getKeyCode() == COCOA_KEY_LEFT_CONTROL)
 			{
 				m_ControlModifierPressed = false;
 			}
@@ -272,19 +312,19 @@ namespace Cocoa
 			static float step = -1;
 			static float cameraSensitivity = 0.5f;
 
-			float yOffset = -e.GetYOffset();
+			float yOffset = -e.getYOffset();
 			if (yOffset != 0)
 			{
-				Camera& camera = scene.SceneCamera;
+				Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
 				if (step < 0)
 				{
-					step = (glm::log(camera.Zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
+					step = (glm::log(camera.zoom) - logMinZoom) * ((maxSteps - 1) / (logMaxZoom - logMinZoom));
 				}
 
 				step = glm::clamp(yOffset < 0 ? step - 1.0f : step + 1.0f, 0.0f, maxSteps);
 				float logZoom = logMinZoom + (logMaxZoom - logMinZoom) * step / (maxSteps - 1);
-				camera.Zoom = glm::exp(logZoom);
-				NCamera::AdjustPerspective(camera);
+				camera.zoom = glm::exp(logZoom);
+				NCamera::adjustPerspective(camera);
 			}
 
 			return false;
@@ -293,12 +333,13 @@ namespace Cocoa
 		bool HandleMouseButtonPressed(MouseButtonPressedEvent& e, SceneData& scene)
 		{
 			static float speed = 500.0f;
-			if (!m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+			if (!m_IsDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = true;
-				const Camera& camera = scene.SceneCamera;
-				m_OriginalCameraPos = camera.Transform.Position;
-				m_OriginalDragClickPos = CMath::Vector3From2(NCamera::ScreenToOrtho(camera));
+				const Camera& camera = NEntity::getComponent<Camera>(m_CameraEntity);
+				const TransformData& transform = NEntity::getComponent<TransformData>(m_CameraEntity);
+				m_OriginalCameraPos = transform.position;
+				m_OriginalDragClickPos = CMath::vector3From2(NCamera::screenToOrtho(camera));
 			}
 
 			return false;
@@ -306,11 +347,32 @@ namespace Cocoa
 
 		bool HandleMouseButtonReleased(MouseButtonReleasedEvent& e, SceneData& scene)
 		{
-			if (m_IsDragging && e.GetMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
+			if (m_IsDragging && e.getMouseButton() == COCOA_MOUSE_BUTTON_MIDDLE)
 			{
 				m_IsDragging = false;
 			}
 			return false;
+		}
+
+		void serialize(json& j)
+		{
+			Camera& editorCamera = NEntity::getComponent<Camera>(m_CameraEntity);
+			j["EditorCamera"] = { 
+				{"Components", {}} 
+			};
+			Scene::serializeEntity(&j["EditorCamera"], m_CameraEntity);
+		}
+
+		void deserialize(const json& j, SceneData& scene)
+		{
+			Logger::Assert(Scene::isValid(scene, m_CameraEntity), "Invalid level editor system. It does not have a camera initialized.");
+			if (j.contains("EditorCamera") && Scene::isValid(scene, m_CameraEntity))
+			{
+				Scene::deleteEntity(scene, m_CameraEntity);
+				// TODO: This is kind of hacky, there's probably a better way to do it
+				Scene::deserializeEntities(j["EditorCamera"], scene);
+				NEntity::addComponent<NoSerialize>(m_CameraEntity);
+			}
 		}
 	}
 }

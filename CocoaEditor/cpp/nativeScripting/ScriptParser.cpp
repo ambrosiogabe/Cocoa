@@ -1,7 +1,5 @@
 #include "nativeScripting/ScriptParser.h"
 
-#include "cocoa/util/Log.h"
-
 namespace Cocoa
 {
 	static bool IsAlpha(char c)
@@ -18,7 +16,7 @@ namespace Cocoa
 		return IsAlphaNumeric(c) || c == '_';
 	}
 
-	std::string ScriptParser::GetFilenameAsClassName(std::string filename)
+	std::string ScriptParser::getFilenameAsClassName(std::string filename)
 	{
 		for (int i = 0; i < filename.length(); i++)
 		{
@@ -35,7 +33,7 @@ namespace Cocoa
 		return filename;
 	}
 
-	std::string ScriptParser::GenerateHeaderFile()
+	std::string ScriptParser::generateHeaderFile()
 	{
 		std::ostringstream file;
 		file << "#pragma once\n\n";
@@ -50,10 +48,10 @@ namespace Cocoa
 		file << "#include <imgui.h>\n";
 		file << "#include <map>\n\n";
 		file << "#include \"ImGuiExtended.h\"\n";
-		file << "#include \"../" << NCPath::GetFilenameWithoutExt(m_FullFilepath) << ".h\"\n\n";
+		file << "#include \"../" << mFullFilepath.filename().string() << ".h\"\n\n";
 
 		file << "namespace Cocoa\n{\n";
-		file << "\tnamespace Reflect" << GetFilenameAsClassName(NCPath::GetFilenameWithoutExt(m_FullFilepath)) << " \n\t{\n";
+		file << "\tnamespace Reflect" << getFilenameAsClassName(mFullFilepath.filename().string()) << " \n\t{\n";
 
 		file << "\t\tusing namespace entt::literals;\n";
 		file << "\t\tbool initialized = false;\n\n";
@@ -62,15 +60,15 @@ namespace Cocoa
 		file << "\t\tstd::vector<entt::id_type> ids = \n\t\t{\n";
 
 		int i = 0;
-		for (auto ustruct : m_Structs)
+		for (auto ustruct : mStructs)
 		{
 			int j = 0;
-			for (auto uvar : ustruct.m_Variables)
+			for (auto uvar : ustruct.variables)
 			{
-				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1 && m_Classes.size() == 0)
-					file << "\t\t\t\"" << ustruct.m_StructName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs\n";
+				if (i == mStructs.size() - 1 && j == ustruct.variables.size() - 1 && mClasses.size() == 0)
+					file << "\t\t\t\"" << ustruct.structName.c_str() << "::" << uvar.identifier.c_str() << "\"_hs\n";
 				else
-					file << "\t\t\t\"" << ustruct.m_StructName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs,\n";
+					file << "\t\t\t\"" << ustruct.structName.c_str() << "::" << uvar.identifier.c_str() << "\"_hs,\n";
 
 				j++;
 			}
@@ -79,15 +77,15 @@ namespace Cocoa
 		}
 
 		i = 0;
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
 			int j = 0;
-			for (auto uvar : uclass.m_Variables)
+			for (auto uvar : uclass.variables)
 			{
-				if (i == m_Classes.size() - 1 && j == uclass.m_Variables.size() - 1)
-					file << "\t\t\t\"" << uclass.m_ClassName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs\n";
+				if (i == mClasses.size() - 1 && j == uclass.variables.size() - 1)
+					file << "\t\t\t\"" << uclass.className.c_str() << "::" << uvar.identifier.c_str() << "\"_hs\n";
 				else
-					file << "\t\t\t\"" << uclass.m_ClassName.c_str() << "::" << uvar.m_Identifier.c_str() << "\"_hs,\n";
+					file << "\t\t\t\"" << uclass.className.c_str() << "::" << uvar.identifier.c_str() << "\"_hs,\n";
 
 				j++;
 			}
@@ -114,16 +112,16 @@ namespace Cocoa
 
 		int id = 0;
 		i = 0;
-		for (auto ustruct : m_Structs)
+		for (auto ustruct : mStructs)
 		{
 			int j = 0;
-			file << "\t\t\t{ entt::type_seq<" << ustruct.m_StructName.c_str() << ">::value(), \"" << ustruct.m_StructName.c_str() << "\"},\n";
-			for (auto uvar : ustruct.m_Variables)
+			file << "\t\t\t{ entt::type_seq<" << ustruct.structName.c_str() << ">::value(), \"" << ustruct.structName.c_str() << "\"},\n";
+			for (auto uvar : ustruct.variables)
 			{
-				if (i == m_Structs.size() - 1 && j == ustruct.m_Variables.size() - 1 && m_Classes.size() == 0)
-					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"}\n";
+				if (i == mStructs.size() - 1 && j == ustruct.variables.size() - 1 && mClasses.size() == 0)
+					file << "\t\t\t{ids[" << id << "], \"" << uvar.identifier.c_str() << "\"}\n";
 				else
-					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"},\n";
+					file << "\t\t\t{ids[" << id << "], \"" << uvar.identifier.c_str() << "\"},\n";
 				id++;
 				j++;
 			}
@@ -132,16 +130,16 @@ namespace Cocoa
 		}
 
 		i = 0;
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
 			int j = 0;
-			file << "\t\t\t{ entt::type_seq<" << uclass.m_ClassName.c_str() << ">::value(), \"" << uclass.m_ClassName.c_str() << "\"},\n";
-			for (auto uvar : uclass.m_Variables)
+			file << "\t\t\t{ entt::type_seq<" << uclass.className.c_str() << ">::value(), \"" << uclass.className.c_str() << "\"},\n";
+			for (auto uvar : uclass.variables)
 			{
-				if (i == m_Classes.size() - 1 && j == uclass.m_Variables.size() - 1)
-					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"}\n";
+				if (i == mClasses.size() - 1 && j == uclass.variables.size() - 1)
+					file << "\t\t\t{ids[" << id << "], \"" << uvar.identifier.c_str() << "\"}\n";
 				else
-					file << "\t\t\t{ids[" << id << "], \"" << uvar.m_Identifier.c_str() << "\"},\n";
+					file << "\t\t\t{ids[" << id << "], \"" << uvar.identifier.c_str() << "\"},\n";
 
 				id++;
 				j++;
@@ -156,24 +154,24 @@ namespace Cocoa
 		file << "\t\tstringToMap = \n\t\t{ \n";
 
 		i = 0;
-		for (auto ustruct : m_Structs)
+		for (auto ustruct : mStructs)
 		{
 			int j = 0;
-			if (i == m_Structs.size() - 1 && m_Classes.size() == 0)
-				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_seq<" << ustruct.m_StructName.c_str() << ">::value() }\n";
+			if (i == mStructs.size() - 1 && mClasses.size() == 0)
+				file << "\t\t\t{ \"" << ustruct.structName.c_str() << "\", entt::type_seq<" << ustruct.structName.c_str() << ">::value() }\n";
 			else
-				file << "\t\t\t{ \"" << ustruct.m_StructName.c_str() << "\", entt::type_seq<" << ustruct.m_StructName.c_str() << ">::value() },\n";
+				file << "\t\t\t{ \"" << ustruct.structName.c_str() << "\", entt::type_seq<" << ustruct.structName.c_str() << ">::value() },\n";
 			// TODO: Create variable string to type id mapper...
 			i++;
 		}
 
 		i = 0;
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
-			if (i == m_Classes.size() - 1)
-				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_seq<" << uclass.m_ClassName.c_str() << ">::value() }\n";
+			if (i == mClasses.size() - 1)
+				file << "\t\t\t{ \"" << uclass.className.c_str() << "\", entt::type_seq<" << uclass.className.c_str() << ">::value() }\n";
 			else
-				file << "\t\t\t{ \"" << uclass.m_ClassName.c_str() << "\", entt::type_seq<" << uclass.m_ClassName.c_str() << ">::value() },\n";
+				file << "\t\t\t{ \"" << uclass.className.c_str() << "\", entt::type_seq<" << uclass.className.c_str() << ">::value() },\n";
 
 			i++;
 		}
@@ -182,29 +180,29 @@ namespace Cocoa
 
 		// Meta initialization
 		id = 0;
-		for(auto ustruct : m_Structs)
+		for (auto ustruct : mStructs)
 		{
-			std::string camelCaseStructName = ustruct.m_StructName;
+			std::string camelCaseStructName = ustruct.structName;
 			camelCaseStructName[0] = tolower(camelCaseStructName[0]);
-			file << "\t\t\tauto " << camelCaseStructName.c_str() << "Factory = entt::meta<" << ustruct.m_StructName.c_str() << ">()\n";
+			file << "\t\t\tauto " << camelCaseStructName.c_str() << "Factory = entt::meta<" << ustruct.structName.c_str() << ">()\n";
 
-			for (auto var : ustruct.m_Variables)
+			for (auto var : ustruct.variables)
 			{
-				file << "\t\t\t\t.data<&" << ustruct.m_StructName.c_str() << "::" << var.m_Identifier.c_str() << ", entt::as_ref_t>(ids[" << id << "])\n";
+				file << "\t\t\t\t.data<&" << ustruct.structName.c_str() << "::" << var.identifier.c_str() << ", entt::as_ref_t>(ids[" << id << "])\n";
 				id++;
 			}
 			file << "\t\t\t\t.type();\n\n";
 		}
 
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
-			std::string camelCaseClassName = uclass.m_ClassName;
+			std::string camelCaseClassName = uclass.className;
 			camelCaseClassName[0] = tolower(camelCaseClassName[0]);
-			file << "\t\t\tauto " << camelCaseClassName.c_str() << "Factory = entt::meta<" << uclass.m_ClassName.c_str() << ">()\n";
+			file << "\t\t\tauto " << camelCaseClassName.c_str() << "Factory = entt::meta<" << uclass.className.c_str() << ">()\n";
 
-			for (auto var : uclass.m_Variables)
+			for (auto var : uclass.variables)
 			{
-				file << "\t\t\t\t.data<&" << uclass.m_ClassName.c_str() << "::" << var.m_Identifier.c_str() << ", entt::as_ref_t>(ids[" << id << "])\n";
+				file << "\t\t\t\t.data<&" << uclass.className.c_str() << "::" << var.identifier.c_str() << ", entt::as_ref_t>(ids[" << id << "])\n";
 				id++;
 			}
 			file << "\t\t\t\t.type();\n\n";
@@ -216,16 +214,16 @@ namespace Cocoa
 		file << "\t\t{\n";
 
 		i = 0;
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
 			if (i == 0)
 				file << "\t\t\tif";
 			else
 				file << "\t\t\telse if";
-			file << "(className == \"" << uclass.m_ClassName.c_str() << "\")\n";
+			file << "(className == \"" << uclass.className.c_str() << "\")\n";
 			file << "\t\t\t{\n";
 			file << "\t\t\t\tEntity e = NEntity::CreateEntity(entity);\n";
-			file << "\t\t\t\tNEntity::AddComponent<" << uclass.m_ClassName.c_str() << ">(e);\n";
+			file << "\t\t\t\tNEntity::AddComponent<" << uclass.className.c_str() << ">(e);\n";
 			file << "\t\t\t}\n";
 			i++;
 		}
@@ -233,53 +231,53 @@ namespace Cocoa
 
 		// SaveScript function
 		file << "\n"
-		"		void SaveScript(entt::meta_any any, json& j, Entity entity)\n"
-		"		{\n"
-		"			auto typeData = entt::resolve(any.type().id());\n"
-		"			\n"
-		"			int size = j[\"Components\"].size();\n"
-		"			auto typeName = debugNames.find(any.type().id())->second;\n"
-		"			json compJson;\n"
-		"			compJson[typeName] = {};\n"
-		"			compJson[typeName][\"Entity\"] = NEntity::GetID(entity);\n"
-		"\n"
-		"			for (auto data : typeData.data())\n"
-		"			{\n"
-		"				auto name = debugNames.find(data.id());\n"
-		"				auto type = debugNames.find(data.type().id());\n"
-		"				if (name == debugNames.end() && type == debugNames.end())\n"
-		"					continue;\n"
-		"\n"
-		"				if (data.type().is_floating_point())\n"
-		"				{\n"
-		"					entt::meta_handle handle = entt::meta_handle(any);\n"
-		"					float val = data.get(handle).cast<float>();\n"
-		"					compJson[typeName][name->second] = val;\n"
-		"				}\n"
-		"				else if (data.type().is_integral())\n"
-		"				{\n"
-		"					entt::meta_handle handle = entt::meta_handle(any);\n"
-		"					int val = data.get(handle).cast<int>();\n"
-		"					compJson[typeName][name->second] = val;\n"
-		"				}\n"
-		"			}\n"
-		"\n"
-		"			j[\"Components\"][size] = compJson;\n"
-		"		}\n"
-		"\n";
+			"		void SaveScript(entt::meta_any any, json& j, Entity entity)\n"
+			"		{\n"
+			"			auto typeData = entt::resolve(any.type().id());\n"
+			"			\n"
+			"			int size = j[\"Components\"].size();\n"
+			"			auto typeName = debugNames.find(any.type().id())->second;\n"
+			"			json compJson;\n"
+			"			compJson[typeName] = {};\n"
+			"			compJson[typeName][\"Entity\"] = NEntity::GetID(entity);\n"
+			"\n"
+			"			for (auto data : typeData.data())\n"
+			"			{\n"
+			"				auto name = debugNames.find(data.id());\n"
+			"				auto type = debugNames.find(data.type().id());\n"
+			"				if (name == debugNames.end() && type == debugNames.end())\n"
+			"					continue;\n"
+			"\n"
+			"				if (data.type().is_floating_point())\n"
+			"				{\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					float val = data.get(handle).cast<float>();\n"
+			"					compJson[typeName][name->second] = val;\n"
+			"				}\n"
+			"				else if (data.type().is_integral())\n"
+			"				{\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					int val = data.get(handle).cast<int>();\n"
+			"					compJson[typeName][name->second] = val;\n"
+			"				}\n"
+			"			}\n"
+			"\n"
+			"			j[\"Components\"][size] = compJson;\n"
+			"		}\n"
+			"\n";
 
 		// Save Scripts function
 		file << "\t\tvoid SaveScripts(json& j, entt::registry& registry, SceneData* sceneData)\n";
 		file << "\t\t{\n";
 
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
 			file << "\t\t\t{\n";
 
-			file << "\t\t\t\tauto view = registry.view<" << uclass.m_ClassName.c_str() << ">();\n";
+			file << "\t\t\t\tauto view = registry.view<" << uclass.className.c_str() << ">();\n";
 			file << "\t\t\t\tfor (auto entity : view)\n";
 			file << "\t\t\t\t{\n";
-			file << "\t\t\t\t\tauto comp = NEntity::GetComponent<" << uclass.m_ClassName.c_str() << ">(NEntity::CreateEntity(entity));\n";
+			file << "\t\t\t\t\tauto comp = NEntity::GetComponent<" << uclass.className.c_str() << ">(NEntity::CreateEntity(entity));\n";
 			file << "\t\t\t\t\tentt::meta_any any = { comp };\n";
 			file << "\t\t\t\t\tSaveScript(any, j, Entity{ entity });\n";
 			file << "\t\t\t\t}\n";
@@ -324,22 +322,22 @@ namespace Cocoa
 		file << "\t\t\tentt::entity e = entity.Handle;\n";
 		file << "\t\t\tif (!registry.valid(e))\n";
 		file << "\t\t\t{\n";
-		file << "\t\t\t\tLog::Error(\"Invalid entity, entity does not exist.\");\n";
+		file << "\t\t\t\tLogger::Error(\"Invalid entity, entity does not exist.\");\n";
 		file << "\t\t\t\treturn;\n";
 		file << "\t\t\t}\n";
 		file << "\n";
 
 		i = 0;
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
 			if (i == 0)
 				file << "\t\t\tif";
 			else
 				file << "\t\t\telse if";
 
-			file << " (it.key() == \"" << uclass.m_ClassName.c_str() << "\")\n";
+			file << " (it.key() == \"" << uclass.className.c_str() << "\")\n";
 			file << "\t\t\t{\n";
-			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = NEntity::AddComponent<" << uclass.m_ClassName.c_str() << ">(entity);\n";
+			file << "\t\t\t\t" << uclass.className.c_str() << "& comp = NEntity::AddComponent<" << uclass.className.c_str() << ">(entity);\n";
 			file << "\t\t\t\tLoadScript({ comp }, comp, j);\n";
 			file << "\t\t\t}\n";
 
@@ -388,11 +386,11 @@ namespace Cocoa
 		file << "\t\t\tif (!registry.valid(e)) return;\n";
 
 		i = 0;
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
-			file << "\t\t\tif (NEntity::HasComponent<" << uclass.m_ClassName.c_str() << ">(entity))\n";
+			file << "\t\t\tif (NEntity::HasComponent<" << uclass.className.c_str() << ">(entity))\n";
 			file << "\t\t\t{\n";
-			file << "\t\t\t\t" << uclass.m_ClassName.c_str() << "& comp = NEntity::GetComponent<" << uclass.m_ClassName.c_str() << ">(entity);\n";
+			file << "\t\t\t\t" << uclass.className.c_str() << "& comp = NEntity::GetComponent<" << uclass.className.c_str() << ">(entity);\n";
 			file << "\t\t\t\tImGuiAny({ comp }, comp);\n";
 			file << "\t\t\t}\n";
 
@@ -405,11 +403,11 @@ namespace Cocoa
 		file << "\t\tvoid DeleteScripts()\n";
 		file << "\t\t{\n";
 
-		for (auto uclass : m_Classes)
+		for (auto uclass : mClasses)
 		{
 			file << "\t\t\t{\n";
 
-			file << "\t\t\t\tNEntity::Clear<" << uclass.m_ClassName.c_str() << ">();\n";
+			file << "\t\t\t\tNEntity::Clear<" << uclass.className.c_str() << ">();\n";
 
 			file << "\t\t\t}\n";
 		}
@@ -418,60 +416,60 @@ namespace Cocoa
 
 		// Tabs function
 		file << "\n"
-		"		int tabs = 0;\n"
-		"		void printTabs()\n"
-		"		{\n"
-		"			for (int i = 0; i < tabs; i++)\n"
-		"			{\n"
-		"				printf(\"\\t\");\n"
-		"			}\n"
-		"		}\n"
-		"\n";
+			"		int tabs = 0;\n"
+			"		void printTabs()\n"
+			"		{\n"
+			"			for (int i = 0; i < tabs; i++)\n"
+			"			{\n"
+			"				printf(\"\\t\");\n"
+			"			}\n"
+			"		}\n"
+			"\n";
 
 		// Debug printAny function
 		file << "\n"
-		"		void debugPrintAny(entt::meta_any any)\n"
-		"		{\n"
-		"			auto typeData = entt::resolve(any.type().id());\n"
-		"		\n"
-		"			for (auto data : typeData.data())\n"
-		"			{\n"
-		"				tabs++;\n"
-		"				auto name = debugNames.find(data.id());\n"
-		"				auto type = debugNames.find(data.type().id());\n"
-		"				if (name == debugNames.end() && type == debugNames.end())\n"
-		"					continue;\n"
-		"		\n"
-		"				if (data.type().is_class())\n"
-		"				{\n"
-		"					printTabs();\n"
-		"					printf(\"%s<%s>\\n\", name->second, type->second);\n"
-		"					tabs++;\n"
-		"					entt::meta_handle handle = entt::meta_handle(any);\n"
-		"					entt::meta_any resolvedData = data.get(handle);\n"
-		"					debugPrintAny(resolvedData);\n"
-		"					tabs--;\n"
-		"				}\n"
-		"				else\n"
-		"				{\n"
-		"					if (data.type().is_floating_point())\n"
-		"					{\n"
-		"						printTabs();\n"
-		"						entt::meta_handle handle = entt::meta_handle(any);\n"
-		"						float val = data.get(handle).cast<float>();\n"
-		"						printf(\"%s<float>: %2.3f\\n\", name->second, val);\n"
-		"					}\n"
-		"		 			else if (data.type().is_integral())\n"
-		"					{\n"
-		"						printTabs();\n"
-		"						entt::meta_handle handle = entt::meta_handle(any);\n"
-		"						int val = data.get(handle).cast<int>();\n"
-		"						printf(\"%s<int>: %d\\n\", name->second, val);\n"
-		"					}\n"
-		"				}\n"
-		"				tabs--;\n"
-		"			}\n"
-		"		}\n";
+			"		void debugPrintAny(entt::meta_any any)\n"
+			"		{\n"
+			"			auto typeData = entt::resolve(any.type().id());\n"
+			"		\n"
+			"			for (auto data : typeData.data())\n"
+			"			{\n"
+			"				tabs++;\n"
+			"				auto name = debugNames.find(data.id());\n"
+			"				auto type = debugNames.find(data.type().id());\n"
+			"				if (name == debugNames.end() && type == debugNames.end())\n"
+			"					continue;\n"
+			"		\n"
+			"				if (data.type().is_class())\n"
+			"				{\n"
+			"					printTabs();\n"
+			"					printf(\"%s<%s>\\n\", name->second, type->second);\n"
+			"					tabs++;\n"
+			"					entt::meta_handle handle = entt::meta_handle(any);\n"
+			"					entt::meta_any resolvedData = data.get(handle);\n"
+			"					debugPrintAny(resolvedData);\n"
+			"					tabs--;\n"
+			"				}\n"
+			"				else\n"
+			"				{\n"
+			"					if (data.type().is_floating_point())\n"
+			"					{\n"
+			"						printTabs();\n"
+			"						entt::meta_handle handle = entt::meta_handle(any);\n"
+			"						float val = data.get(handle).cast<float>();\n"
+			"						printf(\"%s<float>: %2.3f\\n\", name->second, val);\n"
+			"					}\n"
+			"		 			else if (data.type().is_integral())\n"
+			"					{\n"
+			"						printTabs();\n"
+			"						entt::meta_handle handle = entt::meta_handle(any);\n"
+			"						int val = data.get(handle).cast<int>();\n"
+			"						printf(\"%s<int>: %d\\n\", name->second, val);\n"
+			"					}\n"
+			"				}\n"
+			"				tabs--;\n"
+			"			}\n"
+			"		}\n";
 
 		// Begin template print functions
 		file << "\t\ttemplate<typename T>\n";
@@ -490,231 +488,31 @@ namespace Cocoa
 		return file.str();
 	}
 
-	void ScriptParser::DebugPrint()
+	void ScriptParser::debugPrint()
 	{
-		for (auto structIter = m_Structs.begin(); structIter != m_Structs.end(); structIter++)
+		for (auto structIter = mStructs.begin(); structIter != mStructs.end(); structIter++)
 		{
-			Log::Info("%s {", structIter->m_StructName.c_str());
-			for (auto varIter = structIter->m_Variables.begin(); varIter != structIter->m_Variables.end(); varIter++)
+			Logger::Info("%s {", structIter->structName.c_str());
+			for (auto varIter = structIter->variables.begin(); varIter != structIter->variables.end(); varIter++)
 			{
-				Log::Info("Type<%s> %s", varIter->m_Type.c_str(), varIter->m_Identifier.c_str());
+				Logger::Info("Type<%s> %s", varIter->type.c_str(), varIter->identifier.c_str());
 			}
-			Log::Info("}");
+			Logger::Info("}");
 		}
 
-		for (auto classIter = m_Classes.begin(); classIter != m_Classes.end(); classIter++)
+		for (auto classIter = mClasses.begin(); classIter != mClasses.end(); classIter++)
 		{
-			Log::Info("%s {", classIter->m_ClassName.c_str());
-			for (auto varIter = classIter->m_Variables.begin(); varIter != classIter->m_Variables.end(); varIter++)
+			Logger::Info("%s {", classIter->className.c_str());
+			for (auto varIter = classIter->variables.begin(); varIter != classIter->variables.end(); varIter++)
 			{
-				Log::Info("Type<%s> %s", varIter->m_Type.c_str(), varIter->m_Identifier.c_str());
+				Logger::Info("Type<%s> %s", varIter->type.c_str(), varIter->identifier.c_str());
 			}
-			Log::Info("}");
+			Logger::Info("}");
 		}
 	}
 
-	void ScriptParser::Parse()
+	void ScriptParser::parse()
 	{
-		m_CurrentToken = 0;
-		m_CurrentIter = m_Tokens.begin();
-		do
-		{
-			if (Match(TokenType::STRUCT_PROP))
-			{
-				Expect(TokenType::LEFT_PAREN);
-				Expect(TokenType::RIGHT_PAREN);
-				Match(TokenType::SEMICOLON);
-				Expect(TokenType::STRUCT_KW);
-				ParseStruct();
-			}
-			else if (Match(TokenType::CLASS_PROP))
-			{
-				Expect(TokenType::LEFT_PAREN);
-				Expect(TokenType::RIGHT_PAREN);
-				Match(TokenType::SEMICOLON);
-				Expect(TokenType::CLASS_KW);
-				ParseClass();
-			}
-			else
-			{
-				m_CurrentToken++;
-				m_CurrentIter++;
-			}
-		} while (m_CurrentToken < m_Tokens.size() && m_CurrentIter->m_Type != TokenType::END_OF_FILE);
-	}
 
-	void ScriptParser::ParseClass()
-	{
-		Token classType = Expect(TokenType::IDENTIFIER);
-
-		if (Match(TokenType::COLON))
-		{
-			while (!Match(TokenType::LEFT_BRACKET)) 
-			{
-				m_CurrentToken++;
-				m_CurrentIter++;
-			}
-		}
-		else
-		{
-			Expect(TokenType::LEFT_BRACKET);
-		}
-
-		UClass clazz = UClass{ classType.m_Lexeme, m_FullFilepath, std::list<UVariable>() };
-
-		int level = 1;
-		while (m_CurrentIter->m_Type != TokenType::END_OF_FILE)
-		{
-			if (Match(TokenType::LEFT_BRACKET))
-			{
-				level++;
-			}
-			else if (Match(TokenType::RIGHT_BRACKET))
-			{
-				level--;
-				if (level <= 0)
-				{
-					Expect(TokenType::SEMICOLON);
-					break;
-				}
-			}
-			else if (Match(TokenType::PROPERTY))
-			{
-				Expect(TokenType::LEFT_PAREN);
-				Match(TokenType::IDENTIFIER); // Consume any EditAnywhere type thing, it doesn't do anything for now...
-				Expect(TokenType::RIGHT_PAREN);
-				Match(TokenType::SEMICOLON); // Consume a semicolon if it is there, this is to help with indentation
-				clazz.m_Variables.push_back(ParseVariable());
-			}
-			else
-			{
-				m_CurrentToken++;
-				m_CurrentIter++;
-			}
-		}
-
-		m_Classes.push_back(clazz);
-	}
-
-	void ScriptParser::ParseStruct()
-	{
-		Token structType = Expect(TokenType::IDENTIFIER);
-		Expect(TokenType::LEFT_BRACKET);
-
-		UStruct structure = UStruct{ structType.m_Lexeme, m_FullFilepath, std::list<UVariable>() };
-
-		int level = 1;
-		while (m_CurrentIter->m_Type != TokenType::END_OF_FILE)
-		{
-			if (Match(TokenType::LEFT_BRACKET))
-			{
-				level++;
-			}
-			else if (Match(TokenType::RIGHT_BRACKET))
-			{
-				level--;
-				if (level <= 1)
-				{
-					Expect(TokenType::SEMICOLON);
-					break;
-				}
-			}
-			else if (Match(TokenType::PROPERTY))
-			{
-				Expect(TokenType::LEFT_PAREN);
-				Match(TokenType::IDENTIFIER); // Consume any EditAnywhere type thing, it doesn't do anything for now...
-				Expect(TokenType::RIGHT_PAREN);
-				Match(TokenType::SEMICOLON); // Consume a semicolon if it is there, this is to help with indentation
-				structure.m_Variables.push_back(ParseVariable());
-			}
-			// TODO: This might need another else statement like class parser
-		}
-
-		m_Structs.push_back(structure);
-	}
-
-	UVariable ScriptParser::ParseVariable()
-	{
-		std::vector<Token> allTokensBeforeSemiColon = std::vector<Token>();
-		std::vector<Token>::iterator current;
-		int afterIdentifierIndex = -1;
-
-		do
-		{
-			current = m_Tokens.begin();
-			std::advance(current, m_CurrentToken);
-			if (m_CurrentIter->m_Type == TokenType::SEMICOLON && afterIdentifierIndex == -1)
-			{
-				afterIdentifierIndex = allTokensBeforeSemiColon.size();
-			}
-			else if (m_CurrentIter->m_Type == TokenType::EQUAL)
-			{
-				afterIdentifierIndex = allTokensBeforeSemiColon.size();
-			}
-			allTokensBeforeSemiColon.push_back(*current);
-			m_CurrentToken++;
-			m_CurrentIter++;
-		} while (current->m_Type != TokenType::END_OF_FILE && current->m_Type != TokenType::SEMICOLON);
-
-		Token& variableIdentifier = GenerateErrorToken();
-		if (afterIdentifierIndex != -1)
-		{
-			if (afterIdentifierIndex <= 1)
-			{
-				Log::Error("Weird equal sign placement.");
-				Log::Error("Line: %d, Column: %d", m_CurrentIter->m_Line, m_CurrentIter->m_Column);
-			}
-			auto it = allTokensBeforeSemiColon.begin();
-			std::advance(it, afterIdentifierIndex - 1);
-			variableIdentifier = *it;
-		}
-		else
-		{
-			Log::Error("Cannot find variable identifier.");
-			Log::Error("Line: %d, Column: %d", m_CurrentIter->m_Line, m_CurrentIter->m_Column);
-			return UVariable{ "ERROR", variableIdentifier.m_Lexeme };
-		}
-
-		Token& typeIdentifier = GenerateErrorToken();
-		auto endIter = allTokensBeforeSemiColon.begin();
-		std::advance(endIter, afterIdentifierIndex - 1);
-		for (auto iter = allTokensBeforeSemiColon.begin(); iter != endIter; iter++)
-		{
-			if (iter->m_Type == TokenType::IDENTIFIER)
-			{
-				typeIdentifier = *iter;
-				break;
-			}
-		}
-
-		return UVariable{ typeIdentifier.m_Lexeme, variableIdentifier.m_Lexeme };
-	}
-
-	const Token& ScriptParser::Expect(TokenType type)
-	{
-		if (m_CurrentIter->m_Type != type)
-		{
-			Log::Error("Error: Expected '%d' but instead got '%d'", type, m_CurrentIter->m_Type);
-			Log::Error("Line: %d, Column: %d", m_CurrentIter->m_Line, m_CurrentIter->m_Column);
-			// TODO: Create static error token to return a const ref to instead of returning unsafe reference to local variable
-			return GenerateErrorToken();
-		}
-
-		auto tokenToReturn = m_CurrentIter;
-		m_CurrentToken++;
-		m_CurrentIter++;
-		return *tokenToReturn;
-	}
-
-	bool ScriptParser::Match(TokenType type)
-	{
-		if (m_CurrentIter->m_Type == type)
-		{
-			m_CurrentToken++;
-			m_CurrentIter++;
-			return true;
-		}
-
-		return false;
 	}
 }

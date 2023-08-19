@@ -1,6 +1,8 @@
-#pragma once
+#ifndef COCOA_ENGINE_SETTINGS_H
+#define COCOA_ENGINE_SETTINGS_H
 #include "externalLibs.h"
-#include "cocoa/file/CPath.h"
+
+#include <filesystem>
 
 namespace Cocoa
 {
@@ -8,24 +10,26 @@ namespace Cocoa
 	{
 		namespace General
 		{
-			extern COCOA CPath s_ImGuiConfigPath;
-			extern COCOA CPath s_EngineAssetsPath;
-			extern COCOA CPath s_EngineExeDirectory;
-			extern COCOA CPath s_EngineSourceDirectory;
-			extern COCOA CPath s_WorkingDirectory;
-			extern COCOA CPath s_CurrentProject;
-			extern COCOA CPath s_StylesDirectory;
-			extern COCOA CPath s_CurrentScene;
-			extern COCOA CPath s_EditorSaveData;
-			extern COCOA CPath s_EditorStyleData;
-			extern COCOA CPath s_EditorStyle;
+			extern COCOA std::filesystem::path imGuiConfigPath;
+			extern COCOA std::filesystem::path engineAssetsPath;
+			extern COCOA std::filesystem::path engineExeDirectory;
+			extern COCOA std::filesystem::path engineSourceDirectory;
+			extern COCOA std::filesystem::path workingDirectory;
+			extern COCOA std::filesystem::path currentProject;
+			extern COCOA std::filesystem::path stylesDirectory;
+			extern COCOA std::filesystem::path currentScene;
+			extern COCOA std::filesystem::path editorSaveData;
+			extern COCOA std::filesystem::path editorStyleData;
+			extern COCOA std::filesystem::path editorStyle;
 		};
 
 		namespace Physics2D
 		{
-			extern COCOA int s_VelocityIterations;
-			extern COCOA int s_PositionIterations;
-			extern COCOA float s_Timestep;
+			extern COCOA int velocityIterations;
+			extern COCOA int positionIterations;
+			extern COCOA float timestep;
 		};
 	}
 }
+
+#endif

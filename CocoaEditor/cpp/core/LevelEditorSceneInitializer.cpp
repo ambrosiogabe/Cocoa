@@ -2,7 +2,7 @@
 
 #include "renderer/Gizmos.h"
 #include "editorWindows/InspectorWindow.h"
-#include "editorWindows/SceneHeirarchyWindow.h"
+#include "editorWindows/SceneHierarchyWindow.h"
 #include "core/LevelEditorSystem.h"
 #include "core/ImGuiLayer.h"
 #include "core/CocoaEditorApplication.h"
@@ -12,31 +12,33 @@
 
 namespace Cocoa
 {
-	void LevelEditorSceneInitializer::Init(SceneData& scene)
+	void LevelEditorSceneInitializer::init(SceneData& scene)
 	{
-		LevelEditorSystem::Init(scene);
-		InspectorWindow::ClearAllEntities();
-		GizmoSystem::Init(scene);
+		LevelEditorSystem::init(scene);
+		InspectorWindow::clearAllEntities();
+		GizmoSystem::init(scene);
 	}
 
-	void LevelEditorSceneInitializer::Start(SceneData& scene)
+	void LevelEditorSceneInitializer::start(SceneData& scene)
 	{
 
 	}
 
-	void LevelEditorSceneInitializer::Destroy(SceneData& scene)
+	void LevelEditorSceneInitializer::destroy(SceneData& scene)
 	{
-		GizmoSystem::Destroy(scene);
-		LevelEditorSystem::Destroy(scene);
+		GizmoSystem::destroy(scene);
+		LevelEditorSystem::destroy(scene);
 	}
 
-	void LevelEditorSceneInitializer::Save(SceneData& scene)
+	void LevelEditorSceneInitializer::save(SceneData& scene)
 	{
-		SceneHeirarchyWindow::Serialize(scene.SaveDataJson);
+		SceneHierarchyWindow::serialize(scene.saveDataJson);
+		LevelEditorSystem::serialize(scene.saveDataJson);
 	}
 
-	void LevelEditorSceneInitializer::Load(SceneData& scene)
+	void LevelEditorSceneInitializer::load(SceneData& scene)
 	{
-		SceneHeirarchyWindow::Deserialize(scene.SaveDataJson, scene);
+		SceneHierarchyWindow::deserialize(scene.saveDataJson, scene);
+		LevelEditorSystem::deserialize(scene.saveDataJson, scene);
 	}
 }

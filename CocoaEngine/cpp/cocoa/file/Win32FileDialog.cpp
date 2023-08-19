@@ -2,7 +2,6 @@
 #ifdef _WIN32
 #include "cocoa/file/FileDialog.h"
 #include "cocoa/core/Application.h"
-#include "cocoa/util/Log.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -26,12 +25,12 @@ namespace Cocoa
 	{
 		static char ResultBuffer[MAX_PATH];
 
-		bool GetOpenFileName(
+		bool getOpenFileName(
 			const std::string& initialPath,
 			FileDialogResult& fileResult,
 			std::vector<std::pair<std::string, std::string>> extensionFilters)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 
 			std::string filters = "";
@@ -75,13 +74,13 @@ namespace Cocoa
 			return result;
 		}
 
-		bool GetSaveFileName(
+		bool getSaveFileName(
 			const std::string& initialPath,
 			FileDialogResult& fileResult,
 			std::vector<std::pair<std::string, std::string>> extensionFilters,
 			std::string extToAppend)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 
 			std::string filters = "";
@@ -130,11 +129,11 @@ namespace Cocoa
 			return result;
 		}
 
-		bool GetOpenFolderName(
-			const std::string initialPath,
+		bool getOpenFolderName(
+			const std::string& initialPath,
 			FileDialogResult& fileResult)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 
 			LPWSTR g_path{};
@@ -168,7 +167,7 @@ namespace Cocoa
 						{
 							wcstombs(ResultBuffer, g_path, 256);
 							fileResult.filepath = std::string(ResultBuffer);
-							Log::Info("Selected folder: %s", fileResult.filepath.c_str());
+							Logger::Info("Selected folder: %s", fileResult.filepath.c_str());
 						}
 						psi->Release();
 					}
@@ -191,9 +190,9 @@ namespace Cocoa
 			return result;
 		}
 
-		void DisplayMessageBox(const std::string& title, const std::string& message)
+		void displayMessageBox(const std::string& title, const std::string& message)
 		{
-			GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
+			GLFWwindow* window = static_cast<GLFWwindow*>(Application::get()->getWindow()->getNativeWindow());
 			HWND wnd = glfwGetWin32Window(window);
 			int messageBoxId = MessageBoxA(wnd, message.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_OK);
 		}

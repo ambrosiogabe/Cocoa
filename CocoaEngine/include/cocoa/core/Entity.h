@@ -1,84 +1,82 @@
-#pragma once
+#ifndef COCOA_ENGINE_ENTITY_H
+#define COCOA_ENGINE_ENTITY_H
 #include "externalLibs.h"
 #include "cocoa/core/Core.h"
 
-#include "cocoa/util/Log.h"
 #include "cocoa/scenes/SceneData.h"
 #include "cocoa/core/EntityStruct.h"
-
-#include <entt/core/type_info.hpp>
 
 namespace Cocoa
 {
 	namespace NEntity
 	{
-		COCOA Entity CreateEntity(entt::entity raw);
-		COCOA void SetScene(SceneData* scene);
-		COCOA SceneData* GetScene();
-		COCOA Entity CreateNull();
+		COCOA Entity createEntity(entt::entity raw);
+		COCOA void setScene(SceneData* scene);
+		COCOA SceneData* getScene();
+		COCOA Entity createNull();
 
 		template<typename Component>
-		void RegisterComponentType()
+		void registerComponentType()
 		{
-			SceneData* scene = GetScene();
-			scene->Registry.prepare<Component>();
+			SceneData* scene = getScene();
+			scene->registry.prepare<Component>();
 		}
 
 		template<typename Type>
-		void Clear()
+		void clear()
 		{
-			SceneData* scene = GetScene();
-			scene->Registry.clear<Type>();
+			SceneData* scene = getScene();
+			scene->registry.clear<Type>();
 		}
 
 		template<typename... Component>
-		bool HasComponent(Entity entity)
+		bool hasComponent(Entity entity)
 		{
-			SceneData* scene = GetScene();
-			return scene->Registry.has<Component...>(entity.Handle);
+			SceneData* scene = getScene();
+			return scene->registry.has<Component...>(entity.handle);
 		}
 
 		template<typename T, typename ... Args>
-		T& AddComponent(Entity entity, Args&&... args)
+		T& addComponent(Entity entity, Args&&... args)
 		{
-			Log::Assert(!HasComponent<T>(entity), "Entity already has component.");
-			SceneData* scene = GetScene();
-			return scene->Registry.emplace<T>(entity.Handle, std::forward<Args>(args)...);
+			Logger::Assert(!hasComponent<T>(entity), "Entity already has component.");
+			SceneData* scene = getScene();
+			return scene->registry.emplace<T>(entity.handle, std::forward<Args>(args)...);
 		}
 
 		template<typename T>
-		T& GetComponent(Entity entity)
+		T& getComponent(Entity entity)
 		{
-			Log::Assert(HasComponent<T>(entity), "Entity does not have component.");
-			SceneData* scene = GetScene();
-			return scene->Registry.get<T>(entity.Handle);
+			Logger::Assert(hasComponent<T>(entity), "Entity does not have component.");
+			SceneData* scene = getScene();
+			return scene->registry.get<T>(entity.handle);
 		}
 
 		template<typename T>
-		void RemoveComponent(Entity entity)
+		void removeComponent(Entity entity)
 		{
-			Log::Assert(HasComponent<T>(entity), "Entity does not have component.");
-			SceneData* scene = GetScene();
-			scene->Registry.remove<T>(entity.Handle);
+			Logger::Assert(hasComponent<T>(entity), "Entity does not have component.");
+			SceneData* scene = getScene();
+			scene->registry.remove<T>(entity.handle);
 		}
 
-		inline bool IsNull(Entity entity)
+		inline bool isNull(Entity entity)
 		{
-			return entity.Handle == entt::null;
+			return entity.handle == entt::null;
 		}
 
-		inline uint32 GetID(Entity entity)
+		inline uint32 getId(Entity entity)
 		{
-			return (uint32)(entt::to_integral(entity.Handle));
+			return (uint32)(entt::to_integral(entity.handle));
 		}
 
 		template<typename T>
-		Entity FromComponent(const T& component)
+		Entity fromComponent(const T& component)
 		{
-			SceneData* scene = GetScene();
-			size_t offset = &component - scene->Registry.raw<T>();
-			Log::Assert(offset < scene->Registry.size(), "Tried to get nonexistent entity.");
-			return Entity{*(scene->Registry.data<T>() + offset)};
+			SceneData* scene = getScene();
+			size_t offset = &component - scene->registry.raw<T>();
+			Logger::Assert(offset < scene->registry.size(), "Tried to get nonexistent entity.");
+			return Entity{*(scene->registry.data<T>() + offset)};
 		}
 	}
 
@@ -87,3 +85,5 @@ namespace Cocoa
 	COCOA bool operator!=(const Entity& a, const Entity& b);
 	COCOA bool operator!=(Entity& a, Entity& b);
 }
+
+#endif

@@ -26,7 +26,8 @@ project "CocoaEngine"
         "_CRT_SECURE_NO_WARNINGS",
         "NOMINMAX",
         "_COCOA_DLL",
-        "GLFW_DLL"
+        "GLFW_DLL",
+		"_GABE_CPP_UTILS_EXPORT_DLL"
 	}
 
 	includedirs {
@@ -39,7 +40,8 @@ project "CocoaEngine"
         "../%{IncludeDir.stb}",
         "../%{IncludeDir.entt}",
         "../%{IncludeDir.Json}",
-		"../%{IncludeDir.Freetype}"
+		"../%{IncludeDir.Freetype}",
+		"../%{IncludeDir.CppUtils}"
 	}
 
 	links {

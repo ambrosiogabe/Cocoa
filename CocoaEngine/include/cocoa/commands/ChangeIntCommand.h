@@ -1,35 +1,36 @@
-#pragma once
+#ifndef COCOA_ENGINE_CHANGE_INT_COMMAND_H
+#define COCOA_ENGINE_CHANGE_INT_COMMAND_H
 #include "cocoa/commands/ICommand.h"
 
 namespace Cocoa
 {
-    class COCOA ChangeIntCommand : public ICommand
+    class COCOA ChangeIntCommand final : public ICommand
     {
     public:
-        ChangeIntCommand(int& originalInt, int newInt)
-            : m_Int(originalInt), m_NewInt(newInt), m_OldInt(0)
+        ChangeIntCommand(int& originalInt, const int newInt)
+            : mInt(originalInt), mNewInt(newInt), mOldInt(0)
         {
         }
 
-        virtual void execute() override
+        void execute() override
         {
-            m_OldInt = m_Int;
-            m_Int = m_NewInt;
+            mOldInt = mInt;
+            mInt = mNewInt;
         }
 
-        virtual void undo() override
+        void undo() override
         {
-            m_Int = m_OldInt;
+            mInt = mOldInt;
         }
 
-        virtual bool mergeWith(ICommand* other) override
+        bool mergeWith(ICommand* other) override
         {
             ChangeIntCommand* changeIntCommand = dynamic_cast<ChangeIntCommand*>(other);
             if (changeIntCommand != nullptr)
             {
-                if (&changeIntCommand->m_Int == &this->m_Int)
+                if (&changeIntCommand->mInt == &this->mInt)
                 {
-                    changeIntCommand->m_NewInt = this->m_NewInt;
+                    changeIntCommand->mNewInt = this->mNewInt;
                     return true;
                 }
             }
@@ -39,8 +40,10 @@ namespace Cocoa
 
 
     private:
-        int& m_Int;
-        int m_NewInt;
-        int m_OldInt;
+        int& mInt;
+        int mNewInt;
+        int mOldInt;
     };
 }
+
+#endif

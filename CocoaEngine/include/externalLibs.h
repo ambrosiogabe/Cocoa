@@ -27,6 +27,8 @@ using json = nlohmann::json;
 #include <box2D/b2_shape.h>
 #include <box2D/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
+#include <box2d/b2_contact.h>
+#include <box2d/b2_collision.h>
 
 // ===================================================================
 // Entt
@@ -69,6 +71,11 @@ using json = nlohmann::json;
 #include <glad/glad.h>
 #include <GLFW/include/GLFW/glfw3.h>
 
+// ===================================================================
+// Cpp Utils
+// ===================================================================
+#include <CppUtils/CppUtils.h>
+using namespace CppUtils;
 
 // Some core defines and stuff
 #include "cocoa/core/Core.h"

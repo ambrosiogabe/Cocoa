@@ -2,19 +2,20 @@
 
 #include "cocoa/core/Application.h"
 
-extern Cocoa::Application* Cocoa::CreateApplication();
+extern Cocoa::Application* Cocoa::createApplication();
 
-int main() {
+int main()
+{
+	using namespace Cocoa;
 
-    Cocoa::Application* application = Cocoa::CreateApplication();
+	Application* application = createApplication();
 
-    application->Init();
+	application->init();
 
-    application->Run();
+	application->run();
 
-    application->Shutdown();
+	application->shutdown();
 
-    delete application;
-
-    return 0;
+	delete application;
+	return 0;
 }

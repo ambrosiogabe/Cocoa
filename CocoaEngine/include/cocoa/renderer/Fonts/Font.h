@@ -1,38 +1,39 @@
-#pragma once
-#include "cocoa/file/File.h"
+#ifndef COCOA_ENGINE_FONT_H
+#define COCOA_ENGINE_FONT_H
 #include "cocoa/renderer/fonts/DataStructures.h"
 #include "cocoa/core/Handle.h"
 #include "cocoa/renderer/Texture.h"
 
+#include <filesystem>
+
+#undef CreateFont
+
+// TODO: I haven't tested changing this to a namespace
+// TODO: Test me thoroughly!!!
 namespace Cocoa
 {
-	class COCOA Font
+	struct Font
 	{
-	public:
-		Font(CPath& resourcePath, bool isDefault = false);
-		Font();
+		std::filesystem::path path;
+		Handle<Texture> fontTexture;
+		CharInfo* characterMap;
+		int characterMapSize;
+		int glyphRangeStart;
+		int glyphRangeEnd;
+		bool isDefault;
+		bool isNull;
 
-		const CharInfo& GetCharacterInfo(int codepoint) const;
-		void GenerateSdf(const CPath& fontFile, int fontSize, const CPath& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);
-		void Free();
+		COCOA static Font createFont(std::filesystem::path& resourcePath, bool isDefault = false);
+		COCOA static Font createFont();
+		COCOA static Font nullFont();
 
-		inline bool IsNull() const { return m_IsNull; }
-		inline bool IsDefault() const { return m_IsDefault; }
+		COCOA const CharInfo& getCharacterInfo(int codepoint) const;
+		COCOA void generateSdf(const std::filesystem::path& fontFile, int fontSize, const std::filesystem::path& outputFile, int glyphRangeStart = 0, int glyphRangeEnd = 'z' + 1, int padding = 5, int upscaleResolution = 4096);
+		COCOA void free() const;
 
-		json Serialize() const;
-		void Deserialize(const json& j);
-
-	public:
-		static Font nullFont;
-		static CharInfo nullCharacter;
-
-		CPath m_Path;
-		Handle<Texture> m_FontTexture;
-		CharInfo* m_CharacterMap = nullptr;
-		int m_CharacterMapSize = 0;
-		int m_GlyphRangeStart = 0;
-		int m_GlyphRangeEnd = 0;
-		bool m_IsDefault;
-		bool m_IsNull = false;
+		COCOA json serialize() const;
+		COCOA void deserialize(const json& j);
 	};
 }
+
+#endif

@@ -1,54 +1,59 @@
-#pragma once
+#ifndef COCOA_ENGINE_HANDLE_H
+#define COCOA_ENGINE_HANDLE_H
 #include "cocoa/core/Core.h"
 #include "externalLibs.h"
 
 namespace Cocoa
 {
-	class AssetManager;
+	namespace NHandle
+	{
+		const uint32 NULL_ID = UINT32_MAX;
+	}
 
 	template<typename T>
-	class COCOA Handle
+	struct Handle
 	{
-	public:
-		Handle()
+		uint32 assetId;
+
+		bool operator==(Handle other) const
 		{
-			m_AssetId = m_NullId;
+			return assetId == other.assetId;
 		}
 
-		Handle(uint32 id)
-		{
-			m_AssetId = id;
-		}
-
-		Handle(const Handle& other)
-		{
-			m_AssetId = other.m_AssetId;
-		}
-
-		inline bool operator==(Handle other) const
-		{
-			return m_AssetId == other.m_AssetId;
-		}
-
-		inline bool operator!=(Handle other) const
+		bool operator!=(Handle other) const
 		{
 			return !(*this == other);
 		}
 
-		inline operator bool() const
+		operator bool() const
 		{
-			return !IsNull();
+			return !isNull();
 		}
 
-		inline bool IsNull() const
+		bool isNull() const
 		{
-			return m_AssetId == m_NullId;
+			return assetId == NHandle::NULL_ID;
 		}
-
-	public:
-		uint32 m_AssetId;
-
-	private:
-		uint32 m_NullId = -1;
 	};
+
+	namespace NHandle
+	{
+		template<typename T>
+		Handle<T> createHandle()
+		{
+			return Handle<T> {
+				NULL_ID
+			};
+		}
+
+		template<typename T>
+		Handle<T> createHandle(uint32 id)
+		{
+			return Handle<T> {
+				id
+			};
+		}
+	}
 }
+
+#endif

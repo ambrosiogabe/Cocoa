@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COCOA_ENGINE_INPUT_H
+#define COCOA_ENGINE_INPUT_H
 #include "externalLibs.h"
 #include "cocoa/scenes/SceneData.h"
 #include "cocoa/renderer/Camera.h"
@@ -8,49 +9,50 @@ namespace Cocoa
 	class COCOA Input
 	{
 	public:
-		static void Init();
-		static void SetScene(SceneData* scene);
+		static void init();
 
-		static void KeyCallback(int key, int scancode, int action, int mods);
-		static void CursorCallback(double xpos, double ypos);
-		static void MouseButtonCallback(int button, int action, int mods);
-		static void ScrollCallback(double xoffset, double yoffset);
+		static void keyCallback(int key, int scanCode, int action, int mods);
+		static void cursorCallback(double xPos, double yPos);
+		static void mouseButtonCallback(int button, int action, int mods);
+		static void scrollCallback(double xOffset, double yOffset);
 
-		static bool KeyPressed(int keyCode);
-		static bool MouseButtonPressed(int mouseButton);
-		static float MouseX();
-		static float MouseY();
-		static float ScrollX();
-		static float ScrollY();
-		static void EndFrame();
-		static glm::vec2 MousePos();
+		static bool keyPressed(int keyCode);
+		static bool mouseButtonPressed(int mouseButton);
+		static float mouseX();
+		static float mouseY();
+		static float scrollX();
+		static float scrollY();
+		static void endFrame();
+		static glm::vec2 mousePos();
 
-		static float OrthoMouseX();
-		static float OrthoMouseY();
-		static glm::vec2 ScreenToOrtho(const Camera& camera);
-		static glm::vec2 NormalizedMousePos();
+		static float orthoMouseX(const Camera& camera);
+		static float orthoMouseY(const Camera& camera);
+		static glm::vec2 screenToOrtho(const Camera& camera);
+		static glm::vec2 normalizedMousePos();
 
-		static void SetGameViewPos(const glm::vec2& position);
-		static void SetGameViewSize(const glm::vec2& size);
-		static void SetGameViewMousePos(const glm::vec2& mousePos);
-
-	private:
-		Input::Input() {}
+		static void setGameViewPos(const glm::vec2& position);
+		static void setGameViewSize(const glm::vec2& size);
+		static void setGameViewMousePos(const glm::vec2& mousePos);
 
 	private:
-		static bool s_Initialized;
+		Input() = default;
 
-		static bool s_KeyPressed[349];
-		static bool s_MouseButtonPressed[3];
-		static float s_XPos;
-		static float s_YPos;
-		static float s_ScrollX;
-		static float s_ScrollY;
+	private:
+		static bool sInitialized;
 
-		static glm::vec2 s_GameViewPos;
-		static glm::vec2 s_GameViewSize;
-		static glm::vec2 s_GameViewMousePos;
+		static bool sKeyPressed[349];
+		static bool sMouseButtonPressed[3];
+		static float sXPos;
+		static float sYPos;
+		static float sScrollX;
+		static float sScrollY;
 
-		static SceneData* s_Scene;
+		static glm::vec2 sGameViewPos;
+		static glm::vec2 sGameViewSize;
+		static glm::vec2 sGameViewMousePos;
+
+		static SceneData* sScene;
 	};
 }
+
+#endif
