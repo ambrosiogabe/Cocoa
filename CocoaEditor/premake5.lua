@@ -50,8 +50,7 @@ project "CocoaEditor"
         "opengl32.lib",
         "Glad",
         "Box2D",
-        "Freetype",
-        "libclang.lib"
+        "Freetype"
     }
 
     defines {
